@@ -225,7 +225,21 @@ class Krigging
    */ 
   virtual bool checkReachability( const vector<double> &query )
   { return true; };
+  /** 
+   * Sets the parameter for the LCB criterium
+   * LCB = mean - param * std
+   * 
+   * @param param value of std coefficient
+   */
+  void set_LCBparameter(double param)
+  { mLCBparam = param; }
 
+  /** 
+   * Defines which cretirium to use. So far, only Expected Improvement 
+   * or Lower Confidence Bound are defined.
+   * 
+   * @param useEI if true, use EI, if false, use LCB
+   */
   void set_criteria(bool useEI)
   { mUseEI = useEI; }
  
@@ -266,6 +280,7 @@ protected:
 
   // Member variables
   bool mUseEI, mUseNLOPT;
+  double mLCBparam;                   // LCB = mean - param * std
 
   const double mTheta, mP;            // Kernel parameters
   const double mAlpha, mBeta;         // GP prior parameters (Inv-Gamma)

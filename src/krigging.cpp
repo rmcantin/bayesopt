@@ -38,7 +38,7 @@ mAlpha(PRIOR_ALPHA), mBeta (PRIOR_BETA),
 mDelta2(PRIOR_DELTA_SQ), mRegularizer(DEF_REGULARIZER),
 mMaxIterations(MAX_ITERATIONS), mMaxDim(MAX_DIM), 
 mUseCool(false), mG(1), mMinY(0.0), mMaxY(0.0),
-mVerbose(0),mUseEI(true)
+mVerbose(0),mLCBparam(1.0),mUseEI(true)
 {} // Default constructor
 
 
@@ -52,7 +52,7 @@ mDelta2(delta), mRegularizer(noise),
 mMaxIterations(nIter), mMaxDim(MAX_DIM),
 mUseCool(useCool), mG(1), 
 mMinY(0.0), mMaxY(0.0),
-mVerbose(0), mUseEI(true)
+mVerbose(0), mLCBparam(1.0),mUseEI(true)
 {} // Constructor
 
 Krigging::Krigging( gp_params params,
@@ -63,7 +63,7 @@ mDelta2(params.delta), mRegularizer(params.noise),
 mMaxIterations(nIter), mMaxDim(MAX_DIM),
 mUseCool(useCool), mG(1), 
 mMinY(0.0), mMaxY(0.0),
-mVerbose(0), mUseEI(true)
+mVerbose(0), mLCBparam(1.0),mUseEI(true)
 { } // Constructor
 
 
@@ -403,7 +403,7 @@ double Krigging::lowerConfidenceBound(const vector<double> &query)
 
   double alpha = 1.0;
 
-  result = yPred - alpha*sPred;
+  result = yPred -  mLCBparam*sPred;
 
   return result;
 

@@ -1,0 +1,134 @@
+PROJECT( ego Fortran CXX)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+
+#SET(CMAKE_BUILD_TYPE Release)
+#SET(CMAKE_BUILD_TYPE debug)
+
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING 
+      "Choose the type of build, options are: Debug Release 
+      RelWithDebInfo MinSizeRel."
+      FORCE)
+endif(NOT CMAKE_BUILD_TYPE)
+
+SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -fPIC -fwrapv -fno-strict-aliasing")
+SET(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG -fPIC -fwrapv -fno-strict-aliasing")
+
+SET(CMAKE_CXX_FLAGS_DEBUG "-g")
+SET(CMAKE_C_FLAGS_DEBUG "-g")
+  
+# enable warnings
+ADD_DEFINITIONS( -Wall )
+
+SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
+SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
+SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+
+OPTION(BUILD_SHARED_LIBS "Build shared libraries?" ON)
+
+FIND_PACKAGE(PythonLibs 2.6)
+INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
+
+
+FIND_LIBRARY(NLOPT nlopt)
+
+IF(NLOPT MATCHES NLOPT-NOTFOUND)
+  SET(USE_DIRECT_FORTRAN ON CACHE BOOL "Use Fortran Code of DIRECT?")
+ELSE(NLOPT MATCHES NLOPT-NOTFOUND)
+  SET(USE_DIRECT_FORTRAN OFF CACHE BOOL "Use Fortran Code of DIRECT?")
+ENDIF(NLOPT MATCHES NLOPT-NOTFOUND)
+
+SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
+INCLUDE(UseDoxygen)
+
+IF(USE_DIRECT_FORTRAN)
+  ADD_SUBDIRECTORY(direct)
+ENDIF(USE_DIRECT_FORTRAN)
+
+#ADD_SUBDIRECTORY(src)
+
+CONFIGURE_FILE(
+  ./include/krig_config.h.in
+  ./include/krig_config.h
+  )
+
+# with SET() command you can change variables or define new ones
+# here we define SAMPLE_SRCS variable that contains a list of all .cpp files
+# note that we don't need \ at the end of line
+SET( KRIGGING_SRCS
+  ./src/krigging.cpp
+  ./src/krigwpr.cpp
+  ./src/bayesopt.cpp
+  )
+
+SET( DIRECT_SRCS ./src/direct.cpp )
+SET( NLOPT_SRCS  ./src/nloptwpr.cpp )
+
+
+SET( KRIGGING_HEAD
+  ./include/krigging.hpp
+  ./include/krigwpr.h
+  ./include/krig_config.h
+  )
+
+SET( DIRECT_HEAD ./include/direct.hpp )
+SET( NLOPT_HEAD  ./include/nloptwpr.hpp )
+
+SET( MATH_HEAD
+  ./include/lhs.hpp 
+  ./include/ublasinv.hpp 
+  ./include/randgen.hpp
+  ./include/elementwiseUblas.hpp
+  )
+
+
+INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/include )
+
+find_package( Boost)
+   if(Boost_FOUND)
+      include_directories(${Boost_INCLUDE_DIRS})
+   endif()
+
+LINK_DIRECTORIES( ${CMAKE_SOURCE_DIR}/lib )
+
+IF(USE_DIRECT_FORTRAN)
+  SET( OPT_SOURCE ${DIRECT_SRCS})
+ELSE(USE_DIRECT_FORTRAN)
+  SET( OPT_SOURCE ${NLOPT_SRCS})
+ENDIF(USE_DIRECT_FORTRAN)
+
+ADD_LIBRARY(bayesopt
+  ${KRIGGING_SRCS}   
+  ${OPT_SOURCE}
+  )
+SET_TARGET_PROPERTIES(bayesopt PROPERTIES PREFIX "")
+
+IF(USE_DIRECT_FORTRAN)
+  SET(EXT_LIBS DIRect)
+  add_dependencies(bayesopt DIRect)
+ELSE(USE_DIRECT_FORTRAN)
+  SET(EXT_LIBS libnlopt.so)
+ENDIF(USE_DIRECT_FORTRAN)
+
+ADD_EXECUTABLE(krigtest
+  ./src/krigtest.cpp
+  )
+
+add_dependencies(krigtest bayesopt)
+
+TARGET_LINK_LIBRARIES(bayesopt
+  ${EXT_LIBS}
+  )
+
+TARGET_LINK_LIBRARIES(krigtest
+  bayesopt
+  ${PYTHON_LIBRARIES}
+  )
+
+INSTALL(FILES ./include/krigging.hpp ./include/krigwpr.h 
+  DESTINATION include)
+
+INSTALL(TARGETS bayesopt
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+)

@@ -1,0 +1,6 @@
+#ifndef _KRIG_CONFIG_H_
+#define _KRIG_CONFIG_H_
+
+#cmakedefine USE_DIRECT_FORTRAN
+
+#endif

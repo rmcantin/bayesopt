@@ -165,13 +165,15 @@ class Krigging
    * @param lowerBound vector with the lower bounds of the hypercube 
    * @param upperBound vector with the upper bounds of the hypercube 
    * @param mtRandom random engine from boost random library
+   * @param useEI to decide whether we use the EI or UCB criterium
    * 
    * @return 1 if terminate successfully, 0 otherwise
    */
   int optimize( vector<double> &bestPoint,
 		vector<double> &lowerBound,
 		vector<double> &upperBound,
-		randEngine& mtRandom);
+		randEngine& mtRandom,
+		bool useEI = true);
 
   /** 
    * Function that returns the negative Expected Improvement (-EI) of a series of queries

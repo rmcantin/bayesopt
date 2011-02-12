@@ -82,11 +82,12 @@ int Krigging::optimize( vector<double> &bestPoint,
 }
 
 int Krigging::optimize( vector<double> &bestPoint,
-		vector<double> &lowerBound,
-		vector<double> &upperBound,
-		randEngine& mtRandom)
+			vector<double> &lowerBound,
+			vector<double> &upperBound,
+			randEngine& mtRandom,
+			bool useEI)
 {
-  mUseEI = true;
+  mUseEI = useEI;
   mVerbose = 1;
  
   mLowerBound = lowerBound;

@@ -87,7 +87,7 @@ int main(int nargs, char *args[])
   
   start = clock();
 
-  krigging_optimization(n,&testFunction,NULL,l,u,x,fmin,300,par,0);
+  krigging_optimization(n,&testFunction,NULL,l,u,x,fmin,300,par,1,0);
 
   end = clock();
   diff2 = (double)(end-start) / (double)CLOCKS_PER_SEC;

@@ -60,6 +60,7 @@ int krigging_optimization(int nDim, eval_func f, void* f_data,
 			  double *x, /* in: initial guess, out: minimizer */
 			  double *minf, /* out: minimum */
 			  int maxeval, gp_params params,
+			  int useEI,
 			  int use_cooling_scheme)
 {
 
@@ -78,6 +79,9 @@ int krigging_optimization(int nDim, eval_func f, void* f_data,
   copyCarrayInVector(ub,nDim,upperBound);
 
   CKrigging optimizer(params, maxeval, useCool);
+
+  if (useEI)  optimizer.set_criteria(true);
+  else        optimizer.set_criteria(false);
 
   optimizer.set_eval_funct(f);
   optimizer.save_other_data(f_data);

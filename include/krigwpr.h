@@ -35,6 +35,7 @@ typedef struct {
 			    double *x, /* in: initial guess, out: minimizer */
 			    double *minf, /* out: minimum */
 			    int maxeval, gp_params params,
+			    int useEI,
 			    int use_cooling_scheme);
 
 

@@ -38,7 +38,7 @@ mAlpha(PRIOR_ALPHA), mBeta (PRIOR_BETA),
 mDelta2(PRIOR_DELTA_SQ), mRegularizer(DEF_REGULARIZER),
 mMaxIterations(MAX_ITERATIONS), mMaxDim(MAX_DIM), 
 mUseCool(false), mG(1), mMinY(0.0), mMaxY(0.0),
-mVerbose(0)
+mVerbose(0),mUseEI(true)
 {} // Default constructor
 
 
@@ -52,7 +52,7 @@ mDelta2(delta), mRegularizer(noise),
 mMaxIterations(nIter), mMaxDim(MAX_DIM),
 mUseCool(useCool), mG(1), 
 mMinY(0.0), mMaxY(0.0),
-mVerbose(0)
+mVerbose(0), mUseEI(true)
 {} // Constructor
 
 Krigging::Krigging( gp_params params,
@@ -63,7 +63,7 @@ mDelta2(params.delta), mRegularizer(params.noise),
 mMaxIterations(nIter), mMaxDim(MAX_DIM),
 mUseCool(useCool), mG(1), 
 mMinY(0.0), mMaxY(0.0),
-mVerbose(0)
+mVerbose(0), mUseEI(true)
 { } // Constructor
 
 
@@ -84,10 +84,8 @@ int Krigging::optimize( vector<double> &bestPoint,
 int Krigging::optimize( vector<double> &bestPoint,
 			vector<double> &lowerBound,
 			vector<double> &upperBound,
-			randEngine& mtRandom,
-			bool useEI)
+			randEngine& mtRandom)
 {
-  mUseEI = useEI;
   mVerbose = 1;
  
   mLowerBound = lowerBound;

@@ -20,5 +20,5 @@ x = np.zeros((n,))
 out = testfunc(x)
 print out
 
-mvalue, x_out, error = kp.optimize(testfunc, n, lb, ub, x, 100, params, 0)
+mvalue, x_out, error = kp.optimize(testfunc, n, lb, ub, x, 100, params, 1, 0)
 print x_out

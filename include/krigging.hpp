@@ -172,8 +172,7 @@ class Krigging
   int optimize( vector<double> &bestPoint,
 		vector<double> &lowerBound,
 		vector<double> &upperBound,
-		randEngine& mtRandom,
-		bool useEI = true);
+		randEngine& mtRandom);
 
   /** 
    * Function that returns the negative Expected Improvement (-EI) of a series of queries
@@ -226,6 +225,9 @@ class Krigging
    */ 
   virtual bool checkReachability( const vector<double> &query )
   { return true; };
+
+  void set_criteria(bool useEI)
+  { mUseEI = useEI; }
  
 protected:
 

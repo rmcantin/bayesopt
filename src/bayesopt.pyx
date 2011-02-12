@@ -15,7 +15,7 @@ cdef extern from "krigwpr.h":
         double noise
 
     ctypedef double (*eval_func)(unsigned int n, double *x, double *gradient, void *func_data)
-    int krigging_optimization(int nDim, eval_func f, void* f_data, double *lb, double *ub, double *x, double *minf, int maxeval, gp_params params, int use_cooling_scheme)
+    int krigging_optimization(int nDim, eval_func f, void* f_data, double *lb, double *ub, double *x, double *minf, int maxeval, gp_params params, int useEI, int use_cooling_scheme)
 
 
 cdef dict2structparams(dict dparams, gp_params *params):
@@ -49,7 +49,7 @@ cdef double callback(unsigned int n, double *x, double *gradient, void *func_dat
 
 
 
-def optimize(object f, int nDim, np.ndarray[np.double_t] np_lb, np.ndarray[np.double_t] np_ub, np.ndarray[np.double_t] np_x, int maxeval, dict dparams, int use_cooling_scheme):
+def optimize(object f, int nDim, np.ndarray[np.double_t] np_lb, np.ndarray[np.double_t] np_ub, np.ndarray[np.double_t] np_x, int maxeval, dict dparams, int useEI, int use_cooling_scheme):
     cdef gp_params zero_params
     zero_params.theta = 0
     zero_params.p = 0
@@ -71,7 +71,7 @@ def optimize(object f, int nDim, np.ndarray[np.double_t] np_lb, np.ndarray[np.do
     #ndarray2pointer(np_ub,ub)
     #ndarray2pointer(np_x,c_x)
     
-    error_code = krigging_optimization(nDim, callback, <void *> f, <double *>np_lb.data, <double *>np_ub.data, <double *>np_x.data, minf, maxeval, params, use_cooling_scheme)
+    error_code = krigging_optimization(nDim, callback, <void *> f, <double *>np_lb.data, <double *>np_ub.data, <double *>np_x.data, minf, maxeval, params, useEI, use_cooling_scheme)
     min_value = minf[0]
     #point_min_value = pointer2ndarray(nDim,c_x)
     return min_value,np_x,error_code

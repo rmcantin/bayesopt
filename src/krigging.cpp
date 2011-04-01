@@ -13,6 +13,7 @@
 
 #include <cmath>
 #include <ctime>
+#include <cassert>
 
 //#include <unistd.h>
 #include "krigging.hpp"
@@ -29,16 +30,25 @@
   #include <nlopt.h>
   #include "nloptwpr.hpp"
 #endif
+
   
 
-
 Krigging::Krigging():
-mTheta(KERNEL_THETA), mP(KERNEL_P),
-mAlpha(PRIOR_ALPHA), mBeta (PRIOR_BETA),
-mDelta2(PRIOR_DELTA_SQ), mRegularizer(DEF_REGULARIZER),
-mMaxIterations(MAX_ITERATIONS), mMaxDim(MAX_DIM), 
-mUseCool(false), mG(1), mMinY(0.0), mMaxY(0.0),
-mVerbose(0),mLCBparam(1.0),mUseEI(true)
+  mTheta(KERNEL_THETA), 
+  mP(KERNEL_P),
+  mAlpha(PRIOR_ALPHA),  
+  mBeta (PRIOR_BETA),
+  mDelta2(PRIOR_DELTA_SQ), 
+  mRegularizer(DEF_REGULARIZER),
+  mMaxIterations(MAX_ITERATIONS), 
+  mMaxDim(MAX_DIM), 
+  mUseCool(false), 
+  mEIg(1), 
+  mMinY(0.0), 
+  mMaxY(0.0),
+  mVerbose(0), 
+  mLCBbeta(1.0),
+  mUseEI(true)
 {} // Default constructor
 
 
@@ -46,24 +56,40 @@ Krigging::Krigging( double theta, double p,
 		    double alpha, double beta, 
 		    double delta, double noise,
 		    size_t nIter, bool useCool):
-mTheta(theta), mP(p),
-mAlpha(alpha), mBeta (beta),
-mDelta2(delta), mRegularizer(noise),
-mMaxIterations(nIter), mMaxDim(MAX_DIM),
-mUseCool(useCool), mG(1), 
-mMinY(0.0), mMaxY(0.0),
-mVerbose(0), mLCBparam(1.0),mUseEI(true)
+  mTheta(theta), 
+  mP(p),
+  mAlpha(alpha), 
+  mBeta (beta),
+  mDelta2(delta), 
+  mRegularizer(noise),
+  mMaxIterations(nIter), 
+  mMaxDim(MAX_DIM),
+  mUseCool(useCool), 
+  mEIg(1), 
+  mMinY(0.0), 
+  mMaxY(0.0),
+  mVerbose(0), 
+  mLCBbeta(1.0),
+  mUseEI(true)
 {} // Constructor
 
 Krigging::Krigging( gp_params params,
 		    size_t nIter, bool useCool):
-mTheta(params.theta), mP(params.p),
-mAlpha(params.alpha), mBeta(params.beta),
-mDelta2(params.delta), mRegularizer(params.noise),
-mMaxIterations(nIter), mMaxDim(MAX_DIM),
-mUseCool(useCool), mG(1), 
-mMinY(0.0), mMaxY(0.0),
-mVerbose(0), mLCBparam(1.0),mUseEI(true)
+  mTheta(params.theta), 
+  mP(params.p),
+  mAlpha(params.alpha), 
+  mBeta(params.beta),
+  mDelta2(params.delta), 
+  mRegularizer(params.noise),
+  mMaxIterations(nIter), 
+  mMaxDim(MAX_DIM),
+  mUseCool(useCool), 
+  mEIg(1), 
+  mMinY(0.0), 
+  mMaxY(0.0),
+  mVerbose(0), 
+  mLCBbeta(1.0),
+  mUseEI(true)
 { } // Constructor
 
 
@@ -96,35 +122,52 @@ int Krigging::optimize( vector<double> &bestPoint,
   if ( nDims > mMaxDim )
     { 
       std::cout << "Warning!! Too many dimensions!! " << std::endl;
-      std::cout << "This algorithm is efficient up to " << mMaxDim << " dimensions." << std::endl;
+      std::cout << "This algorithm is efficient up to " << mMaxDim;
+      std::cout << " dimensions." << std::endl;
     }
 
   vector<double> xNext(nDims);
   size_t nLHSSamples = N_LHS_EVALS_PER_DIM * nDims;
 
   if (nLHSSamples > MAX_LHS_EVALUATIONS)
-    nLHSSamples = MAX_LHS_EVALUATIONS;
+    {
+        std::cout << "Too much points for initial sampling. " << std::endl;
+	std::cout << "Using " << MAX_LHS_EVALUATIONS << " instead."<< std::endl;
+	nLHSSamples = MAX_LHS_EVALUATIONS;
+    }
   
-  if (  ( mMaxIterations > (MAX_ITERATIONS - nLHSSamples) )  || ( mMaxIterations <= 0) )
-    mMaxIterations = MAX_ITERATIONS - nLHSSamples;
+  if ( ( mMaxIterations > (MAX_ITERATIONS - nLHSSamples) ) 
+       || (mMaxIterations <= 0) )
+    {
+      mMaxIterations = MAX_ITERATIONS - nLHSSamples;
+      std::cout << "Too much iterations. " << std::endl;
+      std::cout << "Using " << mMaxIterations  << " instead."<< std::endl;
+    }
 
   std::cout << "Sampling initial points...";
   sampleInitialPoints(nLHSSamples, nDims, true, mtRandom);
   std::cout << "DONE" << std::endl;
 
+  // Main loop
   for (size_t ii = 0; ii < mMaxIterations; ii++)
     {
       if (mUseCool)
-	{ updateCoolingScheme(mMaxIterations,ii); }
+	{ 
+	  updateCoolingScheme(mMaxIterations,ii); 
+	}
  
       if(mVerbose >0)
-	{  std::cout << "Iteration " << ii+1 << std::endl;}
+	{  
+	  std::cout << "Iteration " << ii+1 << std::endl;
+	}
       
       nextPoint(xNext);
     
       if(mVerbose >0)
-	{ std::cout << "Trying: " << xNext << std::endl;
-	  std::cout << "Best: " << mMinX << std::endl;}			    
+	{ 
+	  std::cout << "Trying: " << xNext << std::endl;
+	  std::cout << "Best: " << mMinX << std::endl;
+	}			    
 
       addNewPointToGP(xNext);     
     }
@@ -141,15 +184,15 @@ int Krigging::updateCoolingScheme( size_t nTotalIterations, size_t nCurrentItera
   double iterPercentaje = static_cast<double>(nTotalIterations)/static_cast<double>(nCurrentIteration);
 
   if (iterPercentaje < 0.2)
-    mG = 20;
+    mEIg = 20;
   else if (iterPercentaje < 0.3)
-    mG = 10; 
+    mEIg = 10; 
   else if (iterPercentaje < 0.4)
-    mG = 5;     
+    mEIg = 5;     
   else if (iterPercentaje < 0.5)
-    mG = 2;    
+    mEIg = 2;    
   else if (iterPercentaje < 0.7)
-    mG = 1;       
+    mEIg = 1;       
 
   return 1;
 }
@@ -294,23 +337,17 @@ int Krigging::addNewPointToGP(const vector<double> &Xnew)
   double wInvRw;
   double selfCorrelation, Ni;
   
-  if (Xdim != Vdim)
-    {
-      std::cout << "Dimensional Error" << std::endl;
-      return -1;
-    }
-  else
-    {
-      mGPX.resize(Xsamples+1,Xdim);
-      mGPY.resize(Xsamples+1);
+  assert(Xdim == Vdim);
+
+  mGPX.resize(Xsamples+1,Xdim);
+  mGPY.resize(Xsamples+1);
       
-      row(mGPX,Xsamples) = Xnew;
-      std::cout << "Print In: " << Xnew << std::endl;
-      mGPY(Xsamples) = evaluateNormalizedSample(Xnew);
-      checkBoundsY(Xsamples,Xnew);
-      if(mVerbose>1)
-	{  std::cout << mGPY(Xsamples) << " vs. " << mMinY << std::endl; }
-    }
+  row(mGPX,Xsamples) = Xnew;
+  std::cout << "Print In: " << Xnew << std::endl;
+  mGPY(Xsamples) = evaluateNormalizedSample(Xnew);
+  checkBoundsY(Xsamples,Xnew);
+  if(mVerbose>1)
+    {  std::cout << mGPY(Xsamples) << " vs. " << mMinY << std::endl; }
   //fitGP();
   
   
@@ -403,7 +440,7 @@ double Krigging::lowerConfidenceBound(const vector<double> &query)
 
   double alpha = 1.0;
 
-  result = yPred -  mLCBparam*sPred;
+  result = yPred -  mLCBbeta*sPred;
 
   return result;
 
@@ -438,7 +475,7 @@ double Krigging::negativeExpectedImprovement(const vector<double> &query)
   yDiff = - yPred; // Because data is normalized, therefore Y minimum is 0
   yNorm = yDiff / sPred;
   
-  if (mG == 1)
+  if (mEIg == 1)
     {
       result = -1.0 * ( yDiff * cdf(yNorm) + sPred * pdf(yNorm) );
     }
@@ -447,20 +484,20 @@ double Krigging::negativeExpectedImprovement(const vector<double> &query)
       double pdfD = pdf(yNorm);
       double Tm2 = cdf(yNorm);
       double Tm1 = pdfD;
-      double fg = factorial(mG);
+      double fg = factorial(mEIg);
       double Tact;
       
-      double sumEI = pow(yNorm,mG)*Tm2 - mG*pow(yNorm,mG-1)*Tm1;
+      double sumEI = pow(yNorm,mEIg)*Tm2 - mEIg*pow(yNorm,mEIg-1)*Tm1;
 
-      for (unsigned int ii = 2; ii < mG; ii++) 
+      for (unsigned int ii = 2; ii < mEIg; ii++) 
 	{
 	  Tact = (ii-1)*Tm2 - pdfD*pow(yNorm,ii-1);
-	  sumEI += pow(-1.0,ii)*(fg/(factorial(ii)*factorial(mG-ii)))*pow(yNorm,mG-ii)*Tact;
+	  sumEI += pow(-1.0,ii)*(fg/(factorial(ii)*factorial(mEIg-ii)))*pow(yNorm,mEIg-ii)*Tact;
 	  
 	  //roll-up
 	  Tm2 = Tm1;   Tm1 = Tact;
 	}
-      result = -1.0 * pow(sPred,mG) * sumEI;
+      result = -1.0 * pow(sPred,mEIg) * sumEI;
     }
   
   return result;

@@ -226,13 +226,22 @@ class Krigging
   virtual bool checkReachability( const vector<double> &query )
   { return true; };
   /** 
-   * Sets the parameter for the LCB criterium
-   * LCB = mean - param * std
+   * Sets the parameters for the LCB criterium
+   * LCB = mean - beta * std
    * 
-   * @param param value of std coefficient
+   * @beta value of std coefficient
    */
-  void set_LCBparameter(double param)
-  { mLCBparam = param; }
+  void setLCBparams(double beta)
+  { mLCBbeta = beta; }
+
+ /** 
+   * Sets the parameters for the EI criterium
+   * EI = E[max(y-y*,0)^g]
+   * 
+   * @g exponent of the improvement function
+   */
+  void setEIparams(double g)
+  { mEIg = g; }
 
   /** 
    * Defines which cretirium to use. So far, only Expected Improvement 
@@ -240,7 +249,7 @@ class Krigging
    * 
    * @param useEI if true, use EI, if false, use LCB
    */
-  void set_criteria(bool useEI)
+  void setCriteria(bool useEI)
   { mUseEI = useEI; }
  
 protected:
@@ -280,7 +289,7 @@ protected:
 
   // Member variables
   bool mUseEI, mUseNLOPT;
-  double mLCBparam;                   // LCB = mean - param * std
+  double mLCBbeta;                   // LCB = mean - param * std
 
   const double mTheta, mP;            // Kernel parameters
   const double mAlpha, mBeta;         // GP prior parameters (Inv-Gamma)
@@ -289,7 +298,7 @@ protected:
   const size_t mMaxDim;// Maximum Krigging evaluations and dimensions
 
   const bool mUseCool;
-  unsigned int mG;
+  unsigned int mEIg;
 
   vector<double> mLowerBound;
   vector<double> mRangeBound;

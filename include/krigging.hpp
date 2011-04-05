@@ -43,12 +43,6 @@
 
 //#define FIBONACCI_SEED  123u
 //#define MT_SEED         156u
-#define KERNEL_THETA    0.21
-#define KERNEL_P        1.6
-#define PRIOR_ALPHA     1.0
-#define PRIOR_BETA      0.1
-#define PRIOR_DELTA_SQ  10.0
-#define DEF_REGULARIZER 1e-4
 #define MAX_ITERATIONS  300
 #define MAX_DIM         20
 
@@ -261,8 +255,7 @@ protected:
 			   bool useLatinBox,
 			   randEngine& mtRandom);
 
-  int checkBoundsY( size_t i, 
-		    const vector<double>& Xsample  );
+  int checkBoundsY( size_t i);
 
   int updateCoolingScheme(size_t nTotalIterations,
 			  size_t nCurrentIteration);

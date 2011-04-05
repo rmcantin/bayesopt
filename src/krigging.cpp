@@ -238,20 +238,19 @@ int Krigging::sampleInitialPoints( size_t nSamples, size_t nDims,
       if(mVerbose >0)
 	std::cout << Xsample << std::endl;
       mGPY(i) = evaluateNormalizedSample(Xsample);
-      checkBoundsY(i,Xsample);
+      checkBoundsY(i);
     }
 
   fitGP();
   return 1;
 } // sampleInitialPoints
 
-int Krigging::checkBoundsY( size_t i, 
-			    const vector<double>& Xsample )
+int Krigging::checkBounds( size_t i)
 {
   if (i == 0)
     {
       mMinY = mGPY(i);
-      mMinX = Xsample;
+      mMinX = mGPX(i);
       mMaxY = mGPY(i);
     }
   else
@@ -259,7 +258,7 @@ int Krigging::checkBoundsY( size_t i,
       if ( mMinY > mGPY(i) )
 	{
 	  mMinY = mGPY(i);
-	  mMinX = Xsample;
+	  mMinX = mGPX(i);
 	}
       if ( mMaxY < mGPY(i) )
 	{
@@ -322,8 +321,9 @@ int Krigging::fitGP()
 int Krigging::addNewPointToGP(const vector<double> &Xnew)
 {
   /** Add new point efficiently using Matrix Decomposition Lemma
-   *  for the inversion of the correlation matrix. Maybe it is faster
-   *  to just construct and invert a new matrix each time.
+   *  for the inversion of the correlation matrix. It is faster
+   *  than just construct and invert a new matrix each time. 
+   *  O(n^2) vs O(n^3)
    */   
 
   size_t Xsamples = mGPX.size1();
@@ -345,7 +345,7 @@ int Krigging::addNewPointToGP(const vector<double> &Xnew)
   row(mGPX,Xsamples) = Xnew;
   std::cout << "Print In: " << Xnew << std::endl;
   mGPY(Xsamples) = evaluateNormalizedSample(Xnew);
-  checkBoundsY(Xsamples,Xnew);
+  checkBoundsY(Xsamples);
   if(mVerbose>1)
     {  std::cout << mGPY(Xsamples) << " vs. " << mMinY << std::endl; }
   //fitGP();
@@ -398,6 +398,8 @@ double Krigging::correlationFunction(const vector<double> &x1, const vector<doub
    * Kernel correlation based on
    * Matern linear function
    */
+
+  //TODO: Check Mattern coeficients
   
   double diff, sum = 0.0, prod = 1.0;
   vector<double> xdiff = x1 - x2;
@@ -412,6 +414,8 @@ double Krigging::correlationFunction(const vector<double> &x1, const vector<doub
   return(prod * exp(-sum));
 }  // correlationFunction
 	
+
+
 double Krigging::lowerConfidenceBound(const vector<double> &query)
 {  
   vector<double> colR(mGPX.size1());
@@ -445,6 +449,8 @@ double Krigging::lowerConfidenceBound(const vector<double> &query)
   return result;
 
 }
+
+
 
 double Krigging::negativeExpectedImprovement(const vector<double> &query)
 {
@@ -504,6 +510,7 @@ double Krigging::negativeExpectedImprovement(const vector<double> &query)
        
 }  // negativeExpectedImprovement
 
+
 int Krigging::nextPoint(vector<double> &Xnext)
 {   
     double u[128], x[128], l[128];
@@ -558,11 +565,6 @@ int Krigging::nextPoint(vector<double> &Xnext)
 
     if(mVerbose)
       {std::cout << "Error:" << errortype << std::endl;}
-      /*nlopt_minimize(NLOPT_GN_ORIG_DIRECT_L,
-					    n, fpointer, objPointer,
-					    l, u, x, &fmin,
-					    -HUGE_VAL, 0.0, 0.0, 0.0, 
-					    NULL, maxf, 1000000.0);*/
 
     ierror = static_cast<int>(errortype);
 #endif
@@ -608,10 +610,12 @@ unsigned int Krigging::factorial(unsigned int no, unsigned int a)
   return factorial(no - 1, no * a);
 } //factorial
 
+
 double Krigging::pdf(double x)
 {
   return (1 / (sqrt(2 * M_PI)) * exp(-(x*x)/2));
 } //pdf
+
   
 double Krigging::cdf(double x)
 {

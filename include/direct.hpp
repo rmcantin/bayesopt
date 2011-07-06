@@ -1,6 +1,7 @@
 #ifndef _DIRECT_HPP_
 #define _DIRECT_HPP_
 
+#include <stdint.h>
 
 #if defined(WIN32) || defined(__MINGW32__) 
   #if defined(DIRect_EXPORTS)
@@ -53,7 +54,7 @@ namespace DIRECT
 			   double *fmin, double *l,double *u,
 			   int *Ierror, int *maxf, int *maxT, void *objPointer)
 	{
-	  directhead_((int)fpointer, x, n, fmin, l, u, Ierror, maxf, maxT, (int*)objPointer);
+	  directhead_((uintptr_t)fpointer, x, n, fmin, l, u, Ierror, maxf, maxT, (int*)objPointer);
 	}
 }
 

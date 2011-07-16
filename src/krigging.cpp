@@ -105,7 +105,8 @@ int Krigging::optimize( vector<double> &bestPoint,
   if (nLHSSamples > MAX_LHS_EVALUATIONS)
     nLHSSamples = MAX_LHS_EVALUATIONS;
   
-  if (  ( mMaxIterations > (MAX_ITERATIONS - nLHSSamples) )  || ( mMaxIterations <= 0) )
+  if (  ( mMaxIterations > (MAX_ITERATIONS - nLHSSamples) )  
+	|| ( mMaxIterations <= 0) )
     mMaxIterations = MAX_ITERATIONS - nLHSSamples;
 
   std::cout << "Sampling initial points...";
@@ -115,16 +116,18 @@ int Krigging::optimize( vector<double> &bestPoint,
   for (size_t ii = 0; ii < mMaxIterations; ii++)
     {
       if (mUseCool)
-	{ updateCoolingScheme(mMaxIterations,ii); }
+	updateCoolingScheme(mMaxIterations,ii);
  
       if(mVerbose >0)
-	{  std::cout << "Iteration " << ii+1 << std::endl;}
+	std::cout << "Iteration " << ii+1 << std::endl;
       
       nextPoint(xNext);
     
       if(mVerbose >0)
-	{ std::cout << "Trying: " << xNext << std::endl;
-	  std::cout << "Best: " << mMinX << std::endl;}			    
+	{ 
+	  std::cout << "Trying: " << xNext << std::endl;
+	  std::cout << "Best: " << mMinX << std::endl; 
+	}
 
       addNewPointToGP(xNext);     
     }
@@ -135,10 +138,12 @@ int Krigging::optimize( vector<double> &bestPoint,
 } // optimize
 
 
-int Krigging::updateCoolingScheme( size_t nTotalIterations, size_t nCurrentIteration)
+int Krigging::updateCoolingScheme( size_t nTotalIterations, 
+				   size_t nCurrentIteration)
 {
 
-  double iterPercentaje = static_cast<double>(nTotalIterations)/static_cast<double>(nCurrentIteration);
+  double iterPercentaje = static_cast<double>(nTotalIterations) 
+                        / static_cast<double>(nCurrentIteration);
 
   if (iterPercentaje < 0.2)
     mG = 20;
@@ -250,7 +255,8 @@ int Krigging::fitGP()
 	  corrMatrix(ii,jj) = correlationFunction(row(mGPX,ii), row(mGPX,jj));
 	  corrMatrix(jj,ii) = corrMatrix(ii,jj);
 	}
-      corrMatrix(ii,ii) = correlationFunction(row(mGPX,ii),row(mGPX,ii)) + mRegularizer;
+      corrMatrix(ii,ii) = correlationFunction(row(mGPX,ii),
+					      row(mGPX,ii)) + mRegularizer;
     }
   
   inversionFlag = InvertMatrix(corrMatrix,mInvR);
@@ -309,7 +315,7 @@ int Krigging::addNewPointToGP(const vector<double> &Xnew)
       mGPY(Xsamples) = evaluateNormalizedSample(Xnew);
       checkBoundsY(Xsamples,Xnew);
       if(mVerbose>1)
-	{  std::cout << mGPY(Xsamples) << " vs. " << mMinY << std::endl; }
+	std::cout << mGPY(Xsamples) << " vs. " << mMinY << std::endl;
     }
   //fitGP();
   
@@ -498,10 +504,11 @@ int Krigging::nextPoint(vector<double> &Xnext)
     else
       fpointer = &(DIRECT::lcbwrap_);
 
-    DIRECT::direct(fpointer, x, &n, &fmin, l, u, &ierror, &maxf, &maxT, objPointer);	
+    DIRECT::direct(fpointer, x, &n, &fmin, l, u, 
+		   &ierror, &maxf, &maxT, objPointer);	
 
 
-#else
+#else /* USE_DIRECT_FORTRAN */
     double (*fpointer)(unsigned int, const double *, double *, void *);
 
     if (mUseEI)
@@ -509,14 +516,28 @@ int Krigging::nextPoint(vector<double> &Xnext)
     else 
       fpointer = &(NLOPT_WPR::lcbwrap_nlopt);
 
+    double coef = 0.8;
+
     nlopt_opt opt;
     opt = nlopt_create(NLOPT_GN_ORIG_DIRECT_L, n); /* algorithm and dims */
     nlopt_set_lower_bounds(opt, l);
     nlopt_set_upper_bounds(opt, u);
     nlopt_set_min_objective(opt, fpointer, objPointer);
-    nlopt_set_maxeval(opt, maxf);
+    nlopt_set_maxeval(opt, round(maxf*coef) ) ;
 
     nlopt_result errortype = nlopt_optimize(opt, x, &fmin);
+
+    if (coef < 1) 
+      {
+	//opt = nlopt_create(NLOPT_LN_BOBYQA, n); /* algorithm and dims */
+	opt = nlopt_create(NLOPT_LN_NELDERMEAD, n); /* algorithm and dims */
+	nlopt_set_lower_bounds(opt, l);
+	nlopt_set_upper_bounds(opt, u);
+	nlopt_set_min_objective(opt, fpointer, objPointer);
+	nlopt_set_maxeval(opt, maxf-round(maxf*coef));
+	
+	nlopt_result errortype = nlopt_optimize(opt, x, &fmin);
+      }
       
 
     if(mVerbose)
@@ -528,7 +549,7 @@ int Krigging::nextPoint(vector<double> &Xnext)
 					    NULL, maxf, 1000000.0);*/
 
     ierror = static_cast<int>(errortype);
-#endif
+#endif /* USE_DIRECT_FORTRAN */
 
     // There should be a clever way to do this.
     array_adaptor<double> shared(n, x);

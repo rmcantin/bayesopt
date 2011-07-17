@@ -17,12 +17,13 @@ void copyVectorInArray(double* array, int n, const vector<double>& vec)
 }
 
 
-class CKrigging: public Krigging 
+class CSKO: public SKO 
 {
  public:
 
-  CKrigging( gp_params params,
-	     size_t nIter, bool useCool = false): Krigging(params,nIter,useCool)
+  CSKO( gp_params params,
+	     size_t nIter, bool useCool = false): 
+    SKO(params,nIter,useCool)
   {}; 
 
 
@@ -78,7 +79,7 @@ int krigging_optimization(int nDim, eval_func f, void* f_data,
   copyCarrayInVector(lb,nDim,lowerBound);
   copyCarrayInVector(ub,nDim,upperBound);
 
-  CKrigging optimizer(params, maxeval, useCool);
+  CSKO optimizer(params, maxeval, useCool);
 
   if (useEI)  optimizer.set_criteria(true);
   else        optimizer.set_criteria(false);

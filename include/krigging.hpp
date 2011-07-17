@@ -87,7 +87,7 @@ using namespace boost::numeric::ublas;
  * funtion using few iterations.
  * 
  */
-class Krigging
+class SKO
 {
 
  public:
@@ -95,7 +95,7 @@ class Krigging
   /**
    *  Default Constructor 
    */
-  Krigging();
+  SKO();
 
   /** 
    * Constructor
@@ -109,7 +109,7 @@ class Krigging
    * @param nIter        number of iterations before stopping 
    * @param useCool      select Sasena cooling/annealing strategy
    */
-  Krigging( double theta, double p,
+  SKO( double theta, double p,
 	    double alpha, double beta, 
 	    double delta, double noise,
 	    size_t nIter, bool useCool = false); 
@@ -127,7 +127,7 @@ class Krigging
    * @param nIter        number of iterations before stopping 
    * @param useCool      select Sasena cooling/annealing strategy
    */
-  Krigging( gp_params params,
+  SKO( gp_params params,
 	    size_t nIter, bool useCool = false); 
 	
   /** 
@@ -135,7 +135,7 @@ class Krigging
    * 
    * @return 
    */
-  virtual ~Krigging();
+  virtual ~SKO();
 
   /** 
    * Execute the optimization process of the function defined in evaluateSample.
@@ -262,8 +262,9 @@ protected:
   int addNewPointToGP( const vector<double> &Xnew );
 	
   int nextPoint( vector<double> &Xnext );
-  int nextPointDIRECT(vector<double> &Xnext);
-  int nextPointNLOPT(vector<double> &Xnext);
+  int nextPoint( double* x, int n, void* objPointer);
+  //int nextPointDIRECT(vector<double> &Xnext);
+  //int nextPointNLOPT(vector<double> &Xnext);
 
   double correlationFunction( const vector<double> &x1,
 			      const vector<double> &x2 );
@@ -286,7 +287,7 @@ protected:
   const double mAlpha, mBeta;         // GP prior parameters (Inv-Gamma)
   const double mDelta2,mRegularizer;  // GP prior parameters (Normal)
   size_t mMaxIterations;
-  const size_t mMaxDim;// Maximum Krigging evaluations and dimensions
+  const size_t mMaxDim;// Maximum SKO evaluations and dimensions
 
   const bool mUseCool;
   unsigned int mG;

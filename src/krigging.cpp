@@ -32,7 +32,7 @@
   
 
 
-Krigging::Krigging():
+SKO::SKO():
 mTheta(KERNEL_THETA), mP(KERNEL_P),
 mAlpha(PRIOR_ALPHA), mBeta (PRIOR_BETA),
 mDelta2(PRIOR_DELTA_SQ), mRegularizer(DEF_REGULARIZER),
@@ -42,7 +42,7 @@ mVerbose(0),mLCBparam(1.0),mUseEI(true)
 {} // Default constructor
 
 
-Krigging::Krigging( double theta, double p,
+SKO::SKO( double theta, double p,
 		    double alpha, double beta, 
 		    double delta, double noise,
 		    size_t nIter, bool useCool):
@@ -55,7 +55,7 @@ mMinY(0.0), mMaxY(0.0),
 mVerbose(0), mLCBparam(1.0),mUseEI(true)
 {} // Constructor
 
-Krigging::Krigging( gp_params params,
+SKO::SKO( gp_params params,
 		    size_t nIter, bool useCool):
 mTheta(params.theta), mP(params.p),
 mAlpha(params.alpha), mBeta(params.beta),
@@ -67,11 +67,11 @@ mVerbose(0), mLCBparam(1.0),mUseEI(true)
 { } // Constructor
 
 
-Krigging::~Krigging()
+SKO::~SKO()
 {} // Default destructor
 
 
-int Krigging::optimize( vector<double> &bestPoint,
+int SKO::optimize( vector<double> &bestPoint,
 			randEngine& mtRandom)
 {
   size_t dim = bestPoint.size();
@@ -81,7 +81,7 @@ int Krigging::optimize( vector<double> &bestPoint,
   return optimize(bestPoint,lowerBound,upperBound,mtRandom);
 }
 
-int Krigging::optimize( vector<double> &bestPoint,
+int SKO::optimize( vector<double> &bestPoint,
 			vector<double> &lowerBound,
 			vector<double> &upperBound,
 			randEngine& mtRandom)
@@ -138,7 +138,7 @@ int Krigging::optimize( vector<double> &bestPoint,
 } // optimize
 
 
-int Krigging::updateCoolingScheme( size_t nTotalIterations, 
+int SKO::updateCoolingScheme( size_t nTotalIterations, 
 				   size_t nCurrentIteration)
 {
 
@@ -159,7 +159,7 @@ int Krigging::updateCoolingScheme( size_t nTotalIterations,
   return 1;
 }
 
-int Krigging::allocateMatrices(size_t nSamples, size_t nDims)
+int SKO::allocateMatrices(size_t nSamples, size_t nDims)
 {
   if ( ( nSamples != mGPX.size1() ) || ( nDims != mGPX.size2() ) )
     mGPX.resize(nSamples,nDims,false);
@@ -177,7 +177,7 @@ int Krigging::allocateMatrices(size_t nSamples, size_t nDims)
 }
 
 	
-int Krigging::sampleInitialPoints( size_t nSamples, size_t nDims,
+int SKO::sampleInitialPoints( size_t nSamples, size_t nDims,
 				   bool useLatinBox, randEngine& mtRandom )
 {
   /** \brief Sample a set of points to initialize GP fit
@@ -207,8 +207,8 @@ int Krigging::sampleInitialPoints( size_t nSamples, size_t nDims,
   return 1;
 } // sampleInitialPoints
 
-int Krigging::checkBoundsY( size_t i, 
-			    const vector<double>& Xsample )
+int SKO::checkBoundsY( size_t i, 
+		       const vector<double>& Xsample )
 {
   if (i == 0)
     {
@@ -232,7 +232,7 @@ int Krigging::checkBoundsY( size_t i,
   return 1;
 }
 
-int Krigging::fitGP()
+int SKO::fitGP()
 {
   /** Computes the GP based on mGPX and mGPY
    *  This function is hightly inefficient O(N^3). Use it only at 
@@ -282,7 +282,7 @@ int Krigging::fitGP()
 
 
 
-int Krigging::addNewPointToGP(const vector<double> &Xnew)
+int SKO::addNewPointToGP(const vector<double> &Xnew)
 {
   /** Add new point efficiently using Matrix Decomposition Lemma
    *  for the inversion of the correlation matrix. Maybe it is faster
@@ -361,7 +361,7 @@ int Krigging::addNewPointToGP(const vector<double> &Xnew)
   return 1;
 } // addNewPoint
 
-double Krigging::correlationFunction(const vector<double> &x1, const vector<double> &x2)
+double SKO::correlationFunction(const vector<double> &x1, const vector<double> &x2)
 {
   /** \brief GP Kernel computation
    * Kernel correlation based on
@@ -381,7 +381,7 @@ double Krigging::correlationFunction(const vector<double> &x1, const vector<doub
   return(prod * exp(-sum));
 }  // correlationFunction
 	
-double Krigging::lowerConfidenceBound(const vector<double> &query)
+double SKO::lowerConfidenceBound(const vector<double> &query)
 {  
   vector<double> colR(mGPX.size1());
   vector<double> rInvR(mGPX.size1());
@@ -415,7 +415,7 @@ double Krigging::lowerConfidenceBound(const vector<double> &query)
 
 }
 
-double Krigging::negativeExpectedImprovement(const vector<double> &query)
+double SKO::negativeExpectedImprovement(const vector<double> &query)
 {
   vector<double> colR(mGPX.size1());
   vector<double> rInvR(mGPX.size1());
@@ -473,17 +473,33 @@ double Krigging::negativeExpectedImprovement(const vector<double> &query)
        
 }  // negativeExpectedImprovement
 
-int Krigging::nextPoint(vector<double> &Xnext)
+int SKO::nextPoint(vector<double> &Xnext)
 {   
-    double u[128], x[128], l[128];
+    double x[128];
     void *objPointer = dynamic_cast<void *>(this);
-    double fmin = 1;
-    int maxf = MAX_DIRECT_EVALUATIONS;
     int n = static_cast<int>(mGPX.size2());
-    int ierror;
+    int error;
 
     if (objPointer == 0)
       std::cout << "Error casting the current object!" << std::endl;
+
+    error = nextPoint(x, n, objPointer);
+
+    // There should be a clever way to do this.
+    array_adaptor<double> shared(n, x);
+    vector<double, array_adaptor<double> > Xshared(n, shared); 
+
+    Xnext = Xshared;
+    
+    return error;
+} // nextPoint (uBlas)
+
+int SKO::nextPoint(double* x, int n, void* objPointer)
+{
+    double u[128], l[128];
+    double fmin = 1;
+    int maxf = MAX_DIRECT_EVALUATIONS;    
+    int ierror;
 
     for (int i = 0; i < n; ++i) {
 	l[i] = 0.;
@@ -542,27 +558,16 @@ int Krigging::nextPoint(vector<double> &Xnext)
 
     if(mVerbose)
       {std::cout << "Error:" << errortype << std::endl;}
-      /*nlopt_minimize(NLOPT_GN_ORIG_DIRECT_L,
-					    n, fpointer, objPointer,
-					    l, u, x, &fmin,
-					    -HUGE_VAL, 0.0, 0.0, 0.0, 
-					    NULL, maxf, 1000000.0);*/
 
     ierror = static_cast<int>(errortype);
 #endif /* USE_DIRECT_FORTRAN */
 
-    // There should be a clever way to do this.
-    array_adaptor<double> shared(n, x);
-    vector<double, array_adaptor<double> > Xshared(n, shared); 
-
-    Xnext = Xshared;
-    
     return ierror;
 
-} // nextPoint
+} // nextPoint (C array)
 
 
-double Krigging::evaluateNormalizedSample( const vector<double> &query)
+double SKO::evaluateNormalizedSample( const vector<double> &query)
 { 
   vector<double> unnormalizedQuery = ublas_elementwise_prod(query,
 							    mRangeBound);
@@ -574,7 +579,7 @@ double Krigging::evaluateNormalizedSample( const vector<double> &query)
 } // evaluateNormalizedSample
   
 
-void Krigging::normalizeData()
+void SKO::normalizeData()
 {
   scalar_vector<double> MinYVec(mGPY.size(), mMinY);
   mYNorm = (mGPY - MinYVec) * ( 1/(mMaxY-mMinY) );
@@ -582,7 +587,7 @@ void Krigging::normalizeData()
 
 
 
-unsigned int Krigging::factorial(unsigned int no, unsigned int a)
+unsigned int SKO::factorial(unsigned int no, unsigned int a)
 {
   // termination condition
   if (0 == no || 1 == no)
@@ -592,12 +597,12 @@ unsigned int Krigging::factorial(unsigned int no, unsigned int a)
   return factorial(no - 1, no * a);
 } //factorial
 
-double Krigging::pdf(double x)
+double SKO::pdf(double x)
 {
   return (1 / (sqrt(2 * M_PI)) * exp(-(x*x)/2));
 } //pdf
   
-double Krigging::cdf(double x)
+double SKO::cdf(double x)
 {
   /** \brief Abromowitz and Stegun approximation of Normal CDF
    * 

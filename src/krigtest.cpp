@@ -3,7 +3,7 @@
 #include "krigging.hpp"
 
 
-class TestEGO: public Krigging 
+class TestEGO: public SKO 
 {
  public:
 

@@ -84,7 +84,7 @@ in the current implementation, it is not used. You can just use a NULL pointer.
 ---------------------------
 
 The second way to use the function is by creating an object that inherits 
-from the Krigging object defined in krigging.hpp
+from the SKO object defined in krigging.hpp
 
 Then, we just need to define the virtual function evaluateSample, which 
 has interfaces both for C arrays and uBlas vectors. You can just redefine

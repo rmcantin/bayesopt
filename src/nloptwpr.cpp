@@ -24,7 +24,7 @@ namespace NLOPT_WPR
     
     // This is not very clever... but works!
     void *objPointer = my_func_data;
-    Krigging* GAUSSIAN_PROCESS = static_cast<Krigging*>(objPointer);
+    SKO* GAUSSIAN_PROCESS = static_cast<SKO*>(objPointer);
     
     double f =  GAUSSIAN_PROCESS->negativeExpectedImprovement(sharedN);
     
@@ -46,7 +46,7 @@ namespace NLOPT_WPR
     
     // This is not very clever... but works!
     void *objPointer = my_func_data;
-    Krigging* GAUSSIAN_PROCESS = static_cast<Krigging*>(objPointer);
+    SKO* GAUSSIAN_PROCESS = static_cast<SKO*>(objPointer);
     
     double f =  GAUSSIAN_PROCESS->lowerConfidenceBound(sharedN);
     

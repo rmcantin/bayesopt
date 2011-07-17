@@ -24,7 +24,7 @@ namespace DIRECT
     
     // This is not very clever... but works!
     void *objPointer = iidata;
-    Krigging* GAUSSIAN_PROCESS = static_cast<Krigging*>(objPointer);
+    SKO* GAUSSIAN_PROCESS = static_cast<SKO*>(objPointer);
     
     *f =  GAUSSIAN_PROCESS->negativeExpectedImprovement(sharedN);
     *flag__ = 0;
@@ -47,7 +47,7 @@ namespace DIRECT
 
 	    // This is not very clever... but works!
 	    void *objPointer = iidata;
-	    Krigging* GAUSSIAN_PROCESS = static_cast<Krigging*>(objPointer);
+	    SKO* GAUSSIAN_PROCESS = static_cast<SKO*>(objPointer);
 
 	    *f =  GAUSSIAN_PROCESS->lowerConfidenceBound(sharedN);
 	    *flag__ = 0;

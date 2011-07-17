@@ -44,9 +44,9 @@ mVerbose(0),mLCBparam(1.0), mUseEI(true)
 
 
 SKO::SKO( double theta, double p,
-		    double alpha, double beta, 
-		    double delta, double noise,
-		    size_t nIter, bool useCool):
+	  double alpha, double beta, 
+	  double delta, double noise,
+	  size_t nIter, bool useCool):
 mTheta(theta), mP(p),
 mAlpha(alpha), mBeta (beta),
 mDelta2(delta), mRegularizer(noise),
@@ -57,7 +57,7 @@ mVerbose(0), mLCBparam(1.0),mUseEI(true)
 {} // Constructor
 
 SKO::SKO( gp_params params,
-		    size_t nIter, bool useCool):
+	  size_t nIter, bool useCool):
 mTheta(params.theta), mP(params.p),
 mAlpha(params.alpha), mBeta(params.beta),
 mDelta2(params.delta), mRegularizer(params.noise),
@@ -73,7 +73,7 @@ SKO::~SKO()
 
 
 int SKO::optimize( vector<double> &bestPoint,
-			randEngine& mtRandom)
+		   randEngine& mtRandom)
 {
   size_t dim = bestPoint.size();
   vector<double> lowerBound = zero_vector<double>(dim);
@@ -83,9 +83,9 @@ int SKO::optimize( vector<double> &bestPoint,
 }
 
 int SKO::optimize( vector<double> &bestPoint,
-			vector<double> &lowerBound,
-			vector<double> &upperBound,
-			randEngine& mtRandom)
+		   vector<double> &lowerBound,
+		   vector<double> &upperBound,
+		   randEngine& mtRandom)
 {
   mVerbose = 1;
  
@@ -140,7 +140,7 @@ int SKO::optimize( vector<double> &bestPoint,
 
 
 int SKO::updateCoolingScheme( size_t nTotalIterations, 
-				   size_t nCurrentIteration)
+			      size_t nCurrentIteration)
 {
 
   double iterPercentaje = static_cast<double>(nTotalIterations) 
@@ -176,7 +176,7 @@ int SKO::allocateMatrices(size_t nSamples, size_t nDims)
 
 	
 int SKO::sampleInitialPoints( size_t nSamples, size_t nDims,
-				   bool useLatinBox, randEngine& mtRandom )
+			      bool useLatinBox, randEngine& mtRandom )
 {
   /** \brief Sample a set of points to initialize GP fit
    * Use pure random sampling or uniform Latin Hypercube sampling

@@ -67,6 +67,99 @@ using namespace boost::numeric::ublas;
 /*@{*/
 
 
+
+class GaussianProcess
+{
+public:
+
+  GaussianProcess();  
+  GaussianProcess( double theta, double p,
+		   double alpha, double beta, 
+		   double delta, double noise);
+  GaussianProcess( gp_params params );
+  ~GaussianProcess();
+
+  void setSamples(matrix<double> x, vector<double> y)
+  {
+    mGPX.resize(x.size1(),x.size2());
+    mGPY.resize(y.size());
+
+    mGPX = x;
+    mGPY = y;
+  }
+
+  void addSample(vector<double> x, double y)
+  {
+    mGPX.resize(mGPX.size1()+1,mGPX.size2());
+    mGPY.resize(mGPY.size()+1);
+  
+    row(mGPX,mGPX.size1()-1) = x;
+    mGPY(mGPY.size()-1) = y;
+  }
+
+  /** 
+   * Function that returns the prediction of the GP for a query point
+   * in the hypercube [0,1].
+   * 
+   * @param query point in the hypercube [0,1] to evaluate the Gaussian process
+   * @param yPred mean of the predicted Gaussian distribution
+   * @param sPred std of the predicted Gaussian distribution
+   * 
+   * @return error code.
+   */	
+  int prediction(const vector<double> &query,
+		 double& yPred, double& sPred);
+
+  int fitGP();
+  int precomputeGPParams();
+  int addNewPointToGP( const vector<double> &Xnew,
+		       double Ynew);
+
+  vector<double> getPointAtMinimum()
+  { return row(mGPX,mMinIndex);}
+
+protected:
+  double correlationFunction( const vector<double> &x1,
+			      const vector<double> &x2 );
+
+  inline void normalizeData()
+  {
+    scalar_vector<double> MinYVec(mGPY.size(), mGPY(mMinIndex));
+    mYNorm = (mGPY - MinYVec) * ( 1/(mGPY(mMaxIndex)-mGPY(mMinIndex)) );
+  };
+
+  inline void checkBoundsY( size_t i )
+  {
+    if ( mGPY(mMinIndex) > mGPY(i) )       mMinIndex = i;
+    else if ( mGPY(mMaxIndex) < mGPY(i) )  mMaxIndex = i;
+  };
+
+protected:
+  const double mTheta, mP;            // Kernel parameters
+  const double mAlpha, mBeta;         // GP prior parameters (Inv-Gamma)
+  const double mDelta2,mRegularizer;  // GP prior parameters (Normal)
+
+  matrix<double> mGPX;                // Data points
+  vector<double> mGPY;                // Data values
+  vector<double> mYNorm;              // Normalized data values
+	
+  double mMu, mSig;                   // GP posterior paramethers
+  // Precomputed GP prediction operations
+
+  bounded_matrix<double, 
+		 MAX_ITERATIONS, 
+		 MAX_ITERATIONS> mInvR; // Inverse Correlation matrix	
+  
+  vector<double> mUInvR;              
+  double mUInvRUDelta;
+  vector<double> mYUmu;
+
+  size_t mMinIndex, mMaxIndex;
+
+  int mVerbose;
+};
+
+
 /** 
  * @brief Object that integrates a Bayesian optimization algorithm. 
  * This is an efficient, C++ implementation of the Bayesian optimization
@@ -174,18 +267,7 @@ class SKO
 		vector<double> &upperBound,
 		randEngine& mtRandom);
 
-  /** 
-   * Function that returns the prediction of the GP for a query point
-   * in the hypercube [0,1].
-   * 
-   * @param query point in the hypercube [0,1] to evaluate the Gaussian process
-   * @param yPred mean of the predicted Gaussian distribution
-   * @param sPred std of the predicted Gaussian distribution
-   * 
-   * @return error code.
-   */	
-  int GPprediction(const vector<double> &query,
-		   double& yPred, double& sPred);
+
   /** 
    * Function that returns the negative Expected Improvement (-EI) of a series 
    * of queries in the hypercube [0,1] in order to choose the best point to try
@@ -266,24 +348,13 @@ protected:
 			   bool useLatinBox,
 			   randEngine& mtRandom);
 
-  int checkBoundsY( size_t i ); 
-		  
   int updateCoolingScheme(size_t nTotalIterations,
 			  size_t nCurrentIteration);
-  int fitGP();
- 	
-  int addNewPointToGP( const vector<double> &Xnew );
 	
   int nextPoint( vector<double> &Xnext );
   int nextPoint( double* x, int n, void* objPointer);
-  //int nextPointDIRECT(vector<double> &Xnext);
-  //int nextPointNLOPT(vector<double> &Xnext);
-
-  double correlationFunction( const vector<double> &x1,
-			      const vector<double> &x2 );
 
   inline double evaluateNormalizedSample( const vector<double> &query);
-  inline void normalizeData();
 
   // Math functions
   // TODO: take it outside
@@ -291,15 +362,15 @@ protected:
   double pdf(double x);
   double cdf(double x);
 
+
 protected:
 
   // Member variables
-  bool mUseEI, mUseNLOPT;
+  GaussianProcess mGP;
+
+  bool mUseEI;
   double mLCBparam;                   // LCB = mean - param * std
 
-  const double mTheta, mP;            // Kernel parameters
-  const double mAlpha, mBeta;         // GP prior parameters (Inv-Gamma)
-  const double mDelta2,mRegularizer;  // GP prior parameters (Normal)
   size_t mMaxIterations;
   const size_t mMaxDim;// Maximum SKO evaluations and dimensions
 
@@ -308,24 +379,7 @@ protected:
 
   vector<double> mLowerBound;
   vector<double> mRangeBound;
-
-  //bounded_matrix<double, MAX_ITERATIONS, MAX_DIM> mGPX;  // Data points
-  //bounded_vector<double, MAX_ITERATIONS>          mGPY;  // Data values
-  //bounded_vector<double, MAX_ITERATIONS>          mYNorm;// Normalized data values
-
-  matrix<double> mGPX;  // Data points
-  vector<double> mGPY;  // Data values
-  vector<double> mYNorm;// Normalized data values
 	
-  double mMu, mSig;                   // GP posterior paramethers
-	
-  size_t mMinIndex, mMaxIndex;
-
-  bounded_matrix<double, MAX_ITERATIONS, MAX_ITERATIONS> mInvR; // Inverse Correlation matrix	
-  vector<double> mUInvR;              // Precomputed GP prediction operations
-  double mUInvRUDelta;
-  vector<double> mYUmu;
-
   int mVerbose;
 
 };

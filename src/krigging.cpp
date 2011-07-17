@@ -31,15 +31,214 @@
 #endif
   
 
+GaussianProcess::GaussianProcess():
+  mTheta(KERNEL_THETA), mP(KERNEL_P),
+  mAlpha(PRIOR_ALPHA), mBeta (PRIOR_BETA),
+  mDelta2(PRIOR_DELTA_SQ), mRegularizer(DEF_REGULARIZER),
+  mMinIndex(0), mMaxIndex(0), mVerbose(0)
+{} // Default constructor
+
+GaussianProcess::GaussianProcess( double theta, double p,
+				  double alpha, double beta, 
+				  double delta, double noise):
+  mTheta(theta), mP(p),
+  mAlpha(alpha), mBeta (beta),
+  mDelta2(delta), mRegularizer(noise),
+  mMinIndex(0), mMaxIndex(0), mVerbose(0)
+{} // Constructor
+
+GaussianProcess::GaussianProcess( gp_params params ):
+  mTheta(params.theta), mP(params.p),
+  mAlpha(params.alpha), mBeta(params.beta),
+  mDelta2(params.delta), mRegularizer(params.noise),
+  mMinIndex(0), mMaxIndex(0), mVerbose(0)
+{} // Constructor
+
+
+GaussianProcess::~GaussianProcess()
+{} // Default destructor
+
+
+
+int GaussianProcess::fitGP()
+{
+  /** Computes the GP based on mGPX
+   *  This function is hightly inefficient O(N^3). Use it only at 
+   *  the beggining
+   */
+  size_t nSamples = mGPX.size1();
+  bool inversionFlag;
+  matrix<double> corrMatrix(nSamples,nSamples);
+  
+  if ( (nSamples != mInvR.size1()) || (nSamples != mInvR.size2()) )
+    mInvR.resize(nSamples,nSamples);
+
+  for (size_t ii=0; ii<nSamples; ii++)
+    checkBoundsY(ii);
+
+  normalizeData();
+  
+  for (size_t ii=0; ii< nSamples; ii++)
+    {
+      for (size_t jj=0; jj < ii; jj++)
+	{
+	  corrMatrix(ii,jj) = correlationFunction(row(mGPX,ii), row(mGPX,jj));
+	  corrMatrix(jj,ii) = corrMatrix(ii,jj);
+	}
+      corrMatrix(ii,ii) = correlationFunction(row(mGPX,ii),
+					      row(mGPX,ii)) + mRegularizer;
+    }
+  
+  inversionFlag = InvertMatrix(corrMatrix,mInvR);
+  if (inversionFlag == false)    return -2;
+
+  return precomputeGPParams();
+} // fitGP
+
+int GaussianProcess::precomputeGPParams()
+{
+  size_t nSamples = mGPX.size1();
+  scalar_vector<double> colU(nSamples, 1.0);
+
+  mUInvR = prod(colU,mInvR);
+  mUInvRUDelta = inner_prod(mUInvR,colU) + 1/mDelta2;
+  
+  vector<double> YInvR(nSamples);
+  double YInvRY;
+  
+  mMu =  inner_prod(mUInvR,mYNorm) / mUInvRUDelta;
+  noalias(YInvR) = prod(mYNorm,mInvR);
+  YInvRY = inner_prod(YInvR,mYNorm);
+  
+  mSig = (mBeta + YInvRY - mMu*mMu/mUInvRUDelta) / (mAlpha + (nSamples+1) + 2);
+  
+  scalar_vector<double> colMu(nSamples,mMu);
+  mYUmu = mYNorm - colMu;
+  
+  return 1;
+}
+
+
+int GaussianProcess::addNewPointToGP(const vector<double> &Xnew, 
+				     double Ynew)
+{
+  /** Add new point efficiently using Matrix Decomposition Lemma
+   *  for the inversion of the correlation matrix. Maybe it is faster
+   *  to just construct and invert a new matrix each time.
+   */   
+
+  size_t nSamples = mGPX.size1();
+  size_t XDim = mGPX.size2();
+  size_t NewDim = Xnew.size();
+  
+  scalar_vector<double> colU(nSamples+1,1.0);
+  vector<double> correlationNewValue(nSamples);
+  vector<double> Li(nSamples);
+  vector<double> wInvR(nSamples);
+  double wInvRw;
+  double selfCorrelation, Ni;
+  
+  if (XDim != NewDim)
+    {
+      std::cout << "Dimensional Error" << std::endl;
+      return -1;
+    }
+
+  addSample(Xnew,Ynew);
+  checkBoundsY(nSamples);
+
+  if(mVerbose>1)
+    std::cout << mGPY(nSamples) << " vs. " << mGPY(mMinIndex) << std::endl;
+  
+  normalizeData();
+  
+  for (size_t ii=0; ii< nSamples; ii++)
+    {
+      correlationNewValue(ii) = correlationFunction(row(mGPX,ii), Xnew);
+    }
+  
+  selfCorrelation = correlationFunction(Xnew, Xnew) + mRegularizer;
+  
+  noalias(wInvR) = prod(correlationNewValue,mInvR);
+  wInvRw = inner_prod(wInvR,correlationNewValue);
+  Ni = 1/(selfCorrelation + wInvRw);
+  noalias(Li) = -Ni * wInvR;
+  mInvR += outer_prod(Li,Li) / Ni;
+  
+  mInvR.resize(nSamples+1,nSamples+1);
+  
+  Li.resize(nSamples+1);
+  Li(nSamples) = Ni;
+  
+  row(mInvR,nSamples) = Li;
+  column(mInvR,nSamples) = Li;
+  
+  return precomputeGPParams();
+} // addNewPointToGP
+
+
+double GaussianProcess::correlationFunction( const vector<double> &x1, 
+					     const vector<double> &x2 )
+{
+  /** \brief GP Kernel computation
+   * Kernel correlation based on
+   * Matern linear function
+   */
+  
+  double diff, sum = 0.0, prod = 1.0;
+  vector<double> xdiff = x1 - x2;
+	
+  for (size_t ii = 0; ii<x1.size(); ++ii) 
+    {
+      diff  = fabs(xdiff(ii)) / mTheta;
+      sum  += diff;
+      prod *= 1 + diff;
+    }
+
+  return(prod * exp(-sum));
+}  // correlationFunction
+
+int GaussianProcess::prediction(const vector<double> &query,
+				  double& yPred, double& sPred)
+{
+  vector<double> colR(mGPX.size1());
+  vector<double> rInvR(mGPX.size1());
+  double kn;
+  double uInvRr, rInvRr;
+
+  for (size_t ii=0; ii< mGPX.size1(); ++ii)
+    {
+      colR(ii) = correlationFunction(row(mGPX,ii), query);
+    }
+  
+  kn = correlationFunction(query, query) + mRegularizer;
+  
+  noalias(rInvR) = prod(colR,mInvR);	
+  rInvRr = inner_prod(rInvR,colR);
+  uInvRr = inner_prod(mUInvR,colR);
+  
+  yPred = mMu + inner_prod( rInvR, mYUmu );
+  sPred = sqrt( mSig * (kn - rInvRr + (1.0 - uInvRr) * (1.0 - uInvRr) 
+			/ mUInvRUDelta ) );
+
+  return 1;
+}
+	
+
+
+
+
+
+
+/////////////////////////////////////////////////////////////////////
+
+
 
 SKO::SKO():
-mTheta(KERNEL_THETA), mP(KERNEL_P),
-mAlpha(PRIOR_ALPHA), mBeta (PRIOR_BETA),
-mDelta2(PRIOR_DELTA_SQ), mRegularizer(DEF_REGULARIZER),
-mMaxIterations(MAX_ITERATIONS), mMaxDim(MAX_DIM), 
-mUseCool(false), mG(1), 
-mMinIndex(0), mMaxIndex(0),
-mVerbose(0),mLCBparam(1.0), mUseEI(true)
+  mGP(),
+  mMaxIterations(MAX_ITERATIONS), mMaxDim(MAX_DIM), 
+  mUseCool(false), mG(1), 
+  mVerbose(0), mLCBparam(1.0), mUseEI(true)
 {} // Default constructor
 
 
@@ -47,24 +246,18 @@ SKO::SKO( double theta, double p,
 	  double alpha, double beta, 
 	  double delta, double noise,
 	  size_t nIter, bool useCool):
-mTheta(theta), mP(p),
-mAlpha(alpha), mBeta (beta),
-mDelta2(delta), mRegularizer(noise),
-mMaxIterations(nIter), mMaxDim(MAX_DIM),
-mUseCool(useCool), mG(1), 
-mMinIndex(0), mMaxIndex(0),
-mVerbose(0), mLCBparam(1.0),mUseEI(true)
+  mGP(theta,p,alpha,beta,delta,noise),
+  mMaxIterations(nIter), mMaxDim(MAX_DIM),
+  mUseCool(useCool), mG(1), 
+  mVerbose(0), mLCBparam(1.0),mUseEI(true)
 {} // Constructor
 
 SKO::SKO( gp_params params,
 	  size_t nIter, bool useCool):
-mTheta(params.theta), mP(params.p),
-mAlpha(params.alpha), mBeta(params.beta),
-mDelta2(params.delta), mRegularizer(params.noise),
-mMaxIterations(nIter), mMaxDim(MAX_DIM),
-mUseCool(useCool), mG(1), 
-mMinIndex(0), mMaxIndex(0),
-mVerbose(0), mLCBparam(1.0),mUseEI(true)
+  mGP(params),
+  mMaxIterations(nIter), mMaxDim(MAX_DIM),
+  mUseCool(useCool), mG(1), 
+  mVerbose(0), mLCBparam(1.0),mUseEI(true)
 { } // Constructor
 
 
@@ -97,10 +290,12 @@ int SKO::optimize( vector<double> &bestPoint,
   if ( nDims > mMaxDim )
     { 
       std::cout << "Warning!! Too many dimensions!! " << std::endl;
-      std::cout << "This algorithm is efficient up to " << mMaxDim << " dimensions." << std::endl;
+      std::cout << "This algorithm is efficient up to " << mMaxDim 
+		<< " dimensions." << std::endl;
     }
 
   vector<double> xNext(nDims);
+  double yNext;
   size_t nLHSSamples = N_LHS_EVALS_PER_DIM * nDims;
 
   if (nLHSSamples > MAX_LHS_EVALUATIONS)
@@ -127,13 +322,13 @@ int SKO::optimize( vector<double> &bestPoint,
       if(mVerbose >0)
 	{ 
 	  std::cout << "Trying: " << xNext << std::endl;
-	  std::cout << "Best: " << row(mGPX,mMinIndex) << std::endl; 
+	  std::cout << "Best: " << mGP.getPointAtMinimum() << std::endl; 
 	}
-
-      addNewPointToGP(xNext);     
+      yNext = evaluateNormalizedSample(xNext);
+      mGP.addNewPointToGP(xNext,yNext);     
     }
 
-  bestPoint = row(mGPX,mMinIndex);
+  bestPoint = mGP.getPointAtMinimum();
 
   return 1;
 } // optimize
@@ -159,7 +354,7 @@ int SKO::updateCoolingScheme( size_t nTotalIterations,
 
   return 1;
 }
-
+/*
 int SKO::allocateMatrices(size_t nSamples, size_t nDims)
 {
   if ( ( nSamples != mGPX.size1() ) || ( nDims != mGPX.size2() ) )
@@ -173,7 +368,7 @@ int SKO::allocateMatrices(size_t nSamples, size_t nDims)
   
   return 1;
 }
-
+*/
 	
 int SKO::sampleInitialPoints( size_t nSamples, size_t nDims,
 			      bool useLatinBox, randEngine& mtRandom )
@@ -183,214 +378,32 @@ int SKO::sampleInitialPoints( size_t nSamples, size_t nDims,
    * as appeared in Jones EGO
    */
    
-  vector<double> Xsample(nDims);
-  
-  allocateMatrices(nSamples, nDims);
-  
+  matrix<double> xPoints(nSamples,nDims);
+  vector<double> yPoints(nSamples);
+  vector<double> sample(nDims);
+
   if (useLatinBox)
-      lhs(mGPX, mtRandom);
+      lhs(xPoints, mtRandom);
   else
-      uniformSampling(mGPX, mtRandom);
+      uniformSampling(xPoints, mtRandom);
 
   for(size_t i = 0; i < nSamples; i++)
     {
-      Xsample = row(mGPX,i);
+      sample = row(xPoints,i);
       if(mVerbose >0)
-	std::cout << Xsample << std::endl;
-      mGPY(i) = evaluateNormalizedSample(Xsample);
-      checkBoundsY(i);
+	std::cout << sample << std::endl;
+      yPoints(i) = evaluateNormalizedSample(sample);
     }
 
-  fitGP();
+  mGP.setSamples(xPoints,yPoints);
+  mGP.fitGP();
+
   return 1;
 } // sampleInitialPoints
 
-int SKO::checkBoundsY( size_t i )
-{
-  if ( mGPY(mMinIndex) > mGPY(i) )
-    mMinIndex = i;
-  else if ( mGPY(mMaxIndex) < mGPY(i) )
-    mMaxIndex = i;
-  
-  return 1;
-}
-
-int SKO::fitGP()
-{
-  /** Computes the GP based on mGPX and mGPY
-   *  This function is hightly inefficient O(N^3). Use it only at 
-   *  the beggining
-   */
-  size_t Xsamples = mGPX.size1();
-  bool inversionFlag;
-  scalar_vector<double> colU(Xsamples, 1.0);
-  matrix<double> corrMatrix(Xsamples,Xsamples);
-  
-  if ( (Xsamples != mInvR.size1()) || (Xsamples != mInvR.size2()) )
-    mInvR.resize(Xsamples,Xsamples);
-
-  normalizeData();
-  
-  for (size_t ii=0; ii< Xsamples; ii++)
-    {
-      for (size_t jj=0; jj < ii; jj++)
-	{
-	  corrMatrix(ii,jj) = correlationFunction(row(mGPX,ii), row(mGPX,jj));
-	  corrMatrix(jj,ii) = corrMatrix(ii,jj);
-	}
-      corrMatrix(ii,ii) = correlationFunction(row(mGPX,ii),
-					      row(mGPX,ii)) + mRegularizer;
-    }
-  
-  inversionFlag = InvertMatrix(corrMatrix,mInvR);
-  if (inversionFlag == false)    return -2;
-  
-  mUInvR = prod(colU,mInvR);
-  mUInvRUDelta = inner_prod(mUInvR,colU) + 1/mDelta2;
-  
-  vector<double> YInvR(mGPX.size1());
-  double YInvRY;
-  
-  mMu =  inner_prod(mUInvR,mYNorm) / mUInvRUDelta;
-  noalias(YInvR) = prod(mYNorm,mInvR);
-  YInvRY = inner_prod(YInvR,mYNorm);
-  
-  mSig = (mBeta + YInvRY - mMu*mMu/mUInvRUDelta) / (mAlpha + (Xsamples+1) + 2);
-  
-  scalar_vector<double> colMu(mGPX.size1(),mMu);
-  mYUmu = mYNorm - colMu;
-  
-  return 1;
-}
 
 
 
-int SKO::addNewPointToGP(const vector<double> &Xnew)
-{
-  /** Add new point efficiently using Matrix Decomposition Lemma
-   *  for the inversion of the correlation matrix. Maybe it is faster
-   *  to just construct and invert a new matrix each time.
-   */   
-
-  size_t Xsamples = mGPX.size1();
-  size_t Xdim = mGPX.size2();
-  size_t Vdim = Xnew.size();
-  
-  scalar_vector<double> colU(Xsamples+1,1.0);
-  vector<double> correlationNewValue(Xsamples);
-  vector<double> Li(Xsamples);
-  vector<double> wInvR(Xsamples);
-  double wInvRw;
-  double selfCorrelation, Ni;
-  
-  if (Xdim != Vdim)
-    {
-      std::cout << "Dimensional Error" << std::endl;
-      return -1;
-    }
-  else
-    {
-      mGPX.resize(Xsamples+1,Xdim);
-      mGPY.resize(Xsamples+1);
-      
-      row(mGPX,Xsamples) = Xnew;
-      std::cout << "Print In: " << Xnew << std::endl;
-      mGPY(Xsamples) = evaluateNormalizedSample(Xnew);
-      checkBoundsY(Xsamples);
-      if(mVerbose>1)
-	std::cout << mGPY(Xsamples) << " vs. " << mGPY(mMinIndex) << std::endl;
-    }
-  //fitGP();
-  
-  
-  normalizeData();
-  
-  for (size_t ii=0; ii< Xsamples; ii++)
-    {
-      correlationNewValue(ii) = correlationFunction(row(mGPX,ii), Xnew);
-    }
-  
-  selfCorrelation = correlationFunction(Xnew, Xnew) + mRegularizer;
-  
-  noalias(wInvR) = prod(correlationNewValue,mInvR);
-  wInvRw = inner_prod(wInvR,correlationNewValue);
-  Ni = 1/(selfCorrelation + wInvRw);
-  noalias(Li) = -Ni * wInvR;
-  mInvR += outer_prod(Li,Li) / Ni;
-  
-  mInvR.resize(Xsamples+1,Xsamples+1);
-  
-  Li.resize(Xsamples+1);
-  Li(Xsamples) = Ni;
-  
-  row(mInvR,Xsamples) = Li;
-  column(mInvR,Xsamples) = Li;
-  
-  mUInvR = prod(colU,mInvR);
-  mUInvRUDelta = inner_prod(mUInvR,colU) + 1/mDelta2;
-  
-  vector<double> YInvR(mGPX.size1());
-  double YInvRY;
-  
-  mMu =  inner_prod(mUInvR,mYNorm) / mUInvRUDelta;
-  noalias(YInvR) = prod(mYNorm,mInvR);
-  YInvRY = inner_prod(YInvR,mYNorm);
-  
-  mSig = (mBeta + YInvRY - mMu*mMu/mUInvRUDelta) / (mAlpha + (Xsamples+1) + 2);
-  
-  scalar_vector<double> colMu(mGPX.size1(),mMu);
-  mYUmu = mYNorm - colMu;
-  
-  return 1;
-} // addNewPoint
-
-double SKO::correlationFunction( const vector<double> &x1, 
-				 const vector<double> &x2 )
-{
-  /** \brief GP Kernel computation
-   * Kernel correlation based on
-   * Matern linear function
-   */
-  
-  double diff, sum = 0.0, prod = 1.0;
-  vector<double> xdiff = x1 - x2;
-	
-  for (size_t ii = 0; ii<x1.size(); ++ii) 
-    {
-      diff  = fabs(xdiff(ii)) / mTheta;
-      sum  += diff;
-      prod *= 1 + diff;
-    }
-
-  return(prod * exp(-sum));
-}  // correlationFunction
-
-int SKO::GPprediction(const vector<double> &query,
-		      double& yPred, double& sPred)
-{
-  vector<double> colR(mGPX.size1());
-  vector<double> rInvR(mGPX.size1());
-  double kn;
-  double uInvRr, rInvRr;
-
-  for (size_t ii=0; ii< mGPX.size1(); ++ii)
-    {
-      colR(ii) = correlationFunction(row(mGPX,ii), query);
-    }
-  
-  kn = correlationFunction(query, query) + mRegularizer;
-  
-  noalias(rInvR) = prod(colR,mInvR);	
-  rInvRr = inner_prod(rInvR,colR);
-  uInvRr = inner_prod(mUInvR,colR);
-  
-  yPred = mMu + inner_prod( rInvR, mYUmu );
-  sPred = sqrt( mSig * (kn - rInvRr + (1.0 - uInvRr) * (1.0 - uInvRr) 
-			/ mUInvRUDelta ) );
-
-  return 1;
-}
-	
 double SKO::lowerConfidenceBound(const vector<double> &query)
 {    
   bool reachable = checkReachability(query);
@@ -400,7 +413,7 @@ double SKO::lowerConfidenceBound(const vector<double> &query)
   double yPred, sPred, result;
   double alpha = 1.0;
 
-  GPprediction(query,yPred,sPred);
+  mGP.prediction(query,yPred,sPred);
   result = yPred -  mLCBparam*sPred;
 
   return result;
@@ -416,7 +429,7 @@ double SKO::negativeExpectedImprovement(const vector<double> &query)
   double yPred, yDiff, yNorm, sPred;
   double result;
 
-  GPprediction(query,yPred,sPred);
+  mGP.prediction(query,yPred,sPred);
   yDiff = - yPred; // Because data is normalized, therefore Y minimum is 0
   yNorm = yDiff / sPred;
   
@@ -454,7 +467,7 @@ int SKO::nextPoint(vector<double> &Xnext)
 {   
     double x[128];
     void *objPointer = dynamic_cast<void *>(this);
-    int n = static_cast<int>(mGPX.size2());
+    int n = static_cast<int>(Xnext.size());
     int error;
 
     if (objPointer == 0)
@@ -556,13 +569,6 @@ double SKO::evaluateNormalizedSample( const vector<double> &query)
 } // evaluateNormalizedSample
   
 
-void SKO::normalizeData()
-{
-  scalar_vector<double> MinYVec(mGPY.size(), mGPY(mMinIndex));
-  mYNorm = (mGPY - MinYVec) * ( 1/(mGPY(mMaxIndex)-mGPY(mMinIndex)) );
-} //normalizeData
-
-
 
 unsigned int SKO::factorial(unsigned int no, unsigned int a)
 {
@@ -590,13 +596,13 @@ double SKO::cdf(double x)
    * 
    */
 	
-  const double b1 =  0.319381530;
-  const double b2 = -0.356563782;
-  const double b3 =  1.781477937;
-  const double b4 = -1.821255978;
-  const double b5 =  1.330274429;
-  const double p  =  0.2316419;
-  const double c  =  0.39894228;
+  static const double b1 =  0.319381530;
+  static const double b2 = -0.356563782;
+  static const double b3 =  1.781477937;
+  static const double b4 = -1.821255978;
+  static const double b5 =  1.330274429;
+  static const double p  =  0.2316419;
+  static const double c  =  0.39894228;
   
   if(x >= 0.0) {
     double t = 1.0 / ( 1.0 + p * x );
@@ -609,4 +615,3 @@ double SKO::cdf(double x)
 	     ( t *( t * ( t * ( t * b5 + b4 ) + b3 ) + b2 ) + b1 ));
   }
 } // cdf
-

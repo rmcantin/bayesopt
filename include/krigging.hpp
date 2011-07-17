@@ -139,14 +139,14 @@ class SKO
 
   /** 
    * Execute the optimization process of the function defined in evaluateSample.
-   * We assume that the function is defined in the [0,1] hypercube, as a normalized
-   * representation of the bound constrains.
+   * We assume that the function is defined in the [0,1] hypercube, as a 
+   * normalized representation of the bound constrains.
    * 
    * @see scaleInput
    * @see evaluateSample
    *
-   * @param bestPoint returns the optimum value in a ublas::vector defined in the 
-   *                  hypercube [0,1], it might also be used as an initial point
+   * @param bestPoint returns the optimum value in a ublas::vector defined in 
+   * the hypercube [0,1], it might also be used as an initial point
    * @param mtRandom random engine from boost random library
    * 
    * @return 1 if terminate successfully, 0 otherwise
@@ -175,8 +175,21 @@ class SKO
 		randEngine& mtRandom);
 
   /** 
-   * Function that returns the negative Expected Improvement (-EI) of a series of queries
-   * in the hypercube [0,1] in order to choose the best point to try the next iteration.
+   * Function that returns the prediction of the GP for a query point
+   * in the hypercube [0,1].
+   * 
+   * @param query point in the hypercube [0,1] to evaluate the Gaussian process
+   * @param yPred mean of the predicted Gaussian distribution
+   * @param sPred std of the predicted Gaussian distribution
+   * 
+   * @return error code.
+   */	
+  int GPprediction(const vector<double> &query,
+		   double& yPred, double& sPred);
+  /** 
+   * Function that returns the negative Expected Improvement (-EI) of a series 
+   * of queries in the hypercube [0,1] in order to choose the best point to try
+   * the next iteration.
    * 
    * @param query point in the hypercube [0,1] to evaluate the Gaussian process
    * 
@@ -185,8 +198,9 @@ class SKO
   double negativeExpectedImprovement( const vector<double> &query );
 
   /** 
-   * Function that returns the Lower Confidence Bound (LCB) of a series of queries
-   * in the hypercube [0,1] in order to choose the best point to try the next iteration.
+   * Function that returns the Lower Confidence Bound (LCB) of a series 
+   * of queries in the hypercube [0,1] in order to choose the best point to try
+   * the next iteration.
    * 
    * @param query point in the hypercube [0,1] to evaluate the Gaussian process
    * 
@@ -252,9 +266,8 @@ protected:
 			   bool useLatinBox,
 			   randEngine& mtRandom);
 
-  int checkBoundsY( size_t i, 
-		    const vector<double>& Xsample  );
-
+  int checkBoundsY( size_t i ); 
+		  
   int updateCoolingScheme(size_t nTotalIterations,
 			  size_t nCurrentIteration);
   int fitGP();
@@ -273,6 +286,7 @@ protected:
   inline void normalizeData();
 
   // Math functions
+  // TODO: take it outside
   unsigned int factorial(unsigned int no, unsigned int a = 1);
   double pdf(double x);
   double cdf(double x);
@@ -305,8 +319,7 @@ protected:
 	
   double mMu, mSig;                   // GP posterior paramethers
 	
-  double mMinY, mMaxY;
-  vector<double> mMinX;
+  size_t mMinIndex, mMaxIndex;
 
   bounded_matrix<double, MAX_ITERATIONS, MAX_ITERATIONS> mInvR; // Inverse Correlation matrix	
   vector<double> mUInvR;              // Precomputed GP prediction operations

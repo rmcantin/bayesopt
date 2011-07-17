@@ -37,8 +37,9 @@ mTheta(KERNEL_THETA), mP(KERNEL_P),
 mAlpha(PRIOR_ALPHA), mBeta (PRIOR_BETA),
 mDelta2(PRIOR_DELTA_SQ), mRegularizer(DEF_REGULARIZER),
 mMaxIterations(MAX_ITERATIONS), mMaxDim(MAX_DIM), 
-mUseCool(false), mG(1), mMinY(0.0), mMaxY(0.0),
-mVerbose(0),mLCBparam(1.0),mUseEI(true)
+mUseCool(false), mG(1), 
+mMinIndex(0), mMaxIndex(0),
+mVerbose(0),mLCBparam(1.0), mUseEI(true)
 {} // Default constructor
 
 
@@ -51,7 +52,7 @@ mAlpha(alpha), mBeta (beta),
 mDelta2(delta), mRegularizer(noise),
 mMaxIterations(nIter), mMaxDim(MAX_DIM),
 mUseCool(useCool), mG(1), 
-mMinY(0.0), mMaxY(0.0),
+mMinIndex(0), mMaxIndex(0),
 mVerbose(0), mLCBparam(1.0),mUseEI(true)
 {} // Constructor
 
@@ -62,7 +63,7 @@ mAlpha(params.alpha), mBeta(params.beta),
 mDelta2(params.delta), mRegularizer(params.noise),
 mMaxIterations(nIter), mMaxDim(MAX_DIM),
 mUseCool(useCool), mG(1), 
-mMinY(0.0), mMaxY(0.0),
+mMinIndex(0), mMaxIndex(0),
 mVerbose(0), mLCBparam(1.0),mUseEI(true)
 { } // Constructor
 
@@ -126,13 +127,13 @@ int SKO::optimize( vector<double> &bestPoint,
       if(mVerbose >0)
 	{ 
 	  std::cout << "Trying: " << xNext << std::endl;
-	  std::cout << "Best: " << mMinX << std::endl; 
+	  std::cout << "Best: " << row(mGPX,mMinIndex) << std::endl; 
 	}
 
       addNewPointToGP(xNext);     
     }
 
-  bestPoint = mMinX;
+  bestPoint = row(mGPX,mMinIndex);
 
   return 1;
 } // optimize
@@ -170,9 +171,6 @@ int SKO::allocateMatrices(size_t nSamples, size_t nDims)
   if ( nSamples != mGPY.size() )
     mGPY.resize(nSamples,false);
   
-  if ( nDims != mMinX.size() )
-    mMinX.resize(nDims,false);
-
   return 1;
 }
 
@@ -200,34 +198,19 @@ int SKO::sampleInitialPoints( size_t nSamples, size_t nDims,
       if(mVerbose >0)
 	std::cout << Xsample << std::endl;
       mGPY(i) = evaluateNormalizedSample(Xsample);
-      checkBoundsY(i,Xsample);
+      checkBoundsY(i);
     }
 
   fitGP();
   return 1;
 } // sampleInitialPoints
 
-int SKO::checkBoundsY( size_t i, 
-		       const vector<double>& Xsample )
+int SKO::checkBoundsY( size_t i )
 {
-  if (i == 0)
-    {
-      mMinY = mGPY(i);
-      mMinX = Xsample;
-      mMaxY = mGPY(i);
-    }
-  else
-    {
-      if ( mMinY > mGPY(i) )
-	{
-	  mMinY = mGPY(i);
-	  mMinX = Xsample;
-	}
-      if ( mMaxY < mGPY(i) )
-	{
-	  mMaxY = mGPY(i);
-	}
-    }
+  if ( mGPY(mMinIndex) > mGPY(i) )
+    mMinIndex = i;
+  else if ( mGPY(mMaxIndex) < mGPY(i) )
+    mMaxIndex = i;
   
   return 1;
 }
@@ -313,9 +296,9 @@ int SKO::addNewPointToGP(const vector<double> &Xnew)
       row(mGPX,Xsamples) = Xnew;
       std::cout << "Print In: " << Xnew << std::endl;
       mGPY(Xsamples) = evaluateNormalizedSample(Xnew);
-      checkBoundsY(Xsamples,Xnew);
+      checkBoundsY(Xsamples);
       if(mVerbose>1)
-	std::cout << mGPY(Xsamples) << " vs. " << mMinY << std::endl;
+	std::cout << mGPY(Xsamples) << " vs. " << mGPY(mMinIndex) << std::endl;
     }
   //fitGP();
   
@@ -361,7 +344,8 @@ int SKO::addNewPointToGP(const vector<double> &Xnew)
   return 1;
 } // addNewPoint
 
-double SKO::correlationFunction(const vector<double> &x1, const vector<double> &x2)
+double SKO::correlationFunction( const vector<double> &x1, 
+				 const vector<double> &x2 )
 {
   /** \brief GP Kernel computation
    * Kernel correlation based on
@@ -380,19 +364,15 @@ double SKO::correlationFunction(const vector<double> &x1, const vector<double> &
 
   return(prod * exp(-sum));
 }  // correlationFunction
-	
-double SKO::lowerConfidenceBound(const vector<double> &query)
-{  
+
+int SKO::GPprediction(const vector<double> &query,
+		      double& yPred, double& sPred)
+{
   vector<double> colR(mGPX.size1());
   vector<double> rInvR(mGPX.size1());
-  double kn, yPred, sPred;
-  double uInvRr, rInvRr, result;
-  
-  bool reachable = checkReachability(query);
+  double kn;
+  double uInvRr, rInvRr;
 
-  if (!reachable)
-    return 0.0;
-  
   for (size_t ii=0; ii< mGPX.size1(); ++ii)
     {
       colR(ii) = correlationFunction(row(mGPX,ii), query);
@@ -405,10 +385,22 @@ double SKO::lowerConfidenceBound(const vector<double> &query)
   uInvRr = inner_prod(mUInvR,colR);
   
   yPred = mMu + inner_prod( rInvR, mYUmu );
-  sPred = sqrt( mSig * (kn - rInvRr + (1.0 - uInvRr) * (1.0 - uInvRr) / mUInvRUDelta ) );
+  sPred = sqrt( mSig * (kn - rInvRr + (1.0 - uInvRr) * (1.0 - uInvRr) 
+			/ mUInvRUDelta ) );
 
+  return 1;
+}
+	
+double SKO::lowerConfidenceBound(const vector<double> &query)
+{    
+  bool reachable = checkReachability(query);
+  if (!reachable)
+    return 0.0;
+  
+  double yPred, sPred, result;
   double alpha = 1.0;
 
+  GPprediction(query,yPred,sPred);
   result = yPred -  mLCBparam*sPred;
 
   return result;
@@ -417,30 +409,14 @@ double SKO::lowerConfidenceBound(const vector<double> &query)
 
 double SKO::negativeExpectedImprovement(const vector<double> &query)
 {
-  vector<double> colR(mGPX.size1());
-  vector<double> rInvR(mGPX.size1());
-  double kn, yPred, yDiff, yNorm, sPred;
-  double uInvRr, rInvRr, result;
-  
   bool reachable = checkReachability(query);
-  
   if (!reachable)
     return 0.0;
-  
-  for (size_t ii=0; ii< mGPX.size1(); ++ii)
-    {
-      colR(ii) = correlationFunction(row(mGPX,ii), query);
-    }
-  
-  kn = correlationFunction(query, query) + mRegularizer;
-  
-  noalias(rInvR) = prod(colR,mInvR);	
-  rInvRr = inner_prod(rInvR,colR);
-  uInvRr = inner_prod(mUInvR,colR);
-  
-  yPred = mMu + inner_prod( rInvR, mYUmu );
-  sPred = sqrt( mSig * (kn - rInvRr + (1.0 - uInvRr) * (1.0 - uInvRr) / mUInvRUDelta ) );
-  
+
+  double yPred, yDiff, yNorm, sPred;
+  double result;
+
+  GPprediction(query,yPred,sPred);
   yDiff = - yPred; // Because data is normalized, therefore Y minimum is 0
   yNorm = yDiff / sPred;
   
@@ -461,7 +437,8 @@ double SKO::negativeExpectedImprovement(const vector<double> &query)
       for (unsigned int ii = 2; ii < mG; ii++) 
 	{
 	  Tact = (ii-1)*Tm2 - pdfD*pow(yNorm,ii-1);
-	  sumEI += pow(-1.0,ii)*(fg/(factorial(ii)*factorial(mG-ii)))*pow(yNorm,mG-ii)*Tact;
+	  sumEI += pow(-1.0,ii)*(fg/(factorial(ii)*factorial(mG-ii)))*
+	    pow(yNorm,mG-ii)*Tact;
 	  
 	  //roll-up
 	  Tm2 = Tm1;   Tm1 = Tact;
@@ -581,8 +558,8 @@ double SKO::evaluateNormalizedSample( const vector<double> &query)
 
 void SKO::normalizeData()
 {
-  scalar_vector<double> MinYVec(mGPY.size(), mMinY);
-  mYNorm = (mGPY - MinYVec) * ( 1/(mMaxY-mMinY) );
+  scalar_vector<double> MinYVec(mGPY.size(), mGPY(mMinIndex));
+  mYNorm = (mGPY - MinYVec) * ( 1/(mGPY(mMaxIndex)-mGPY(mMinIndex)) );
 } //normalizeData
 
 

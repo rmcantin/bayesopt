@@ -22,14 +22,80 @@ funtion using few iterations.
 
 
 
+***********************
+* 1 -  DEPENDENCIES:  *
+***********************
+
+1.1 - BOOST:
+============
+
+This code uses Boost libraries for matrix operations (uBlas) and random
+number generation. They can be found in standard linux distributions or
+it can be downloaded from (www.boost.org). Since they are pure template
+libraries, they do not require compilation. Just make sure the headers are
+on the include path.
+
+They are not very efficient, so it may change in future versions.
+
+
+1.2 - Nonlinear Optimization library:
+=====================================
+
+This library requires some other nonlinear optimization library 
+(e.g.: DIRECT). 
+
+
+a) Using Fortran DIRECT:
+
+For completeness, it includes a Fortran 77 implementation of the
+DIRECT-L algorithm by J. Gablonsky
+
+J. M. Gablonsky and C. T. Kelley, "A locally-biased form of the DIRECT 
+algorithm," J. Global Optimization, vol. 21 (1), p. 27-37 (2001). 
+
+The original code can be downloaded from 
+http://www4.ncsu.edu/~ctk/SOFTWARE/DIRECTv204.tar.gz
+which includes some parallel processing functions that are not yet 
+supported in bayesian-optimization.
+
+This code has only been tested using gfortran on Windows, Mac OS X
+and Linux, but it should work with other fortran compilers like f77 or
+f95.
+
+b) Using NLOPT (default):
+
+We recommend the use of NLOPT for the inner loop optimization. The latest
+version can be downloaded from 
+
+http://ab-initio.mit.edu/wiki/index.php/NLopt
+
+NLOPT does not require external libraries and it is compatible with 
+Windows and Mac. As compiling it in Windows is tricky, there are 
+precompilled dlls for download.
+
+1.3 - PYTHON:
+=============
+
+The library has been tested with Python 2. Python development files such as 
+Python.h are needed to compile the interface.
+
+
+
 *****************
-* 1 - INSTALL:  *
+* 2 - INSTALL:  *
 *****************
 
-Libkrigging uses standard C/C++ code, standard libraries and it can
-be compiled in different platforms using CMake.
+Libkrigging uses standard C/C++ code and it can be compiled in different 
+platforms using CMake.
 
-Linux or Mac OS:
+a) Linux or Mac OS:
+-------------------
+In Ubuntu/Debian, you can get the dependencies by running:
+
+>> sudo apt-get install libboost-dev python-dev gfortran cmake g++
+
+To compile the source code:
+
 >> cmake . 
 >> make
 >> sudo make install
@@ -52,23 +118,25 @@ Then, in the directy where bayesian-optimization is, use:
 >> cmake .
 >> make
 >> make doc
->> make install
+>> sudo make install
+
 The documentation will appear on the doc subdirectory.
 
 
-Windows:
+b) Windows:
+-----------
 It can be compilled using CMake and MinGW compilers.
 
 
 ****************
-* 2 - USAGE:   *
+* 3 - USAGE:   *
 ****************
 
 Jointly with bayesian-optimization, the test program krigtest will be compiled.
 It can be used as an example of the interfaces that bayesian-optimization provide.
 There are three kind of interfaces.
 
-2.1 - C functional usage
+3.1 - C functional usage
 ------------------------
 
 This interface is fully functional from C and C++. It resembles the classic 
@@ -80,7 +148,7 @@ Note that the gradient has been included for future compatibility, although
 in the current implementation, it is not used. You can just use a NULL pointer.
 
 
-2.2 - C++ polymorphic usage
+3.2 - C++ polymorphic usage
 ---------------------------
 
 The second way to use the function is by creating an object that inherits 
@@ -93,70 +161,11 @@ your favorite interface.
 Note that the checkReachability function has been included for future 
 compatibility, although in the current implementation, it is not used.
 
-2.3 - Python functional usage
+3.3 - Python functional usage
 -----------------------------
 
 The file bin/test.py provides an example of the Python interface. It is similar
 the C interface. The parameters must be defined as a Python dictionary.
-
-
-
-***********************
-* 3 -  DEPENDENCIES:  *
-***********************
-
-3.1 - BOOST:
-============
-
-This code uses Boost libraries for matrix operations (uBlas) and random
-number generation. They can be found in standard linux distributions or
-it can be downloaded from (www.boost.org). Since they are pure template
-libraries, they do not require compilation. Just make sure the headers are
-on the include path.
-
-They are not very efficient, so it may change in future versions.
-
-
-3.2 - DIRECT:
-=============
-
-This library requires some other nonlinear optimization library 
-(e.g.: DIRECT). 
-
-
-a) Using Fortran DIRECT:
-
-For completeness, it includes a Fortran 77 implementation of the
-DIRECT-L algorithm by J. Gablonsky
-
-J. M. Gablonsky and C. T. Kelley, "A locally-biased form of the DIRECT 
-algorithm," J. Global Optimization, vol. 21 (1), p. 27-37 (2001). 
-
-The original code can be downloaded from 
-http://www4.ncsu.edu/~ctk/SOFTWARE/DIRECTv204.tar.gz
-which includes some parallel processing functions that are not yet 
-supported in bayesian-optimization.
-
-This code has only been tested using gcc and libgfortran. Due to some
-limitations of the F77 compiler, it doesn't work in 64bit OS.
-
-b) Using NLOPT (default):
-
-We recommend the use of NLOPT for the inner loop optimization. The latest
-version can be downloaded from 
-
-http://ab-initio.mit.edu/wiki/index.php/NLopt
-
-NLOPT does not require external libraries and it is compatible with 
-Windows and Mac. Although compiling it in Windows is tricky.
-
-3.3 - PYTHON:
-=============
-
-The library has been tested with Python 2.6.
-
-
-
 
 
 ********************
@@ -165,8 +174,10 @@ The library has been tested with Python 2.6.
 
 - In some systems, the linker is not able to find the shared libraries. You
 just need to point the LD_LIBRARY_PATH and PYTHONPATH to the corresponding
-folder (by default: /usr/local/lib)
+folder (by default: /usr/local/lib). There is a shell script to do that,
+exportlocalpaths.sh
 
 - I have found that in some versions of Linux, NLOPT callback procedure
-fails when using the Python interface of bayesian-optimization.
+fails when using the Python interface of bayesian-optimization, because the
+callback function pointer gets corrupted at some point.
 

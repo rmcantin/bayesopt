@@ -106,6 +106,8 @@ int GaussianProcess::precomputeGPParams()
   vector<double> YInvR(nSamples);
   double YInvRY;
   
+  //Test: Replace mYNorm for mGPY
+
   mMu =  inner_prod(mUInvR,mYNorm) / mUInvRUDelta;
   noalias(YInvR) = prod(mYNorm,mInvR);
   YInvRY = inner_prod(YInvR,mYNorm);
@@ -146,12 +148,11 @@ int GaussianProcess::addNewPointToGP(const vector<double> &Xnew,
 
   addSample(Xnew,Ynew);
   checkBoundsY(nSamples);
+  normalizeData();
 
   if(mVerbose>1)
     std::cout << mGPY(nSamples) << " vs. " << mGPY(mMinIndex) << std::endl;
-  
-  normalizeData();
-  
+    
   for (size_t ii=0; ii< nSamples; ii++)
     {
       correlationNewValue(ii) = correlationFunction(row(mGPX,ii), Xnew);
@@ -322,7 +323,8 @@ int SKO::optimize( vector<double> &bestPoint,
       if(mVerbose >0)
 	{ 
 	  std::cout << "Trying: " << xNext << std::endl;
-	  std::cout << "Best: " << mGP.getPointAtMinimum() << std::endl; 
+	  std::cout << "Best: " << mGP.getPointAtMinimum() << 
+	    mGP.getNormValue() <<  std::endl; 
 	}
       yNext = evaluateNormalizedSample(xNext);
       mGP.addNewPointToGP(xNext,yNext);     
@@ -430,7 +432,9 @@ double SKO::negativeExpectedImprovement(const vector<double> &query)
   double result;
 
   mGP.prediction(query,yPred,sPred);
-  yDiff = - yPred; // Because data is normalized, therefore Y minimum is 0
+  yDiff = mGP.getValueAtMinimum() - yPred; 
+// Because data is normalized, therefore Y minimum is 0
+
   yNorm = yDiff / sPred;
   
   if (mG == 1)

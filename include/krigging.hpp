@@ -116,7 +116,13 @@ public:
 		       double Ynew);
 
   vector<double> getPointAtMinimum()
-  { return row(mGPX,mMinIndex);}
+  { return row(mGPX,mMinIndex); }
+
+  double getValueAtMinimum()
+  { return mGPY(mMinIndex); }
+
+  double getNormValue()
+  { return mYNorm(mMinIndex); }
 
 protected:
   double correlationFunction( const vector<double> &x1,
@@ -125,7 +131,7 @@ protected:
   inline void normalizeData()
   {
     scalar_vector<double> MinYVec(mGPY.size(), mGPY(mMinIndex));
-    mYNorm = (mGPY - MinYVec) * ( 1/(mGPY(mMaxIndex)-mGPY(mMinIndex)) );
+    mYNorm = (mGPY) * ( 1/(mGPY(mMaxIndex)-mGPY(mMinIndex)) );
   };
 
   inline void checkBoundsY( size_t i )

@@ -1,16 +1,15 @@
 import numpy as np
 from math import factorial
-from numpy.matlib import dot,ones,array
+from numpy.matlib import dot,ones,array,eye
 from scipy.stats import norm
 #norm.pdf(x, loc=0, scale=1) and norm.cdf(x, loc=0, scale=1)
 
 class Kernel:
     def __init__(self):
-        self.theta = 0.21
-        self.p = 1.6
+        self.params = {'theta':0.21, 'p':1.6}
 
     def mattern(self,x1,x2):
-        theta = self.theta
+        theta = self.params['theta']
         xdiff = x1 - x2
 
         acsum = 0
@@ -37,11 +36,10 @@ class GaussianProcess:
         self.prior_delta = 10.0
 
         self.gp_noise = 1e-4
-
+        self.k = Kernel()
     
     def correlationFunction(self,x1,x2):
-        k = kernel()
-        return k.mattern(x1,x2)
+        return self.k.mattern(x1,x2)
 
     def addNewPoint(self,newX,newY):
         self.x = np.r_[self.x,newX]
@@ -61,7 +59,7 @@ class GaussianProcess:
             normalize = True
 
         if normalize:
-            normalizeResponseData()
+            self.normalizeResponseData()
 
     def normalizeResponseData(self):
         valMin = self.y[self.min]
@@ -72,7 +70,16 @@ class GaussianProcess:
     def mahalanobisDistance(self,m,invC):
         return dot(dot(m,invC),m)
 
-    def computeGPparams(self):
+    def inverseCorrelation(self):
+        R = eye(self.y.shape) * self.gp_noise;
+        for i,xa in enumerate(self.x):
+            for j,xb in enumerate(self.x):
+                R[i,j] += correlationFunction(xa,xb)
+
+        return np.linalg.inv(R)
+                
+
+    def precomputeGPparams(self,invR):
         N = self.y.shape
         uno = ones(N,1)  #TODO: Generalize for other mean functions
         alpha = self.prior_alpha
@@ -86,28 +93,49 @@ class GaussianProcess:
         mu = dot(uInvR,self.ny) / eta;
         sig2 = ( beta + yRy - mu*mu/eta ) / (alpha+N+2)
 
-        return mu,sig2
+        return mu,sig2,uInvR,eta
 
 
-    def prediction(self,query,mu,sig2):
+    def prediction(self,query,mu,sig2,uInvR,eta,invR):
         uno = ones(N,1)  #TODO: Generalize for other mean functions
         r = array([])
-        for x in dataX:
+        for x in self.x:
             r = np.r_[r,correlationFunction(x,query,theta)]
 
         rInvR = dot(r,invR)
-        uInvR = dot(uno,invR)
-
         uInvRr = dot(uInvR,r)
         rInvRr = dot(rInvR,r)
 
-        ypred  = mu + rInvR * (normY - uno * mu)
+        ypred  = mu + rInvR * (self.ny - uno * mu)
         spred2 = sig2 + (1 - rInvRr + (1 - uInvRr)**2 / eta )
 
         return ypred,spred2
 
+    def plotResults(self):
+        invR = inverseCorrelation();
+        mu, sig2, uInvR, eta = precomputeGPparams(invR)
+        xl = range(0,1000) / 1000
+        for x in xl:
+            y,s = prediction(x,mu,sig2,uInvR,eta,invR)
+            plot(x,y,'k')
+            plot(x,y+s,'r')
+            plot(x,y-s,'r')
+
+        for i,j in self.x,self.y:
+            plot(i,j,'ko')
+
+        show()
+
+
     def run(self):
-        print self.gp_noise
+        for i in range(1,10):
+            x = float(raw_input('Insert x:'))
+            y = float(raw_input('Insert y:'))
+            self.addNewPoint(x,y)
+
+        self.plotResults()
+
+
 
 
 class SKO:

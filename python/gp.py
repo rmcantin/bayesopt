@@ -1,6 +1,8 @@
 import numpy as np
+import pylab as pl
+import scipy as sp
 from math import factorial
-from numpy.matlib import dot,vdot,ones,array,eye
+from numpy.matlib import dot,ones,array,eye
 from scipy.stats import norm
 #norm.pdf(x, loc=0, scale=1) and norm.cdf(x, loc=0, scale=1)
 
@@ -10,14 +12,14 @@ class Kernel:
             self.set_default_params();
 
     def set_default_params(self):
-        self.params = {'theta':0.21,
+        self.params = {'theta':0.10,
                        'p':1.6}
 
     def mattern(self,x1,x2):
         theta = self.params['theta']   # sqrt(3) / l
         r = abs(x1 - x2)
         dif = r / theta
-        acsum = np.sum(dif)
+        acsum = dif.sum()
         acprod = np.prod(1+dif)
 
         return acprod*np.exp(-acsum)
@@ -31,11 +33,11 @@ class GaussianProcess:
         self.min = 0
         self.max = 0
         
-        self.prior_alpha = 1.0
+        self.prior_alpha = 3.0
         self.prior_beta = 0.1
-        self.prior_delta = 10.0
+        self.prior_delta = 10000.0
 
-        self.obs_noise = 1e-4
+        self.obs_noise = 1e-8
         self.k = Kernel()
     
     def correlationFunction(self,x1,x2):
@@ -62,76 +64,84 @@ class GaussianProcess:
             self.normalizeResponseData()
 
     def normalizeResponseData(self):
-        valMin = self.y[self.min]
-        valMax = self.y[self.max]
-        
+#        valMin = self.y[self.min]
+#        valMax = self.y[self.max]
+        valMax = np.ones(self.y.shape)
+        valMin = np.zeros(self.y.shape)
         self.ny = (self.y - valMin) / (valMax-valMin)
 
-    def mahalanobisDistance(self,m,invC):
-        return dot(dot(m,invC),m)
+    def bAct(self,b,c,A):
+        b = np.asarray(b, order='c')
+        c = np.asarray(c, order='c')
+        A = np.asarray(A, order='c')
+        return dot(dot(b,A),c.T).sum()
 
     def inverseCorrelation(self):
-        R = eye(self.y.shape[0]) * self.obs_noise;
+        K = eye(self.y.shape[0]) * self.obs_noise;
         for i,xa in enumerate(self.x):
             for j,xb in enumerate(self.x):
-                R[i,j] += self.correlationFunction(xa,xb)
+                K[i,j] += self.correlationFunction(xa,xb)
 
-        return np.linalg.inv(R)
+        return np.linalg.inv(K)
                 
 
-    def precomputeGPparams(self,invR):
+    def precomputeGPparams(self,Kinv):
         N = self.y.shape[0]
-        uno = ones(N)  #TODO: Generalize for other mean functions
+        uno = ones((N,))  #TODO: Generalize for other mean functions
         alpha = self.prior_alpha
         beta  = self.prior_beta
         delta = self.prior_delta
-
-        uInvR = dot(uno,invR)
-        eta = vdot(uInvR,uno) + 1/delta
-        yRy = mahalanobisDistance(self.ny,invR)
+        uK = dot(uno,Kinv)
+        eta = dot(uK,uno.T) + 1/delta
+        yKy = self.bAct(self.ny,self.ny,Kinv)
         
-        mu = dot(uInvR,self.ny) / eta;
-        sig2 = ( beta + yRy - mu*mu/eta ) / (alpha+N+2)
+        mu = dot(uK,self.ny) / eta;
+        sigma2 = ( beta + yKy - mu*mu/eta ) / (alpha+N+2)
 
-        return mu,sig2,uInvR,eta
+        return mu,sigma2,uK,eta
 
 
-    def prediction(self,query,mu,sig2,uInvR,eta,invR):
+    def prediction(self,query,mu,sigma2,uK,eta,Kinv):
         N = self.y.shape[0]
-        uno = ones(N)  #TODO: Generalize for other mean functions
+        uno = ones((N,))  #TODO: Generalize for other mean functions
         r = array([])
+        #TODO: try list comprehension
         for x in self.x:
-            r = np.r_[r,correlationFunction(x,query)]
+            r = np.r_[r,self.correlationFunction(x,query)]
 
-        rInvR = dot(r,invR)
-        uInvRr = vdot(uInvR,r)
-        rInvRr = vdot(rInvR,r)
+        rn = self.correlationFunction(query,query)
 
-        ypred  = mu + rInvR * (self.ny - uno * mu)
-        spred2 = sig2 + (1 - rInvRr + (1 - uInvRr)**2 / eta )
+        rK = dot(r,Kinv)
+        uKr = dot(uK,r)
+        rKr = dot(rK,r)
 
-        return ypred,spred2
+        ymu = self.ny - mu
+
+        y_pred  = mu + dot(rK,ymu.T)
+        s_pred = np.sqrt(sigma2 + (rn - rKr + (1 - uKr)**2 / eta ))
+
+        return y_pred,s_pred
 
     def plotResults(self):
         invR = self.inverseCorrelation();
         mu, sig2, uInvR, eta = self.precomputeGPparams(invR)
-        xl = range(0,1000) / 1000
+        xl = np.arange(0,1000) / 1000.0
+        pl.figure()
         for x in xl:
             y,s = self.prediction(x,mu,sig2,uInvR,eta,invR)
-            plot(x,y,'k')
-            plot(x,y+s,'r')
-            plot(x,y-s,'r')
+            pl.plot(x,y,'k+')
+            pl.plot(x,y+s,'r+')
+            pl.plot(x,y-s,'r+')
 
-        for i,j in self.x,self.y:
-            plot(i,j,'ko')
+        pl.plot(self.x,self.ny,'ko')
 
-        show()
+        pl.show()
 
 
     def run(self):
-        for i in range(1,3):
-            x = float(raw_input('Insert x:'))
-            y = float(raw_input('Insert y:'))
+        for i in range(1,20):
+            x = sp.rand()
+            y = sp.rand()*50
             self.addNewPoint(x,y)
 
         self.plotResults()

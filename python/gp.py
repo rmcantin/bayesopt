@@ -156,10 +156,17 @@ class GaussianProcess:
         pl.show()
 
 
+    def generateSampleStepFunction(self):
+        x = sp.rand()
+        y = sp.randn()*0.1
+        
+        if x > 0.5:
+            y += 10
+        return x,y
+
     def run(self):
         for i in range(1,20):
-            x = sp.rand()
-            y = sp.rand()*50
+            x,y = self.generateSampleStepFunction()
             self.addNewPoint(x,y)
 
         self.plotResults()

@@ -64,7 +64,7 @@ int GaussianProcess::fitGP()
 {
   /** Computes the GP based on mGPX
    *  This function is hightly inefficient O(N^3). Use it only at 
-   *  the beggining
+   *  the begining
    */
   size_t nSamples = mGPX.size1();
   bool inversionFlag;

@@ -199,8 +199,9 @@ double GaussianProcess::correlationFunction( const vector<double> &x1,
   return(prod * exp(-sum));
 }  // correlationFunction
 
-int GaussianProcess::prediction(const vector<double> &query,
-				  double& yPred, double& sPred)
+
+int GaussianProcess::prediction( const vector<double> &query,
+				 double& yPred, double& sPred)
 {
   vector<double> colR(mGPX.size1());
   vector<double> rInvR(mGPX.size1());
@@ -212,7 +213,7 @@ int GaussianProcess::prediction(const vector<double> &query,
       colR(ii) = correlationFunction(row(mGPX,ii), query);
     }
   
-  kn = correlationFunction(query, query) + mRegularizer;
+  kn = correlationFunction(query, query);
   
   noalias(rInvR) = prod(colR,mInvR);	
   rInvRr = inner_prod(rInvR,colR);

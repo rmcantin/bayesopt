@@ -83,16 +83,13 @@ public:
   {
     mGPX.resize(x.size1(),x.size2());
     mGPY.resize(y.size());
-
-    mGPX = x;
-    mGPY = y;
+    mGPX = x;  mGPY = y;
   }
 
   void addSample(vector<double> x, double y)
   {
     mGPX.resize(mGPX.size1()+1,mGPX.size2());
     mGPY.resize(mGPY.size()+1);
-  
     row(mGPX,mGPX.size1()-1) = x;
     mGPY(mGPY.size()-1) = y;
   }
@@ -110,6 +107,10 @@ public:
   int prediction(const vector<double> &query,
 		 double& yPred, double& sPred);
 
+  int marginalLikelihood(const vector<double> &query,
+			 
+			 
+
   int fitGP();
   int precomputeGPParams();
   int addNewPointToGP( const vector<double> &Xnew,
@@ -123,6 +124,12 @@ public:
 
   double getNormValue()
   { return mYNorm(mMinIndex); }
+
+  double getTheta()
+  { return mTheta; }
+
+  void setTheta( double theta )
+  { mTheta = theta; }
 
 protected:
   double correlationFunction( const vector<double> &x1,
@@ -141,7 +148,7 @@ protected:
   };
 
 protected:
-  const double mTheta, mP;            // Kernel parameters
+  double mTheta, mP;            // Kernel parameters
   const double mAlpha, mBeta;         // GP prior parameters (Inv-Gamma)
   const double mDelta2,mRegularizer;  // GP prior parameters (Normal)
 

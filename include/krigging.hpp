@@ -107,7 +107,7 @@ public:
   int prediction(const vector<double> &query,
 		 double& yPred, double& sPred);
 
-  int marginalLikelihood(const vector<double> &query,
+  //  int marginalLikelihood(const vector<double> &query,
 			 
 			 
 

@@ -19,6 +19,7 @@
 #include "ublasinv.hpp"
 #include "lhs.hpp"
 
+#include "kernels.hpp"
 
 #include "krig_config.h"
 
@@ -178,25 +179,25 @@ int GaussianProcess::addNewPointToGP(const vector<double> &Xnew,
 } // addNewPointToGP
 
 
+
 double GaussianProcess::correlationFunction( const vector<double> &x1, 
 					     const vector<double> &x2 )
 {
-  /** \brief GP Kernel computation
-   * Kernel correlation based on
-   * Matern linear function
-   */
-  
-  double diff, sum = 0.0, prod = 1.0;
-  vector<double> xdiff = x1 - x2;
-	
-  for (size_t ii = 0; ii<x1.size(); ++ii) 
-    {
-      diff  = fabs(xdiff(ii)) / mTheta;
-      sum  += diff;
-      prod *= 1 + diff;
-    }
+    
+  /* double diff, sum = 0.0, prod = 1.0;
 
-  return(prod * exp(-sum));
+    vector<double> xdiff = x1 - x2;
+	
+    for (size_t ii = 0; ii<x1.size(); ++ii) 
+      {
+	diff  = fabs(xdiff(ii)) / mTheta;
+	sum  += diff;
+	prod *= 1 + diff;
+      }
+
+      return(prod * exp(-sum));*/
+       double grad;
+       return kernels::SEIso(x1,x2,grad,mTheta);
 }  // correlationFunction
 
 

@@ -135,10 +135,12 @@ protected:
   double correlationFunction( const vector<double> &x1,
 			      const vector<double> &x2 );
 
+  double meanFunction( const vector<double> &x);
+
   inline void normalizeData()
   {
     scalar_vector<double> MinYVec(mGPY.size(), mGPY(mMinIndex));
-    mYNorm = (mGPY) * ( 1/(mGPY(mMaxIndex)-mGPY(mMinIndex)) );
+    mYNorm = (mGPY - MinYVec) * ( 1/(mGPY(mMaxIndex)-mGPY(mMinIndex)) );
   };
 
   inline void checkBoundsY( size_t i )

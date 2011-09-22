@@ -60,13 +60,8 @@ GaussianProcess::~GaussianProcess()
 {} // Default destructor
 
 
-
-int GaussianProcess::fitGP()
+int GaussianProcess::computeCorrMatrix()
 {
-  /** Computes the GP based on mGPX
-   *  This function is hightly inefficient O(N^3). Use it only at 
-   *  the begining
-   */
   size_t nSamples = mGPX.size1();
   bool inversionFlag;
   matrix<double> corrMatrix(nSamples,nSamples);
@@ -74,10 +69,6 @@ int GaussianProcess::fitGP()
   if ( (nSamples != mInvR.size1()) || (nSamples != mInvR.size2()) )
     mInvR.resize(nSamples,nSamples);
 
-  for (size_t ii=0; ii<nSamples; ii++)
-    checkBoundsY(ii);
-
-  normalizeData();
   
   for (size_t ii=0; ii< nSamples; ii++)
     {
@@ -93,13 +84,36 @@ int GaussianProcess::fitGP()
   inversionFlag = InvertMatrix(corrMatrix,mInvR);
   if (inversionFlag == false)    return -2;
 
+}
+
+
+int GaussianProcess::fitGP()
+{
+  /** Computes the GP based on mGPX
+   *  This function is hightly inefficient O(N^3). Use it only at 
+   *  the begining
+   */
+  for (size_t ii=0; ii<nSamples; ii++)
+    checkBoundsY(ii);
+
+  //  normalizeData();
+
+  int error = computeCorrMatrix();
+
+  if (error < 0)
+    return error;
+
   return precomputeGPParams();
 } // fitGP
+
 
 int GaussianProcess::precomputeGPParams()
 {
   size_t nSamples = mGPX.size1();
-  scalar_vector<double> colU(nSamples, 1.0);
+  vector<double> colU(nSamples);
+
+  for (size_t ii=0; ii< nSamples; ii++) 
+    colU(ii) = meanFunction(row(mGPX,ii));
 
   mUInvR = prod(colU,mInvR);
   mUInvRUDelta = inner_prod(mUInvR,colU) + 1/mDelta2;
@@ -109,9 +123,9 @@ int GaussianProcess::precomputeGPParams()
   
   //Test: Replace mYNorm for mGPY
 
-  mMu =  inner_prod(mUInvR,mYNorm) / mUInvRUDelta;
-  noalias(YInvR) = prod(mYNorm,mInvR);
-  YInvRY = inner_prod(YInvR,mYNorm);
+  mMu =  inner_prod(mUInvR,mGPY) / mUInvRUDelta;
+  noalias(YInvR) = prod(mGPY,mInvR);
+  YInvRY = inner_prod(YInvR,mGPY);
   
   mSig = (mBeta + YInvRY - mMu*mMu/mUInvRUDelta) / (mAlpha + (nSamples+1) + 2);
   
@@ -197,9 +211,15 @@ double GaussianProcess::correlationFunction( const vector<double> &x1,
 
       return(prod * exp(-sum));*/
        double grad;
-       return kernels::SEIso(x1,x2,grad,mTheta);
+       double theta = 0.05;
+       return kernels::SEIso(x1,x2,grad,theta);
 }  // correlationFunction
 
+
+double GaussianProcess::meanFunction( const vector<double> &x)
+{
+  return means::One(x);
+}
 
 int GaussianProcess::prediction( const vector<double> &query,
 				 double& yPred, double& sPred)

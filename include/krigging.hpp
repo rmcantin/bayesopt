@@ -122,8 +122,8 @@ public:
   double getValueAtMinimum()
   { return mGPY(mMinIndex); }
 
-  double getNormValue()
-  { return mYNorm(mMinIndex); }
+  /*double getNormValue()
+    { return mYNorm(mMinIndex); }*/
 
   double getTheta()
   { return mTheta; }
@@ -135,13 +135,17 @@ protected:
   double correlationFunction( const vector<double> &x1,
 			      const vector<double> &x2 );
 
+  int computeCorrMatrix();
+
+  vector<double> computeCrossCorrelation(const vector<double> &query);
+
   double meanFunction( const vector<double> &x);
 
-  inline void normalizeData()
+  /*  inline void normalizeData()
   {
     scalar_vector<double> MinYVec(mGPY.size(), mGPY(mMinIndex));
     mYNorm = (mGPY - MinYVec) * ( 1/(mGPY(mMaxIndex)-mGPY(mMinIndex)) );
-  };
+    };*/
 
   inline void checkBoundsY( size_t i )
   {
@@ -156,7 +160,7 @@ protected:
 
   matrix<double> mGPX;                // Data points
   vector<double> mGPY;                // Data values
-  vector<double> mYNorm;              // Normalized data values
+  // vector<double> mYNorm;              // Normalized data values
 	
   double mMu, mSig;                   // GP posterior paramethers
   // Precomputed GP prediction operations
@@ -383,8 +387,6 @@ protected:
   // Member variables
   GaussianProcess mGP;
 
-  bool mUseEI;
-  double mLCBparam;                   // LCB = mean - param * std
 
   size_t mMaxIterations;
   const size_t mMaxDim;// Maximum SKO evaluations and dimensions
@@ -394,6 +396,9 @@ protected:
 
   vector<double> mLowerBound;
   vector<double> mRangeBound;
+
+  double mLCBparam;                   // LCB = mean - param * std
+  bool mUseEI;
 	
   int mVerbose;
 

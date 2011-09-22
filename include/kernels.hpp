@@ -38,11 +38,10 @@ namespace kernels
       case 1: grad = r*er;  return er;
       case 3: grad = r*r*er; return (1+r)*er;
       case 5: grad = r*(1+r)/3*r*er; return (1+r*(1+r/3))*er;
-      defaul: 
+      default: 
 	std::cout << "Error: not suported kernel." << std::endl;
-	return 1;
       }
-
+    return 1;
   }  // correlationFunction
   
   double SEIso( const vector<double> &x1, 

@@ -20,6 +20,7 @@
 #include "lhs.hpp"
 
 #include "kernels.hpp"
+#include "meanfuncs.hpp"
 
 #include "krig_config.h"
 
@@ -68,7 +69,6 @@ int GaussianProcess::computeCorrMatrix()
   
   if ( (nSamples != mInvR.size1()) || (nSamples != mInvR.size2()) )
     mInvR.resize(nSamples,nSamples);
-
   
   for (size_t ii=0; ii< nSamples; ii++)
     {
@@ -84,8 +84,19 @@ int GaussianProcess::computeCorrMatrix()
   inversionFlag = InvertMatrix(corrMatrix,mInvR);
   if (inversionFlag == false)    return -2;
 
+  return 1;
 }
 
+vector<double> GaussianProcess::computeCrossCorrelation(const vector<double> &query)
+{
+  vector<double> knx(mGPX.size1());
+
+  for (size_t ii=0; ii<mGPX.size1(); ++ii)
+    {
+      knx(ii) = correlationFunction(row(mGPX,ii), query);
+    }
+  return knx;
+}
 
 int GaussianProcess::fitGP()
 {
@@ -93,6 +104,7 @@ int GaussianProcess::fitGP()
    *  This function is hightly inefficient O(N^3). Use it only at 
    *  the begining
    */
+  size_t nSamples = mGPX.size1();
   for (size_t ii=0; ii<nSamples; ii++)
     checkBoundsY(ii);
 
@@ -130,7 +142,7 @@ int GaussianProcess::precomputeGPParams()
   mSig = (mBeta + YInvRY - mMu*mMu/mUInvRUDelta) / (mAlpha + (nSamples+1) + 2);
   
   scalar_vector<double> colMu(nSamples,mMu);
-  mYUmu = mYNorm - colMu;
+  mYUmu = mGPY - colMu;
   
   return 1;
 }
@@ -149,7 +161,6 @@ int GaussianProcess::addNewPointToGP(const vector<double> &Xnew,
   size_t NewDim = Xnew.size();
   
   scalar_vector<double> colU(nSamples+1,1.0);
-  vector<double> correlationNewValue(nSamples);
   vector<double> Li(nSamples);
   vector<double> wInvR(nSamples);
   double wInvRw;
@@ -163,15 +174,12 @@ int GaussianProcess::addNewPointToGP(const vector<double> &Xnew,
 
   addSample(Xnew,Ynew);
   checkBoundsY(nSamples);
-  normalizeData();
+  //  normalizeData();
 
   if(mVerbose>1)
     std::cout << mGPY(nSamples) << " vs. " << mGPY(mMinIndex) << std::endl;
     
-  for (size_t ii=0; ii< nSamples; ii++)
-    {
-      correlationNewValue(ii) = correlationFunction(row(mGPX,ii), Xnew);
-    }
+  vector<double> correlationNewValue = computeCrossCorrelation(Xnew);
   
   selfCorrelation = correlationFunction(Xnew, Xnew) + mRegularizer;
   
@@ -224,16 +232,11 @@ double GaussianProcess::meanFunction( const vector<double> &x)
 int GaussianProcess::prediction( const vector<double> &query,
 				 double& yPred, double& sPred)
 {
-  vector<double> colR(mGPX.size1());
   vector<double> rInvR(mGPX.size1());
   double kn;
   double uInvRr, rInvRr;
 
-  for (size_t ii=0; ii< mGPX.size1(); ++ii)
-    {
-      colR(ii) = correlationFunction(row(mGPX,ii), query);
-    }
-  
+  vector<double> colR = computeCrossCorrelation(query);
   kn = correlationFunction(query, query);
   
   noalias(rInvR) = prod(colR,mInvR);	
@@ -261,7 +264,7 @@ SKO::SKO():
   mGP(),
   mMaxIterations(MAX_ITERATIONS), mMaxDim(MAX_DIM), 
   mUseCool(false), mG(1), 
-  mVerbose(0), mLCBparam(1.0), mUseEI(true)
+  mLCBparam(1.0), mUseEI(true), mVerbose(0)
 {} // Default constructor
 
 
@@ -272,7 +275,7 @@ SKO::SKO( double theta, double p,
   mGP(theta,p,alpha,beta,delta,noise),
   mMaxIterations(nIter), mMaxDim(MAX_DIM),
   mUseCool(useCool), mG(1), 
-  mVerbose(0), mLCBparam(1.0),mUseEI(true)
+  mLCBparam(1.0),mUseEI(true), mVerbose(0)
 {} // Constructor
 
 SKO::SKO( gp_params params,
@@ -280,7 +283,7 @@ SKO::SKO( gp_params params,
   mGP(params),
   mMaxIterations(nIter), mMaxDim(MAX_DIM),
   mUseCool(useCool), mG(1), 
-  mVerbose(0), mLCBparam(1.0),mUseEI(true)
+  mLCBparam(1.0),mUseEI(true), mVerbose(0)
 { } // Constructor
 
 
@@ -346,7 +349,7 @@ int SKO::optimize( vector<double> &bestPoint,
 	{ 
 	  std::cout << "Trying: " << xNext << std::endl;
 	  std::cout << "Best: " << mGP.getPointAtMinimum() << 
-	    mGP.getNormValue() <<  std::endl; 
+	    mGP.getValueAtMinimum() <<  std::endl; 
 	}
       yNext = evaluateNormalizedSample(xNext);
       mGP.addNewPointToGP(xNext,yNext);     
@@ -435,7 +438,6 @@ double SKO::lowerConfidenceBound(const vector<double> &query)
     return 0.0;
   
   double yPred, sPred, result;
-  double alpha = 1.0;
 
   mGP.prediction(query,yPred,sPred);
   result = yPred -  mLCBparam*sPred;
@@ -568,7 +570,7 @@ int SKO::nextPoint(double* x, int n, void* objPointer)
 	nlopt_set_min_objective(opt, fpointer, objPointer);
 	nlopt_set_maxeval(opt, maxf-round(maxf*coef));
 	
-	nlopt_result errortype = nlopt_optimize(opt, x, &fmin);
+	errortype = nlopt_optimize(opt, x, &fmin);
       }
       
 

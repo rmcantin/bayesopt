@@ -21,6 +21,8 @@
 
 #include "kernels.hpp"
 #include "meanfuncs.hpp"
+#include "criteria.hpp"
+
 
 #include "krig_config.h"
 
@@ -429,67 +431,23 @@ int SKO::sampleInitialPoints( size_t nSamples, size_t nDims,
 } // sampleInitialPoints
 
 
-
-
-double SKO::lowerConfidenceBound(const vector<double> &query)
-{    
-  bool reachable = checkReachability(query);
-  if (!reachable)
-    return 0.0;
-  
-  double yPred, sPred, result;
-
-  mGP.prediction(query,yPred,sPred);
-  result = yPred -  mLCBparam*sPred;
-
-  return result;
-
-}
-
-double SKO::negativeExpectedImprovement(const vector<double> &query)
+double SKO::evaluateCriteria(const vector<double> &query)
 {
   bool reachable = checkReachability(query);
   if (!reachable)
     return 0.0;
 
-  double yPred, yDiff, yNorm, sPred;
-  double result;
+  double yPred, sPred;
 
   mGP.prediction(query,yPred,sPred);
-  yDiff = mGP.getValueAtMinimum() - yPred; 
-// Because data is normalized, therefore Y minimum is 0
+  double yMin = mGP.getValueAtMinimum(); 
 
-  yNorm = yDiff / sPred;
-  
-  if (mG == 1)
-    {
-      result = -1.0 * ( yDiff * cdf(yNorm) + sPred * pdf(yNorm) );
-    }
+  if (mUseEI)
+    return criteria::negativeExpectedImprovement(yPred,sPred,yMin,mG);
   else
-    {
-      double pdfD = pdf(yNorm);
-      double Tm2 = cdf(yNorm);
-      double Tm1 = pdfD;
-      double fg = factorial(mG);
-      double Tact;
-      
-      double sumEI = pow(yNorm,mG)*Tm2 - mG*pow(yNorm,mG-1)*Tm1;
-
-      for (unsigned int ii = 2; ii < mG; ii++) 
-	{
-	  Tact = (ii-1)*Tm2 - pdfD*pow(yNorm,ii-1);
-	  sumEI += pow(-1.0,ii)*(fg/(factorial(ii)*factorial(mG-ii)))*
-	    pow(yNorm,mG-ii)*Tact;
-	  
-	  //roll-up
-	  Tm2 = Tm1;   Tm1 = Tact;
-	}
-      result = -1.0 * pow(sPred,mG) * sumEI;
-    }
-  
-  return result;
+    return criteria::lowerConfidenceBound(yPred,sPred,mLCBparam);
        
-}  // negativeExpectedImprovement
+}  // evaluateCriteria
 
 int SKO::nextPoint(vector<double> &Xnext)
 {   
@@ -529,29 +487,18 @@ int SKO::nextPoint(double* x, int n, void* objPointer)
     int (*fpointer)(int *, double *, double *, 
 		    int *, int *,int *, double *,
 		    int *, char *, int *, int);
-
+    fpointer = &(DIRECT::criteriawrap_);
 
     int maxT = MAX_DIRECT_ITERATIONS;
-
-    if (mUseEI)
-      fpointer = &(DIRECT::negeiwrap_);
-    else
-      fpointer = &(DIRECT::lcbwrap_);
-
     DIRECT::direct(fpointer, x, &n, &fmin, l, u, 
 		   &ierror, &maxf, &maxT, objPointer);	
 
 
 #else /* USE_DIRECT_FORTRAN */
     double (*fpointer)(unsigned int, const double *, double *, void *);
-
-    if (mUseEI)
-      fpointer = &(NLOPT_WPR::negeiwrap_nlopt);
-    else 
-      fpointer = &(NLOPT_WPR::lcbwrap_nlopt);
+    fpointer = &(NLOPT_WPR::evaluate_criteria_nlopt);
 
     double coef = 0.8;
-
     nlopt_opt opt;
     opt = nlopt_create(NLOPT_GN_ORIG_DIRECT_L, n); /* algorithm and dims */
     nlopt_set_lower_bounds(opt, l);
@@ -598,48 +545,3 @@ double SKO::evaluateNormalizedSample( const vector<double> &query)
   
 
 
-unsigned int SKO::factorial(unsigned int no, unsigned int a)
-{
-  // termination condition
-  if (0 == no || 1 == no)
-    return a;
-  
-  // Tail recursive call
-  return factorial(no - 1, no * a);
-} //factorial
-
-double SKO::pdf(double x)
-{
-  return (1 / (sqrt(2 * M_PI)) * exp(-(x*x)/2));
-} //pdf
-  
-double SKO::cdf(double x)
-{
-  /** \brief Abromowitz and Stegun approximation of Normal CDF
-   * 
-   * Extracted from 
-   * http://www.sitmo.com/doc/Calculating_the_Cumulative_Normal_Distribution
-   * The most used algorithm is algorithm 26.2.17 from Abromowitz and Stegun, 
-   * Handbook of Mathematical Functions. It has a maximum absolute error of 7.5e^-8.
-   * 
-   */
-	
-  static const double b1 =  0.319381530;
-  static const double b2 = -0.356563782;
-  static const double b3 =  1.781477937;
-  static const double b4 = -1.821255978;
-  static const double b5 =  1.330274429;
-  static const double p  =  0.2316419;
-  static const double c  =  0.39894228;
-  
-  if(x >= 0.0) {
-    double t = 1.0 / ( 1.0 + p * x );
-    return (1.0 - c * exp( -x * x / 2.0 ) * t *
-	    ( t *( t * ( t * ( t * b5 + b4 ) + b3 ) + b2 ) + b1 ));
-  }
-  else {
-    double t = 1.0 / ( 1.0 - p * x );
-    return ( c * exp( -x * x / 2.0 ) * t *
-	     ( t *( t * ( t * ( t * b5 + b4 ) + b3 ) + b2 ) + b1 ));
-  }
-} // cdf

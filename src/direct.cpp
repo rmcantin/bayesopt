@@ -10,10 +10,10 @@
 namespace DIRECT
 {
 
-  /* +-------------------------------------------------------+ */
-  /* | Negative Expected Improvement C wrapper for DIRECT    | */
-  /* +-------------------------------------------------------+ */
-  int negeiwrap_   (int *n, double *x, double *f, 
+  /* +----------------------------------------------------------+ */
+  /* | C wrapper for DIRECT optimization of current criteria    | */
+  /* +----------------------------------------------------------+ */
+  int criteriawrap_   (int *n, double *x, double *f, 
 		    int *flag__, int *iidata, 
 		    int *iisize, double *ddata, 
 		    int *idsize, char *cdata,
@@ -26,35 +26,11 @@ namespace DIRECT
     void *objPointer = iidata;
     SKO* GAUSSIAN_PROCESS = static_cast<SKO*>(objPointer);
     
-    *f =  GAUSSIAN_PROCESS->negativeExpectedImprovement(sharedN);
+    *f =  GAUSSIAN_PROCESS->evaluateCriteria(sharedN);
     *flag__ = 0;
     
     return 0;
-  } /* negeiwrap_ */
-
-
-          /* +------------------------------------------+ */
-	  /* | Lower Confidence C wrapper  | */
-	  /* +------------------------------------------+ */
-	  int lcbwrap_   (int *n, double *x, double *f, 
-			  int *flag__, int *iidata, 
-			  int *iisize, double *ddata, 
-			  int *idsize, char *cdata,
-			  int *icsize, int cdata_len)
-	  {
-	    array_adaptor<double> shared((*n), x);
-	    vector<double, array_adaptor<double> > sharedN((*n), shared); 
-
-	    // This is not very clever... but works!
-	    void *objPointer = iidata;
-	    SKO* GAUSSIAN_PROCESS = static_cast<SKO*>(objPointer);
-
-	    *f =  GAUSSIAN_PROCESS->lowerConfidenceBound(sharedN);
-	    *flag__ = 0;
-	    
-	    return 0;
-	    } /* negeiwrap_ */
-
+  } /* criteriawrap_ */
 
 
           /* +------------------------------------------+ */

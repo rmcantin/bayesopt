@@ -288,26 +288,15 @@ class SKO
 
 
   /** 
-   * Function that returns the negative Expected Improvement (-EI) of a series 
+   * Function that returns the corresponding criteria  of a series 
    * of queries in the hypercube [0,1] in order to choose the best point to try
    * the next iteration.
    * 
    * @param query point in the hypercube [0,1] to evaluate the Gaussian process
    * 
-   * @return negative Expected Improvement (-EI).
+   * @return negative criteria (Expected Improvement, LCB, A-optimality, etc.).
    */	
-  double negativeExpectedImprovement( const vector<double> &query );
-
-  /** 
-   * Function that returns the Lower Confidence Bound (LCB) of a series 
-   * of queries in the hypercube [0,1] in order to choose the best point to try
-   * the next iteration.
-   * 
-   * @param query point in the hypercube [0,1] to evaluate the Gaussian process
-   * 
-   * @return Lower Confidence Bound (LCB).
-   */	
-  double lowerConfidenceBound(const vector<double> &query);
+  double evaluateCriteria( const vector<double> &query );
 
   /** 
    * Function that defines the actual mathematical function to be optimized.
@@ -374,13 +363,6 @@ protected:
   int nextPoint( double* x, int n, void* objPointer);
 
   inline double evaluateNormalizedSample( const vector<double> &query);
-
-  // Math functions
-  // TODO: take it outside
-  unsigned int factorial(unsigned int no, unsigned int a = 1);
-  double pdf(double x);
-  double cdf(double x);
-
 
 protected:
 

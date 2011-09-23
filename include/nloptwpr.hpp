@@ -7,7 +7,7 @@ namespace NLOPT_WPR
   extern "C" {
 
   /** 
-   * \brief Negative Expected Improvement C wrapper for NLOPT
+   * \brief C wrapper for NLOPT to evaluate the critearia for a query
    * 
    * @param n size of query
    * @param x query point
@@ -16,22 +16,9 @@ namespace NLOPT_WPR
    * 
    * @return negative EI 
    */
-  double negeiwrap_nlopt (unsigned int n, const double *x,
-			  double *grad, void *my_func_data);
+  double evaluate_criteria_nlopt (unsigned int n, const double *x,
+				  double *grad, void *my_func_data);
   
-  /** 
-   * \brief Lower Confidence Bound C wrapper for NLOPT
-   * 
-   * @param n size of query
-   * @param x query point
-   * @param grad gradient if available (not used now)
-   * @param my_func_data any other function data
-   * 
-   * @return LCB
-   */
-  double lcbwrap_nlopt (unsigned int n, const double *x,
-			double *grad, void *my_func_data);
-
   }
 }
 

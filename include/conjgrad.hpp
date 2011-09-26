@@ -72,13 +72,13 @@ int minimize(vector<double>& X, int max_lines, int max_evals,
   while ((epoch < max_lines) && (evals < max_evals))
     {
       evals++;
-      vector<double> X0 = X;                      // make a copy of current values
+      vector<double> X0 = X;                     // make a copy of current values
       double F0 = f0;
       vector<double> dF0 = df0;
       
       //TODO: Definir M
 
-      while (1)                         // keep extrapolating as long as necessary
+      while (1)                        // keep extrapolating as long as necessary
 	{
 	  x2 = 0; f2 = f0; d2 = d0; f3 = f0;
 	  vector<double> df3 = df0;
@@ -86,7 +86,7 @@ int minimize(vector<double>& X, int max_lines, int max_evals,
 	  bool success = false;
 	  while ((!success) && (M > 0))
 	    {
-	      M--; epoch++;                                       // count epochs?!
+	      M--; epoch++;                                     // count epochs?!
 	      if (maximum_likelihood(result+x3,f3,df3) == 1)
 		success = true;
 	      else x3 = (x2+x3)/2;
@@ -108,16 +108,16 @@ int minimize(vector<double>& X, int max_lines, int max_evals,
 	  B = 3*(f2-f1)-(2*d1+d2)*(x2-x1);
 	  root = B*B-A*d1*(x2-x1);                    // num. error possible, ok!
 	  if (root < 0.0)
-	    x3 = x2*EXT;                             // extrapolate maximum amount
+	    x3 = x2*EXT;                            // extrapolate maximum amount
 	  else
 	    {
-	      x3 = x1-d1*(x2-x1)^2/(B+sqrt(root));     // num. error possible, ok!
-	      if (x3 < 0) || (x3 > x2*EXT) // wrong sign or beyond extrapo. limit?
-		x3 = x2*EXT;                         // extrapolate maximum amount
-	      else if x3 < x2+INT*(x2-x1)// new point too close to previous point?
+	      x3 = x1-d1*(x2-x1)^2/(B+sqrt(root));    // num. error possible, ok!
+	      if (x3 < 0) || (x3 > x2*EXT) // wrong sign or beyond extrap. limit?
+		x3 = x2*EXT;                        // extrapolate maximum amount
+	      else if x3 < x2+INT*(x2-x1)   // new point too close to prev point?
 		x3 = x2+INT*(x2-x1);
 	    }
-	} /* while(1) */                                   // end extrapolation
+	} /* while(1) */                                     // end extrapolation
 
       while (((abs(d3) > -SIG*d0) || (f3 > f0+x3*RHO*d0)) && (M > 0))
 	{
@@ -159,9 +159,10 @@ int minimize(vector<double>& X, int max_lines, int max_evals,
 	  d3 = dot(df3,s);
 	}
 
-      if ((fabs(d3) < -SIG*d0) && (f3 < f0+x3+RHO+d0))
+      if ((fabs(d3) < -SIG*d0) && (f3 < f0+x3+RHO+d0)) //if line search succeeded
 	{
-	  X = X+dot(x3,s)
+	  X = X+dot(x3,s); f0 = f3;
+	  s = dot(df3,df3) - dot(df0,df3) 
 	}
 
     }  /* while(epoch... */

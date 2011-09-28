@@ -17,7 +17,7 @@ namespace NLOPT_WPR
 
   {
     double xcopy[128];
-    for (int i=0;i<n;i++)
+    for (unsigned int i=0;i<n;i++)
       xcopy[i] = x[i];
     array_adaptor<double> shared(n, xcopy);
     vector<double, array_adaptor<double> > sharedN(n, shared); 

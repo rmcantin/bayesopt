@@ -39,7 +39,7 @@ double testFunction(unsigned int n, double *x,
 {
   double f = 10.;
     
-  for (int i = 0; i < n; ++i)
+  for (unsigned int i = 0; i < n; ++i)
     {
       f += (x[i] - .53f) * (x[i] - .53f);
     }
@@ -54,6 +54,8 @@ int main(int nargs, char *args[])
   double diff,diff2;
   vector<double> result(6);
   randEngine rEng(100u);
+
+  int nIterations = 600;
 
   
   std::cout << "Running C++ interface" << std::endl;
@@ -87,7 +89,7 @@ int main(int nargs, char *args[])
   
   start = clock();
 
-  krigging_optimization(n,&testFunction,NULL,l,u,x,fmin,300,par,1,0);
+  krigging_optimization(n,&testFunction,NULL,l,u,x,fmin,nIterations,par,1,0);
 
   end = clock();
   diff2 = (double)(end-start) / (double)CLOCKS_PER_SEC;

@@ -151,21 +151,6 @@ int SKO::updateCoolingScheme( size_t nTotalIterations,
 
   return 1;
 }
-/*
-int SKO::allocateMatrices(size_t nSamples, size_t nDims)
-{
-  if ( ( nSamples != mGPX.size1() ) || ( nDims != mGPX.size2() ) )
-    mGPX.resize(nSamples,nDims,false);
-  
-  if ( ( nSamples != mInvR.size1() ) || ( nSamples != mInvR.size2() ) )
-    mInvR.resize(nSamples,nSamples,false);
-  
-  if ( nSamples != mGPY.size() )
-    mGPY.resize(nSamples,false);
-  
-  return 1;
-}
-*/
 	
 int SKO::sampleInitialPoints( size_t nSamples, size_t nDims,
 			      bool useLatinBox, randEngine& mtRandom )

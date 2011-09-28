@@ -63,6 +63,7 @@ CONFIGURE_FILE(
 # note that we don't need \ at the end of line
 SET( KRIGGING_SRCS
   ./src/krigging.cpp
+  ./src/gaussprocess.cpp
   ./src/krigwpr.cpp
   )
 
@@ -78,6 +79,7 @@ SET( NLOPT_SRCS  ./src/nloptwpr.cpp )
 
 SET( KRIGGING_HEAD
   ./include/krigging.hpp
+  ./include/gaussprocess.hpp
   ./include/krigwpr.h
   ./include/krig_config.h
   )

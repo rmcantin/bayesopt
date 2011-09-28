@@ -38,21 +38,6 @@ typedef struct {
 			    int useEI,
 			    int use_cooling_scheme);
 
-
-  /* +-------------------------------------------------------+ */
-  /* | Negative Expected Improvement C wrapper for NLOPT     | */
-  /* +-------------------------------------------------------+ */
-  //double negeiwrap_nlopt (unsigned int n, const double *x,
-  //			  double *grad, void *my_func_data);
-
-  /* +-------------------------------------------------------+ */
-  /* | Lower Confidence Bound  C wrapper for NLOPT           | */
-  /* +-------------------------------------------------------+ */
-  //double lcb_nlopt (unsigned int n, const double *x,
-  //		    double *grad, void *my_func_data);
-
-
-
 #ifdef __cplusplus
 }
 #endif 

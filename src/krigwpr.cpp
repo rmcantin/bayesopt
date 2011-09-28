@@ -22,7 +22,7 @@ class CSKO: public SKO
  public:
 
   CSKO( gp_params params,
-	     size_t nIter, bool useCool = false): 
+	size_t nIter, bool useCool = false): 
     SKO(params,nIter,useCool)
   {}; 
 

@@ -36,21 +36,12 @@
 #include <boost/numeric/ublas/io.hpp>
 #include "randgen.hpp"
 
+#include "gaussprocess.hpp"
+
 #include "elementwiseUblas.hpp"
 #include "krigwpr.h"
 
 // Default values
-
-//#define FIBONACCI_SEED  123u
-//#define MT_SEED         156u
-#define KERNEL_THETA    0.21
-#define KERNEL_P        1.6
-#define PRIOR_ALPHA     1.0
-#define PRIOR_BETA      0.1
-#define PRIOR_DELTA_SQ  10.0
-#define DEF_REGULARIZER 1e-4
-#define MAX_ITERATIONS  300
-#define MAX_DIM         20
 
 // DIRECT default values
 #define MAX_DIRECT_EVALUATIONS  1000
@@ -66,117 +57,6 @@ using namespace boost::numeric::ublas;
 /** \addtogroup BayesOptimization */
 /*@{*/
 
-
-
-class GaussianProcess
-{
-public:
-
-  GaussianProcess();  
-  GaussianProcess( double theta, double p,
-		   double alpha, double beta, 
-		   double delta, double noise);
-  GaussianProcess( gp_params params );
-  ~GaussianProcess();
-
-  void setSamples(matrix<double> x, vector<double> y)
-  {
-    mGPX.resize(x.size1(),x.size2());
-    mGPY.resize(y.size());
-    mGPX = x;  mGPY = y;
-  }
-
-  void addSample(vector<double> x, double y)
-  {
-    mGPX.resize(mGPX.size1()+1,mGPX.size2());
-    mGPY.resize(mGPY.size()+1);
-    row(mGPX,mGPX.size1()-1) = x;
-    mGPY(mGPY.size()-1) = y;
-  }
-
-  /** 
-   * Function that returns the prediction of the GP for a query point
-   * in the hypercube [0,1].
-   * 
-   * @param query point in the hypercube [0,1] to evaluate the Gaussian process
-   * @param yPred mean of the predicted Gaussian distribution
-   * @param sPred std of the predicted Gaussian distribution
-   * 
-   * @return error code.
-   */	
-  int prediction(const vector<double> &query,
-		 double& yPred, double& sPred);
-
-  //  int marginalLikelihood(const vector<double> &query,
-			 
-			 
-
-  int fitGP();
-  int precomputeGPParams();
-  int addNewPointToGP( const vector<double> &Xnew,
-		       double Ynew);
-
-  vector<double> getPointAtMinimum()
-  { return row(mGPX,mMinIndex); }
-
-  double getValueAtMinimum()
-  { return mGPY(mMinIndex); }
-
-  /*double getNormValue()
-    { return mYNorm(mMinIndex); }*/
-
-  double getTheta()
-  { return mTheta; }
-
-  void setTheta( double theta )
-  { mTheta = theta; }
-
-protected:
-  double correlationFunction( const vector<double> &x1,
-			      const vector<double> &x2 );
-
-  int computeCorrMatrix();
-
-  vector<double> computeCrossCorrelation(const vector<double> &query);
-
-  double meanFunction( const vector<double> &x);
-
-  /*  inline void normalizeData()
-  {
-    scalar_vector<double> MinYVec(mGPY.size(), mGPY(mMinIndex));
-    mYNorm = (mGPY - MinYVec) * ( 1/(mGPY(mMaxIndex)-mGPY(mMinIndex)) );
-    };*/
-
-  inline void checkBoundsY( size_t i )
-  {
-    if ( mGPY(mMinIndex) > mGPY(i) )       mMinIndex = i;
-    else if ( mGPY(mMaxIndex) < mGPY(i) )  mMaxIndex = i;
-  };
-
-protected:
-  double mTheta, mP;            // Kernel parameters
-  const double mAlpha, mBeta;         // GP prior parameters (Inv-Gamma)
-  const double mDelta2,mRegularizer;  // GP prior parameters (Normal)
-
-  matrix<double> mGPX;                // Data points
-  vector<double> mGPY;                // Data values
-  // vector<double> mYNorm;              // Normalized data values
-	
-  double mMu, mSig;                   // GP posterior paramethers
-  // Precomputed GP prediction operations
-
-  bounded_matrix<double, 
-		 MAX_ITERATIONS, 
-		 MAX_ITERATIONS> mInvR; // Inverse Correlation matrix	
-  
-  vector<double> mUInvR;              
-  double mUInvRUDelta;
-  vector<double> mYUmu;
-
-  size_t mMinIndex, mMaxIndex;
-
-  int mVerbose;
-};
 
 
 /** 

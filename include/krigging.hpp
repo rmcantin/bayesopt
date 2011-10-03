@@ -120,7 +120,7 @@ class SKO
    * @param useCool      select Sasena cooling/annealing strategy
    */
   SKO( gp_params params,
-	    size_t nIter, bool useCool = false); 
+       size_t nIter, bool useCool = false); 
 	
   /** 
    * Default destructor

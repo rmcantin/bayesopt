@@ -91,7 +91,7 @@ vector<double> GaussianProcess::computeCrossCorrelation(
 double GaussianProcess::negativeLogLikelihood(double param,
 					      vector<double> &grad)
 {
-  vector<double> alpha = dot(mInvR,mGPY)
+  vector<double> alpha = dot(mInvR,mGPY);
     
 }
 

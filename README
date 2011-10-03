@@ -47,7 +47,7 @@ This library requires some other nonlinear optimization library
 
 a) Using Fortran DIRECT:
 
-For completeness, it includes a Fortran 77 implementation of the
+For completeness, this code includes a Fortran 77 implementation of the
 DIRECT-L algorithm by J. Gablonsky
 
 J. M. Gablonsky and C. T. Kelley, "A locally-biased form of the DIRECT 
@@ -58,7 +58,7 @@ http://www4.ncsu.edu/~ctk/SOFTWARE/DIRECTv204.tar.gz
 which includes some parallel processing functions that are not yet 
 supported in bayesian-optimization.
 
-This code has only been tested using gfortran on Windows, Mac OS X
+I have only tested this code using gfortran on Windows, Mac OS X
 and Linux, but it should work with other fortran compilers like f77 or
 f95.
 
@@ -73,11 +73,14 @@ NLOPT does not require external libraries and it is compatible with
 Windows and Mac. As compiling it in Windows is tricky, there are 
 precompilled dlls for download.
 
+
+
 1.3 - PYTHON:
 =============
 
 The library has been tested with Python 2. Python development files such as 
-Python.h are needed to compile the interface.
+Python.h are needed to compile the interface. It you want to modify the Python
+interface, you also need Cython.
 
 
 
@@ -85,8 +88,8 @@ Python.h are needed to compile the interface.
 * 2 - INSTALL:  *
 *****************
 
-Libkrigging uses standard C/C++ code and it can be compiled in different 
-platforms using CMake.
+Bayesian-optimization uses standard C/C++ code and it can be compiled in 
+different platforms using CMake.
 
 a) Linux or Mac OS:
 -------------------
@@ -108,7 +111,8 @@ Python interface.
 If you have doxygen installed on your computer, you can compile the
 documentation directly using cmake. 
 
-You just need to download UseDoxygen.cmake
+You just need to download UseDoxygen.cmake package
+
 >> darcs get http://tobias.rautenkranz.ch/cmake/doxygen
 >> cd doxygen
 >> cmake . && make install
@@ -120,12 +124,16 @@ Then, in the directy where bayesian-optimization is, use:
 >> make doc
 >> sudo make install
 
-The documentation will appear on the doc subdirectory.
+The documentation will appear in the "doc" subdirectory.
 
 
 b) Windows:
 -----------
-It can be compilled using CMake and MinGW compilers.
+It can be compilled using CMake and MinGW compilers, although
+it might get tricky to set the correct paths.
+
+
+
 
 
 ****************
@@ -168,6 +176,8 @@ The file bin/test.py provides an example of the Python interface. It is similar
 the C interface. The parameters must be defined as a Python dictionary.
 
 
+
+
 ********************
 * 4. KNOWN ISSUES  *
 ********************
@@ -177,7 +187,7 @@ just need to point the LD_LIBRARY_PATH and PYTHONPATH to the corresponding
 folder (by default: /usr/local/lib). There is a shell script to do that,
 exportlocalpaths.sh
 
-- I have found that in some versions of Linux, NLOPT callback procedure
-fails when using the Python interface of bayesian-optimization, because the
-callback function pointer gets corrupted at some point.
+- I have found that in some versions of Linux (maybe gcc issue?), NLOPT 
+callback procedure fails when using the Python interface of bayesian-optimization,
+because the callback function pointer gets corrupted at some point.
 

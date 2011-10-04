@@ -87,14 +87,14 @@ vector<double> GaussianProcess::computeCrossCorrelation(
     }
   return knx;
 }
-
+/*
 double GaussianProcess::negativeLogLikelihood(double param,
 					      vector<double> &grad)
 {
   vector<double> alpha = dot(mInvR,mGPY);
     
 }
-
+*/
 int GaussianProcess::fitGP()
 {
   /** Computes the GP based on mGPXX

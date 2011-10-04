@@ -42,7 +42,7 @@
 
 //#define FIBONACCI_SEED  123u
 //#define MT_SEED         156u
-#define KERNEL_THETA    0.21
+#define KERNEL_THETA    0.06
 #define KERNEL_P        1.6
 #define PRIOR_ALPHA     1.0
 #define PRIOR_BETA      0.1
@@ -129,6 +129,12 @@ public:
 protected:
   double correlationFunction( const vector<double> &x1,
 			      const vector<double> &x2 );
+
+
+  double correlationFunction( const vector<double> &x1, 
+			      const vector<double> &x2,
+			      double param, double &grad);
+
 
   int computeCorrMatrix();
 

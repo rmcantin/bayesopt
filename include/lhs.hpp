@@ -1,10 +1,7 @@
 #ifndef _LHS_HPP_
 #define _LHS_HPP_
 
-#include <boost/numeric/ublas/matrix.hpp>
 #include "randgen.hpp"
-
-using namespace boost::numeric::ublas;	
 
 /** \brief Generates an array of ramdom permutations
  * It is used to generate a uniform Latin hypercube

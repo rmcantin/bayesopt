@@ -53,7 +53,7 @@ int GaussianProcess::computeCorrMatrix()
 {
   size_t nSamples = mGPXX.size();
   bool inversionFlag;
-  matrix<double> corrMatrix(nSamples,nSamples);
+  matrixd corrMatrix(nSamples,nSamples);
   
   if ( (nSamples != mInvR.size1()) || (nSamples != mInvR.size2()) )
     mInvR.resize(nSamples,nSamples);
@@ -75,10 +75,10 @@ int GaussianProcess::computeCorrMatrix()
   return 1;
 }
 
-vector<double> GaussianProcess::computeCrossCorrelation(
-				     const vector<double> &query)
+vectord GaussianProcess::computeCrossCorrelation(
+				     const vectord &query)
 {
-  vector<double> knx(mGPXX.size());
+  vectord knx(mGPXX.size());
 
   //TODO: Replace by transform
   for (size_t ii=0; ii<mGPXX.size(); ++ii)
@@ -89,9 +89,9 @@ vector<double> GaussianProcess::computeCrossCorrelation(
 }
 /*
 double GaussianProcess::negativeLogLikelihood(double param,
-					      vector<double> &grad)
+					      vectord &grad)
 {
-  vector<double> alpha = dot(mInvR,mGPY);
+  vectord alpha = dot(mInvR,mGPY);
     
 }
 */
@@ -119,7 +119,7 @@ int GaussianProcess::fitGP()
 int GaussianProcess::precomputeGPParams()
 {
   size_t nSamples = mGPXX.size();
-  vector<double> colU(nSamples);
+  vectord colU(nSamples);
 
   //TODO: Replace by transform
   for (size_t ii=0; ii< nSamples; ii++) 
@@ -128,7 +128,7 @@ int GaussianProcess::precomputeGPParams()
   mUInvR = prod(colU,mInvR);
   mUInvRUDelta = inner_prod(mUInvR,colU) + 1/mDelta2;
   
-  vector<double> YInvR(nSamples);
+  vectord YInvR(nSamples);
   double YInvRY;
   
   //Test: Replace mYNorm for mGPY
@@ -139,14 +139,14 @@ int GaussianProcess::precomputeGPParams()
   
   mSig = (mBeta + YInvRY - mMu*mMu/mUInvRUDelta) / (mAlpha + (nSamples+1) + 2);
   
-  scalar_vector<double> colMu(nSamples,mMu);
+  svectord colMu(nSamples,mMu);
   mYUmu = mGPY - colMu;
   
   return 1;
 }
 
 
-int GaussianProcess::addNewPointToGP(const vector<double> &Xnew, 
+int GaussianProcess::addNewPointToGP(const vectord &Xnew, 
 				     double Ynew)
 {
   /** Add new point efficiently using Matrix Decomposition Lemma
@@ -158,9 +158,9 @@ int GaussianProcess::addNewPointToGP(const vector<double> &Xnew,
   size_t XDim = mGPXX[1].size();
   size_t NewDim = Xnew.size();
   
-  scalar_vector<double> colU(nSamples+1,1.0);
-  vector<double> Li(nSamples);
-  vector<double> wInvR(nSamples);
+  svectord colU(nSamples+1,1.0);
+  vectord Li(nSamples);
+  vectord wInvR(nSamples);
   double wInvRw;
   double selfCorrelation, Ni;
   
@@ -177,7 +177,7 @@ int GaussianProcess::addNewPointToGP(const vector<double> &Xnew,
   if(mVerbose>1)
     std::cout << mGPY(nSamples) << " vs. " << mGPY(mMinIndex) << std::endl;
     
-  vector<double> correlationNewValue = computeCrossCorrelation(Xnew);
+  vectord correlationNewValue = computeCrossCorrelation(Xnew);
   
   selfCorrelation = correlationFunction(Xnew, Xnew) + mRegularizer;
   
@@ -201,35 +201,35 @@ int GaussianProcess::addNewPointToGP(const vector<double> &Xnew,
 
 
 
-double GaussianProcess::correlationFunction( const vector<double> &x1, 
-					     const vector<double> &x2 )
+double GaussianProcess::correlationFunction( const vectord &x1, 
+					     const vectord &x2 )
 {
   double grad;
   return kernels::SEIso(x1,x2,grad,mTheta);
 }  // correlationFunction
 
 
-double GaussianProcess::correlationFunction( const vector<double> &x1, 
-					     const vector<double> &x2,
+double GaussianProcess::correlationFunction( const vectord &x1, 
+					     const vectord &x2,
 					     double param, double &grad)
 {
   return kernels::SEIso(x1,x2,grad,param);
 }  // correlationFunction
 
 
-double GaussianProcess::meanFunction( const vector<double> &x)
+double GaussianProcess::meanFunction( const vectord &x)
 {
   return means::One(x);
 }
 
-int GaussianProcess::prediction( const vector<double> &query,
+int GaussianProcess::prediction( const vectord &query,
 				 double& yPred, double& sPred)
 {
-  vector<double> rInvR(mGPXX.size());
+  vectord rInvR(mGPXX.size());
   double kn;
   double uInvRr, rInvRr;
 
-  vector<double> colR = computeCrossCorrelation(query);
+  vectord colR = computeCrossCorrelation(query);
   kn = correlationFunction(query, query);
   
   noalias(rInvR) = prod(colR,mInvR);	

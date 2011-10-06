@@ -29,33 +29,11 @@
 #ifndef  _GAUSSPROCESS_HPP_
 #define  _GAUSSPROCESS_HPP_
 
-// BOOST Libraries
-#include <boost/numeric/ublas/matrix.hpp>
-#include <boost/numeric/ublas/matrix_proxy.hpp>
-#include <boost/numeric/ublas/vector.hpp>
-#include <boost/numeric/ublas/io.hpp>
-#include <boost/numeric/ublas/symmetric.hpp>
-
 #include "krigwpr.h"
-
-// Default values
-
-//#define FIBONACCI_SEED  123u
-//#define MT_SEED         156u
-#define KERNEL_THETA    0.06
-#define KERNEL_P        1.6
-#define PRIOR_ALPHA     1.0
-#define PRIOR_BETA      0.1
-#define PRIOR_DELTA_SQ  10.0
-#define DEF_REGULARIZER 1e-4
-#define MAX_ITERATIONS  300
-#define MAX_DIM         20
-
+#include "specialtypes.hpp"
 	
-using namespace boost::numeric::ublas;	
+//using namespace boost::numeric::ublas;	
 
-typedef std::vector<vector<double> >  vecOfvec;
-typedef symmetric_matrix<double,lower,row_major,bounded_array<double,90000> > covMatrix;
  
 /** \addtogroup BayesOptimization */
 /*@{*/
@@ -73,7 +51,7 @@ public:
   GaussianProcess( gp_params params );
   ~GaussianProcess();
 
-  void setSamples(matrix<double> x, vector<double> y)
+  void setSamples(matrixd x, vectord y)
   {
     size_t nPoints = x.size1();
     
@@ -83,7 +61,7 @@ public:
     mGPY = y;
   }
 
-  void addSample(vector<double> x, double y)
+  void addSample(vectord x, double y)
   {
     mGPXX.push_back(x);
     mGPY.resize(mGPY.size()+1);  mGPY(mGPY.size()-1) = y;
@@ -99,19 +77,19 @@ public:
    * 
    * @return error code.
    */	
-  int prediction(const vector<double> &query,
+  int prediction(const vectord &query,
 		 double& yPred, double& sPred);
 
-  //  int marginalLikelihood(const vector<double> &query,
+  //  int marginalLikelihood(const vectord &query,
 			 
 			 
 
   int fitGP();
   int precomputeGPParams();
-  int addNewPointToGP( const vector<double> &Xnew,
+  int addNewPointToGP( const vectord &Xnew,
 		       double Ynew);
 
-  vector<double> getPointAtMinimum()
+  vectord getPointAtMinimum()
   { return mGPXX[mMinIndex]; }
 
   double getValueAtMinimum()
@@ -127,24 +105,24 @@ public:
   { mTheta = theta; }
 
 protected:
-  double correlationFunction( const vector<double> &x1,
-			      const vector<double> &x2 );
+  double correlationFunction( const vectord &x1,
+			      const vectord &x2 );
 
 
-  double correlationFunction( const vector<double> &x1, 
-			      const vector<double> &x2,
+  double correlationFunction( const vectord &x1, 
+			      const vectord &x2,
 			      double param, double &grad);
 
 
   int computeCorrMatrix();
 
-  vector<double> computeCrossCorrelation(const vector<double> &query);
+  vectord computeCrossCorrelation(const vectord &query);
 
-  double meanFunction( const vector<double> &x);
+  double meanFunction( const vectord &x);
 
   /*  inline void normalizeData()
   {
-    scalar_vector<double> MinYVec(mGPY.size(), mGPY(mMinIndex));
+    svectord MinYVec(mGPY.size(), mGPY(mMinIndex));
     mYNorm = (mGPY - MinYVec) * ( 1/(mGPY(mMaxIndex)-mGPY(mMinIndex)) );
     };*/
 
@@ -160,22 +138,19 @@ protected:
   const double mDelta2,mRegularizer;  // GP prior parameters (Normal)
 
   vecOfvec mGPXX;                     // TODO:Data inputs
-  vector<double> mGPY;                // Data values
-  // vector<double> mYNorm;              // Normalized data values
+  vectord mGPY;                // Data values
+  // vectord mYNorm;              // Normalized data values
 	
   double mMu, mSig;                   // GP posterior paramethers
+  
+
+
   // Precomputed GP prediction operations
-  
-  bounded_matrix<double, 
-		 MAX_ITERATIONS, 
-		 MAX_ITERATIONS> mInvR; // Inverse Correlation matrix
-  
+  covMatrix mInvR;                   // Inverse Correlation matrix
 
-  //covMatrix mInvR;
-
-  vector<double> mUInvR;              
+  vectord mUInvR;              
   double mUInvRUDelta;
-  vector<double> mYUmu;
+  vectord mYUmu;
 
   size_t mMinIndex, mMaxIndex;
 

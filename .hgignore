@@ -1,0 +1,13 @@
+CMakeFiles
+CMakeCache
+Makefile
+cmake_install.cmake
+Doxyfile
+bin/direct.out
+bin/krigtest
+include/krig_config.h
+install_manifest.txt
+syntax:glob
+*.a
+*.so
+*~

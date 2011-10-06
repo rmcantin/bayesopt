@@ -27,8 +27,6 @@
   #include <nlopt.h>
   #include "nloptwpr.hpp"
 #endif
-  
-
 
 SKO::SKO():
   mGP(),
@@ -61,19 +59,19 @@ SKO::~SKO()
 {} // Default destructor
 
 
-int SKO::optimize( vector<double> &bestPoint,
+int SKO::optimize( vectord &bestPoint,
 		   randEngine& mtRandom)
 {
   size_t dim = bestPoint.size();
-  vector<double> lowerBound = zero_vector<double>(dim);
-  vector<double> upperBound = scalar_vector<double>(dim,1.0);
+  vectord lowerBound = zvectord(dim);
+  vectord upperBound = svectord(dim,1.0);
   
   return optimize(bestPoint,lowerBound,upperBound,mtRandom);
 }
 
-int SKO::optimize( vector<double> &bestPoint,
-		   vector<double> &lowerBound,
-		   vector<double> &upperBound,
+int SKO::optimize( vectord &bestPoint,
+		   vectord &lowerBound,
+		   vectord &upperBound,
 		   randEngine& mtRandom)
 {
   mVerbose = 1;
@@ -90,7 +88,7 @@ int SKO::optimize( vector<double> &bestPoint,
 		<< " dimensions." << std::endl;
     }
 
-  vector<double> xNext(nDims);
+  vectord xNext(nDims);
   double yNext;
   size_t nLHSSamples = N_LHS_EVALS_PER_DIM * nDims;
 
@@ -160,9 +158,9 @@ int SKO::sampleInitialPoints( size_t nSamples, size_t nDims,
    * as appeared in Jones EGO
    */
    
-  matrix<double> xPoints(nSamples,nDims);
-  vector<double> yPoints(nSamples);
-  vector<double> sample(nDims);
+  matrixd xPoints(nSamples,nDims);
+  vectord yPoints(nSamples);
+  vectord sample(nDims);
 
   if (useLatinBox)
       lhs(xPoints, mtRandom);
@@ -184,7 +182,7 @@ int SKO::sampleInitialPoints( size_t nSamples, size_t nDims,
 } // sampleInitialPoints
 
 
-double SKO::evaluateCriteria(const vector<double> &query)
+double SKO::evaluateCriteria(const vectord &query)
 {
   bool reachable = checkReachability(query);
   if (!reachable)
@@ -202,7 +200,7 @@ double SKO::evaluateCriteria(const vector<double> &query)
        
 }  // evaluateCriteria
 
-int SKO::nextPoint(vector<double> &Xnext)
+int SKO::nextPoint(vectord &Xnext)
 {   
     double x[128];
     void *objPointer = dynamic_cast<void *>(this);
@@ -285,9 +283,9 @@ int SKO::nextPoint(double* x, int n, void* objPointer)
 } // nextPoint (C array)
 
 
-double SKO::evaluateNormalizedSample( const vector<double> &query)
+double SKO::evaluateNormalizedSample( const vectord &query)
 { 
-  vector<double> unnormalizedQuery = ublas_elementwise_prod(query,
+  vectord unnormalizedQuery = ublas_elementwise_prod(query,
 							    mRangeBound);
   
   unnormalizedQuery = ublas_elementwise_add(unnormalizedQuery,

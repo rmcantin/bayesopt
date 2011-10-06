@@ -3,14 +3,14 @@
 
 
 
-void copyCarrayInVector(const double* array, int n, vector<double>& vec)
+void copyCarrayInVector(const double* array, int n, vectord& vec)
 {
   for(int i = 0; i<n;i++)
     vec(i) = array[i];
 }
 
 
-void copyVectorInArray(double* array, int n, const vector<double>& vec)
+void copyVectorInArray(double* array, int n, const vectord& vec)
 {
   for(int i = 0; i<n;i++)
     array[i] = vec(i);
@@ -27,7 +27,7 @@ class CSKO: public SKO
   {}; 
 
 
-  double evaluateSample( const vector<double> &Xi ) 
+  double evaluateSample( const vectord &Xi ) 
   {
     int n = static_cast<int>(Xi.size());
     double x[n];
@@ -70,11 +70,11 @@ int krigging_optimization(int nDim, eval_func f, void* f_data,
   if (use_cooling_scheme)
     useCool = true;
 
-  vector<double> result(nDim);
+  vectord result(nDim);
   randEngine rEng(100u);
 
-  vector<double> lowerBound(nDim); 
-  vector<double> upperBound(nDim); 
+  vectord lowerBound(nDim); 
+  vectord upperBound(nDim); 
 
   copyCarrayInVector(lb,nDim,lowerBound);
   copyCarrayInVector(ub,nDim,upperBound);

@@ -7,7 +7,7 @@ class TestEGO: public SKO
 {
  public:
 
-  double evaluateSample( const vector<double> &Xi ) 
+  double evaluateSample( const vectord &Xi ) 
   {
     double f = 10.;
     
@@ -19,7 +19,7 @@ class TestEGO: public SKO
   };
 
 
-  bool checkReachability( const vector<double> &query )
+  bool checkReachability( const vectord &query )
   {
     /*
       for (size_t i = 0; i < query.size(); ++i)
@@ -52,7 +52,7 @@ int main(int nargs, char *args[])
 {    
   clock_t start, end;
   double diff,diff2;
-  vector<double> result(6);
+  vectord result(6);
   randEngine rEng(100u);
 
   int nIterations = 600;

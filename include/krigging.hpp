@@ -30,28 +30,13 @@
 #define  _KRIGGING_HPP_
 
 // BOOST Libraries
-#include <boost/numeric/ublas/matrix.hpp>
-#include <boost/numeric/ublas/matrix_proxy.hpp>
-#include <boost/numeric/ublas/vector.hpp>
-#include <boost/numeric/ublas/io.hpp>
+#include "specialtypes.hpp"
 #include "randgen.hpp"
 
 #include "gaussprocess.hpp"
 
 #include "elementwiseUblas.hpp"
 #include "krigwpr.h"
-
-// Default values
-
-// DIRECT default values
-#define MAX_DIRECT_EVALUATIONS  1000
-#define MAX_DIRECT_ITERATIONS   300
-
-// Latin Hypercube Sampling (LHS) default values
-#define N_LHS_EVALS_PER_DIM     10
-#define MAX_LHS_EVALUATIONS     100
-	
-using namespace boost::numeric::ublas;	
 
 
 /** \addtogroup BayesOptimization */
@@ -102,9 +87,9 @@ class SKO
    * @param useCool      select Sasena cooling/annealing strategy
    */
   SKO( double theta, double p,
-	    double alpha, double beta, 
-	    double delta, double noise,
-	    size_t nIter, bool useCool = false); 
+       double alpha, double beta, 
+       double delta, double noise,
+       size_t nIter, bool useCool = false); 
 
   /** 
    * Constructor
@@ -143,7 +128,7 @@ class SKO
    * 
    * @return 1 if terminate successfully, 0 otherwise
    */
-  int optimize( vector<double> &bestPoint,
+  int optimize( vectord &bestPoint,
 		randEngine& mtRandom);
 
 
@@ -161,9 +146,9 @@ class SKO
    * 
    * @return 1 if terminate successfully, 0 otherwise
    */
-  int optimize( vector<double> &bestPoint,
-		vector<double> &lowerBound,
-		vector<double> &upperBound,
+  int optimize( vectord &bestPoint,
+		vectord &lowerBound,
+		vectord &upperBound,
 		randEngine& mtRandom);
 
 
@@ -176,7 +161,7 @@ class SKO
    * 
    * @return negative criteria (Expected Improvement, LCB, A-optimality, etc.).
    */	
-  double evaluateCriteria( const vector<double> &query );
+  double evaluateCriteria( const vectord &query );
 
   /** 
    * Function that defines the actual mathematical function to be optimized.
@@ -190,7 +175,7 @@ class SKO
    * 
    * @return value of the function at the point evaluated
    */
-  virtual double evaluateSample( const vector<double> &query ) 
+  virtual double evaluateSample( const vectord &query ) 
   { return 0.0; };
 
   /** 
@@ -207,7 +192,7 @@ class SKO
    * @return boolean value showing if the the function is valid at
    *         the query point or not.
    */ 
-  virtual bool checkReachability( const vector<double> &query )
+  virtual bool checkReachability( const vectord &query )
   { return true; };
   /** 
    * Sets the parameter for the LCB criterium
@@ -239,10 +224,10 @@ protected:
   int updateCoolingScheme(size_t nTotalIterations,
 			  size_t nCurrentIteration);
 	
-  int nextPoint( vector<double> &Xnext );
+  int nextPoint( vectord &Xnext );
   int nextPoint( double* x, int n, void* objPointer);
 
-  inline double evaluateNormalizedSample( const vector<double> &query);
+  inline double evaluateNormalizedSample( const vectord &query);
 
 protected:
 
@@ -256,8 +241,8 @@ protected:
   const bool mUseCool;
   unsigned int mG;
 
-  vector<double> mLowerBound;
-  vector<double> mRangeBound;
+  vectord mLowerBound;
+  vectord mRangeBound;
 
   double mLCBparam;                   // LCB = mean - param * std
   bool mUseEI;

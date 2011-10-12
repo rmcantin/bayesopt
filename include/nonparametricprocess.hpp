@@ -30,7 +30,8 @@
 class NonParametricProcess
 {
 public:
-  NonParametricProcess(){ }
+  NonParametricProcess()
+  { mMinIndex = 0; mMaxIndex = 0; }
   
   virtual ~NonParametricProcess(){ }
 
@@ -99,15 +100,12 @@ public:
 
 
 protected:
-  virtual double correlationFunction( const vectord &x1,
-				      const vectord &x2 ){return 0.0;}
+  virtual double correlationFunction( const vectord &x1,const vectord &x2, 
+				      size_t param_index = 0)
+  {return 0.0;}
 
-
-  virtual double correlationFunction( const vectord &x1, 
-				      const vectord &x2,
-				      double param, double &grad ){return 0.0;}
-
-  virtual double meanFunction( const vectord &x )  {return 0.0;}
+  virtual double meanFunction( const vectord &x, size_t param_index = 0 )  
+  {return 0.0;}
 
   /** 
    * Precompute some values of the prediction that do not depends on the query
@@ -123,29 +121,34 @@ protected:
    * 
    * @return error code
    */
-  int computeCorrMatrix( double noise )
+  int computeInverseCorrMatrix( double noise )
+  {
+    size_t nSamples = mGPXX.size();
+    if ( (nSamples != mInvR.size1()) || (nSamples != mInvR.size2()) )
+      mInvR.resize(nSamples,nSamples);
+    
+    matrixd corrMatrix = computeCorrMatrix(noise);
+
+    return InvertMatrix(corrMatrix,mInvR);
+  }
+
+  matrixd computeCorrMatrix( double noise , size_t dth_index = 0)
   {
     size_t nSamples = mGPXX.size();
     matrixd corrMatrix(nSamples,nSamples);
   
-    /*    if ( (nSamples != mInvR.size1()) || (nSamples != mInvR.size2()) )
-      mInvR.resize(nSamples,nSamples);
-    */
-    if ( (nSamples != mInvR.size1()) || (nSamples != mInvR.size2()) )
-      mInvR = corrMatrix;
-
     for (size_t ii=0; ii< nSamples; ii++)
       {
 	for (size_t jj=0; jj < ii; jj++)
 	  {
-	    corrMatrix(ii,jj) = correlationFunction(mGPXX[ii], mGPXX[jj]);
+	    corrMatrix(ii,jj) = correlationFunction(mGPXX[ii], mGPXX[jj], dth_index);
 	    corrMatrix(jj,ii) = corrMatrix(ii,jj);
 	  }
-	corrMatrix(ii,ii) = correlationFunction(mGPXX[ii],
-						mGPXX[ii]) + noise;
+	corrMatrix(ii,ii) = correlationFunction(mGPXX[ii],mGPXX[ii], dth_index);
+	if (dth_index == 0) 
+	  corrMatrix(ii,ii) += noise;
       }
-  
-    return InvertMatrix(corrMatrix,mInvR);
+    return corrMatrix;
   }
 
 

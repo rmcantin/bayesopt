@@ -10,14 +10,6 @@
 //
 //
 
-
-#include "krigging.hpp"
-#include "ublasinv.hpp"
-#include "lhs.hpp"
-
-#include "criteria.hpp"
-
-
 #include "krig_config.h"
 
 #ifdef USE_DIRECT_FORTRAN
@@ -27,6 +19,10 @@
   #include <nlopt.h>
   #include "nloptwpr.hpp"
 #endif
+
+#include "krigging.hpp"
+#include "lhs.hpp"
+#include "criteria.hpp"
 
 SKO::SKO():
   mGP(),
@@ -99,7 +95,7 @@ int SKO::optimize( vectord &bestPoint,
 	|| ( mMaxIterations <= 0) )
     mMaxIterations = MAX_ITERATIONS - nLHSSamples;
 
-  std::cout << "Sampling initial points...";
+  std::cout << "Sampling initial points..." << std::endl;
   sampleInitialPoints(nLHSSamples, nDims, true, mtRandom);
   std::cout << "DONE" << std::endl;
 

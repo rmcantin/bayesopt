@@ -17,8 +17,8 @@
 
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/math/special_functions/factorials.hpp>
-
 #include <boost/math/distributions/normal.hpp> // for normal_distribution
+
 
 using namespace boost::numeric::ublas;	
 using boost::math::factorial;
@@ -76,8 +76,8 @@ namespace criteria
 
   normal d;
 
-  double negativeExpectedImprovement(double yPred, double sPred,
-				     double yMin, int g = 1)
+  inline double negativeExpectedImprovement(double yPred, double sPred,
+					    double yMin, int g = 1)
   {
     double yDiff = yMin - yPred; 
     double yNorm = yDiff / sPred;
@@ -110,14 +110,14 @@ namespace criteria
   }  // negativeExpectedImprovement
 
 
-  double lowerConfidenceBound(double yPred, double sPred,
-			      double beta)
+  inline double lowerConfidenceBound(double yPred, double sPred,
+				     double beta)
   {    
     return yPred -  beta*sPred;;
   }
 
   
-  double greedyAOptimality(double yPred, double sPred)
+  inline double greedyAOptimality(double yPred, double sPred)
   { return sPred; } 
 
 }

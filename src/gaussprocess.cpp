@@ -12,30 +12,28 @@
 
 
 #include "gaussprocess.hpp"
-#include "kernels.hpp"
-#include "meanfuncs.hpp"
 
   
 
 GaussianProcess::GaussianProcess():
-  mTheta(KERNEL_THETA), mP(KERNEL_P),
+  NonParametricProcess(), mTheta(KERNEL_THETA), mP(KERNEL_P),
   mAlpha(PRIOR_ALPHA), mBeta (PRIOR_BETA),
   mDelta2(PRIOR_DELTA_SQ), mRegularizer(DEF_REGULARIZER)
-{  mMinIndex = 0; mMaxIndex= 0; } // Default constructor
+{} // Default constructor
 
 GaussianProcess::GaussianProcess( double theta, double p,
 				  double alpha, double beta, 
 				  double delta, double noise):
-  mTheta(theta), mP(p),
+  NonParametricProcess(), mTheta(theta), mP(p),
   mAlpha(alpha), mBeta (beta),
   mDelta2(delta), mRegularizer(noise)
-{  mMinIndex = 0; mMaxIndex= 0; }  // Constructor
+{}  // Constructor
 
 GaussianProcess::GaussianProcess( gp_params params ):
-  mTheta(params.theta), mP(params.p),
+  NonParametricProcess(), mTheta(params.theta), mP(params.p),
   mAlpha(params.alpha), mBeta(params.beta),
   mDelta2(params.delta), mRegularizer(params.noise)
-{  mMinIndex = 0; mMaxIndex= 0; }  // Constructor
+{}  // Constructor
 
 
 
@@ -81,9 +79,7 @@ int GaussianProcess::fitGP()
   for (size_t ii=0; ii<nSamples; ii++)
     checkBoundsY(ii);
 
-  //  normalizeData();
-
-  int error = computeCorrMatrix(mRegularizer);
+  int error = computeInverseCorrMatrix(mRegularizer);
 
   if (error < 0)
     return error;
@@ -110,9 +106,6 @@ int GaussianProcess::addNewPointToGP(const vectord &Xnew,
       std::cout << "Dimensional Error" << std::endl;
       return -1;
     }
-
-  addSample(Xnew,Ynew);
-  checkBoundsY(nSamples);
     
   vectord correlationNewValue = computeCrossCorrelation(Xnew);
   
@@ -132,6 +125,9 @@ int GaussianProcess::addNewPointToGP(const vectord &Xnew,
   
   row(mInvR,nSamples) = Li;
   column(mInvR,nSamples) = Li;
+
+  addSample(Xnew,Ynew);
+  checkBoundsY(nSamples);
   
   return precomputeGPParams();
 } // addNewPointToGP
@@ -164,26 +160,4 @@ int GaussianProcess::precomputeGPParams()
   return 1;
 }
 
-
-
-double GaussianProcess::correlationFunction( const vectord &x1, 
-					     const vectord &x2 )
-{
-  double grad;
-  return kernels::MatternIso(x1,x2,grad,mTheta,3);
-}  // correlationFunction
-
-
-double GaussianProcess::correlationFunction( const vectord &x1, 
-					     const vectord &x2,
-					     double param, double &grad)
-{
-  return kernels::MatternIso(x1,x2,grad,param,3);
-}  // correlationFunction
-
-
-double GaussianProcess::meanFunction( const vectord &x)
-{
-  return means::One(x);
-}
 

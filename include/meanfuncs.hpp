@@ -21,14 +21,14 @@ using namespace boost::numeric::ublas;
 
 namespace means
 {
-  double One( const vector<double> &x )
+  inline double One( const vector<double> &x )
   { return 1; } 
   
-  double Zero( const vector<double> &x)
+  inline double Zero( const vector<double> &x)
   { return 0; } 
 
-  double Linear (const vector<double> &x,
-		 const vector<double> &a)
+  inline double Linear (const vector<double> &x,
+			const vector<double> &a)
   { return inner_prod(x,a); }
 }
 

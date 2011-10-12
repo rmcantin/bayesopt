@@ -21,41 +21,44 @@ using namespace boost::numeric::ublas;
 
 namespace kernels
 {
-  double MatternIso( const vector<double> &x1, 
-		     const vector<double> &x2,
-		     double &grad,
-		     double theta, int order)
+  inline double MatternIso( const vector<double> &x1, 
+			    const vector<double> &x2,
+			    size_t param_index,
+			    double theta, int order)
   {
     /** \brief Matern kernel
      * Matern covariance function
      */
+    double k,grad;
 
     double r = sqrt(order) * norm_2(x1-x2)/theta;
     double er = exp(-r);
 
     switch (order)
       {
-      case 1: grad = r*er;  return er;
-      case 3: grad = r*r*er; return (1+r)*er;
-      case 5: grad = r*(1+r)/3*r*er; return (1+r*(1+r/3))*er;
+      case 1: grad = r*er;  k=er; break;
+      case 3: grad = r*r*er; k=(1+r)*er; break;
+      case 5: grad = r*(1+r)/3*r*er; k=(1+r*(1+r/3))*er; break;
       default: 
 	std::cout << "Error: not suported kernel." << std::endl;
+	return 0.0;
       }
-    return 1;
+    if (param_index == 0) return k;
+    else return grad;
   }  // correlationFunction
   
-  double SEIso( const vector<double> &x1, 
-		const vector<double> &x2,
-		double &grad,
-		double theta)
+  inline double SEIso( const vector<double> &x1, 
+		       const vector<double> &x2,
+		       size_t param_index,
+		       double theta)
   {
     double rl = norm_2(x1-x2)/theta;
     double k = rl*rl;
     double result = exp(-k/2);
-    
-    grad = result*k;
+    double grad = result*k;
 
-    return result;
+    if (param_index == 0) return result;
+    else return grad;
   }
 
 }

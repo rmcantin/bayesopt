@@ -22,6 +22,8 @@
 
 #include "krigwpr.h"
 #include "nonparametricprocess.hpp"
+#include "kernels.hpp"
+#include "meanfuncs.hpp"
 	
  
 /** \addtogroup BayesOptimization */
@@ -78,17 +80,16 @@ public:
 
 
 protected:
-  double correlationFunction( const vectord &x1,
-			      const vectord &x2 );
+  inline double correlationFunction( const vectord &x1,const vectord &x2,
+				     size_t param_index = 0 )
+  { return kernels::MatternIso(x1,x2,param_index,mTheta,3); }
 
+  inline double meanFunction( const vectord &x )
+  { return means::One(x); }
 
-  double correlationFunction( const vectord &x1, 
-			      const vectord &x2,
-			      double param, double &grad);
 
   int precomputeGPParams();
 
-  double meanFunction( const vectord &x);
 
 protected:
   double mTheta, mP;                  // Kernel parameters

@@ -11,11 +11,7 @@
 //
 
 
-//#include <cmath>
-//#include <ctime>
-
 #include "gaussprocess.hpp"
-#include "ublasinv.hpp"
 #include "kernels.hpp"
 #include "meanfuncs.hpp"
 
@@ -24,69 +20,30 @@
 GaussianProcess::GaussianProcess():
   mTheta(KERNEL_THETA), mP(KERNEL_P),
   mAlpha(PRIOR_ALPHA), mBeta (PRIOR_BETA),
-  mDelta2(PRIOR_DELTA_SQ), mRegularizer(DEF_REGULARIZER),
-  mMinIndex(0), mMaxIndex(0), mVerbose(0)
-{} // Default constructor
+  mDelta2(PRIOR_DELTA_SQ), mRegularizer(DEF_REGULARIZER)
+{  mMinIndex = 0; mMaxIndex= 0; } // Default constructor
 
 GaussianProcess::GaussianProcess( double theta, double p,
 				  double alpha, double beta, 
 				  double delta, double noise):
   mTheta(theta), mP(p),
   mAlpha(alpha), mBeta (beta),
-  mDelta2(delta), mRegularizer(noise),
-  mMinIndex(0), mMaxIndex(0), mVerbose(0)
-{} // Constructor
+  mDelta2(delta), mRegularizer(noise)
+{  mMinIndex = 0; mMaxIndex= 0; }  // Constructor
 
 GaussianProcess::GaussianProcess( gp_params params ):
   mTheta(params.theta), mP(params.p),
   mAlpha(params.alpha), mBeta(params.beta),
-  mDelta2(params.delta), mRegularizer(params.noise),
-  mMinIndex(0), mMaxIndex(0), mVerbose(0)
-{} // Constructor
+  mDelta2(params.delta), mRegularizer(params.noise)
+{  mMinIndex = 0; mMaxIndex= 0; }  // Constructor
+
 
 
 GaussianProcess::~GaussianProcess()
 {} // Default destructor
 
 
-int GaussianProcess::computeCorrMatrix()
-{
-  size_t nSamples = mGPXX.size();
-  bool inversionFlag;
-  matrixd corrMatrix(nSamples,nSamples);
-  
-  if ( (nSamples != mInvR.size1()) || (nSamples != mInvR.size2()) )
-    mInvR.resize(nSamples,nSamples);
-  
-  for (size_t ii=0; ii< nSamples; ii++)
-    {
-      for (size_t jj=0; jj < ii; jj++)
-	{
-	  corrMatrix(ii,jj) = correlationFunction(mGPXX[ii], mGPXX[jj]);
-	  corrMatrix(jj,ii) = corrMatrix(ii,jj);
-	}
-      corrMatrix(ii,ii) = correlationFunction(mGPXX[ii],
-					      mGPXX[ii]) + mRegularizer;
-    }
-  
-  inversionFlag = InvertMatrix(corrMatrix,mInvR);
-  if (inversionFlag == false)    return -2;
 
-  return 1;
-}
-
-vectord GaussianProcess::computeCrossCorrelation(
-				     const vectord &query)
-{
-  vectord knx(mGPXX.size());
-
-  //TODO: Replace by transform
-  for (size_t ii=0; ii<mGPXX.size(); ++ii)
-    {
-      knx(ii) = correlationFunction(mGPXX[ii], query);
-    }
-  return knx;
-}
 /*
 double GaussianProcess::negativeLogLikelihood(double param,
 					      vectord &grad)
@@ -95,19 +52,38 @@ double GaussianProcess::negativeLogLikelihood(double param,
     
 }
 */
+
+int GaussianProcess::prediction( const vectord &query,
+				 double& yPred, double& sPred)
+{
+  vectord rInvR(mGPXX.size());
+  double kn;
+  double uInvRr, rInvRr;
+
+  vectord colR = computeCrossCorrelation(query);
+  kn = correlationFunction(query, query);
+  
+  noalias(rInvR) = prod(colR,mInvR);	
+  rInvRr = inner_prod(rInvR,colR);
+  uInvRr = inner_prod(mUInvR,colR);
+  
+  yPred = mMu + inner_prod( rInvR, mYUmu );
+  sPred = sqrt( mSig * (kn - rInvRr + (1.0 - uInvRr) * (1.0 - uInvRr) 
+			/ mUInvRUDelta ) );
+
+  return 1;
+}
+	
+
 int GaussianProcess::fitGP()
 {
-  /** Computes the GP based on mGPXX
-   *  This function is hightly inefficient O(N^3). Use it only at 
-   *  the begining
-   */
   size_t nSamples = mGPXX.size();
   for (size_t ii=0; ii<nSamples; ii++)
     checkBoundsY(ii);
 
   //  normalizeData();
 
-  int error = computeCorrMatrix();
+  int error = computeCorrMatrix(mRegularizer);
 
   if (error < 0)
     return error;
@@ -116,44 +92,9 @@ int GaussianProcess::fitGP()
 } // fitGP
 
 
-int GaussianProcess::precomputeGPParams()
-{
-  size_t nSamples = mGPXX.size();
-  vectord colU(nSamples);
-
-  //TODO: Replace by transform
-  for (size_t ii=0; ii< nSamples; ii++) 
-    colU(ii) = meanFunction(mGPXX[ii]);
-
-  mUInvR = prod(colU,mInvR);
-  mUInvRUDelta = inner_prod(mUInvR,colU) + 1/mDelta2;
-  
-  vectord YInvR(nSamples);
-  double YInvRY;
-  
-  //Test: Replace mYNorm for mGPY
-
-  mMu =  inner_prod(mUInvR,mGPY) / mUInvRUDelta;
-  noalias(YInvR) = prod(mGPY,mInvR);
-  YInvRY = inner_prod(YInvR,mGPY);
-  
-  mSig = (mBeta + YInvRY - mMu*mMu/mUInvRUDelta) / (mAlpha + (nSamples+1) + 2);
-  
-  svectord colMu(nSamples,mMu);
-  mYUmu = mGPY - colMu;
-  
-  return 1;
-}
-
-
 int GaussianProcess::addNewPointToGP(const vectord &Xnew, 
 				     double Ynew)
 {
-  /** Add new point efficiently using Matrix Decomposition Lemma
-   *  for the inversion of the correlation matrix. Maybe it is faster
-   *  to just construct and invert a new matrix each time.
-   */   
-
   size_t nSamples = mGPXX.size();
   size_t XDim = mGPXX[1].size();
   size_t NewDim = Xnew.size();
@@ -172,10 +113,6 @@ int GaussianProcess::addNewPointToGP(const vectord &Xnew,
 
   addSample(Xnew,Ynew);
   checkBoundsY(nSamples);
-  //  normalizeData();
-
-  if(mVerbose>1)
-    std::cout << mGPY(nSamples) << " vs. " << mGPY(mMinIndex) << std::endl;
     
   vectord correlationNewValue = computeCrossCorrelation(Xnew);
   
@@ -200,12 +137,40 @@ int GaussianProcess::addNewPointToGP(const vectord &Xnew,
 } // addNewPointToGP
 
 
+int GaussianProcess::precomputeGPParams()
+{
+  size_t nSamples = mGPXX.size();
+  vectord colU(nSamples);
+
+  //TODO: Replace by transform
+  for (size_t ii=0; ii< nSamples; ii++) 
+    colU(ii) = meanFunction(mGPXX[ii]);
+
+  mUInvR = prod(colU,mInvR);
+  mUInvRUDelta = inner_prod(mUInvR,colU) + 1/mDelta2;
+  
+  vectord YInvR(nSamples);
+  double YInvRY;
+  
+  mMu =  inner_prod(mUInvR,mGPY) / mUInvRUDelta;
+  noalias(YInvR) = prod(mGPY,mInvR);
+  YInvRY = inner_prod(YInvR,mGPY);
+  
+  mSig = (mBeta + YInvRY - mMu*mMu/mUInvRUDelta) / (mAlpha + (nSamples+1) + 2);
+  
+  svectord colMu(nSamples,mMu);
+  mYUmu = mGPY - colMu;
+  
+  return 1;
+}
+
+
 
 double GaussianProcess::correlationFunction( const vectord &x1, 
 					     const vectord &x2 )
 {
   double grad;
-  return kernels::SEIso(x1,x2,grad,mTheta);
+  return kernels::MatternIso(x1,x2,grad,mTheta,3);
 }  // correlationFunction
 
 
@@ -213,7 +178,7 @@ double GaussianProcess::correlationFunction( const vectord &x1,
 					     const vectord &x2,
 					     double param, double &grad)
 {
-  return kernels::SEIso(x1,x2,grad,param);
+  return kernels::MatternIso(x1,x2,grad,param,3);
 }  // correlationFunction
 
 
@@ -221,26 +186,4 @@ double GaussianProcess::meanFunction( const vectord &x)
 {
   return means::One(x);
 }
-
-int GaussianProcess::prediction( const vectord &query,
-				 double& yPred, double& sPred)
-{
-  vectord rInvR(mGPXX.size());
-  double kn;
-  double uInvRr, rInvRr;
-
-  vectord colR = computeCrossCorrelation(query);
-  kn = correlationFunction(query, query);
-  
-  noalias(rInvR) = prod(colR,mInvR);	
-  rInvRr = inner_prod(rInvR,colR);
-  uInvRr = inner_prod(mUInvR,colR);
-  
-  yPred = mMu + inner_prod( rInvR, mYUmu );
-  sPred = sqrt( mSig * (kn - rInvRr + (1.0 - uInvRr) * (1.0 - uInvRr) 
-			/ mUInvRUDelta ) );
-
-  return 1;
-}
-	
 

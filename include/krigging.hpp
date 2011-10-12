@@ -32,10 +32,10 @@
 // BOOST Libraries
 #include "specialtypes.hpp"
 #include "randgen.hpp"
+#include "elementwiseUblas.hpp"
 
 #include "gaussprocess.hpp"
 
-#include "elementwiseUblas.hpp"
 #include "krigwpr.h"
 
 

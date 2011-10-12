@@ -14,7 +14,7 @@
  /* Matrix inversion routine.
     Uses lu_factorize and lu_substitute in uBLAS to invert a matrix */
 template<class Min, class Mout>
-bool InvertMatrix (const Min& input, Mout& inverse) {
+int InvertMatrix (const Min& input, Mout& inverse) {
   
  	typedef permutation_matrix<std::size_t> pmatrix;
 	typedef typename Min::value_type value_type;
@@ -25,7 +25,7 @@ bool InvertMatrix (const Min& input, Mout& inverse) {
 
  	// perform LU-factorization
  	int res = lu_factorize(A,pm);
-        if( res != 0 ) return false;
+        if( res != 0 ) return res;
 
  	// create identity matrix of "inverse"
  	inverse.assign(identity_matrix<value_type>(A.size1()));
@@ -33,7 +33,7 @@ bool InvertMatrix (const Min& input, Mout& inverse) {
  	// backsubstitute to get the inverse
  	lu_substitute(A, pm, inverse);
 
- 	return true;
+ 	return 0;
  }
 
  #endif //INVERT_MATRIX_HPP

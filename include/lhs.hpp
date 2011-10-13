@@ -21,24 +21,8 @@ void randomPerms(std::vector<int>& arr,
   randInt sample(mtRandom, intUniformDist(0,arr.size()-1));
 			
   generate (arr.begin(), arr.end(), UniqueNumber);
-  for (std::vector<int>::iterator it=arr.end(); it!=arr.begin(); --it)
-    iter_swap(arr.begin()+sample(),it);
-  
   for (std::vector<int>::iterator it=arr.begin(); it!=arr.end(); ++it)
-    std::cout << " " << *it;
-  
-  /*
-  for (size_t i = 0; i < size; i++)
-    arr[i] = i + 1;
- 
-  for (size_t last = size-1; last > 0; last--)
-    {
-      randIndex = sample();
-      tempIndex = arr[randIndex];
-      arr[randIndex] = arr[last];
-      arr[last] = tempIndex;
-    }
-  */
+    iter_swap(arr.begin()+sample(),it);
 } // randomPerms 
 
 /** \brief Latin hypercube sampling
@@ -60,9 +44,7 @@ int lhs(M& Result,
       
       for (size_t j = 0; j < nA; j++)
 	{		
-	  double perVal = static_cast<double>(perms[j]);
-	  std::cout << perVal << " ";
-	  Result(j,i) = (perVal  - sample() ) / ndA;
+	  Result(j,i) = ( static_cast<double>(perms[j]) - sample() ) / ndA;
 	}
     }
 

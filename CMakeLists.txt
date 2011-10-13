@@ -146,6 +146,8 @@ TARGET_LINK_LIBRARIES(krigtest
   ${PYHTON_LIB}
   )
 
+ADD_EXECUTABLE(randtest ./src/testrand.cpp)
+
 INSTALL(FILES ./include/krigging.hpp ./include/krigwpr.h 
   DESTINATION include)
 

@@ -46,6 +46,8 @@ GaussianProcess::~GaussianProcess()
 double GaussianProcess::negativeLogLikelihood(double param,
 					      vectord &grad)
 {
+  matrixd K = computeCorrMatrix(noise,0);
+  matrixd dK = computeCorrMatrix(noise,1);
   vectord alpha = dot(mInvR,mGPY);
     
 }

@@ -3,19 +3,34 @@
 
 #include "randgen.hpp"
 
+
+struct c_unique {
+  int current;
+  c_unique() {current=0;}
+  int operator()() {return ++current;}
+} UniqueNumber;
+
+
 /** \brief Generates an array of ramdom permutations
  * It is used to generate a uniform Latin hypercube
  */
-void randomPerms(int arr[], size_t size, 
+void randomPerms(std::vector<int>& arr, 
 		 randEngine& mtRandom)
 {
   
-  int tempIndex, randIndex;  
-  randInt sample(mtRandom, intUniformDist(0,size-1));
+  randInt sample(mtRandom, intUniformDist(0,arr.size()-1));
 			
+  generate (arr.begin(), arr.end(), UniqueNumber);
+  for (std::vector<int>::iterator it=arr.end(); it!=arr.begin(); --it)
+    iter_swap(arr.begin()+sample(),it);
+  
+  for (std::vector<int>::iterator it=arr.begin(); it!=arr.end(); ++it)
+    std::cout << " " << *it;
+  
+  /*
   for (size_t i = 0; i < size; i++)
     arr[i] = i + 1;
-  
+ 
   for (size_t last = size-1; last > 0; last--)
     {
       randIndex = sample();
@@ -23,6 +38,7 @@ void randomPerms(int arr[], size_t size,
       arr[randIndex] = arr[last];
       arr[last] = tempIndex;
     }
+  */
 } // randomPerms 
 
 /** \brief Latin hypercube sampling
@@ -36,15 +52,16 @@ int lhs(M& Result,
   size_t nA = Result.size1();
   size_t nB = Result.size2();
   double ndA = static_cast<double>(nA);
-  int perms[nA];
+  std::vector<int> perms(nA);
       
   for (size_t i = 0; i < nB; i++)
     {
-      randomPerms(perms, nA, mtRandom);
+      randomPerms(perms, mtRandom);
       
       for (size_t j = 0; j < nA; j++)
 	{		
 	  double perVal = static_cast<double>(perms[j]);
+	  std::cout << perVal << " ";
 	  Result(j,i) = (perVal  - sample() ) / ndA;
 	}
     }

@@ -24,57 +24,42 @@ using namespace boost::numeric::ublas;
 using boost::math::factorial;
 using boost::math::normal; // typedef provides default type is double.
 
-namespace criteria
+enum criterium_name{
+  expectedImprovement = 1,
+  lowerConfidenceBound,
+  probabilityOfImprovement,
+  greedyAOptimality,
+  expectedReturn
+};
+
+
+class Criteria
 {
-  /*
-  unsigned int factorial(unsigned int no, unsigned int a = 1)
+public:
+
+  Criteria()
   {
-    // termination condition
-    if (0 == no || 1 == no)
-      return a;
-  
-    // Tail recursive call
-    return factorial(no - 1, no * a);
-  } //factorial
-  */
+    n_calls = 0;
+    g = 1;     beta = 1;   epsilon = 0;
+    g_ei = 0;  g_lcb = 0;  g_poi = 0;
+    eta = 100;
+  }
 
-  // double pdf(double x)
-  // {
-  //   return (1 / (sqrt(2 * M_PI)) * exp(-(x*x)/2));
-  // } //pdf
-  
-  // double cdf(double x)
-  // {
-  //   /** \brief Abromowitz and Stegun approximation of Normal CDF
-  //    * 
-  //    * Extracted from 
-  //    * http://www.sitmo.com/doc/Calculating_the_Cumulative_Normal_Distribution
-  //    * The most used algorithm is algorithm 26.2.17 from Abromowitz and Stegun, 
-  //    * Handbook of Mathematical Functions. It has a maximum absolute error of 7.5e^-8.
-  //    * 
-  //    */
-	
-  //   static const double b1 =  0.319381530;
-  //   static const double b2 = -0.356563782;
-  //   static const double b3 =  1.781477937;
-  //   static const double b4 = -1.821255978;
-  //   static const double b5 =  1.330274429;
-  //   static const double p  =  0.2316419;
-  //   static const double c  =  0.39894228;
-  
-  //   if(x >= 0.0) {
-  //     double t = 1.0 / ( 1.0 + p * x );
-  //     return (1.0 - c * exp( -x * x / 2.0 ) * t *
-  // 	      ( t *( t * ( t * ( t * b5 + b4 ) + b3 ) + b2 ) + b1 ));
-  //   }
-  //   else {
-  //     double t = 1.0 / ( 1.0 - p * x );
-  //     return ( c * exp( -x * x / 2.0 ) * t *
-  // 	       ( t *( t * ( t * ( t * b5 + b4 ) + b3 ) + b2 ) + b1 ));
-  //   }
-  // } // cdf
+  virtual ~Criteria(){}
 
-  normal d;
+  inline double evaluateCriteria(double yPred, double sPred, double yMin, 
+				 criterium_name crit = 1)
+  {
+    switch (crit)
+      {
+      case expectedImprovement: return negativeExpectedImprovement(yPred,sPred,yMin);
+      case lowerConfidenceBound: return lowerConfidenceBound(yPred,sPred);
+      case probabilityOfImprovement: return probabilityOfImprovement(yPred,sPred,yMin);
+      case greedyAOptimality: sPred;
+      case expectedReturn: yPred;
+      default: std::cout << "Error in criterium" << std::endl;
+      }
+  }
 
   inline double negativeExpectedImprovement(double yPred, double sPred,
 					    double yMin, int g = 1)
@@ -116,9 +101,72 @@ namespace criteria
     return yPred -  beta*sPred;;
   }
 
+  inline double probabilityOfImprovement(double yPred, double sPred,
+					 double yMin, double epsilon)
+  {
+    return cdf(d,(yMin - yPred + epsilon)/sPred);
+  }
+
+  inline double hedge(double yPred, double sPred, double yMin, double eta, 
+		      double epsilon, double beta, double g = 1)
+  {
+    double ei = negativeExpectedImprovement(yPred,sPred,yMin,g);
+    double lcb = lowerConfidenceBound(yPred,sPred,beta);
+    double poi = probabilityOfImprovement(yPred,sPred,yMin,epsilon);
+
+    double p_ei = exp(eta*g_ei);
+    double p_lcb = exp(eta*g_lcb);
+    double p_poi = exp(eta*g_poi);
+    double sum_p = p_ei + p_lcb + p_poi;
+
+    p_ei /= sum_p; p_lcb /= sum_p; p_poi /= p_poi;
+    g_ei += 
+
+    double u = sample();
+    if (u < p_ei)
+      return ei;
+    else if (u < p_lcb+p_ei)
+      return lcb;
+    else
+      return poi;
+  }
   
-  inline double greedyAOptimality(double yPred, double sPred)
-  { return sPred; } 
+protected:
+
+
+
+  inline int updateCoolingScheme(size_t nTotalIterations,
+				 size_t nCurrentIteration)
+  {
+
+    double iterPercentaje = static_cast<double>(nTotalIterations) 
+      / static_cast<double>(nCurrentIteration);
+
+    if (iterPercentaje < 0.2)
+      mG = 20;
+    else if (iterPercentaje < 0.3)
+      mG = 10; 
+    else if (iterPercentaje < 0.4)
+      mG = 5;     
+    else if (iterPercentaje < 0.5)
+      mG = 2;    
+    else if (iterPercentaje < 0.7)
+      mG = 1;       
+
+    return 1;
+  }
+
+
+ 
+  const bool mUseCool;
+  unsigned int n_calls, g;
+
+  double mLCBparam;                   // LCB = mean - param * std
+  criterium_name crit;
+
+
+  normal d;
+
 
 }
 

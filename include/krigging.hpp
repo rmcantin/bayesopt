@@ -151,18 +151,6 @@ class SKO
 		vectord &upperBound,
 		randEngine& mtRandom);
 
-
-  /** 
-   * Function that returns the corresponding criteria  of a series 
-   * of queries in the hypercube [0,1] in order to choose the best point to try
-   * the next iteration.
-   * 
-   * @param query point in the hypercube [0,1] to evaluate the Gaussian process
-   * 
-   * @return negative criteria (Expected Improvement, LCB, A-optimality, etc.).
-   */	
-  double evaluateCriteria( const vectord &query );
-
   /** 
    * Function that defines the actual mathematical function to be optimized.
    *
@@ -194,24 +182,18 @@ class SKO
    */ 
   virtual bool checkReachability( const vectord &query )
   { return true; };
-  /** 
-   * Sets the parameter for the LCB criterium
-   * LCB = mean - param * std
-   * 
-   * @param param value of std coefficient
-   */
-  void set_LCBparameter(double param)
-  { mLCBparam = param; }
 
   /** 
-   * Defines which cretirium to use. So far, only Expected Improvement 
-   * or Lower Confidence Bound are defined.
+   * Function that returns the corresponding criteria  of a series 
+   * of queries in the hypercube [0,1] in order to choose the best point to try
+   * the next iteration.
    * 
-   * @param useEI if true, use EI, if false, use LCB
-   */
-  void set_criteria(bool useEI)
-  { mUseEI = useEI; }
- 
+   * @param query point in the hypercube [0,1] to evaluate the Gaussian process
+   * 
+   * @return negative criteria (Expected Improvement, LCB, A-optimality, etc.).
+   */	
+  double evaluateCriteria( const vectord &query );
+
 protected:
 
   int allocateMatrices(size_t nSamples, size_t nDims);
@@ -221,13 +203,19 @@ protected:
 			   bool useLatinBox,
 			   randEngine& mtRandom);
 
-  int updateCoolingScheme(size_t nTotalIterations,
-			  size_t nCurrentIteration);
-	
   int nextPoint( vectord &Xnext );
-  int nextPoint( double* x, int n, void* objPointer);
+  int nextPoint( double* x, int n, void* objPointer);	
 
-  inline double evaluateNormalizedSample( const vectord &query);
+  inline double evaluateNormalizedSample( const vectord &query)
+  { 
+    vectord unnormalizedQuery = ublas_elementwise_prod(query,
+							    mRangeBound);
+  
+    unnormalizedQuery = ublas_elementwise_add(unnormalizedQuery,
+					      mLowerBound);
+    
+    return evaluateSample(unnormalizedQuery);
+  } // evaluateNormalizedSample
 
 protected:
 
@@ -238,14 +226,8 @@ protected:
   size_t mMaxIterations;
   const size_t mMaxDim;// Maximum SKO evaluations and dimensions
 
-  const bool mUseCool;
-  unsigned int mG;
-
   vectord mLowerBound;
   vectord mRangeBound;
-
-  double mLCBparam;                   // LCB = mean - param * std
-  bool mUseEI;
 	
   int mVerbose;
 

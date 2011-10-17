@@ -124,28 +124,6 @@ int SKO::optimize( vectord &bestPoint,
   return 1;
 } // optimize
 
-
-int SKO::updateCoolingScheme( size_t nTotalIterations, 
-			      size_t nCurrentIteration)
-{
-
-  double iterPercentaje = static_cast<double>(nTotalIterations) 
-                        / static_cast<double>(nCurrentIteration);
-
-  if (iterPercentaje < 0.2)
-    mG = 20;
-  else if (iterPercentaje < 0.3)
-    mG = 10; 
-  else if (iterPercentaje < 0.4)
-    mG = 5;     
-  else if (iterPercentaje < 0.5)
-    mG = 2;    
-  else if (iterPercentaje < 0.7)
-    mG = 1;       
-
-  return 1;
-}
-	
 int SKO::sampleInitialPoints( size_t nSamples, size_t nDims,
 			      bool useLatinBox, randEngine& mtRandom )
 {
@@ -279,16 +257,5 @@ int SKO::nextPoint(double* x, int n, void* objPointer)
 } // nextPoint (C array)
 
 
-double SKO::evaluateNormalizedSample( const vectord &query)
-{ 
-  vectord unnormalizedQuery = ublas_elementwise_prod(query,
-							    mRangeBound);
-  
-  unnormalizedQuery = ublas_elementwise_add(unnormalizedQuery,
-					    mLowerBound);
-    
-  return evaluateSample(unnormalizedQuery);
-} // evaluateNormalizedSample
-  
 
 

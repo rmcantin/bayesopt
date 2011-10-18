@@ -81,9 +81,9 @@ int krigging_optimization(int nDim, eval_func f, void* f_data,
 
   CSKO optimizer(params, maxeval, useCool);
 
-  if (useEI)  optimizer.set_criteria(true);
+  /*if (useEI)  optimizer.set_criteria(true);
   else        optimizer.set_criteria(false);
-
+  */
   optimizer.set_eval_funct(f);
   optimizer.save_other_data(f_data);
   optimizer.optimize(result,rEng);

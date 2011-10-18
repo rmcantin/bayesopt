@@ -34,10 +34,11 @@
 #include "randgen.hpp"
 #include "elementwiseUblas.hpp"
 
+#include "boxoptimization.hpp"
 #include "gaussprocess.hpp"
 
 #include "krigwpr.h"
-
+#include "criteria.hpp"
 
 /** \addtogroup BayesOptimization */
 /*@{*/
@@ -64,7 +65,7 @@
  * funtion using few iterations.
  * 
  */
-class SKO
+class SKO: public BoxOptimization
 {
 
  public:
@@ -183,6 +184,10 @@ class SKO
   virtual bool checkReachability( const vectord &query )
   { return true; };
 
+
+  inline double evaluate( const vectord &query )
+  {return evaluateCriteria(query);}
+
   /** 
    * Function that returns the corresponding criteria  of a series 
    * of queries in the hypercube [0,1] in order to choose the best point to try
@@ -196,15 +201,17 @@ class SKO
 
 protected:
 
+
+  inline int nextPoint(vectord &Xnext)
+  {return boxoptimize(Xnext);}
+
+
   int allocateMatrices(size_t nSamples, size_t nDims);
 
   int sampleInitialPoints( size_t nSamples, 
 			   size_t nDims,
 			   bool useLatinBox,
 			   randEngine& mtRandom);
-
-  int nextPoint( vectord &Xnext );
-  int nextPoint( double* x, int n, void* objPointer);	
 
   inline double evaluateNormalizedSample( const vectord &query)
   { 
@@ -221,7 +228,7 @@ protected:
 
   // Member variables
   GaussianProcess mGP;
-
+  Criteria crit;
 
   size_t mMaxIterations;
   const size_t mMaxDim;// Maximum SKO evaluations and dimensions

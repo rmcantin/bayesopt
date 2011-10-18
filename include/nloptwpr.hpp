@@ -7,7 +7,7 @@ namespace NLOPT_WPR
   extern "C" {
 
   /** 
-   * \brief C wrapper for NLOPT to evaluate the critearia for a query
+   * \brief C wrapper for NLOPT to evaluate the criteria for a query
    * 
    * @param n size of query
    * @param x query point
@@ -16,7 +16,7 @@ namespace NLOPT_WPR
    * 
    * @return negative EI 
    */
-  double evaluate_criteria_nlopt (unsigned int n, const double *x,
+  double evaluate_nlopt (unsigned int n, const double *x,
 				  double *grad, void *my_func_data);
   
   }

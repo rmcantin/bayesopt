@@ -13,7 +13,7 @@ namespace DIRECT
   /* +----------------------------------------------------------+ */
   /* | C wrapper for DIRECT optimization of current criteria    | */
   /* +----------------------------------------------------------+ */
-  int criteriawrap_   (int *n, double *x, double *f, 
+  int evaluate_wrap_   (int *n, double *x, double *f, 
 		    int *flag__, int *iidata, 
 		    int *iisize, double *ddata, 
 		    int *idsize, char *cdata,
@@ -24,9 +24,9 @@ namespace DIRECT
     
     // This is not very clever... but works!
     void *objPointer = iidata;
-    SKO* GAUSSIAN_PROCESS = static_cast<SKO*>(objPointer);
+    BoxOptimization* GAUSSIAN_PROCESS = static_cast<BoxOptimization*>(objPointer);
     
-    *f =  GAUSSIAN_PROCESS->evaluateCriteria(sharedN);
+    *f =  GAUSSIAN_PROCESS->evaluate(sharedN);
     *flag__ = 0;
     
     return 0;

@@ -12,7 +12,7 @@ namespace NLOPT_WPR
 /* +-------------------------------------------------------+ */
 /* | Negative Expected Improvement C wrapper for NLOPT     | */
 /* +-------------------------------------------------------+ */
-  double evaluate_criteria_nlopt (unsigned int n, const double *x,
+  double evaluate_nlopt (unsigned int n, const double *x,
 				  double *grad, void *my_func_data)
 
   {
@@ -24,9 +24,9 @@ namespace NLOPT_WPR
     
     // This is not very clever... but works!
     void *objPointer = my_func_data;
-    SKO* GAUSSIAN_PROCESS = static_cast<SKO*>(objPointer);
+    BoxOptimization* GAUSSIAN_PROCESS = static_cast<BoxOptimization*>(objPointer);
     
-    double f =  GAUSSIAN_PROCESS->evaluateCriteria(sharedN);
+    double f =  GAUSSIAN_PROCESS->evaluate(sharedN);
     
     return f;
   } /* evaluate_criteria_nlopt */

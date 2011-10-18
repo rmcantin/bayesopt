@@ -30,7 +30,7 @@ namespace DIRECT
 			  int *idsize, char *cdata,
 			  int *icsize, int cdata_len );	 
 
-	  int criteriawrap_   (int *n, double *x, double *f, 
+	  int evaluate_wrap_   (int *n, double *x, double *f, 
 			       int *flag__, int *iidata, 
 			       int *iisize, double *ddata, 
 			       int *idsize, char *cdata,

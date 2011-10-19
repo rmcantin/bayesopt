@@ -216,9 +216,9 @@ size_t incomplete_cholesky_decompose(MATRIX& A)
  * \param L a triangular matrix
  * \param x input: right hand side b; output: solution x
  */
-template < class TRIA, class VEC >
+template < class TRIA, class MATRIX >
 void
-cholesky_solve(const TRIA& L, VEC& x, ublas::lower)
+cholesky_solve(const TRIA& L, MATRIX& x, ublas::lower)
 {
   using namespace ublas;
 //   ::inplace_solve(L, x, lower_tag(), typename TRIA::orientation_category () );
@@ -226,5 +226,29 @@ cholesky_solve(const TRIA& L, VEC& x, ublas::lower)
   inplace_solve(trans(L), x, upper_tag());
 }
 
+/****** Added by Ruben Martinez-Cantin. 2011 ***********/
+
+/** \brief Computes the inverse matrix of a symmetric positive definite matrix
+ *
+ * \param M original matrix
+ * \param inverse inverse of M
+ */
+template < class Min, class Mout >
+int
+inverse_cholesky(const Min& M, Mout& inverse)
+{
+  typedef typename Mout::value_type value_type;
+
+  size_t size = M.size1();
+  Min L(size,size);
+  size_t res = cholesky_decompose(M, L);
+
+  if (res != 0) return res;
+
+  inverse.assign(ublas::identity_matrix<value_type>(size));
+  cholesky_solve(L,inverse,ublas::lower());
+
+  return 0;
+}
 
 #endif

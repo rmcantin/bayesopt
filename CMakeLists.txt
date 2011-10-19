@@ -63,7 +63,7 @@ CONFIGURE_FILE(
 # note that we don't need \ at the end of line
 SET( KRIGGING_SRCS
   ./src/krigging.cpp
-  ./src/boxoptimization.cpp
+  ./src/inneroptimization.cpp
   ./src/gaussprocess.cpp
   ./src/krigwpr.cpp
   )

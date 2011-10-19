@@ -44,7 +44,7 @@ double testFunction(unsigned int n, double *x,
       f += (x[i] - .53f) * (x[i] - .53f);
     }
   return f;
-};
+}
 
 
 
@@ -103,5 +103,5 @@ int main(int nargs, char *args[])
 
   std::cout << "Elapsed time in C++: " << diff << " seconds" << std::endl;
   std::cout << "Elapsed time in C: " << diff2 << " seconds" << std::endl;
-};
+}
 

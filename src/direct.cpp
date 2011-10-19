@@ -24,9 +24,9 @@ namespace DIRECT
     
     // This is not very clever... but works!
     void *objPointer = iidata;
-    BoxOptimization* GAUSSIAN_PROCESS = static_cast<BoxOptimization*>(objPointer);
+    InnerOptimization* GAUSSIAN_PROCESS = static_cast<InnerOptimization*>(objPointer);
     
-    *f =  GAUSSIAN_PROCESS->evaluate(sharedN);
+    *f =  GAUSSIAN_PROCESS->innerEvaluate(sharedN);
     *flag__ = 0;
     
     return 0;

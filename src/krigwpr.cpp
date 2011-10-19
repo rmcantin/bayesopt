@@ -30,11 +30,13 @@ class CSKO: public SKO
   double evaluateSample( const vectord &Xi ) 
   {
     int n = static_cast<int>(Xi.size());
-    double x[n];
+    double *x = new double[n];
 
     copyVectorInArray(x,n,Xi);
-     
-    return mF(n,x,NULL,mOtherData);
+    double result = mF(n,x,NULL,mOtherData);
+    delete[] x;
+
+    return result;
   };
 
   void set_eval_funct(eval_func f)

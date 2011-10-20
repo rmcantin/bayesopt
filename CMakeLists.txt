@@ -47,11 +47,6 @@ ENDIF(NLOPT MATCHES NLOPT-NOTFOUND)
 SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 INCLUDE(UseDoxygen)
 
-IF(USE_DIRECT_FORTRAN)
-  ADD_SUBDIRECTORY(direct)
-ENDIF(USE_DIRECT_FORTRAN)
-
-#ADD_SUBDIRECTORY(src)
 
 CONFIGURE_FILE(
   ./include/krig_config.h.in
@@ -65,35 +60,15 @@ SET( KRIGGING_SRCS
   ./src/krigging.cpp
   ./src/inneroptimization.cpp
   ./src/gaussprocess.cpp
+  ./src/basicgaussprocess.cpp
   ./src/krigwpr.cpp
   )
 
 IF(BUILD_PYTHON_INTERFACE)
-  SET(PYHTON_SRC   ./python/bayesopt.cpp )
+  SET(PYHTON_SRC  ./python/bayesopt.cpp)
 ELSE(BUILD_PYTHON_INTERFACE)
   SET(PYHTON_SRC )
 ENDIF(BUILD_PYTHON_INTERFACE)
-
-SET( DIRECT_SRCS ./src/direct.cpp )
-SET( NLOPT_SRCS  ./src/nloptwpr.cpp )
-
-
-SET( KRIGGING_HEAD
-  ./include/krigging.hpp
-  ./include/gaussprocess.hpp
-  ./include/krigwpr.h
-  ./include/krig_config.h
-  )
-
-SET( DIRECT_HEAD ./include/direct.hpp )
-SET( NLOPT_HEAD  ./include/nloptwpr.hpp )
-
-SET( MATH_HEAD
-  ./include/lhs.hpp 
-  ./include/ublasinv.hpp 
-  ./include/randgen.hpp
-  ./include/elementwiseUblas.hpp
-  )
 
 
 INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/include )
@@ -106,9 +81,10 @@ find_package( Boost REQUIRED )
 LINK_DIRECTORIES( ${CMAKE_SOURCE_DIR}/lib )
 
 IF(USE_DIRECT_FORTRAN)
-  SET( OPT_SOURCE ${DIRECT_SRCS})
+  ADD_SUBDIRECTORY(direct)
+  SET( OPT_SOURCE ./src/direct.cpp)
 ELSE(USE_DIRECT_FORTRAN)
-  SET( OPT_SOURCE ${NLOPT_SRCS})
+  SET( OPT_SOURCE ./src/nloptwpr.cpp)
 ENDIF(USE_DIRECT_FORTRAN)
 
 ADD_LIBRARY(bayesopt

@@ -35,7 +35,7 @@ class BasicGaussianProcess: public NonParametricProcess
 public:
   BasicGaussianProcess();  
   BasicGaussianProcess( double theta, double noise );
-  virtual ~GaussianProcess();
+  virtual ~BasicGaussianProcess();
 
   /** 
    * Function that returns the prediction of the GP for a query point
@@ -50,8 +50,17 @@ public:
   int prediction(const vectord &query,
   		 double& yPred, double& sPred);
 
-  //  int marginalLikelihood(const vectord &query,
-			 
+
+  /** 
+   * Computes the negative log likelihood and its gradient of the data.
+   * 
+   * @param param value of the param to be optimized
+   * @param grad gradient of the negative Log Likelihood
+   * 
+   * @return value negative log likelihood
+   */
+  double negativeLogLikelihood(double param,
+			       double& grad);			 
 			 
 
   /** Computes the GP based on mGPXX
@@ -85,17 +94,13 @@ protected:
   { return means::Zero(x); }
 
 
-  int precomputeGPParams();
+  int precomputeGPParams()
+  {return 1;};
 
 
 protected:
   double mTheta;                      // Kernel parameters
-  const double mDelta2,mRegularizer;  // GP prior parameters (Normal)
-
-  // Precomputed GP prediction operations
-  vectord mUInvR;              
-  double mUInvRUDelta;
-  vectord mYUmu;
+  const double mRegularizer;  // GP prior parameters (Normal)
 
 };
 

@@ -1,7 +1,8 @@
 
 
 #include "basicgaussprocess.hpp"
-
+#include "cholesky.hpp"
+#include "trace.hpp"
   
 
 BasicGaussianProcess::BasicGaussianProcess():
@@ -22,25 +23,33 @@ BasicGaussianProcess::~BasicGaussianProcess()
 
 
 double BasicGaussianProcess::negativeLogLikelihood(double param,
-					      vectord &grad)
+						   double &grad)
 {
-  matrixd K = computeCorrMatrix(noise,0);
-  matrixd dK = computeCorrMatrix(noise,1);
-  matrixd L(K.size1(),K.size2());
+  matrixd K = computeCorrMatrix(mRegularizer,0);
+  matrixd dK = computeCorrMatrix(0,1);
+  size_t n = K.size1();
+  matrixd L(n,n);
   cholesky_decompose(K,L);
   
-  vectord alpha(K.size1());
-  implace_solve(L,mGPY,lower_tag());
-    
+  vectord alpha(mGPY);
+  matrixd inverse = eyed(n);
+
+  boost::numeric::ublas::inplace_solve(L,alpha,lower_tag());
+  boost::numeric::ublas::inplace_solve(L,inverse,lower_tag());
+
+  double loglik = -.5*inner_prod(mGPY,alpha) - trace(L) - n*0.91893853320467; //log(2*pi)/2
+  grad = 0.5 * trace_prod(outer_prod(alpha,alpha) - inverse, dK);
+
+  return loglik;
 }
 
 
 int BasicGaussianProcess::prediction( const vectord &query,
-				 double& yPred, double& sPred)
+				      double& yPred, double& sPred)
 {
   vectord rInvR(mGPXX.size());
   double kn;
-  double uInvRr, rInvRr;
+  double rInvRr;
 
   vectord colR = computeCrossCorrelation(query);
   kn = correlationFunction(query, query);

@@ -1,5 +1,7 @@
 #PROJECT(direct Fortran)
 
+enable_language(Fortran)
+
 ADD_LIBRARY(DIRect 
   Direct.f 
   DIRserial.f 

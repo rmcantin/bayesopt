@@ -25,6 +25,7 @@
 
 #include "specialtypes.hpp"
 #include "ublasinv.hpp"
+#include "cholesky.hpp"
 
 
 class NonParametricProcess
@@ -129,7 +130,8 @@ protected:
     
     matrixd corrMatrix = computeCorrMatrix(noise);
 
-    return InvertMatrix(corrMatrix,mInvR);
+    //return InvertMatrix(corrMatrix,mInvR);
+    return inverse_cholesky(corrMatrix,mInvR);
   }
 
   matrixd computeCorrMatrix( double noise , size_t dth_index = 0)

@@ -34,7 +34,7 @@
 #include "randgen.hpp"
 #include "elementwiseUblas.hpp"
 
-#include "boxoptimization.hpp"
+#include "inneroptimization.hpp"
 #include "gaussprocess.hpp"
 
 #include "krigwpr.h"
@@ -65,7 +65,7 @@
  * funtion using few iterations.
  * 
  */
-class SKO: public BoxOptimization
+class SKO: public InnerOptimization
 {
 
  public:
@@ -184,12 +184,8 @@ class SKO: public BoxOptimization
   virtual bool checkReachability( const vectord &query )
   { return true; };
 
-
-  inline double evaluate( const vectord &query )
-  {return evaluateCriteria(query);}
-
   /** 
-   * Function that returns the corresponding criteria  of a series 
+   * Function that returns the corresponding criteria of a series 
    * of queries in the hypercube [0,1] in order to choose the best point to try
    * the next iteration.
    * 
@@ -197,13 +193,18 @@ class SKO: public BoxOptimization
    * 
    * @return negative criteria (Expected Improvement, LCB, A-optimality, etc.).
    */	
-  double evaluateCriteria( const vectord &query );
+
+  inline double innerEvaluate( const vectord &query )
+  {return evaluateCriteria(query);}
 
 protected:
 
 
+  double evaluateCriteria( const vectord &query );
+
+
   inline int nextPoint(vectord &Xnext)
-  {return boxoptimize(Xnext);}
+  {return innerOptimize(Xnext);}
 
 
   int allocateMatrices(size_t nSamples, size_t nDims);

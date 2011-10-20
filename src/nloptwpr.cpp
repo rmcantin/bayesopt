@@ -24,9 +24,9 @@ namespace NLOPT_WPR
     
     // This is not very clever... but works!
     void *objPointer = my_func_data;
-    BoxOptimization* GAUSSIAN_PROCESS = static_cast<BoxOptimization*>(objPointer);
+    InnerOptimization* GAUSSIAN_PROCESS = static_cast<InnerOptimization*>(objPointer);
     
-    double f =  GAUSSIAN_PROCESS->evaluate(sharedN);
+    double f =  GAUSSIAN_PROCESS->innerEvaluate(sharedN);
     
     return f;
   } /* evaluate_criteria_nlopt */

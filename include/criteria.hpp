@@ -89,7 +89,7 @@ protected:
       double Tact;
       double sumEI = pow(yNorm,g)*Tm2 - g*pow(yNorm,g-1)*Tm1;
 
-      for (int ii = 2; ii < g; ii++) 
+      for (unsigned int ii = 2; ii < g; ii++) 
 	{
 	  Tact = (ii-1)*Tm2 - pdfD*pow(yNorm,ii-1);
 	  sumEI += pow(-1.0,ii)*(fg/(factorial<double>(ii)*factorial<double>(g-ii)))*

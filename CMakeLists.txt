@@ -1,4 +1,4 @@
-PROJECT( ego Fortran CXX)
+PROJECT(ego CXX)
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 #SET(CMAKE_BUILD_TYPE Release)
@@ -133,7 +133,7 @@ ELSE(BUILD_PYTHON_INTERFACE)
 ENDIF(BUILD_PYTHON_INTERFACE)
 
 ADD_EXECUTABLE(krigtest
-  ./src/krigtest.cpp
+  ./app/testkrig.cpp
   )
 
 add_dependencies(krigtest bayesopt)
@@ -147,7 +147,7 @@ TARGET_LINK_LIBRARIES(krigtest
   ${PYHTON_LIB}
   )
 
-ADD_EXECUTABLE(randtest ./src/testrand.cpp)
+ADD_EXECUTABLE(randtest ./app/testrand.cpp)
 
 INSTALL(FILES ./include/krigging.hpp ./include/krigwpr.h 
   DESTINATION include)

@@ -48,6 +48,11 @@ int InnerOptimization::innerOptimize(double* x, int n, void* objPointer)
  
 #ifdef USE_DIRECT_FORTRAN
 
+    if (alg != direct)
+      {
+	std::cout << "Not supported. Using direct instead." << std::endl;
+      }
+
     int (*fpointer)(int *, double *, double *, 
 		    int *, int *,int *, double *,
 		    int *, char *, int *, int);
@@ -64,16 +69,26 @@ int InnerOptimization::innerOptimize(double* x, int n, void* objPointer)
 
     double coef = 0.8;  //Percentaje of resources used in local optimization
 
+    if (alg != combined)  coef = 1.0;
+
     nlopt_opt opt;
-    opt = nlopt_create(NLOPT_GN_ORIG_DIRECT_L, n); /* algorithm and dims */
-    nlopt_set_lower_bounds(opt, l);
-    nlopt_set_upper_bounds(opt, u);
+
+    if ((alg == direct) || (alg == combined))
+      {
+	opt = nlopt_create(NLOPT_GN_ORIG_DIRECT_L, n); /* algorithm and dims */
+	nlopt_set_lower_bounds(opt, l);
+	nlopt_set_upper_bounds(opt, u);
+      }
+    else
+      {
+	opt = nlopt_create(NLOPT_GN_ORIG_DIRECT_L, n); /* algorithm and dims */
+      }
     nlopt_set_min_objective(opt, fpointer, objPointer);
     nlopt_set_maxeval(opt, round(maxf*coef) ) ;
 
     nlopt_result errortype = nlopt_optimize(opt, x, &fmin);
 
-    if (coef < 1) 
+    if ((alg == combined) && (coef < 1)) 
       {
 	//opt = nlopt_create(NLOPT_LN_BOBYQA, n); /* algorithm and dims */
 	opt = nlopt_create(NLOPT_LN_NELDERMEAD, n); /* algorithm and dims */

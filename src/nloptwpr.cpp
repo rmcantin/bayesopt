@@ -13,7 +13,7 @@ namespace NLOPT_WPR
 /* | Negative Expected Improvement C wrapper for NLOPT     | */
 /* +-------------------------------------------------------+ */
   double evaluate_nlopt (unsigned int n, const double *x,
-				  double *grad, void *my_func_data)
+			 double *grad, void *my_func_data)
 
   {
     double xcopy[128];
@@ -24,10 +24,15 @@ namespace NLOPT_WPR
     
     // This is not very clever... but works!
     void *objPointer = my_func_data;
-    InnerOptimization* GAUSSIAN_PROCESS = static_cast<InnerOptimization*>(objPointer);
+    InnerOptimization* OPTIMIZER = static_cast<InnerOptimization*>(objPointer);
     
-    double f =  GAUSSIAN_PROCESS->innerEvaluate(sharedN);
+    vector<double> vgrad(n);
+
+    double f =  OPTIMIZER->innerEvaluate(sharedN,vgrad);
     
+    for (unsigned int i=0;i<n;i++)
+      grad[i] = vgrad(i);
+
     return f;
   } /* evaluate_criteria_nlopt */
 

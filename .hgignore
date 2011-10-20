@@ -6,6 +6,7 @@ cmake_install.cmake
 Doxyfile
 bin/direct.out
 bin/krigtest
+bin/randtest
 include/krig_config.h
 install_manifest.txt
 syntax:glob

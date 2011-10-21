@@ -36,15 +36,15 @@ class TestEGO: public SKO
 double testFunction(unsigned int n, double *x,
 		    double *gradient, /* NULL if not needed */
 		    void *func_data)
-{/*
+{
   double f = 10.;
     
   for (unsigned int i = 0; i < n; ++i)
     {
       f += (x[i] - .53f) * (x[i] - .53f);
-      }*/
+    }
 
-  double f = (x[0]-0.5)*(x[0]-0.5) + sin(20*x[0])*0.2;
+  
 
   return f;
 }
@@ -55,7 +55,7 @@ int main(int nargs, char *args[])
 {    
   clock_t start, end;
   double diff,diff2;
-  int n = 1;
+  int n = 4;
   vectord result(n);
   randEngine rEng(100u);
 

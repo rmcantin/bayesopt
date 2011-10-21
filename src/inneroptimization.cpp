@@ -84,7 +84,7 @@ int InnerOptimization::innerOptimize(double* x, int n, void* objPointer)
       {
 	opt = nlopt_create(NLOPT_LD_LBFGS, n); /* algorithm and dims */
 	for (int i = 0; i < n; ++i) {
-	  l[i] = -100.;
+	  l[i] = 0.;
 	  u[i] = 100.;
 	}
 

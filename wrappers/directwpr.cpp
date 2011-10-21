@@ -16,44 +16,33 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -----------------------------------------------------------------------------
 */
+// BOOST Libraries
+#include <boost/numeric/ublas/matrix.hpp>
+#include <boost/numeric/ublas/storage.hpp>
 
-#ifndef  _MEANFUNCS_HPP_
-#define  _MEANFUNCS_HPP_
-
-#include <boost/numeric/ublas/vector.hpp>
-
-namespace means
+#include "directwpr.hpp"
+#include "inneroptimization.hpp"
+ 
+namespace DIRECT
 {
-  using namespace boost::numeric::ublas;	
+  int evaluate_wrap_   (int *n, double *x, double *f, 
+			int *flag__, int *iidata, 
+			int *iisize, double *ddata, 
+			int *idsize, char *cdata,
+			int *icsize, int cdata_len)
+  {
+    array_adaptor<double> shared((*n), x);
+    vector<double, array_adaptor<double> > sharedN((*n), shared); 
+    
+    // This is not very clever... but works!
+    void *objPointer = iidata;
+    InnerOptimization* OPTIMIZER = static_cast<InnerOptimization*>(objPointer);
+    
+    vector<double> vgrad(n);
+    *f = OPTIMIZER->innerEvaluate(sharedN,vgrad);
+    *flag__ = 0;
+    
+    return 0;
+  } /* criteriawrap_ */
 
-  /** 
-   * Constant unit function
-   * 
-   * @return 1
-   */
-  inline double One( const vector<double> &x )
-  { return 1; } 
-  
-  /** 
-   * Constant zero function
-   * 
-   * @return 0
-   */
-  inline double Zero( const vector<double> &x)
-  { return 0; } 
-
-  /** 
-   * Linear function
-   * 
-   * @param x variable
-   * @param a coefficient
-   * 
-   * @return a \dot x
-   */
-  inline double Linear (const vector<double> &x,
-			const vector<double> &a)
-  { return inner_prod(x,a); }
 }
-
-
-#endif

@@ -1,11 +1,28 @@
+/*
+-----------------------------------------------------------------------------
+   Copyright (C) 2011 Ruben Martinez-Cantin <rmcantin@unizar.es>
+ 
+   This program is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-----------------------------------------------------------------------------
+*/
 #include "krig_config.h"
 
 #ifdef USE_DIRECT_FORTRAN
-  #include "direct.hpp"
-#else
-  // NLOPT
+  #include "directwpr.h"
+#else  // NLOPT
   #include <nlopt.h>
-  #include "nloptwpr.hpp"
+  #include "nloptwpr.h"
 #endif
 
 #include "inneroptimization.hpp"
@@ -45,8 +62,8 @@ int InnerOptimization::innerOptimize(double* x, int n, void* objPointer)
     int ierror;
 
     for (int i = 0; i < n; ++i) {
-	l[i] = 0.;
-	u[i] = 1.;
+	l[i] = mDown;
+	u[i] = mUp;
     }
  
 #ifdef USE_DIRECT_FORTRAN
@@ -82,12 +99,7 @@ int InnerOptimization::innerOptimize(double* x, int n, void* objPointer)
       }
     else
       {
-	opt = nlopt_create(NLOPT_LD_LBFGS, n); /* algorithm and dims */
-	for (int i = 0; i < n; ++i) {
-	  l[i] = 0.;
-	  u[i] = 100.;
-	}
-
+	opt = nlopt_create(NLOPT_LN_BOBYQA, n); /* algorithm and dims */
       }
     nlopt_set_lower_bounds(opt, l);
     nlopt_set_upper_bounds(opt, u);

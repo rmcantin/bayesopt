@@ -9,13 +9,19 @@ BasicGaussianProcess::BasicGaussianProcess():
   NonParametricProcess(), InnerOptimization(),
   mTheta(KERNEL_THETA),
   mRegularizer(DEF_REGULARIZER)
-{ setAlgorithm(lbfgs);} // Default constructor
+{ 
+  setAlgorithm(lbfgs);
+  setLimits(0.,100.);
+} // Default constructor
 
 BasicGaussianProcess::BasicGaussianProcess( double theta, 
 					    double noise):
   NonParametricProcess(), InnerOptimization(),
   mTheta(theta), mRegularizer(noise)
-{setAlgorithm(lbfgs);}  // Constructor
+{
+  setAlgorithm(lbfgs);
+  setLimits(0.,100.);
+}  // Constructor
 
 
 BasicGaussianProcess::~BasicGaussianProcess()
@@ -42,7 +48,7 @@ double BasicGaussianProcess::negativeLogLikelihood(double &grad,
       matrixd inverse = eyed(n);
       boost::numeric::ublas::inplace_solve(L,inverse,lower_tag());
       matrixd dK = computeCorrMatrix(0,index);
-      grad = 0.5 * trace_prod(outer_prod(alpha,alpha) - inverse, dK);
+      grad = -.5 * trace_prod(outer_prod(alpha,alpha) - inverse, dK);
     }
   return -loglik;
 }

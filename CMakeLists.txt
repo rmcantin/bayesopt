@@ -61,7 +61,7 @@ SET( KRIGGING_SRCS
   ./src/inneroptimization.cpp
   ./src/gaussprocess.cpp
   ./src/basicgaussprocess.cpp
-  ./src/krigwpr.cpp
+  ./wrappers/krigwpr.cpp
   )
 
 IF(BUILD_PYTHON_INTERFACE)
@@ -71,7 +71,9 @@ ELSE(BUILD_PYTHON_INTERFACE)
 ENDIF(BUILD_PYTHON_INTERFACE)
 
 
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/include )
+INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/include 
+                     ${CMAKE_SOURCE_DIR}/wrappers
+		     ${CMAKE_SOURCE_DIR}/utils )
 
 find_package( Boost REQUIRED )
    if(Boost_FOUND)
@@ -82,9 +84,9 @@ LINK_DIRECTORIES( ${CMAKE_SOURCE_DIR}/lib )
 
 IF(USE_DIRECT_FORTRAN)
   ADD_SUBDIRECTORY(direct)
-  SET( OPT_SOURCE ./src/direct.cpp)
+  SET( OPT_SOURCE ./wrappers/directwpr.cpp)
 ELSE(USE_DIRECT_FORTRAN)
-  SET( OPT_SOURCE ./src/nloptwpr.cpp)
+  SET( OPT_SOURCE ./wrappers/nloptwpr.cpp)
 ENDIF(USE_DIRECT_FORTRAN)
 
 ADD_LIBRARY(bayesopt
@@ -125,7 +127,7 @@ TARGET_LINK_LIBRARIES(krigtest
 
 ADD_EXECUTABLE(randtest ./app/testrand.cpp)
 
-INSTALL(FILES ./include/krigging.hpp ./include/krigwpr.h 
+INSTALL(FILES ./include/krigging.hpp ./wrappers/krigwpr.h 
   DESTINATION include)
 
 INSTALL(TARGETS bayesopt

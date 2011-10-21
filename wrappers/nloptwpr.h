@@ -17,43 +17,28 @@
 -----------------------------------------------------------------------------
 */
 
-#ifndef  _MEANFUNCS_HPP_
-#define  _MEANFUNCS_HPP_
+#ifndef _NLOPTWPR_HPP_
+#define _NLOPTWPR_HPP_
 
-#include <boost/numeric/ublas/vector.hpp>
 
-namespace means
+namespace NLOPT_WPR
 {
-  using namespace boost::numeric::ublas;	
+  extern "C" {
 
   /** 
-   * Constant unit function
+   * Wrapper of inner optimization to be evaluated by NLOPT
    * 
-   * @return 1
-   */
-  inline double One( const vector<double> &x )
-  { return 1; } 
+   * @param n # of dimensions
+   * @param x input point
+   * @param grad returns gradient evaluation
+   * @param my_func_data pointer to the InnerOptimization object
+   * 
+   * @return function evaluation
+   */  
+  double evaluate_nlopt (unsigned int n, const double *x,
+				  double *grad, void *my_func_data);
   
-  /** 
-   * Constant zero function
-   * 
-   * @return 0
-   */
-  inline double Zero( const vector<double> &x)
-  { return 0; } 
-
-  /** 
-   * Linear function
-   * 
-   * @param x variable
-   * @param a coefficient
-   * 
-   * @return a \dot x
-   */
-  inline double Linear (const vector<double> &x,
-			const vector<double> &a)
-  { return inner_prod(x,a); }
+  }
 }
-
 
 #endif

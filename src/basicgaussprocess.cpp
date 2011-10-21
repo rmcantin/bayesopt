@@ -1,25 +1,14 @@
-
-
 #include "basicgaussprocess.hpp"
 #include "cholesky.hpp"
 #include "trace.hpp"
   
-
-BasicGaussianProcess::BasicGaussianProcess():
-  NonParametricProcess(), InnerOptimization(),
-  mTheta(KERNEL_THETA),
-  mRegularizer(DEF_REGULARIZER)
-{ 
-  setAlgorithm(lbfgs);
-  setLimits(0.,100.);
-} // Default constructor
 
 BasicGaussianProcess::BasicGaussianProcess( double theta, 
 					    double noise):
   NonParametricProcess(), InnerOptimization(),
   mTheta(theta), mRegularizer(noise)
 {
-  setAlgorithm(lbfgs);
+  setAlgorithm(bobyqa);
   setLimits(0.,100.);
 }  // Constructor
 
@@ -39,9 +28,10 @@ double BasicGaussianProcess::negativeLogLikelihood(double &grad,
 
   // Compute the likelihood
   vectord alpha(mGPY);
-  boost::numeric::ublas::inplace_solve(L,alpha,lower_tag());
-  double loglik = -.5*inner_prod(mGPY,alpha) - trace(L) - n*0.91893853320467; //log(2*pi)/2
+  boost::numeric::ublas::inplace_solve(L,alpha,boost::numeric::ublas::lower_tag());
+  double loglik = .5*inner_prod(mGPY,alpha) + trace(L) + n*0.91893853320467; //log(2*pi)/2
 
+#if 0 // BUG:
   // Compute the ith derivative
   if (index > 0)
     {
@@ -50,7 +40,9 @@ double BasicGaussianProcess::negativeLogLikelihood(double &grad,
       matrixd dK = computeCorrMatrix(0,index);
       grad = -.5 * trace_prod(outer_prod(alpha,alpha) - inverse, dK);
     }
-  return -loglik;
+#endif
+
+  return loglik;
 }
 
 

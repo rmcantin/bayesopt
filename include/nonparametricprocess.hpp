@@ -24,7 +24,6 @@
 #define __NONPARAMETRICPROCESS_HPP__
 
 #include "specialtypes.hpp"
-#include "ublasinv.hpp"
 #include "cholesky.hpp"
 
 
@@ -49,10 +48,6 @@ public:
   virtual int prediction(const vectord &query,
 			 double& yPred, double& sPred)
   {return 1;}
-
-  //  int marginalLikelihood(const vectord &query,
-			 
-			 
 
   /** 
    *  Computes the GP based on mGPXX

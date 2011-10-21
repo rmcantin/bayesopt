@@ -1,36 +1,40 @@
-//
-// C++ Implementation: krigging
-//
-// Description: 
-//
-//
-// Author: Ruben Martinez-Cantin  <rmcantin@unizar.es>, (C) 2007
-//
-// Copyright: See COPYING file that comes with this distribution
-//
-//
+/*
+-----------------------------------------------------------------------------
+   This file is part of BayesOptimization, an efficient C++ library for 
+   Bayesian optimization.
+
+   Copyright (C) 2011 Ruben Martinez-Cantin <rmcantin@unizar.es>
+ 
+   BayesOptimization is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   BayesOptimization is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with BayesOptimization.  If not, see <http://www.gnu.org/licenses/>.
+-----------------------------------------------------------------------------
+*/
+
 #include "krigging.hpp"
 #include "lhs.hpp"
+#include "randgen.hpp"
 
 
-SKO::SKO():
-  mGP(),
-  mMaxIterations(MAX_ITERATIONS), mMaxDim(MAX_DIM), 
-  mVerbose(0)
-{} // Default constructor
-
-
-SKO::SKO( double theta, double p,
-	  double alpha, double beta, 
-	  double delta, double noise,
-	  size_t nIter, bool useCool):
+SKO::SKO( double theta, double noise,
+	  size_t nIter, double alpha, 
+	  double beta,  double delta):
   mGP(theta,noise),
   mMaxIterations(nIter), mMaxDim(MAX_DIM),
   mVerbose(0)
 {} // Constructor
 
 SKO::SKO( gp_params params,
-	  size_t nIter, bool useCool):
+	  size_t nIter):
   mGP(params.theta,params.noise),
   mMaxIterations(nIter), mMaxDim(MAX_DIM),
   mVerbose(0)
@@ -41,20 +45,18 @@ SKO::~SKO()
 {} // Default destructor
 
 
-int SKO::optimize( vectord &bestPoint,
-		   randEngine& mtRandom)
+int SKO::optimize( vectord &bestPoint)
 {
   size_t dim = bestPoint.size();
   vectord lowerBound = zvectord(dim);
   vectord upperBound = svectord(dim,1.0);
   
-  return optimize(bestPoint,lowerBound,upperBound,mtRandom);
+  return optimize(bestPoint,lowerBound,upperBound);
 }
 
 int SKO::optimize( vectord &bestPoint,
 		   vectord &lowerBound,
-		   vectord &upperBound,
-		   randEngine& mtRandom)
+		   vectord &upperBound)
 {
   mVerbose = 1;
  
@@ -82,12 +84,13 @@ int SKO::optimize( vectord &bestPoint,
     mMaxIterations = MAX_ITERATIONS - nLHSSamples;
 
   std::cout << "Sampling initial points..." << std::endl;
-  sampleInitialPoints(nLHSSamples, nDims, true, mtRandom);
+  sampleInitialPoints(nLHSSamples, nDims, true);
   std::cout << "DONE" << std::endl;
 
   for (size_t ii = 0; ii < mMaxIterations; ii++)
     {      
-      nextPoint(xNext);
+      // Find what is the next point.
+      innerOptimize(xNext);
     
       if(mVerbose >0)
 	{ 
@@ -107,7 +110,7 @@ int SKO::optimize( vectord &bestPoint,
 } // optimize
 
 int SKO::sampleInitialPoints( size_t nSamples, size_t nDims,
-			      bool useLatinBox, randEngine& mtRandom )
+			      bool useLatinBox)
 {
   /** \brief Sample a set of points to initialize GP fit
    * Use pure random sampling or uniform Latin Hypercube sampling
@@ -117,7 +120,8 @@ int SKO::sampleInitialPoints( size_t nSamples, size_t nDims,
   matrixd xPoints(nSamples,nDims);
   vectord yPoints(nSamples);
   vectord sample(nDims);
-
+  randEngine mtRandom(100u);
+ 
   if (useLatinBox)
       lhs(xPoints, mtRandom);
   else

@@ -1,39 +1,18 @@
-//
-// C++ Implementation: krigging
-//
-// Description: 
-//
-//
-// Author: Ruben Martinez-Cantin  <rmcantin@unizar.es>, (C) 2007
-//
-// Copyright: See COPYING file that comes with this distribution
-//
-//
-
-
 #include "gaussprocess.hpp"
+#include "cholesky.hpp"
+#include "trace.hpp"
 
   
-
-GaussianProcess::GaussianProcess():
-  NonParametricProcess(), mTheta(KERNEL_THETA), mP(KERNEL_P),
-  mAlpha(PRIOR_ALPHA), mBeta (PRIOR_BETA),
-  mDelta2(PRIOR_DELTA_SQ), mRegularizer(DEF_REGULARIZER)
-{} // Default constructor
-
-GaussianProcess::GaussianProcess( double theta, double p,
+GaussianProcess::GaussianProcess( double theta,
 				  double alpha, double beta, 
 				  double delta, double noise):
-  NonParametricProcess(), mTheta(theta), mP(p),
+  NonParametricProcess(), mTheta(theta),
   mAlpha(alpha), mBeta (beta),
   mDelta2(delta), mRegularizer(noise)
-{}  // Constructor
-
-GaussianProcess::GaussianProcess( gp_params params ):
-  NonParametricProcess(), mTheta(params.theta), mP(params.p),
-  mAlpha(params.alpha), mBeta(params.beta),
-  mDelta2(params.delta), mRegularizer(params.noise)
-{}  // Constructor
+{
+  setAlgorithm(bobyqa);
+  setLimits(0.,100.);
+}  // Constructor
 
 
 
@@ -42,16 +21,44 @@ GaussianProcess::~GaussianProcess()
 
 
 
-/*
-double GaussianProcess::negativeLogLikelihood(double param,
-					      vectord &grad)
+
+double GaussianProcess::negativeLogLikelihood(double& grad,
+					      size_t index)
 {
-  matrixd K = computeCorrMatrix(noise,0);
-  matrixd dK = computeCorrMatrix(noise,1);
-  vectord alpha = dot(mInvR,mGPY);
+  matrixd K = computeCorrMatrix(mRegularizer,0);
+  size_t n = K.size1();
+  matrixd L(n,n);
+  cholesky_decompose(K,L);
+
+  vectord colU(n);
+
+  //TODO: Replace by transform
+  for (size_t ii=0; ii< n; ii++) 
+    colU(ii) = meanFunction(mGPXX[ii]);
+
+  vectord alphU(colU);
+  boost::numeric::ublas::inplace_solve(L,alphU,boost::numeric::ublas::lower_tag());
+  double eta = inner_prod(colU,alphU) + 1/mDelta2;
+  
+  vectord alphY(mGPY);
+  boost::numeric::ublas::inplace_solve(L,alphY,boost::numeric::ublas::lower_tag());
+  double mu     = inner_prod(colU,alphY) / eta;
+  double YInvRY = inner_prod(mGPY,alphY);
     
+  double sigma = (mBeta + YInvRY - mu*mu/eta) / (mAlpha + (n+1) + 2);
+  
+  svectord colMu(n,mu);
+  vectord yumu = mGPY - colMu;
+  
+  alphY = yumu;
+  boost::numeric::ublas::inplace_solve(L,alphY,boost::numeric::ublas::lower_tag());
+
+  double lik1 = inner_prod(yumu,alphY) / (2*sigma); 
+  double lik2 = trace(L) * sqrt(pow(sigma,n)) * n*0.91893853320467; //log(2*pi)/2
+
+  return lik1 + lik2 + mBeta/2 * mTheta - (mAlpha+1) * log(mTheta);
 }
-*/
+
 
 int GaussianProcess::prediction( const vectord &query,
 				 double& yPred, double& sPred)
@@ -80,6 +87,13 @@ int GaussianProcess::fitGP()
   size_t nSamples = mGPXX.size();
   for (size_t ii=0; ii<nSamples; ii++)
     checkBoundsY(ii);
+  
+  vectord th = svectord(1,mTheta);  
+
+  std::cout << "Initial theta: " << mTheta << " "<<th.size()<< std::endl;
+  innerOptimize(th);
+  setTheta(th(0));
+  std::cout << "Final theta: " << mTheta << std::endl;
 
   int error = computeInverseCorrMatrix(mRegularizer);
 

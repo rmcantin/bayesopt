@@ -24,7 +24,10 @@
 
 // We plan to add more in the future since nlopt actually support many of them
 enum innerOptAlgorithms {
-  direct, lbfgs, combined
+  direct, // Global optimization
+  lbfgs, // Local, derivative based
+  bobyqa, // Local, derivative free
+  combined // Global exploration, local refinement
 };
 
 
@@ -38,10 +41,23 @@ public:
 
   virtual ~InnerOptimization(){};
 
+  /** 
+   * Virtual function to be overriden by the actual function to be evaluated
+   * 
+   * @param query input point
+   * @param grad output gradient at query point
+   * 
+   * @return function value at query point
+   */
   virtual double innerEvaluate(const vectord& query, 
 			       vectord& grad)
   {return 0.0;}
 
+  /** 
+   * Set the optimization algorithm
+   * 
+   * @param newAlg 
+   */
   void setAlgorithm(innerOptAlgorithms newAlg)
   { alg = newAlg; }
 
@@ -53,8 +69,15 @@ public:
 
 protected:
 
+  /** 
+   * Compute the inner optimization algorithm
+   * 
+   * @param Xnext input: initial guess, output: result
+   * 
+   * @return error_code
+   */
   int innerOptimize(vectord &Xnext);
-  int innerOptimize( double* x, int n, void* objPointer);	
+  int innerOptimize(double* x, int n, void* objPointer);	
 
   innerOptAlgorithms alg;
   double mDown, mUp;

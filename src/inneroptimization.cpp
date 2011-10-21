@@ -62,8 +62,7 @@ int InnerOptimization::innerOptimize(double* x, int n, void* objPointer)
     int ierror;
 
     for (int i = 0; i < n; ++i) {
-	l[i] = mDown;
-	u[i] = mUp;
+	l[i] = mDown;	u[i] = mUp;
     }
  
 #ifdef USE_DIRECT_FORTRAN
@@ -88,30 +87,33 @@ int InnerOptimization::innerOptimize(double* x, int n, void* objPointer)
     fpointer = &(NLOPT_WPR::evaluate_nlopt);
 
     double coef = 0.8;  //Percentaje of resources used in local optimization
-
     if (alg != combined)  coef = 1.0;
 
     nlopt_opt opt;
 
-    if ((alg == direct) || (alg == combined))
+    /* algorithm and dims */
+    switch(alg)
       {
-	opt = nlopt_create(NLOPT_GN_ORIG_DIRECT_L, n); /* algorithm and dims */
+      case direct:      /* same as combined */
+      case combined: 	opt = nlopt_create(NLOPT_GN_ORIG_DIRECT_L, n); break;
+      case bobyqa: 	opt = nlopt_create(NLOPT_LN_BOBYQA, n); break;
+      case lbfgs:       opt = nlopt_create(NLOPT_LD_LBFGS, n); break;
+      default: std::cout << "Algorithm not supported" << std::endl; return -1;
       }
-    else
-      {
-	opt = nlopt_create(NLOPT_LN_BOBYQA, n); /* algorithm and dims */
-      }
+
     nlopt_set_lower_bounds(opt, l);
     nlopt_set_upper_bounds(opt, u);
     nlopt_set_min_objective(opt, fpointer, objPointer);
     nlopt_set_maxeval(opt, round(maxf*coef) ) ;
 
+
     nlopt_result errortype = nlopt_optimize(opt, x, &fmin);
 
+    // Local refinement
     if ((alg == combined) && (coef < 1)) 
       {
-	//opt = nlopt_create(NLOPT_LN_BOBYQA, n); /* algorithm and dims */
-	opt = nlopt_create(NLOPT_LN_NELDERMEAD, n); /* algorithm and dims */
+	nlopt_destroy(opt);  // Destroy previous one
+	opt = nlopt_create(NLOPT_LN_SBPLX, n); /* algorithm and dims */
 	nlopt_set_lower_bounds(opt, l);
 	nlopt_set_upper_bounds(opt, u);
 	nlopt_set_min_objective(opt, fpointer, objPointer);
@@ -120,6 +122,7 @@ int InnerOptimization::innerOptimize(double* x, int n, void* objPointer)
 	errortype = nlopt_optimize(opt, x, &fmin);
       }
       
+    nlopt_destroy(opt);  // Destroy opt
     if (errortype < 0)
       std::cout << "Error:" << errortype << std::endl;
 

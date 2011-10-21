@@ -26,16 +26,37 @@
  */
 
 
+/*
+-----------------------------------------------------------------------------
+   This file is part of BayesOptimization, an efficient C++ library for 
+   Bayesian optimization.
+
+   Copyright (C) 2011 Ruben Martinez-Cantin <rmcantin@unizar.es>
+ 
+   BayesOptimization is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   BayesOptimization is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with BayesOptimization.  If not, see <http://www.gnu.org/licenses/>.
+-----------------------------------------------------------------------------
+*/
+
+
 #ifndef  _KRIGGING_HPP_
 #define  _KRIGGING_HPP_
 
-// BOOST Libraries
 #include "specialtypes.hpp"
-#include "randgen.hpp"
 #include "elementwiseUblas.hpp"
 
 #include "inneroptimization.hpp"
-#include "basicgaussprocess.hpp"
+#include "gaussprocess.hpp"
 
 #include "krigwpr.h"
 #include "criteria.hpp"
@@ -44,53 +65,23 @@
 /*@{*/
 
 
-
-/** 
- * @brief Object that integrates a Bayesian optimization algorithm. 
- * This is an efficient, C++ implementation of the Bayesian optimization
- * algorithm presented in the papers:
- *
- * ----
- * Ruben Martinez-Cantin, Nando de Freitas, Arnaud Doucet and Jose Castellanos.
- * Active Policy Learning for Robot Planning and Exploration under Uncertainty. 
- * Robotics: Science and Systems. 2007
- *
- * Ruben Martinez-Cantin, Nando de Freitas, Eric Brochu, Jose Castellanos and 
- * Arnaud Doucet (2009) A Bayesian Exploration-Exploitation Approach for Optimal
- * Online Sensing and Planning with a Visually Guided Mobile Robot. Autonomous 
- * Robots - Special Issue on Robot Learning, Part B, 27(3):93-103.
- * ----
- * 
- * Basically, it uses the active learning strategy to optimize an "arbitrary" 
- * funtion using few iterations.
- * 
- */
 class SKO: public InnerOptimization
 {
-
  public:
   
-  /**
-   *  Default Constructor 
-   */
-  SKO();
-
   /** 
    * Constructor
    * 
    * @param theta        kernel bandwidth
-   * @param p            kernel exponent (not used)
+   * @param noise        observation noise
+   * @param nIter        number of iterations before stopping 
    * @param alpha        inverse gamma prior
    * @param beta         inverse gamma prior
    * @param delta        normal prior
-   * @param noise        observation noise
-   * @param nIter        number of iterations before stopping 
-   * @param useCool      select Sasena cooling/annealing strategy
    */
-  SKO( double theta, double p,
-       double alpha, double beta, 
-       double delta, double noise,
-       size_t nIter, bool useCool = false); 
+  SKO( double theta = KERNEL_THETA, double noise = DEF_REGULARIZER,
+       size_t nIter = MAX_ITERATIONS, double alpha = PRIOR_ALPHA, 
+       double beta = PRIOR_BETA, double delta = PRIOR_DELTA_SQ); 
 
   /** 
    * Constructor
@@ -103,10 +94,9 @@ class SKO: public InnerOptimization
    *     delta        normal prior
    *     noise        observation noise
    * @param nIter        number of iterations before stopping 
-   * @param useCool      select Sasena cooling/annealing strategy
    */
   SKO( gp_params params,
-       size_t nIter, bool useCool = false); 
+       size_t nIter); 
 	
   /** 
    * Default destructor
@@ -129,8 +119,7 @@ class SKO: public InnerOptimization
    * 
    * @return 1 if terminate successfully, 0 otherwise
    */
-  int optimize( vectord &bestPoint,
-		randEngine& mtRandom);
+  int optimize( vectord &bestPoint);
 
 
   /** 
@@ -149,8 +138,7 @@ class SKO: public InnerOptimization
    */
   int optimize( vectord &bestPoint,
 		vectord &lowerBound,
-		vectord &upperBound,
-		randEngine& mtRandom);
+		vectord &upperBound);
 
   /** 
    * Function that defines the actual mathematical function to be optimized.
@@ -196,9 +184,7 @@ class SKO: public InnerOptimization
 
   virtual double innerEvaluate( const vectord &query, 
 				vectord &grad )
-  { 
-    return evaluateCriteria(query);
-  }
+  {   return evaluateCriteria(query); }
 
 protected:
 
@@ -209,18 +195,16 @@ protected:
   inline int nextPoint(vectord &Xnext)
   {return innerOptimize(Xnext);}
 
-
   int allocateMatrices(size_t nSamples, size_t nDims);
 
   int sampleInitialPoints( size_t nSamples, 
 			   size_t nDims,
-			   bool useLatinBox,
-			   randEngine& mtRandom);
+			   bool useLatinBox);
 
   inline double evaluateNormalizedSample( const vectord &query)
   { 
     vectord unnormalizedQuery = ublas_elementwise_prod(query,
-							    mRangeBound);
+						       mRangeBound);
   
     unnormalizedQuery = ublas_elementwise_add(unnormalizedQuery,
 					      mLowerBound);
@@ -231,7 +215,7 @@ protected:
 protected:
 
   // Member variables
-  BasicGaussianProcess mGP;
+  GaussianProcess mGP;
   Criteria crit;
 
   size_t mMaxIterations;

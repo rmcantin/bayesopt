@@ -4,10 +4,7 @@
 
 // TODO: This is really a bad hack
 
-//#define FIBONACCI_SEED  123u
-//#define MT_SEED         156u
 #define KERNEL_THETA    0.06
-#define KERNEL_P        1.6
 #define PRIOR_ALPHA     1.0
 #define PRIOR_BETA      0.1
 #define PRIOR_DELTA_SQ  10.0

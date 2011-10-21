@@ -22,8 +22,8 @@ class CSKO: public SKO
  public:
 
   CSKO( gp_params params,
-	size_t nIter, bool useCool = false): 
-    SKO(params,nIter,useCool)
+	size_t nIter): 
+    SKO(params,nIter)
   {}; 
 
 
@@ -67,13 +67,7 @@ int krigging_optimization(int nDim, eval_func f, void* f_data,
 			  int use_cooling_scheme)
 {
 
-  bool useCool = false;
-
-  if (use_cooling_scheme)
-    useCool = true;
-
   vectord result(nDim);
-  randEngine rEng(100u);
 
   vectord lowerBound(nDim); 
   vectord upperBound(nDim); 
@@ -81,14 +75,14 @@ int krigging_optimization(int nDim, eval_func f, void* f_data,
   copyCarrayInVector(lb,nDim,lowerBound);
   copyCarrayInVector(ub,nDim,upperBound);
 
-  CSKO optimizer(params, maxeval, useCool);
+  CSKO optimizer(params, maxeval);
 
   /*if (useEI)  optimizer.set_criteria(true);
   else        optimizer.set_criteria(false);
   */
   optimizer.set_eval_funct(f);
   optimizer.save_other_data(f_data);
-  optimizer.optimize(result,rEng);
+  optimizer.optimize(result);
 
   copyVectorInArray(x,nDim,result);
 

@@ -20,24 +20,24 @@
 #ifndef  _GAUSSPROCESS_HPP_
 #define  _GAUSSPROCESS_HPP_
 
-#include "krigwpr.h"
 #include "nonparametricprocess.hpp"
 #include "kernels.hpp"
 #include "meanfuncs.hpp"
-	
+#include "inneroptimization.hpp"	
  
 /** \addtogroup BayesOptimization */
 /*@{*/
 
 
-class GaussianProcess: public NonParametricProcess
+class GaussianProcess: public NonParametricProcess, 
+		       public InnerOptimization
 {
 public:
-  GaussianProcess();  
-  GaussianProcess( double theta, double p,
-		   double alpha, double beta, 
-		   double delta, double noise);
-  GaussianProcess( gp_params params );
+  GaussianProcess( double theta = KERNEL_THETA,
+		   double noise = DEF_REGULARIZER,
+		   double alpha = PRIOR_ALPHA, 
+		   double beta  = PRIOR_BETA, 
+		   double delta = PRIOR_DELTA_SQ );
   virtual ~GaussianProcess();
 
   /** 
@@ -52,10 +52,18 @@ public:
    */	
   int prediction(const vectord &query,
   		 double& yPred, double& sPred);
-
-  //  int marginalLikelihood(const vectord &query,
-			 
-			 
+	
+  /** 
+   * Computes the negative log likelihood and its gradient of the data.
+   * 
+   * @param grad gradient of the negative Log Likelihood
+   * @param param value of the param to be optimized
+   * 
+   * @return value negative log likelihood
+   */
+  double negativeLogLikelihood(double& grad,
+			       size_t index = 1);			 
+			 		 
 
   /** Computes the GP based on mGPXX
    *  This function is hightly inefficient O(N^3). Use it only at 
@@ -78,6 +86,12 @@ public:
   inline void setTheta( double theta )
   { mTheta = theta; }
 
+  virtual double innerEvaluate(const vectord& query, 
+			      vectord& grad)
+  { 
+    setTheta(query(0));
+    return negativeLogLikelihood(grad(0),1);
+  }
 
 protected:
   inline double correlationFunction( const vectord &x1,const vectord &x2,
@@ -86,7 +100,6 @@ protected:
 
   inline double meanFunction( const vectord &x )
   { return means::One(x); }
-
 
   int precomputeGPParams();
 

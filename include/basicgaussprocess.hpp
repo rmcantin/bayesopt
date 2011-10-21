@@ -20,7 +20,6 @@
 #ifndef  _BASICGAUSSPROCESS_HPP_
 #define  _BASICGAUSSPROCESS_HPP_
 
-#include "krigwpr.h"
 #include "nonparametricprocess.hpp"
 #include "kernels.hpp"
 #include "meanfuncs.hpp"
@@ -34,8 +33,8 @@ class BasicGaussianProcess: public NonParametricProcess,
 			    public InnerOptimization 
 {
 public:
-  BasicGaussianProcess();  
-  BasicGaussianProcess( double theta, double noise );
+  BasicGaussianProcess( double theta = KERNEL_THETA, 
+			double noise = DEF_REGULARIZER);
   virtual ~BasicGaussianProcess();
 
   /** 
@@ -89,7 +88,6 @@ public:
   virtual double innerEvaluate(const vectord& query, 
 			      vectord& grad)
   { 
-    std::cout << "evaluate ml" << std::endl;
     setTheta(query(0));
     return negativeLogLikelihood(grad(0),1);
   }

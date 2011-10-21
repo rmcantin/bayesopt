@@ -10,7 +10,6 @@ extern "C" {
 
 typedef struct {
   double theta;
-  double p;
   double alpha;
   double beta;
   double delta;

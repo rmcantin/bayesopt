@@ -3,52 +3,42 @@
 #include "krigging.hpp"
 
 
-class TestEGO: public SKO 
-{
- public:
-
-  double evaluateSample( const vectord &Xi ) 
-  {
-    double f = 10.;
-    
-    for (size_t i = 0; i < Xi.size(); ++i)
-      {
-	f += (Xi(i) - .53f) * (Xi(i) - .53f);
-      }
-    return f;
-  };
-
-
-  bool checkReachability( const vectord &query )
-  {
-    /*
-      for (size_t i = 0; i < query.size(); ++i)
-      {
-	if ((query(i) > .6f) && (query(i) < .9f))
-	  return false;
-	  }*/
- 
-   return true;
-  };
- 
-};
-
 double testFunction(unsigned int n, double *x,
 		    double *gradient, /* NULL if not needed */
 		    void *func_data)
 {
   double f = 10.;
-    
   for (unsigned int i = 0; i < n; ++i)
     {
       f += (x[i] - .53f) * (x[i] - .53f);
     }
-
-  
-
   return f;
 }
 
+
+
+class TestEGO: public SKO 
+{
+ public:
+
+  TestEGO( gp_params params, size_t nIter):
+    SKO(params,nIter) {}
+
+  double evaluateSample( const vectord &Xi ) 
+  {
+    double x[100];
+    for (size_t i = 0; i < Xi.size(); ++i)
+	x[i] = Xi(i);
+    return testFunction(Xi.size(),x,NULL,NULL);
+  };
+
+
+  bool checkReachability( const vectord &query )
+  {
+    return true;
+  };
+ 
+};
 
 
 int main(int nargs, char *args[])
@@ -57,15 +47,21 @@ int main(int nargs, char *args[])
   double diff,diff2;
   int n = 4;
   vectord result(n);
-  randEngine rEng(100u);
 
   int nIterations = 600;
 
+  gp_params par;
+
+  par.theta = KERNEL_THETA;
+  par.alpha = PRIOR_ALPHA;
+  par.beta = PRIOR_BETA;
+  par.delta = PRIOR_DELTA_SQ;
+  par.noise = DEF_REGULARIZER;
   
   std::cout << "Running C++ interface" << std::endl;
-  TestEGO gp;
+  TestEGO gp(par,nIterations);
   start = clock();
-  gp.optimize(result,rEng);
+  gp.optimize(result);
   end = clock();
   diff = (double)(end-start) / (double)CLOCKS_PER_SEC;
 
@@ -80,16 +76,6 @@ int main(int nargs, char *args[])
     l[i] = 0.;
     u[i] = 1.;
   }
-
-  gp_params par;
-
-  par.theta = KERNEL_THETA;
-  par.p = KERNEL_P;
-  par.alpha = PRIOR_ALPHA;
-  par.beta = PRIOR_BETA;
-  par.delta = PRIOR_DELTA_SQ;
-  par.noise = DEF_REGULARIZER;
-  
   start = clock();
 
   krigging_optimization(n,&testFunction,NULL,l,u,x,fmin,nIterations,par,1,0);

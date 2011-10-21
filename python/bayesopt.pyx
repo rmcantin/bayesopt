@@ -8,7 +8,6 @@ cimport numpy as np
 cdef extern from "krigwpr.h":
     ctypedef struct gp_params:
         double theta
-        double p
         double alpha
         double beta
         double delta
@@ -20,7 +19,6 @@ cdef extern from "krigwpr.h":
 
 cdef dict2structparams(dict dparams, gp_params *params):
     params.theta = dparams['theta']
-    params.p = dparams['p']
     params.alpha = dparams['alpha']
     params.beta = dparams['beta']
     params.delta = dparams['delta']
@@ -52,7 +50,6 @@ cdef double callback(unsigned int n, double *x, double *gradient, void *func_dat
 def optimize(object f, int nDim, np.ndarray[np.double_t] np_lb, np.ndarray[np.double_t] np_ub, np.ndarray[np.double_t] np_x, int maxeval, dict dparams, int useEI, int use_cooling_scheme):
     cdef gp_params zero_params
     zero_params.theta = 0
-    zero_params.p = 0
     zero_params.alpha = 0
     zero_params.beta = 0
     zero_params.delta = 0

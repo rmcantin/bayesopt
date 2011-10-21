@@ -26,12 +26,14 @@ namespace NLOPT_WPR
     void *objPointer = my_func_data;
     InnerOptimization* OPTIMIZER = static_cast<InnerOptimization*>(objPointer);
     
-    vector<double> vgrad(n);
+    vector<double> vgrad = zero_vector<double>(n);
 
     double f =  OPTIMIZER->innerEvaluate(sharedN,vgrad);
-    
-    for (unsigned int i=0;i<n;i++)
-      grad[i] = vgrad(i);
+  
+    if ((grad) && (grad != NULL) )
+      for (unsigned int i=0;i<n;i++)
+	grad[i] = vgrad(i);
+
 
     return f;
   } /* evaluate_criteria_nlopt */

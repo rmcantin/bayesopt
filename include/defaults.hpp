@@ -22,7 +22,7 @@
 #define MAX_DIRECT_ITERATIONS   300
 
 // Latin Hypercube Sampling (LHS) default values
-#define N_LHS_EVALS_PER_DIM     10
+#define N_LHS_EVALS_PER_DIM     30
 #define MAX_LHS_EVALUATIONS     100
 	
 

@@ -83,6 +83,11 @@ int InnerOptimization::innerOptimize(double* x, int n, void* objPointer)
     else
       {
 	opt = nlopt_create(NLOPT_LD_LBFGS, n); /* algorithm and dims */
+	for (int i = 0; i < n; ++i) {
+	  l[i] = -100.;
+	  u[i] = 100.;
+	}
+
       }
     nlopt_set_lower_bounds(opt, l);
     nlopt_set_upper_bounds(opt, u);

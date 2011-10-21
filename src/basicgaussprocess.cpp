@@ -37,15 +37,14 @@ double BasicGaussianProcess::negativeLogLikelihood(double &grad,
   double loglik = -.5*inner_prod(mGPY,alpha) - trace(L) - n*0.91893853320467; //log(2*pi)/2
 
   // Compute the ith derivative
-  if (index < 0)
+  if (index > 0)
     {
       matrixd inverse = eyed(n);
       boost::numeric::ublas::inplace_solve(L,inverse,lower_tag());
       matrixd dK = computeCorrMatrix(0,index);
       grad = 0.5 * trace_prod(outer_prod(alpha,alpha) - inverse, dK);
     }
-
-  return loglik;
+  return -loglik;
 }
 
 
@@ -74,14 +73,14 @@ int BasicGaussianProcess::fitGP()
   size_t nSamples = mGPXX.size();
   for (size_t ii=0; ii<nSamples; ii++)
     checkBoundsY(ii);
-
+  
   vectord th = svectord(1,mTheta);  
 
   std::cout << "Initial theta: " << mTheta << " "<<th.size()<< std::endl;
   innerOptimize(th);
-  setTheta(th[0]);
+  setTheta(th(0));
   std::cout << "Final theta: " << mTheta << std::endl;
-
+  
   int error = computeInverseCorrMatrix(mRegularizer);
 
   if (error < 0)

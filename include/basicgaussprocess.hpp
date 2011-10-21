@@ -24,13 +24,14 @@
 #include "nonparametricprocess.hpp"
 #include "kernels.hpp"
 #include "meanfuncs.hpp"
-	
+#include "inneroptimization.hpp"
  
 /** \addtogroup BayesOptimization */
 /*@{*/
 
 
-class BasicGaussianProcess: public NonParametricProcess
+class BasicGaussianProcess: public NonParametricProcess, 
+			    public InnerOptimization 
 {
 public:
   BasicGaussianProcess();  
@@ -54,21 +55,22 @@ public:
   /** 
    * Computes the negative log likelihood and its gradient of the data.
    * 
-   * @param param value of the param to be optimized
    * @param grad gradient of the negative Log Likelihood
+   * @param param value of the param to be optimized
    * 
    * @return value negative log likelihood
    */
-  double negativeLogLikelihood(double param,
-			       double& grad);			 
+  double negativeLogLikelihood(double& grad,
+			       size_t index = 1);			 
 			 
 
   /** Computes the GP based on mGPXX
    *  This function is hightly inefficient O(N^3). Use it only at 
-   *  the begining
+   *  the begining.
+   *
+   *  It also computes the kernel hyperparameters.
    */
   int fitGP();
-
 
 
   /** Add new point efficiently using Matrix Decomposition Lemma
@@ -84,6 +86,12 @@ public:
   inline void setTheta( double theta )
   { mTheta = theta; }
 
+  inline double innerEvaluate(const vectord& query, 
+			      vectord& grad)
+  { 
+    setTheta(query(0));
+    return negativeLogLikelihood(grad(0),1);
+  }
 
 protected:
   inline double correlationFunction( const vectord &x1,const vectord &x2,

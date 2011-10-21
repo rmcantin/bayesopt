@@ -76,13 +76,13 @@ int InnerOptimization::innerOptimize(double* x, int n, void* objPointer)
     if ((alg == direct) || (alg == combined))
       {
 	opt = nlopt_create(NLOPT_GN_ORIG_DIRECT_L, n); /* algorithm and dims */
-	nlopt_set_lower_bounds(opt, l);
-	nlopt_set_upper_bounds(opt, u);
       }
     else
       {
-	opt = nlopt_create(NLOPT_GN_ORIG_DIRECT_L, n); /* algorithm and dims */
+	opt = nlopt_create(NLOPT_LD_LBFGS, n); /* algorithm and dims */
       }
+    nlopt_set_lower_bounds(opt, l);
+    nlopt_set_upper_bounds(opt, u);
     nlopt_set_min_objective(opt, fpointer, objPointer);
     nlopt_set_maxeval(opt, round(maxf*coef) ) ;
 

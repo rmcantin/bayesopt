@@ -24,14 +24,14 @@ SKO::SKO( double theta, double p,
 	  double alpha, double beta, 
 	  double delta, double noise,
 	  size_t nIter, bool useCool):
-  mGP(theta,p,alpha,beta,delta,noise),
+  mGP(theta,noise),
   mMaxIterations(nIter), mMaxDim(MAX_DIM),
   mVerbose(0)
 {} // Constructor
 
 SKO::SKO( gp_params params,
 	  size_t nIter, bool useCool):
-  mGP(params),
+  mGP(params.theta,params.noise),
   mMaxIterations(nIter), mMaxDim(MAX_DIM),
   mVerbose(0)
 { } // Constructor

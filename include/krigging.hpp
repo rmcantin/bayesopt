@@ -35,7 +35,7 @@
 #include "elementwiseUblas.hpp"
 
 #include "inneroptimization.hpp"
-#include "gaussprocess.hpp"
+#include "basicgaussprocess.hpp"
 
 #include "krigwpr.h"
 #include "criteria.hpp"
@@ -228,7 +228,7 @@ protected:
 protected:
 
   // Member variables
-  GaussianProcess mGP;
+  BasicGaussianProcess mGP;
   Criteria crit;
 
   size_t mMaxIterations;

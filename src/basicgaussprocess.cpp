@@ -6,15 +6,16 @@
   
 
 BasicGaussianProcess::BasicGaussianProcess():
-  NonParametricProcess(), mTheta(KERNEL_THETA),
+  NonParametricProcess(), InnerOptimization(),
+  mTheta(KERNEL_THETA),
   mRegularizer(DEF_REGULARIZER)
-{} // Default constructor
+{ setAlgorithm(lbfgs);} // Default constructor
 
 BasicGaussianProcess::BasicGaussianProcess( double theta, 
 					    double noise):
-  NonParametricProcess(), mTheta(theta),
-  mRegularizer(noise)
-{}  // Constructor
+  NonParametricProcess(), InnerOptimization(),
+  mTheta(theta), mRegularizer(noise)
+{setAlgorithm(lbfgs);}  // Constructor
 
 
 BasicGaussianProcess::~BasicGaussianProcess()
@@ -22,23 +23,27 @@ BasicGaussianProcess::~BasicGaussianProcess()
 
 
 
-double BasicGaussianProcess::negativeLogLikelihood(double param,
-						   double &grad)
+double BasicGaussianProcess::negativeLogLikelihood(double &grad,
+						   size_t index)
 {
   matrixd K = computeCorrMatrix(mRegularizer,0);
-  matrixd dK = computeCorrMatrix(0,1);
   size_t n = K.size1();
   matrixd L(n,n);
   cholesky_decompose(K,L);
-  
+
+  // Compute the likelihood
   vectord alpha(mGPY);
-  matrixd inverse = eyed(n);
-
   boost::numeric::ublas::inplace_solve(L,alpha,lower_tag());
-  boost::numeric::ublas::inplace_solve(L,inverse,lower_tag());
-
   double loglik = -.5*inner_prod(mGPY,alpha) - trace(L) - n*0.91893853320467; //log(2*pi)/2
-  grad = 0.5 * trace_prod(outer_prod(alpha,alpha) - inverse, dK);
+
+  // Compute the ith derivative
+  if (index < 0)
+    {
+      matrixd inverse = eyed(n);
+      boost::numeric::ublas::inplace_solve(L,inverse,lower_tag());
+      matrixd dK = computeCorrMatrix(0,index);
+      grad = 0.5 * trace_prod(outer_prod(alpha,alpha) - inverse, dK);
+    }
 
   return loglik;
 }
@@ -69,6 +74,13 @@ int BasicGaussianProcess::fitGP()
   size_t nSamples = mGPXX.size();
   for (size_t ii=0; ii<nSamples; ii++)
     checkBoundsY(ii);
+
+  vectord th = svectord(1,mTheta);  
+
+  std::cout << "Initial theta: " << mTheta << " "<<th.size()<< std::endl;
+  innerOptimize(th);
+  setTheta(th[0]);
+  std::cout << "Final theta: " << mTheta << std::endl;
 
   int error = computeInverseCorrMatrix(mRegularizer);
 

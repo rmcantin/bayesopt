@@ -14,13 +14,16 @@
 int InnerOptimization::innerOptimize(vectord &Xnext)
 {   
     double x[128];
-    void *objPointer = dynamic_cast<void *>(this);
+    void *objPointer = static_cast<void *>(this);
     int n = static_cast<int>(Xnext.size());
     int error;
 
     if (objPointer == 0)
       std::cout << "Error casting the current object!" << std::endl;
 
+    for (int i = 0; i < n; ++i) 
+	x[i] = Xnext(i);
+ 
     error = innerOptimize(x, n, objPointer);
 
     // There should be a clever way to do this.

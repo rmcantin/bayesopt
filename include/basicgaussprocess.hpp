@@ -86,9 +86,10 @@ public:
   inline void setTheta( double theta )
   { mTheta = theta; }
 
-  inline double innerEvaluate(const vectord& query, 
+  virtual double innerEvaluate(const vectord& query, 
 			      vectord& grad)
   { 
+    std::cout << "evaluate ml" << std::endl;
     setTheta(query(0));
     return negativeLogLikelihood(grad(0),1);
   }

@@ -194,8 +194,9 @@ class SKO: public InnerOptimization
    * @return negative criteria (Expected Improvement, LCB, A-optimality, etc.).
    */	
 
-  inline double innerEvaluate( const vectord &query, vectord &grad )
-  {return evaluateCriteria(query);}
+  virtual double innerEvaluate( const vectord &query, vectord &grad )
+  { std::cout << "evaluate criteria" << std::endl;
+    return evaluateCriteria(query);}
 
 protected:
 

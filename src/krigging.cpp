@@ -38,7 +38,7 @@ SKO::SKO( gp_params params,
   mGP(params.theta,params.noise),
   mMaxIterations(nIter), mMaxDim(MAX_DIM),
   mVerbose(0)
-{ } // Constructor
+{} // Constructor
 
 
 SKO::~SKO()
@@ -59,6 +59,9 @@ int SKO::optimize( vectord &bestPoint,
 		   vectord &upperBound)
 {
   mVerbose = 1;
+
+  crit_name = gp_hedge;
+  crit.resetHedgeValues();
  
   mLowerBound = lowerBound;
   mRangeBound = upperBound - lowerBound;
@@ -140,6 +143,46 @@ int SKO::sampleInitialPoints( size_t nSamples, size_t nDims,
 
   return 1;
 } // sampleInitialPoints
+
+
+int SKO::nextPoint(vectord &Xnext)
+{
+  crit.resetAnnealValues();
+  if (crit_name == gp_hedge)
+    {
+      vectord best_ei(Xnext);
+      vectord best_lcb(Xnext);
+      vectord best_poi(Xnext);
+      double r_ei,r_lcb,r_poi,foo;
+
+      crit.setCriterium(expectedImprovement);
+      innerOptimize(best_ei);
+      mGP.prediction(best_ei,r_ei,foo);
+      
+      crit.setCriterium(lcb);
+      innerOptimize(best_lcb);
+      mGP.prediction(best_lcb,r_lcb,foo);
+
+      crit.setCriterium(poi);
+      innerOptimize(best_poi);
+      mGP.prediction(best_poi,r_poi,foo);
+
+      criterium_name better = crit.update_hedge(r_ei,r_lcb,r_poi);
+      switch(better)
+	{
+	case expectedImprovement: Xnext = best_ei; break;
+	case lcb: Xnext = best_lcb; break;
+	case poi: Xnext = best_poi; break;
+	default: return -1;
+	}
+      return 1;
+    }
+  else
+    {
+      crit.setCriterium(crit_name);
+      return innerOptimize(Xnext);
+    }
+}
 
 
 double SKO::evaluateCriteria(const vectord &query)

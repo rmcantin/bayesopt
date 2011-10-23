@@ -192,8 +192,7 @@ protected:
   double evaluateCriteria( const vectord &query );
 
 
-  inline int nextPoint(vectord &Xnext)
-  {return innerOptimize(Xnext);}
+  int nextPoint(vectord &Xnext);
 
   int allocateMatrices(size_t nSamples, size_t nDims);
 
@@ -217,7 +216,8 @@ protected:
   // Member variables
   GaussianProcess mGP;
   Criteria crit;
-
+  criterium_name crit_name;
+  
   size_t mMaxIterations;
   const size_t mMaxDim;// Maximum SKO evaluations and dimensions
 

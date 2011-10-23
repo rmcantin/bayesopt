@@ -54,7 +54,7 @@ double GaussianProcess::negativeLogLikelihood(double& grad,
   boost::numeric::ublas::inplace_solve(L,alphY,boost::numeric::ublas::lower_tag());
 
   double lik1 = inner_prod(yumu,alphY) / (2*sigma); 
-  double lik2 = trace(L) * sqrt(pow(sigma,n)) * n*0.91893853320467; //log(2*pi)/2
+  double lik2 = trace(L) + 0.5*n*log(sigma) + n*0.91893853320467; //log(2*pi)/2
 
   return lik1 + lik2 + mBeta/2 * mTheta - (mAlpha+1) * log(mTheta);
 }
@@ -165,14 +165,18 @@ int GaussianProcess::precomputeGPParams()
   double YInvRY;
   
   mMu =  inner_prod(mUInvR,mGPY) / mUInvRUDelta;
+  
   noalias(YInvR) = prod(mGPY,mInvR);
   YInvRY = inner_prod(YInvR,mGPY);
   
-  mSig = (mBeta + YInvRY - mMu*mMu/mUInvRUDelta) / (mAlpha + (nSamples+1) + 2);
+  mSig = (mBeta + YInvRY - mMu*mMu*mUInvRUDelta) / (mAlpha + (nSamples+1) + 2);
   
   svectord colMu(nSamples,mMu);
   mYUmu = mGPY - colMu;
-  
+
+  std::cout << "Mu, Sigma" << mMu <<", "<< mSig << std::endl;
+  std::cout << "Eta" << mUInvRUDelta << std::endl;
+
   return 1;
 }
 

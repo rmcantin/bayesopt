@@ -2,6 +2,9 @@
 #include "krigwpr.h"
 #include "krigging.hpp"
 
+#include "gaussprocess.hpp"
+#include "basicgaussprocess.hpp"
+#include "studenttprocess.hpp"
 
 double testFunction(unsigned int n, double *x,
 		    double *gradient, /* NULL if not needed */
@@ -21,8 +24,9 @@ class TestEGO: public SKO
 {
  public:
 
-  TestEGO( gp_params params, size_t nIter):
-    SKO(params,nIter) {}
+  TestEGO( gp_params params, size_t nIter, 
+	   NonParametricProcess* gp):
+    SKO(params,nIter, gp) {}
 
   double evaluateSample( const vectord &Xi ) 
   {
@@ -50,6 +54,7 @@ int main(int nargs, char *args[])
 
   int nIterations = 600;
 
+  criterium_name c_name = c_ei;
   gp_params par;
 
   par.theta = KERNEL_THETA;
@@ -59,9 +64,12 @@ int main(int nargs, char *args[])
   par.noise = DEF_REGULARIZER;
   
   std::cout << "Running C++ interface" << std::endl;
-  TestEGO gp(par,nIterations);
+  NonParametricProcess* gp = new StudentTProcess(par.theta,par.noise);
+  TestEGO gp_opt(par,nIterations,gp);
+
   start = clock();
-  gp.optimize(result);
+  gp_opt.setCriteria(c_name);
+  gp_opt.optimize(result);
   end = clock();
   diff = (double)(end-start) / (double)CLOCKS_PER_SEC;
 
@@ -78,7 +86,8 @@ int main(int nargs, char *args[])
   }
   start = clock();
 
-  krigging_optimization(n,&testFunction,NULL,l,u,x,fmin,nIterations,par,1,0);
+  krigging_optimization(n,&testFunction,NULL,l,u,x,fmin,
+			nIterations,par,c_name,s_studentTProcess);
 
   end = clock();
   diff2 = (double)(end-start) / (double)CLOCKS_PER_SEC;

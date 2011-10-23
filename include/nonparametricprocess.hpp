@@ -25,12 +25,15 @@
 
 #include "specialtypes.hpp"
 #include "cholesky.hpp"
+#include "inneroptimization.hpp"	
 
 
-class NonParametricProcess
+class NonParametricProcess: public InnerOptimization
 {
 public:
-  NonParametricProcess()
+  NonParametricProcess(double theta = KERNEL_THETA,
+		       double noise = DEF_REGULARIZER):
+    InnerOptimization(),  mTheta(theta), mRegularizer(noise)
   { mMinIndex = 0; mMaxIndex = 0; }
   
   virtual ~NonParametricProcess(){ }
@@ -47,8 +50,20 @@ public:
    */	
   virtual int prediction(const vectord &query,
 			 double& yPred, double& sPred)
-  {return 1;}
+  {return 1;}  
 
+  /** 
+   * Computes the negative log likelihood and its gradient of the data.
+   * 
+   * @param grad gradient of the negative Log Likelihood
+   * @param param value of the param to be optimized
+   * 
+   * @return value negative log likelihood
+   */
+  virtual double negativeLogLikelihood(double& grad,
+				       size_t index = 1)
+  {return 0.0;}
+			 		 
   /** 
    *  Computes the GP based on mGPXX
    *  This function is hightly inefficient O(N^3). Use it only at 
@@ -56,9 +71,28 @@ public:
    * 
    * @return error code
    */
-  virtual int fitGP()
-  { return 1;}
+  int fitGP()
+  {
+    size_t nSamples = mGPXX.size();
+    for (size_t ii=0; ii<nSamples; ii++)
+      checkBoundsY(ii);
+  
+    vectord th = svectord(1,mTheta);  
 
+    std::cout << "Initial theta: " << mTheta << " "<<th.size()<< std::endl;
+    innerOptimize(th);
+    setTheta(th(0));
+    std::cout << "Final theta: " << mTheta << std::endl;
+
+    int error = computeInverseCorrMatrix(mRegularizer);
+
+    if (error < 0)
+      return error;
+
+    return precomputeGPParams();
+  } // fitGP
+
+  
   /** 
    *  Add new point efficiently using Matrix Decomposition Lemma
    *  for the inversion of the correlation matrix. Maybe it is faster
@@ -66,9 +100,47 @@ public:
    * 
    * @return error code
    */   
-  virtual int addNewPointToGP( const vectord &Xnew,
-			       double Ynew)
-  {return 1;}
+  int addNewPointToGP( const vectord &Xnew,
+		       double Ynew)
+  {
+    size_t nSamples = mGPXX.size();
+    size_t XDim = mGPXX[1].size();
+  
+    vectord Li(nSamples);
+    vectord wInvR(nSamples);
+    double wInvRw;
+    double selfCorrelation, Ni;
+  
+    if (XDim != Xnew.size())
+      {
+	std::cout << "Dimensional Error" << std::endl;
+	return -1;
+      }
+    
+    vectord correlationNewValue = computeCrossCorrelation(Xnew);
+  
+    selfCorrelation = correlationFunction(Xnew, Xnew) + mRegularizer;
+  
+    noalias(wInvR) = prod(correlationNewValue,mInvR);
+    wInvRw = inner_prod(wInvR,correlationNewValue);
+    Ni = 1/(selfCorrelation + wInvRw);
+    noalias(Li) = -Ni * wInvR;
+    mInvR += outer_prod(Li,Li) / Ni;
+  
+    //TODO: There must be a better way to do this.
+    mInvR.resize(nSamples+1,nSamples+1);
+  
+    Li.resize(nSamples+1);
+    Li(nSamples) = Ni;
+  
+    row(mInvR,nSamples) = Li;
+    column(mInvR,nSamples) = Li;
+
+    addSample(Xnew,Ynew);
+    checkBoundsY(nSamples);
+  
+    return precomputeGPParams();
+  } // addNewPointToGP
 
 
   // Getters and setters
@@ -94,6 +166,18 @@ public:
   inline double getValueAtMinimum()
   { return mGPY(mMinIndex); }
 
+  inline double getTheta()
+  { return mTheta; }
+
+  inline void setTheta( double theta )
+  { mTheta = theta; }
+
+  inline double innerEvaluate(const vectord& query, 
+			      vectord& grad)
+  { 
+    setTheta(query(0));
+    return negativeLogLikelihood(grad(0),1);
+  }
 
 protected:
   virtual double correlationFunction( const vectord &x1,const vectord &x2, 
@@ -175,6 +259,10 @@ protected:
   covMatrix mInvR;                   // Inverse Correlation matrix
 
   size_t mMinIndex, mMaxIndex;
+
+  double mTheta;                      // Kernel parameters
+  const double mRegularizer;  // GP prior parameters (Normal)
+
 };
 
 #endif

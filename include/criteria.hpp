@@ -27,20 +27,12 @@
 #include <boost/math/special_functions/factorials.hpp>
 #include <boost/math/distributions/normal.hpp> // for normal_distribution
 
+#include "ctypes.h"
 #include "specialtypes.hpp"
 #include "randgen.hpp"
 
 using boost::math::factorial;
 using boost::math::normal; // typedef provides default type is double.
-
-enum criterium_name{
-  expectedImprovement,
-  lcb,
-  poi,
-  gp_hedge,
-  greedyAOptimality,
-  expectedReturn
-};
 
 
 class Criteria
@@ -50,7 +42,7 @@ public:
   Criteria():
     mtRandom(100u)
   {
-    criterium = expectedImprovement;
+    criterium = c_ei;
     resetAnnealValues();
     resetHedgeValues();
     eta = 100;
@@ -81,11 +73,11 @@ public:
 
     switch (criterium)
       {
-      case expectedImprovement: return negativeExpectedImprovement(yPred,sPred,yMin);
-      case lcb: return lowerConfidenceBound(yPred,sPred);
-      case poi: return negativeProbabilityOfImprovement(yPred,sPred,yMin);
-      case greedyAOptimality: return sPred;
-      case expectedReturn: return yPred;
+      case c_ei: return negativeExpectedImprovement(yPred,sPred,yMin);
+      case c_lcb: return lowerConfidenceBound(yPred,sPred);
+      case c_poi: return negativeProbabilityOfImprovement(yPred,sPred,yMin);
+      case c_greedyAOptimality: return sPred;
+      case c_expectedReturn: return yPred;
       default: std::cout << "Error in criterium" << std::endl; return 0.0;
       }
 
@@ -118,11 +110,11 @@ public:
     double u = sample();
 
     if (u < p_ei)
-      return expectedImprovement;
+      return c_ei;
     else if (u < p_lcb+p_ei)
-      return lcb;
+      return c_lcb;
     else
-    return poi;
+    return c_poi;
   }
 
 protected:

@@ -61,6 +61,7 @@ SET( KRIGGING_SRCS
   ./src/inneroptimization.cpp
   ./src/gaussprocess.cpp
   ./src/basicgaussprocess.cpp
+  ./src/studenttprocess.cpp
   ./wrappers/krigwpr.cpp
   )
 

@@ -1,6 +1,10 @@
 #include "krigwpr.h"
 #include "krigging.hpp"
 
+#include "gaussprocess.hpp"
+#include "basicgaussprocess.hpp"
+#include "studenttprocess.hpp"
+
 
 
 void copyCarrayInVector(const double* array, int n, vectord& vec)
@@ -21,9 +25,9 @@ class CSKO: public SKO
 {
  public:
 
-  CSKO( gp_params params,
-	size_t nIter): 
-    SKO(params,nIter)
+  CSKO( gp_params params, size_t nIter,
+	NonParametricProcess* gp = NULL): 
+    SKO(params,nIter,gp)
   {}; 
 
 
@@ -63,8 +67,8 @@ int krigging_optimization(int nDim, eval_func f, void* f_data,
 			  double *x, /* in: initial guess, out: minimizer */
 			  double *minf, /* out: minimum */
 			  int maxeval, gp_params params,
-			  int useEI,
-			  int use_cooling_scheme)
+			  criterium_name c_name,
+			  surrogate_name gp_name)
 {
 
   vectord result(nDim);
@@ -75,11 +79,29 @@ int krigging_optimization(int nDim, eval_func f, void* f_data,
   copyCarrayInVector(lb,nDim,lowerBound);
   copyCarrayInVector(ub,nDim,upperBound);
 
-  CSKO optimizer(params, maxeval);
+  NonParametricProcess* gp;
 
-  /*if (useEI)  optimizer.set_criteria(true);
-  else        optimizer.set_criteria(false);
-  */
+  switch(gp_name)
+    {
+    case s_gaussianProcess: 
+      gp = new BasicGaussianProcess(params.theta,params.noise);
+      break;
+    case s_gaussianProcessHyperPriors:
+      gp = new GaussianProcess(params.theta,params.noise,
+			       params.alpha,params.beta,
+			       params.delta);
+      break;
+    case s_studentTProcess:
+      gp = new StudentTProcess(params.theta,params.noise);
+      break;
+    default: 
+      std::cout << "Surrogate function not supported" << std::endl;
+      return -1;
+    }
+
+  CSKO optimizer(params, maxeval, gp);
+
+  optimizer.setCriteria(c_name);
   optimizer.set_eval_funct(f);
   optimizer.save_other_data(f_data);
   optimizer.optimize(result);

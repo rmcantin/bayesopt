@@ -1,14 +1,10 @@
-#include "gaussprocess.hpp"
+#include "studenttprocess.hpp"
 #include "cholesky.hpp"
 #include "trace.hpp"
 
   
-GaussianProcess::GaussianProcess( double theta,
-				  double alpha, double beta, 
-				  double delta, double noise):
-  NonParametricProcess(theta,noise),
-  mAlpha(alpha), mBeta (beta),
-  mDelta2(delta)
+StudentTProcess::StudentTProcess( double theta, double noise):
+  NonParametricProcess(theta,noise)
 {
   setAlgorithm(bobyqa);
   setLimits(0.,100.);
@@ -16,17 +12,18 @@ GaussianProcess::GaussianProcess( double theta,
 
 
 
-GaussianProcess::~GaussianProcess()
+StudentTProcess::~StudentTProcess()
 {} // Default destructor
 
 
 
 
-double GaussianProcess::negativeLogLikelihood(double& grad,
+double StudentTProcess::negativeLogLikelihood(double &grad,
 					      size_t index)
 {
   matrixd K = computeCorrMatrix(mRegularizer,0);
   size_t n = K.size1();
+  
   matrixd L(n,n);
   cholesky_decompose(K,L);
 
@@ -38,36 +35,30 @@ double GaussianProcess::negativeLogLikelihood(double& grad,
 
   vectord alphU(colU);
   boost::numeric::ublas::inplace_solve(L,alphU,boost::numeric::ublas::lower_tag());
-  double eta = inner_prod(colU,alphU) + 1/mDelta2;
+  double eta = inner_prod(colU,alphU);
   
   vectord alphY(mGPY);
   boost::numeric::ublas::inplace_solve(L,alphY,boost::numeric::ublas::lower_tag());
   double mu     = inner_prod(colU,alphY) / eta;
   double YInvRY = inner_prod(mGPY,alphY);
     
-  double sigma = (mBeta + YInvRY - mu*mu*eta) / (mAlpha + (n+1) + 2);
-  
-  svectord colMu(n,mu);
-  vectord yumu = mGPY - colMu;
-  
-  alphY = yumu;
-  boost::numeric::ublas::inplace_solve(L,alphY,boost::numeric::ublas::lower_tag());
+  double sigma = (YInvRY - mu*mu*eta) / (n-1);
 
-  double lik1 = inner_prod(yumu,alphY) / (2*sigma); 
-  double lik2 = trace(L) + 0.5*n*log(sigma) + n*0.91893853320467; //log(2*pi)/2
+  double negloglik = 0.5*( (n-1)*log(sigma) + trace(L) + log(eta) );
 
-  return lik1 + lik2 + mBeta/2 * mTheta - (mAlpha+1) * log(mTheta);
+  return negloglik;
 }
 
 
-int GaussianProcess::prediction( const vectord &query,
+int StudentTProcess::prediction( const vectord &query,
 				 double& yPred, double& sPred)
 {
-  vectord rInvR(mGPXX.size());
+  size_t n = mGPXX.size();
+  vectord rInvR(n);
   double kn;
   double uInvRr, rInvRr;
   double meanf = meanFunction(query);
-
+  
   vectord colR = computeCrossCorrelation(query);
   kn = correlationFunction(query, query);
   
@@ -79,11 +70,11 @@ int GaussianProcess::prediction( const vectord &query,
   sPred = sqrt( mSig * (kn - rInvRr + (meanf - uInvRr) * (meanf - uInvRr) 
 			/ mUInvRUDelta ) );
 
-  return 1;
+  return n-1;
 }
 	
 
-int GaussianProcess::precomputeGPParams()
+int StudentTProcess::precomputeGPParams()
 {
   size_t nSamples = mGPXX.size();
   vectord colU(nSamples);
@@ -93,7 +84,7 @@ int GaussianProcess::precomputeGPParams()
     colU(ii) = meanFunction(mGPXX[ii]);
 
   mUInvR = prod(colU,mInvR);
-  mUInvRUDelta = inner_prod(mUInvR,colU) + 1/mDelta2;
+  mUInvRUDelta = inner_prod(mUInvR,colU);
   
   vectord YInvR(nSamples);
   double YInvRY;
@@ -103,7 +94,7 @@ int GaussianProcess::precomputeGPParams()
   noalias(YInvR) = prod(mGPY,mInvR);
   YInvRY = inner_prod(YInvR,mGPY);
   
-  mSig = (mBeta + YInvRY - mMu*mMu*mUInvRUDelta) / (mAlpha + (nSamples+1) + 2);
+  mSig = (YInvRY - mMu*mMu*mUInvRUDelta) / (nSamples-1);
   
   svectord colMu(nSamples,mMu);
   mYUmu = mGPY - colMu;

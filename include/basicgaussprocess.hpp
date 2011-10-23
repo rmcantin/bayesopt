@@ -23,14 +23,12 @@
 #include "nonparametricprocess.hpp"
 #include "kernels.hpp"
 #include "meanfuncs.hpp"
-#include "inneroptimization.hpp"
  
 /** \addtogroup BayesOptimization */
 /*@{*/
 
 
-class BasicGaussianProcess: public NonParametricProcess, 
-			    public InnerOptimization 
+class BasicGaussianProcess: public NonParametricProcess
 {
 public:
   BasicGaussianProcess( double theta = KERNEL_THETA, 
@@ -63,35 +61,6 @@ public:
 			       size_t index = 1);			 
 			 
 
-  /** Computes the GP based on mGPXX
-   *  This function is hightly inefficient O(N^3). Use it only at 
-   *  the begining.
-   *
-   *  It also computes the kernel hyperparameters.
-   */
-  int fitGP();
-
-
-  /** Add new point efficiently using Matrix Decomposition Lemma
-   *  for the inversion of the correlation matrix. Maybe it is faster
-   *  to just construct and invert a new matrix each time.
-   */   
-  int addNewPointToGP( const vectord &Xnew,
-		       double Ynew);
-
-  inline double getTheta()
-  { return mTheta; }
-
-  inline void setTheta( double theta )
-  { mTheta = theta; }
-
-  virtual double innerEvaluate(const vectord& query, 
-			      vectord& grad)
-  { 
-    setTheta(query(0));
-    return negativeLogLikelihood(grad(0),1);
-  }
-
 protected:
   inline double correlationFunction( const vectord &x1,const vectord &x2,
 				     size_t param_index = 0 )
@@ -104,10 +73,6 @@ protected:
   int precomputeGPParams()
   {return 1;};
 
-
-protected:
-  double mTheta;                      // Kernel parameters
-  const double mRegularizer;  // GP prior parameters (Normal)
 
 };
 

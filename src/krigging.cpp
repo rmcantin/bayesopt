@@ -23,22 +23,36 @@
 #include "krigging.hpp"
 #include "lhs.hpp"
 #include "randgen.hpp"
+#include "basicgaussprocess.hpp"
 
 
 SKO::SKO( double theta, double noise,
 	  size_t nIter, double alpha, 
-	  double beta,  double delta):
-  mGP(theta,noise),
+	  double beta,  double delta,
+	  NonParametricProcess* gp):
   mMaxIterations(nIter), mMaxDim(MAX_DIM),
   mVerbose(0)
-{} // Constructor
+{ 
+  crit_name = c_gp_hedge;
+  if (gp == NULL)
+    mGP = new BasicGaussianProcess(theta,noise);
+  else
+    mGP = gp;
+
+} // Constructor
 
 SKO::SKO( gp_params params,
-	  size_t nIter):
-  mGP(params.theta,params.noise),
+	  size_t nIter,
+	  NonParametricProcess* gp):
   mMaxIterations(nIter), mMaxDim(MAX_DIM),
   mVerbose(0)
-{} // Constructor
+{
+  crit_name = c_gp_hedge;
+  if (gp == NULL)
+    mGP = new BasicGaussianProcess(params.theta,params.noise);
+  else
+    mGP = gp;
+} // Constructor
 
 
 SKO::~SKO()
@@ -60,7 +74,6 @@ int SKO::optimize( vectord &bestPoint,
 {
   mVerbose = 1;
 
-  crit_name = gp_hedge;
   crit.resetHedgeValues();
  
   mLowerBound = lowerBound;
@@ -99,15 +112,15 @@ int SKO::optimize( vectord &bestPoint,
 	{ 
 	  std::cout << "Iteration " << ii+1 << std::endl;
 	  std::cout << "Trying: " << xNext << std::endl;
-	  std::cout << "Best: " << mGP.getPointAtMinimum() << std::endl; 
-	  std::cout << "Best outcome: " <<  mGP.getValueAtMinimum() <<  std::endl; 
+	  std::cout << "Best: " << mGP->getPointAtMinimum() << std::endl; 
+	  std::cout << "Best outcome: " <<  mGP->getValueAtMinimum() <<  std::endl; 
 	}
      
       yNext = evaluateNormalizedSample(xNext);
-      mGP.addNewPointToGP(xNext,yNext);     
+      mGP->addNewPointToGP(xNext,yNext);     
     }
 
-  bestPoint = mGP.getPointAtMinimum();
+  bestPoint = mGP->getPointAtMinimum();
 
   return 1;
 } // optimize
@@ -138,8 +151,8 @@ int SKO::sampleInitialPoints( size_t nSamples, size_t nDims,
       yPoints(i) = evaluateNormalizedSample(sample);
     }
 
-  mGP.setSamples(xPoints,yPoints);
-  mGP.fitGP();
+  mGP->setSamples(xPoints,yPoints);
+  mGP->fitGP();
 
   return 1;
 } // sampleInitialPoints
@@ -148,31 +161,31 @@ int SKO::sampleInitialPoints( size_t nSamples, size_t nDims,
 int SKO::nextPoint(vectord &Xnext)
 {
   crit.resetAnnealValues();
-  if (crit_name == gp_hedge)
+  if (crit_name == c_gp_hedge)
     {
       vectord best_ei(Xnext);
       vectord best_lcb(Xnext);
       vectord best_poi(Xnext);
       double r_ei,r_lcb,r_poi,foo;
 
-      crit.setCriterium(expectedImprovement);
+      crit.setCriterium(c_ei);
       innerOptimize(best_ei);
-      mGP.prediction(best_ei,r_ei,foo);
+      mGP->prediction(best_ei,r_ei,foo);
       
-      crit.setCriterium(lcb);
+      crit.setCriterium(c_lcb);
       innerOptimize(best_lcb);
-      mGP.prediction(best_lcb,r_lcb,foo);
+      mGP->prediction(best_lcb,r_lcb,foo);
 
-      crit.setCriterium(poi);
+      crit.setCriterium(c_poi);
       innerOptimize(best_poi);
-      mGP.prediction(best_poi,r_poi,foo);
+      mGP->prediction(best_poi,r_poi,foo);
 
       criterium_name better = crit.update_hedge(r_ei,r_lcb,r_poi);
       switch(better)
 	{
-	case expectedImprovement: Xnext = best_ei; break;
-	case lcb: Xnext = best_lcb; break;
-	case poi: Xnext = best_poi; break;
+	case c_ei: Xnext = best_ei; break;
+	case c_lcb: Xnext = best_lcb; break;
+	case c_poi: Xnext = best_poi; break;
 	default: return -1;
 	}
       return 1;
@@ -191,7 +204,7 @@ double SKO::evaluateCriteria(const vectord &query)
   if (!reachable)
     return 0.0;
 
-  return crit.evaluate(mGP,query);
+  return crit.evaluate(*mGP,query);
        
 }  // evaluateCriteria
 

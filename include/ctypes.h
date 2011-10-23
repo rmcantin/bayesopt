@@ -20,42 +20,39 @@
 -----------------------------------------------------------------------------
 */
 
-#ifndef _KRIGWPR_H_
-#define _KRIGWPR_H_
-
-#include "ctypes.h"
-
-/** \addtogroup BayesOptimization */
-/*@{*/
+#ifndef __CTYPES_H__
+#define __CTYPES_H__
 
 #ifdef __cplusplus
 extern "C" {
 #endif 
 
-  typedef double (*eval_func)(unsigned int n, double *x,
-			      double *gradient, /* NULL if not needed */
-			      void *func_data);
+  typedef struct {
+    double theta;
+    double alpha;
+    double beta;
+    double delta;
+    double noise;
+  } gp_params;
 
+  typedef enum {  
+    c_ei,
+    c_lcb,
+    c_poi,
+    c_gp_hedge,
+    c_greedyAOptimality,
+    c_expectedReturn
+  } criterium_name;
 
-/** 
- * @brief C functional wrapper for the Bayesian optimization algorithm. 
- * This is an efficient, C/C++ implementation of the Bayesian optimization.
- * Basically, it uses the active learning strategy to optimize an "arbitrary" 
- * funtion using few iterations.
- * 
- */
-  int krigging_optimization(int nDim, eval_func f, void* f_data,
-			    const double *lb, const double *ub, /* bounds */
-			    double *x, /* in: initial guess, out: minimizer */
-			    double *minf, /* out: minimum */
-			    int maxeval, gp_params params,
-			    criterium_name c_name,
-			    surrogate_name gp_name);
+  typedef enum {  
+    s_gaussianProcess,
+    s_gaussianProcessHyperPriors,
+    s_studentTProcess
+  } surrogate_name;
 
 #ifdef __cplusplus
 }
 #endif 
 
-/**@}*/
 
 #endif

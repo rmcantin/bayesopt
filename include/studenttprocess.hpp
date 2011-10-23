@@ -23,14 +23,12 @@
 #include "nonparametricprocess.hpp"
 #include "kernels.hpp"
 #include "meanfuncs.hpp"
-#include "inneroptimization.hpp"
  
 /** \addtogroup BayesOptimization */
 /*@{*/
 
 
-class StudentTProcess: public NonParametricProcess, 
-		       public InnerOptimization 
+class StudentTProcess: public NonParametricProcess
 {
 public:
   StudentTProcess( double theta = KERNEL_THETA, 
@@ -45,7 +43,7 @@ public:
    * @param yPred mean of the predicted Gaussian distribution
    * @param sPred std of the predicted Gaussian distribution
    * 
-   * @return error code.
+   * @return if positive: degrees of freedom, if negative: error code.
    */	
   int prediction(const vectord &query,
   		 double& yPred, double& sPred);
@@ -63,34 +61,6 @@ public:
 			       size_t index = 1);			 
 			 
 
-  /** Computes the GP based on mGPXX
-   *  This function is hightly inefficient O(N^3). Use it only at 
-   *  the begining.
-   *
-   *  It also computes the kernel hyperparameters.
-   */
-  int fitGP();
-
-
-  /** Add new point efficiently using Matrix Decomposition Lemma
-   *  for the inversion of the correlation matrix. Maybe it is faster
-   *  to just construct and invert a new matrix each time.
-   */   
-  int addNewPointToGP( const vectord &Xnew,
-		       double Ynew);
-
-  inline double getTheta()
-  { return mTheta; }
-
-  inline void setTheta( double theta )
-  { mTheta = theta; }
-
-  virtual double innerEvaluate(const vectord& query, 
-			      vectord& grad)
-  { 
-    setTheta(query(0));
-    return negativeLogLikelihood(grad(0),1);
-  }
 
 protected:
   inline double correlationFunction( const vectord &x1,const vectord &x2,
@@ -98,16 +68,20 @@ protected:
   { return kernels::MatternIso(x1,x2,param_index,mTheta,3); }
 
   inline double meanFunction( const vectord &x )
-  { return means::Zero(x); }
+  { return means::One(x); }
 
 
-  int precomputeGPParams()
-  {return 1;};
+  int precomputeGPParams();
 
 
 protected:
-  double mTheta;                      // Kernel parameters
-  const double mRegularizer;  // GP prior parameters (Normal)
+
+  double mMu, mSig;                   // GP posterior parameters
+
+  // Precomputed GP prediction operations
+  vectord mUInvR;              
+  double mUInvRUDelta;
+  vectord mYUmu;
 
 };
 

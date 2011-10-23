@@ -56,9 +56,9 @@
 #include "elementwiseUblas.hpp"
 
 #include "inneroptimization.hpp"
-#include "gaussprocess.hpp"
+#include "nonparametricprocess.hpp"
 
-#include "krigwpr.h"
+#include "ctypes.h"
 #include "criteria.hpp"
 
 /** \addtogroup BayesOptimization */
@@ -81,7 +81,8 @@ class SKO: public InnerOptimization
    */
   SKO( double theta = KERNEL_THETA, double noise = DEF_REGULARIZER,
        size_t nIter = MAX_ITERATIONS, double alpha = PRIOR_ALPHA, 
-       double beta = PRIOR_BETA, double delta = PRIOR_DELTA_SQ); 
+       double beta = PRIOR_BETA, double delta = PRIOR_DELTA_SQ,
+       NonParametricProcess* gp = NULL); 
 
   /** 
    * Constructor
@@ -95,8 +96,8 @@ class SKO: public InnerOptimization
    *     noise        observation noise
    * @param nIter        number of iterations before stopping 
    */
-  SKO( gp_params params,
-       size_t nIter); 
+  SKO( gp_params params, size_t nIter = MAX_ITERATIONS,
+       NonParametricProcess* gp = NULL); 
 	
   /** 
    * Default destructor
@@ -156,6 +157,14 @@ class SKO: public InnerOptimization
   { return 0.0; };
 
   /** 
+   * Chooses which criterium to optimize in the inner loop.
+   * 
+   * @param c criterium name
+   */
+  void setCriteria (criterium_name c)
+  {crit_name = c;}
+  
+  /** 
    * This function checks if the query is valid or not. It can be used 
    * to introduce arbitrary constrains. Since the Gaussian process 
    * assumes smoothness, constrains are managed by DIRECT, being highly
@@ -214,7 +223,7 @@ protected:
 protected:
 
   // Member variables
-  GaussianProcess mGP;
+  NonParametricProcess* mGP;
   Criteria crit;
   criterium_name crit_name;
   

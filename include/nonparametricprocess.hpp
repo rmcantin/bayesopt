@@ -63,7 +63,51 @@ public:
   virtual double negativeLogLikelihood(double& grad,
 				       size_t index = 1)
   {return 0.0;}
-			 		 
+ 
+  /** 
+   * Expected Improvement algorithm for minimization
+   * 
+   * @param yPred mean of the prediction
+   * @param sPred std of the prediction
+   * @param yMin  minimum value found
+   * @param g exponent (used for annealing)
+   * 
+   * @return negative value of the expected improvement
+   */
+  virtual double negativeExpectedImprovement(double yPred, double sPred,
+					     double yMin, size_t g = 1)
+  {return 0.0;}
+
+  /** 
+   * Lower confindence bound. Can be seen as the inverse of the Upper 
+   * confidence bound
+   *
+   * @param yPred mean of the prediction
+   * @param sPred std of the prediction
+   * @param beta std coefficient (used for annealing)
+   * 
+   * @return value of the lower confidence bound
+   */
+  virtual double lowerConfidenceBound(double yPred, double sPred,
+				     double beta = 1)
+  {return 0.0;}
+
+  /** 
+   * Probability of improvement algorithm for minimization
+   * 
+   * @param yPred mean of the prediction
+   * @param sPred std of the prediction
+   * @param yMin  minimum value found
+   * @param epsilon minimum improvement margin
+   * 
+   * @return negative value of the probability of improvement
+   */
+  virtual double negativeProbabilityOfImprovement(double yPred, double sPred,
+						  double yMin, double epsilon = 0.1)
+  {return 0.0;}
+
+
+		 		 
   /** 
    *  Computes the GP based on mGPXX
    *  This function is hightly inefficient O(N^3). Use it only at 

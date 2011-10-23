@@ -24,15 +24,10 @@
 #define  _CRITERIA_HPP_
 
 #include <algorithm>
-#include <boost/math/special_functions/factorials.hpp>
-#include <boost/math/distributions/normal.hpp> // for normal_distribution
 
 #include "ctypes.h"
 #include "specialtypes.hpp"
 #include "randgen.hpp"
-
-using boost::math::factorial;
-using boost::math::normal; // typedef provides default type is double.
 
 
 class Criteria
@@ -73,9 +68,9 @@ public:
 
     switch (criterium)
       {
-      case c_ei: return negativeExpectedImprovement(yPred,sPred,yMin);
-      case c_lcb: return lowerConfidenceBound(yPred,sPred);
-      case c_poi: return negativeProbabilityOfImprovement(yPred,sPred,yMin);
+      case c_ei: return gp.negativeExpectedImprovement(yPred,sPred,yMin,g);
+      case c_lcb: return gp.lowerConfidenceBound(yPred,sPred,beta);
+      case c_poi: return gp.negativeProbabilityOfImprovement(yPred,sPred,yMin,epsilon);
       case c_greedyAOptimality: return sPred;
       case c_expectedReturn: return yPred;
       default: std::cout << "Error in criterium" << std::endl; return 0.0;
@@ -120,78 +115,6 @@ public:
 protected:
 
   /** 
-   * Expected Improvement algorithm for minimization
-   * 
-   * @param yPred mean of the prediction
-   * @param sPred std of the prediction
-   * @param yMin  minimum value found
-   * 
-   * @return negative value of the expected improvement
-   */
-  inline double negativeExpectedImprovement(double yPred, double sPred,
-					    double yMin)
-  {
-    double yDiff = yMin - yPred; 
-    double yNorm = yDiff / sPred;
-  
-    if (g == 1)
-	return -1.0 * ( yDiff * cdf(d,yNorm) + sPred * pdf(d,yNorm) );
-    else
-    {
-      
-      double pdfD = pdf(d,yNorm);
-      double Tm2 = cdf(d,yNorm);
-      double Tm1 = pdfD;
-      double fg = factorial<double>(g);
-      double Tact;
-      double sumEI = pow(yNorm,g)*Tm2 - g*pow(yNorm,g-1)*Tm1;
-
-      for (unsigned int ii = 2; ii < g; ii++) 
-	{
-	  Tact = (ii-1)*Tm2 - pdfD*pow(yNorm,ii-1);
-	  sumEI += pow(-1.0,ii)*
-	    (fg / ( factorial<double>(ii)* factorial<double>(g-ii) ) )*
-	    pow(yNorm,g-ii)*Tact;
-	  
-	  //roll-up
-	  Tm2 = Tm1;   Tm1 = Tact;
-	}
-      return -1.0 * pow(sPred,g) * sumEI;
-    }
-         
-  }  // negativeExpectedImprovement
-
-
-  /** 
-   * Lower confindence bound. Can be seen as the inverse of the Upper 
-   * confidence bound
-   *
-   * @param yPred mean of the prediction
-   * @param sPred std of the prediction
-   * 
-   * @return value of the lower confidence bound
-   */
-  inline double lowerConfidenceBound(double yPred, double sPred)
-  {    
-    return yPred - beta*sPred;;
-  }
-  
-  /** 
-   * Probability of improvement algorithm for minimization
-   * 
-   * @param yPred mean of the prediction
-   * @param sPred std of the prediction
-   * @param yMin  minimum value found
-   * 
-   * @return negative value of the probability of improvement
-   */
-  inline double negativeProbabilityOfImprovement(double yPred, double sPred,
-					 double yMin)
-  {
-    return -cdf(d,(yMin - yPred + epsilon)/sPred);
-  }
-
-  /** 
    * Updates the parameters that can be used for annealing
    * 
    * @param ndims # of imput dimensions.
@@ -215,9 +138,6 @@ protected:
   double beta, epsilon, eta; 
   double g_poi,g_lcb,g_ei;
   bool use_annealing;
-
-  normal d;
-
 
 };
 

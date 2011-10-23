@@ -20,7 +20,8 @@
 #ifndef  _GAUSSPROCESS_HPP_
 #define  _GAUSSPROCESS_HPP_
 
-#include "nonparametricprocess.hpp"
+//#include "nonparametricprocess.hpp"
+#include "basicgaussprocess.hpp"
 #include "kernels.hpp"
 #include "meanfuncs.hpp"
  
@@ -28,7 +29,7 @@
 /*@{*/
 
 
-class GaussianProcess: public NonParametricProcess
+class GaussianProcess: public BasicGaussianProcess //NonParametricProcess
 {
 public:
   GaussianProcess( double theta = KERNEL_THETA,

@@ -59,7 +59,48 @@ public:
    */
   double negativeLogLikelihood(double& grad,
 			       size_t index = 1);			 
-			 
+
+  
+  /** 
+   * Expected Improvement algorithm for minimization
+   * 
+   * @param yPred mean of the prediction
+   * @param sPred std of the prediction
+   * @param yMin  minimum value found
+   * @param g exponent (used for annealing)
+   * 
+   * @return negative value of the expected improvement
+   */
+  double negativeExpectedImprovement(double yPred, double sPred,
+				     double yMin, size_t g = 1);
+
+
+  /** 
+   * Lower confindence bound. Can be seen as the inverse of the Upper 
+   * confidence bound
+   *
+   * @param yPred mean of the prediction
+   * @param sPred std of the prediction
+   * @param beta std coefficient (used for annealing)
+   * 
+   * @return value of the lower confidence bound
+   */
+  double lowerConfidenceBound(double yPred, double sPred,
+			      double beta = 1);
+
+  /** 
+   * Probability of improvement algorithm for minimization
+   * 
+   * @param yPred mean of the prediction
+   * @param sPred std of the prediction
+   * @param yMin  minimum value found
+   * @param epsilon minimum improvement margin
+   * 
+   * @return negative value of the probability of improvement
+   */
+  double negativeProbabilityOfImprovement(double yPred, double sPred,
+					  double yMin, double epsilon = 0.1);
+
 
 
 protected:

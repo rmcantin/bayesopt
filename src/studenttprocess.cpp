@@ -1,6 +1,9 @@
+#include <boost/math/distributions/students_t.hpp> // for student t distribution
+
 #include "studenttprocess.hpp"
 #include "cholesky.hpp"
 #include "trace.hpp"
+
 
   
 StudentTProcess::StudentTProcess( double theta, double noise):
@@ -106,3 +109,39 @@ int StudentTProcess::precomputeGPParams()
 }
 
 
+	
+double StudentTProcess::negativeExpectedImprovement(double yPred, double sPred,
+						    double yMin, size_t g)
+{
+  size_t dof = mGPXX.size() - 1;
+  boost::math::students_t d(dof);
+
+  double yDiff = yMin - yPred; 
+  double yNorm = yDiff / sPred;
+  
+  if (g != 1)
+    {
+      std::cout << "Students t EI with exponent not yet supported." << std::endl;
+      return 0.0;
+    }
+  else
+    {
+      return -1.0 * ( yDiff * cdf(d,yNorm) + (dof*sPred+yNorm*yDiff)/(dof-1) * pdf(d,yNorm) );
+    }
+  
+}  // negativeExpectedImprovement
+
+double StudentTProcess::lowerConfidenceBound(double yPred, double sPred,
+					     double beta)
+{    
+  size_t n = mGPXX.size();
+  return yPred - beta*sPred/sqrt(n);
+}  // lowerConfidenceBound
+
+double StudentTProcess::negativeProbabilityOfImprovement(double yPred, double sPred,
+							      double yMin, double epsilon)
+{  
+  size_t dof = mGPXX.size() - 1;
+  boost::math::students_t d(dof);
+  return -cdf(d,(yMin - yPred + epsilon)/sPred);
+}  // negativeProbabilityOfImprovement

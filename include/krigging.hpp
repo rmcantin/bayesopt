@@ -61,6 +61,12 @@
 #include "ctypes.h"
 #include "criteria.hpp"
 
+// Included here to simplify the C++-API
+#include "gaussprocess.hpp"
+#include "basicgaussprocess.hpp"
+#include "studenttprocess.hpp"
+
+
 /** \addtogroup BayesOptimization */
 /*@{*/
 

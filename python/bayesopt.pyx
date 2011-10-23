@@ -43,12 +43,26 @@ cdef dict2structparams(dict dparams, gp_params *params):
 cdef criterium_name find_criterium(str criteria):
     if criteria == 'ei':
         return c_ei
+    elif criteria == 'lcb':
+        return c_lcb
+    elif criteria == 'poi':
+        return c_poi
+    elif criteria == 'hedge':
+        return c_gp_hedge
+    elif criteria == 'aoptimal':
+        return c_greedyAOptimality
+    elif criteria == 'expmean':
+        return c_expectedReturn
+
 
 
 cdef surrogate_name find_surrogate(str surrogate):
     if surrogate == 'gp':
         return s_gaussianProcess
-
+    elif surrogate == 'gpwpriors':
+        return s_gaussianProcessHyperPriors
+    elif surrogate == 'stp':
+        return s_studentTProcess
 
 
 cdef ndarray2pointer(varray, double* p_array):
@@ -66,14 +80,17 @@ cdef pointer2ndarray(int n, double* p_array):
     return varray
     
 
-cdef double callback(unsigned int n, double *x, double *gradient, void *func_data):
+cdef double callback(unsigned int n, double *x,
+                     double *gradient, void *func_data):
     invector = pointer2ndarray(n,x)
     result = (<object>func_data)(invector)
     return result
 
 
 
-def optimize(object f, int nDim, np.ndarray[np.double_t] np_lb, np.ndarray[np.double_t] np_ub, np.ndarray[np.double_t] np_x, int maxeval, dict dparams, str criteria, str surrogate):
+def optimize(object f, int nDim, np.ndarray[np.double_t] np_lb,
+             np.ndarray[np.double_t] np_ub, np.ndarray[np.double_t] np_x,
+             int maxeval, dict dparams, str criteria, str surrogate):
     cdef gp_params zero_params
     zero_params.theta = 0
     zero_params.alpha = 0

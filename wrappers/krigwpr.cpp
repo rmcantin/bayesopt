@@ -1,20 +1,15 @@
 #include "krigwpr.h"
-#include "krigging.hpp"
-
-#include "gaussprocess.hpp"
-#include "basicgaussprocess.hpp"
-#include "studenttprocess.hpp"
+#include "krigging.hpp"      
 
 
-
-void copyCarrayInVector(const double* array, int n, vectord& vec)
+inline void copyCarrayInVector(const double* array, int n, vectord& vec)
 {
   for(int i = 0; i<n;i++)
     vec(i) = array[i];
 }
 
 
-void copyVectorInArray(double* array, int n, const vectord& vec)
+inline void copyVectorInArray(double* array, int n, const vectord& vec)
 {
   for(int i = 0; i<n;i++)
     array[i] = vec(i);

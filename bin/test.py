@@ -26,12 +26,10 @@ x = np.zeros((n,))
 out = testfunc(x)
 
 start = tm.clock()
-end = 0
 
 mvalue, x_out, error = kp.optimize(testfunc, n, lb, ub, x,
                                    niter, params, crit, surr)
 
-end = tm.clock() - start
 print "Result", x_out
-print "Seconds", end
+print "Seconds", tm.clock() - start
 

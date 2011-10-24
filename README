@@ -7,14 +7,22 @@ This is an efficient, C++ implementation of several Bayesian optimization
 algorithms. See References for some of the papers.
 
 Basically, it combines the use of an stochastic process as a surrogate function
-with the use of some "active learning" criterium. to find the optimum an "arbitrary" 
-funtion using very few iterations.
+with the use of some "active learning" criterion. to find the optimum an "arbitrary" 
+function using very few iterations.
 
 It can also be used for sequential experimental design and stochastic bandits by
-changing the criterium.
+changing the criterion.
 
+------------------------------
+INDEX:
+-------------------------------
 1-Dependencies
 2-Install
+3-Usage
+4-Known Issues
+5-References
+-------------------------------
+
 
 ***********************
 * 1 -  DEPENDENCIES:  *

@@ -1,0 +1,4 @@
+/** \mainpage Bayesian optimization toolbox
+ * 
+ * 
+ */

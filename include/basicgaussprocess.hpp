@@ -23,6 +23,7 @@
 #include "nonparametricprocess.hpp"
 #include "kernels.hpp"
 #include "meanfuncs.hpp"
+
  
 /** \addtogroup BayesOptimization */
 /*@{*/

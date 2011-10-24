@@ -21,6 +21,7 @@
 #define  _KERNELS_HPP_
 
 #include <boost/numeric/ublas/vector.hpp>
+#include "elementwiseUblas.hpp"
 
 namespace kernels
 {
@@ -45,10 +46,6 @@ namespace kernels
 			    size_t param_index,
 			    double theta, int order)
   {
-    /** \brief Matern kernel
-     * Matern covariance function
-     */
-
     if (param_index < 0)
       return 1; /*Number of hyperparams*/
 
@@ -83,12 +80,14 @@ namespace kernels
    * 
    * @return see param_index
    */
-  
   inline double SEIso( const vector<double> &x1, 
 		       const vector<double> &x2,
 		       size_t param_index,
 		       double theta)
   {
+    if (param_index < 0)
+      return 1; /*Number of hyperparams*/
+
     double rl = norm_2(x1-x2)/theta;
     double k = rl*rl;
     double result = exp(-k/2);
@@ -97,6 +96,42 @@ namespace kernels
     if (param_index == 0) return result;
     else return grad;
   }
+
+ 
+  /** 
+   * Gaussian kernel with Automatic Relevance Determination (ARD) 
+   * distance measure
+   * 
+   * @param x1 First point
+   * @param x2 Secont point
+   * @param param_index 
+   *           if < 0 return # of params
+   *           if = 0 return kernel value
+   *           if > 0 return the derivative of the ith param
+   * @param theta kernel length-scale
+   * 
+   * @return see param_index
+   */
+  inline double SEard( const vector<double> &x1, 
+		       const vector<double> &x2,
+		       size_t param_index,
+		       const vector<double> &theta)
+  {
+    if (param_index < 0)
+      return x1.size(); /*Number of hyperparams*/
+
+    vector<double> xd = x1-x2;
+    vector<double> ri = ublas_elementwise_div(xd, theta);
+
+    double rl = norm_2(ri);
+    double k = rl*rl;
+    double result = exp(-k/2);
+    double grad = result*sqrt(ri(param_index));
+
+    if (param_index == 0) return result;
+    else return grad;
+  }
+
 
 }
 

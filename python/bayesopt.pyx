@@ -4,6 +4,7 @@
 
 import numpy as np
 cimport numpy as np
+from cpython cimport Py_INCREF, Py_DECREF
 
 cdef extern from "ctypes.h":
     ctypedef struct gp_params:
@@ -29,8 +30,13 @@ cdef extern from "ctypes.h":
 
 
 cdef extern from "krigwpr.h":
-    ctypedef double (*eval_func)(unsigned int n, double *x, double *gradient, void *func_data)
-    int krigging_optimization(int nDim, eval_func f, void* f_data, double *lb, double *ub, double *x, double *minf, int maxeval, gp_params params, criterium_name c_name, surrogate_name gp_name)
+    ctypedef double (*eval_func)(unsigned int n, double *x,
+                                 double *gradient, void *func_data)
+
+    int krigging_optimization(int nDim, eval_func f, void* f_data,
+                              double *lb, double *ub, double *x,
+                              double *minf, int maxeval, gp_params params,
+                              criterium_name c_name, surrogate_name gp_name)
 
 
 cdef dict2structparams(dict dparams, gp_params *params):
@@ -88,9 +94,10 @@ cdef double callback(unsigned int n, double *x,
 
 
 
-def optimize(object f, int nDim, np.ndarray[np.double_t] np_lb,
+def optimize(f, int nDim, np.ndarray[np.double_t] np_lb,
              np.ndarray[np.double_t] np_ub, np.ndarray[np.double_t] np_x,
              int maxeval, dict dparams, str criteria, str surrogate):
+
     cdef gp_params zero_params
     zero_params.theta = 0
     zero_params.alpha = 0
@@ -104,6 +111,7 @@ def optimize(object f, int nDim, np.ndarray[np.double_t] np_lb,
 
     cdef criterium_name crit
     crit = find_criterium(criteria)
+
     cdef surrogate_name surr
     surr = find_surrogate(surrogate)
     
@@ -116,8 +124,9 @@ def optimize(object f, int nDim, np.ndarray[np.double_t] np_lb,
     #ndarray2pointer(np_lb,lb)
     #ndarray2pointer(np_ub,ub)
     #ndarray2pointer(np_x,c_x)
-    
+    Py_INCREF(f)
     error_code = krigging_optimization(nDim, callback, <void *> f, <double *>np_lb.data, <double *>np_ub.data, <double *>np_x.data, minf, maxeval, params, crit, surr)
+    Py_DECREF(f)
     min_value = minf[0]
     #point_min_value = pointer2ndarray(nDim,c_x)
     return min_value,np_x,error_code

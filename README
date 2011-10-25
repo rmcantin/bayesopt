@@ -3,23 +3,25 @@
 --------------------------------------------------------------------------
 
 
-This is an efficient, C++ implementation of the Bayesian optimization
-algorithm presented in the papers:
+This is an efficient, C++ implementation of several Bayesian optimization
+algorithms. See References for some of the papers.
 
-----
-Ruben Martinez-Cantin, Nando de Freitas, Arnaud Doucet and Jose Castellanos.
-Active Policy Learning for Robot Planning and Exploration under Uncertainty 
-Robotics: Science and Systems. 2007
+Basically, it combines the use of an stochastic process as a surrogate function
+with the use of some "active learning" criterion. to find the optimum an "arbitrary" 
+function using very few iterations.
 
-Ruben Martinez-Cantin, Nando de Freitas, Eric Brochu, Jose Castellanos and 
-Arnaud Doucet (2009) A Bayesian Exploration-Exploitation Approach for 
-Optimal Online Sensing and Planning with a Visually Guided Mobile Robot. 
-Autonomous Robots - Special Issue on Robot Learning, Part B, 27(3):93-103.
-----
- 
-Basically, it uses the active learning strategy to optimize an "arbitrary" 
-funtion using few iterations.
+It can also be used for sequential experimental design and stochastic bandits by
+changing the criterion.
 
+------------------------------
+INDEX:
+-------------------------------
+1-Dependencies
+2-Install
+3-Usage
+4-Known Issues
+5-References
+-------------------------------
 
 
 ***********************
@@ -73,15 +75,14 @@ NLOPT does not require external libraries and it is compatible with
 Windows and Mac. As compiling it in Windows is tricky, there are 
 precompilled dlls for download.
 
-
-
 1.3 - PYTHON:
 =============
 
-The library has been tested with Python 2. Python development files such as 
+The library has been tested with Python 2.6 and 2.7 Python development files such as 
 Python.h are needed to compile the interface. It you want to modify the Python
 interface, you also need Cython.
 
+$ cython --cplus bayesopt.pyx
 
 
 *****************
@@ -111,14 +112,6 @@ Python interface.
 If you have doxygen installed on your computer, you can compile the
 documentation directly using cmake. 
 
-You just need to download UseDoxygen.cmake package
-
->> darcs get http://tobias.rautenkranz.ch/cmake/doxygen
->> cd doxygen
->> cmake . && make install
-
-Then, in the directy where bayesian-optimization is, use:
-
 >> cmake .
 >> make
 >> make doc
@@ -134,8 +127,6 @@ it might get tricky to set the correct paths.
 
 
 
-
-
 ****************
 * 3 - USAGE:   *
 ****************
@@ -148,7 +139,7 @@ There are three kind of interfaces.
 ------------------------
 
 This interface is fully functional from C and C++. It resembles the classic 
-NLOPT interface, therefore, NLOPT manual can used as well. We just need to 
+NLOPT interface, therefore, the NLOPT manual can used as well. We just need to 
 define a function pointer to the function that we need to evaluate. The 
 function pointer must agree with the template provided in krigwpr.h
 
@@ -156,25 +147,28 @@ Note that the gradient has been included for future compatibility, although
 in the current implementation, it is not used. You can just use a NULL pointer.
 
 
+
 3.2 - C++ polymorphic usage
 ---------------------------
 
 The second way to use the function is by creating an object that inherits 
-from the SKO object defined in krigging.hpp
+from the SKO object defined in krigging.hpp 
 
 Then, we just need to define the virtual function evaluateSample, which 
 has interfaces both for C arrays and uBlas vectors. You can just redefine
 your favorite interface.
 
-Note that the checkReachability function has been included for future 
-compatibility, although in the current implementation, it is not used.
+We may also need to create an object of any of the non parametric processes
+to set the desired parameters.
+
+
 
 3.3 - Python functional usage
 -----------------------------
 
 The file bin/test.py provides an example of the Python interface. It is similar
-the C interface. The parameters must be defined as a Python dictionary.
-
+the C interface. The parameters must be defined as a Python dictionary and the
+surrogate function and criterium are selected using the corresponding string.
 
 
 
@@ -187,7 +181,56 @@ just need to point the LD_LIBRARY_PATH and PYTHONPATH to the corresponding
 folder (by default: /usr/local/lib). There is a shell script to do that,
 exportlocalpaths.sh
 
-- I have found that in some versions of Linux (maybe gcc issue?), NLOPT 
-callback procedure fails when using the Python interface of bayesian-optimization,
-because the callback function pointer gets corrupted at some point.
 
+
+********************
+* 5. REFERENCES    *
+********************
+
+[1]Eric Brochu, Vlad M Cora, and Nando de Freitas. A tutorial on bayesian optimization of expensive
+cost functions, with application to active user modeling and hierarchical reinforcement
+learning. eprint arXiv:1012.2599, arXiv.org, December 2010.
+
+[2] Mark S. Handcock and Michael L. Stein. A bayesian analysis of kriging. Technometrics,
+35(4):403–410, 1993.
+
+[3] Matthew Hoffman, Eric Brochu, and Nando de Freitas. Portfolio allocation for Bayesian 
+optimization.
+In 27th Conference on Uncertainty in Artificial Intelligence (UAI2011), 2011.
+
+[4] D. Huang, T. T. Allen, W. I. Notz, and N. Zeng. Global optimization of stochastic black-box
+systems via sequential kriging meta-models. Journal of Global Optimization, 34(3):441– 466,
+2006.
+
+[5] Steven G. Johnson. The NLopt nonlinear-optimization package, http://ab-initio.mit.edu/nlopt.
+
+[6] D.R. Jones. A taxonomy of global optimization methods based on response surfaces. Journal
+of Global Optimization, 21:345–383, 2001.
+
+[7] D.R. Jones, M. Schonlau, and W.J. Welch. Efficient global optimization of expensive blackbox
+functions. Journal of Global Optimization, 13(4):455–492, 1998.
+
+[8] R. Martinez-Cantin, N. de Freitas, E. Brochu, J.A. Castellanos, and A. Doucet. A Bayesian
+exploration-exploitation approach for optimal online sensing and planning with a visually
+guided mobile robot. Autonomous Robots - Special Issue on Robot Learning, Part B, 27(3):93–
+103, 2009.
+
+[9] Ruben Martinez-Cantin, Nando de Freitas, Jose Castellanos and Arnaud Doucet (2007) Active 
+Policy Learning for Robot Planning and Exploration under Uncertainty. In Proc. of Robotics: 
+Science and Systems
+
+[10] Jonas Mockus. Application of bayesian approach to numerical methods of global and stochastic
+optimization. Journal of Global Optimization, 4:347–365, 1994.
+
+[11] J. Sacks, W.J. Welch, T.J. Mitchell, and H.P. Wynn. Design and analysis of computer experiments.
+Statistical Science, 4(4):409–423, 1989.
+
+[12] T.J. Santner, B. Williams, and W. Notz. The Design and Analysis of Computer Experiments.
+Springer-Verlag, 2003.
+
+[13] N. Srinivas, A. Krause, S. Kakade, and M. Seeger. Gaussian process optimization in the bandit
+setting: No regret and experimental design. In Proc. International Conference on Machine
+Learning (ICML), 2010.
+
+[14] B J Williams, T J Santner, and W I Notz. Sequential design of computer experiments to
+minimize integrated response functions. Statistica Sinica, 10(4):1133–1152, 2000.

@@ -4,7 +4,7 @@
 
 import numpy as np
 cimport numpy as np
-from cpython cimport Py_INCREF, Py_DECREF
+from python_ref cimport Py_INCREF, Py_DECREF
 
 cdef extern from "ctypes.h":
     ctypedef struct gp_params:

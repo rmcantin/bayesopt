@@ -1,8 +1,14 @@
 PROJECT(BayesianOptimization CXX)
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-#SET(CMAKE_BUILD_TYPE Release)
-#SET(CMAKE_BUILD_TYPE debug)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} 
+		      ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
+set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} /opt/local/lib /opt/local/Library)
+set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} /opt/local/include
+/opt/local/Library)
+set(CMAKE_PROGRAM_PATH ${CMAKE_PROGRAM_PATH} /opt/local/bin/ /opt/local/Library)
+
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING 
@@ -18,7 +24,7 @@ SET(CMAKE_CXX_FLAGS_DEBUG "-g")
 SET(CMAKE_C_FLAGS_DEBUG "-g")
   
 # enable warnings
-ADD_DEFINITIONS("-Wall -ansi -pedantic")
+ADD_DEFINITIONS("-Wall")
 
 SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
@@ -33,8 +39,8 @@ if(BUILD_PYTHON_INTERFACE)
   ## check python
   find_package(PythonLibs) # using PYTHON_INCLUDE_PATH instead of PYTHON_INCLUDE_DIR
   if( NOT PYTHON_EXECUTABLE )
-    # look specifically for 2.6
-    find_program(PYTHON_EXECUTABLE NAMES python2.6 python PATHS [HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore\\2.6\\InstallPath])
+    # look specifically for 2.7
+    find_program(PYTHON_EXECUTABLE NAMES python2.7 python27 python PATHS [HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore\\2.7\\InstallPath])
   endif()
 
   if( PYTHON_EXECUTABLE )
@@ -80,24 +86,15 @@ if(BUILD_PYTHON_INTERFACE)
       set(PYTHON_EXECUTABLE)
     endif()
   endif()
-
-IF(BUILD_PYTHON_INTERFACE)
-  SET(PYHTON_LIB  ${PYTHON_LIBRARIES} )
-  INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
-ELSE(BUILD_PYTHON_INTERFACE)
-  SET(PYHTON_LIB )
-ENDIF(BUILD_PYTHON_INTERFACE)
-
 endif()
 
-#FIND_PACKAGE(PythonLibs 2.6)
-#IF(PYTHONLIBS_FOUND)
-#  SET(BUILD_PYTHON_INTERFACE ON CACHE BOOL "Build Python Interface?")
-#  INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
-#ELSE(PYTHONLIBS_FOUND)
-#  SET(BUILD_PYTHON_INTERFACE OFF CACHE BOOL "Build Python Interface?")
-#ENDIF(PYTHONLIBS_FOUND)
-
+IF(BUILD_PYTHON_INTERFACE)
+  FIND_PACKAGE(Numpy REQUIRED)
+  SET(PYTHON_LIB  ${PYTHON_LIBRARIES} )
+  INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH}
+                                       ${PYTHON_NUMPY_INCLUDE_DIR} 
+                                       ${PYTHON_INCLUDE_DIR})
+ENDIF(BUILD_PYTHON_INTERFACE)
 
 FIND_LIBRARY(NLOPT nlopt)
 
@@ -129,9 +126,9 @@ SET( KRIGGING_SRCS
   )
 
 IF(BUILD_PYTHON_INTERFACE)
-  SET(PYHTON_SRC  ./python/bayesopt.cpp)
+  SET(PYTHON_SRC  ./python/bayesopt.cpp)
 ELSE(BUILD_PYTHON_INTERFACE)
-  SET(PYHTON_SRC )
+  SET(PYTHON_SRC )
 ENDIF(BUILD_PYTHON_INTERFACE)
 
 
@@ -140,9 +137,12 @@ INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/include
 		     ${CMAKE_SOURCE_DIR}/utils )
 
 find_package( Boost REQUIRED )
-   if(Boost_FOUND)
-      include_directories(${Boost_INCLUDE_DIRS})
-   endif()
+if(Boost_FOUND)
+   include_directories(${Boost_INCLUDE_DIRS})
+else(Boost_FOUND)
+   find_library(Boost boost PATHS /opt/local/lib)
+   include_directories(${Boost_LIBRARY_PATH})
+endif()
 
 LINK_DIRECTORIES( ${CMAKE_SOURCE_DIR}/lib )
 
@@ -155,11 +155,11 @@ ENDIF(USE_DIRECT_FORTRAN)
 
 ADD_LIBRARY(bayesopt
   ${KRIGGING_SRCS}   
-  ${PYHTON_SRC}
+  ${PYTHON_SRC}
   ${OPT_SOURCE}
   )
 
-SET_TARGET_PROPERTIES(bayesopt PROPERTIES PREFIX "")
+SET_TARGET_PROPERTIES(bayesopt PROPERTIES PREFIX "" SUFFIX ".so")
 
 IF(USE_DIRECT_FORTRAN)
   SET(EXT_LIBS DIRect)
@@ -176,11 +176,11 @@ add_dependencies(krigtest bayesopt)
 
 TARGET_LINK_LIBRARIES(bayesopt
   ${EXT_LIBS}
+  ${PYTHON_LIB}
   )
 
 TARGET_LINK_LIBRARIES(krigtest
   bayesopt
-  ${PYHTON_LIB}
   )
 
 ADD_EXECUTABLE(randtest ./app/testrand.cpp)

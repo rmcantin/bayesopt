@@ -1,5 +1,5 @@
-#include "krigwpr.h"
-#include "krigging.hpp"      
+#include "bayesoptwpr.h"
+#include "bayesopt.hpp"      
 
 
 inline void copyCarrayInVector(const double* array, int n, vectord& vec)
@@ -57,13 +57,13 @@ class CSKO: public SKO
 
 
 
-int krigging_optimization(int nDim, eval_func f, void* f_data,
-			  const double *lb, const double *ub, /* bounds */
-			  double *x, /* in: initial guess, out: minimizer */
-			  double *minf, /* out: minimum */
-			  int maxeval, gp_params params,
-			  criterium_name c_name,
-			  surrogate_name gp_name)
+int bayes_optimization(int nDim, eval_func f, void* f_data,
+		       const double *lb, const double *ub, /* bounds */
+		       double *x, /* in: initial guess, out: minimizer */
+		       double *minf, /* out: minimum */
+		       int maxeval, gp_params params,
+		       criterium_name c_name,
+		       surrogate_name gp_name)
 {
 
   vectord result(nDim);

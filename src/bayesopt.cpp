@@ -20,7 +20,7 @@
 -----------------------------------------------------------------------------
 */
 
-#include "krigging.hpp"
+#include "bayesopt.hpp"
 #include "lhs.hpp"
 #include "randgen.hpp"
 #include "basicgaussprocess.hpp"

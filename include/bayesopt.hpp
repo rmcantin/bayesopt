@@ -1,26 +1,13 @@
 /**
- * @file   krigging.hpp
+ * @file   bayesopt.hpp
  * @author Ruben Martinez-Cantin <rmcantin@ist.isr.utl.pt>
  * @date   Thu Mar 26 02:12:36 2009
  * 
- * @brief  Efficient Global Optimization with hyperpriors.
- *
- * This is an efficient, C++ implementation of the Bayesian optimization
- * algorithm presented in the papers:
- *
- * ----
- * Ruben Martinez-Cantin, Nando de Freitas, Arnaud Doucet and Jose Castellanos.
- * Active Policy Learning for Robot Planning and Exploration under Uncertainty. 
- * Robotics: Science and Systems. 2007
- *
- * Ruben Martinez-Cantin, Nando de Freitas, Eric Brochu, Jose Castellanos and 
- * Arnaud Doucet (2009) A Bayesian Exploration-Exploitation Approach for Optimal
- * Online Sensing and Planning with a Visually Guided Mobile Robot. Autonomous 
- * Robots - Special Issue on Robot Learning, Part B, 27(3):93-103.
- * ----
+ * @brief  Sequential Krigging Optimization (SKO) 
  * 
- * Basically, it uses the active learning strategy to optimize an "arbitrary" 
- * funtion using few iterations.
+ * This file implements Sequential Krigging Optimization using different 
+ * non-parametric processes as surrogate (krigging) functions.
+ *
  * 
  * Copyright: See COPYING file that comes with this distribution
  */
@@ -70,7 +57,10 @@
 /** \addtogroup BayesOptimization */
 /*@{*/
 
-
+/**
+ * \brief Sequential Kriging Optimization using different non-parametric 
+ * processes as surrogate (kriging) functions. 
+ */
 class SKO: public InnerOptimization
 {
  public:

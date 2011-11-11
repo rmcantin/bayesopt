@@ -28,6 +28,9 @@
 #include "inneroptimization.hpp"	
 
 
+/**
+ * \brief Abstract class to implement non-parametric processes
+ */
 class NonParametricProcess: public InnerOptimization
 {
 public:

@@ -30,14 +30,14 @@ cdef extern from "ctypes.h":
 
 
 
-cdef extern from "krigwpr.h":
+cdef extern from "bayesoptwpr.h":
     ctypedef double (*eval_func)(unsigned int n, double *x,
                                  double *gradient, void *func_data)
 
-    int krigging_optimization(int nDim, eval_func f, void* f_data,
-                              double *lb, double *ub, double *x,
-                              double *minf, int maxeval, gp_params params,
-                              criterium_name c_name, surrogate_name gp_name)
+    int bayes_optimization(int nDim, eval_func f, void* f_data,
+                           double *lb, double *ub, double *x,
+                           double *minf, int maxeval, gp_params params,
+                           criterium_name c_name, surrogate_name gp_name)
 
 
 cdef dict2structparams(dict dparams, gp_params *params):
@@ -126,7 +126,7 @@ def optimize(f, int nDim, np.ndarray[np.double_t] np_lb,
     #ndarray2pointer(np_ub,ub)
     #ndarray2pointer(np_x,c_x)
     Py_INCREF(f)
-    error_code = krigging_optimization(nDim, callback, <void *> f, <double *>np_lb.data, <double *>np_ub.data, <double *>np_x.data, minf, maxeval, params, crit, surr)
+    error_code = bayes_optimization(nDim, callback, <void *> f, <double *>np_lb.data, <double *>np_ub.data, <double *>np_x.data, minf, maxeval, params, crit, surr)
     Py_DECREF(f)
     min_value = minf[0]
     #point_min_value = pointer2ndarray(nDim,c_x)

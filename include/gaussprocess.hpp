@@ -29,7 +29,10 @@
 /*@{*/
 
 
-class GaussianProcess: public BasicGaussianProcess //NonParametricProcess
+/**
+ * \brief Gaussian process with hyperpriors on mean and signal variance parameters.
+ */
+class GaussianProcess: public BasicGaussianProcess 
 {
 public:
   GaussianProcess( double theta = KERNEL_THETA,

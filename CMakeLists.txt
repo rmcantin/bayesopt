@@ -20,8 +20,8 @@ endif(NOT CMAKE_BUILD_TYPE)
 SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -fPIC -fwrapv -fno-strict-aliasing")
 SET(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG -fPIC -fwrapv -fno-strict-aliasing")
 
-SET(CMAKE_CXX_FLAGS_DEBUG "-g")
-SET(CMAKE_C_FLAGS_DEBUG "-g")
+SET(CMAKE_CXX_FLAGS_DEBUG "-g -pg")
+SET(CMAKE_C_FLAGS_DEBUG "-g -pg")
   
 # enable warnings
 ADD_DEFINITIONS("-Wall")
@@ -116,17 +116,17 @@ CONFIGURE_FILE(
 # with SET() command you can change variables or define new ones
 # here we define SAMPLE_SRCS variable that contains a list of all .cpp files
 # note that we don't need \ at the end of line
-SET( KRIGGING_SRCS
-  ./src/krigging.cpp
+SET( BAYESOPT_SRCS
+  ./src/bayesopt.cpp
   ./src/inneroptimization.cpp
   ./src/gaussprocess.cpp
   ./src/basicgaussprocess.cpp
   ./src/studenttprocess.cpp
-  ./wrappers/krigwpr.cpp
+  ./wrappers/bayesoptwpr.cpp
   )
 
 IF(BUILD_PYTHON_INTERFACE)
-  SET(PYTHON_SRC  ./python/bayesopt.cpp)
+  SET(PYTHON_SRC  ./python/bayesopt_py.cpp)
 ELSE(BUILD_PYTHON_INTERFACE)
   SET(PYTHON_SRC )
 ENDIF(BUILD_PYTHON_INTERFACE)
@@ -154,7 +154,7 @@ ELSE(USE_DIRECT_FORTRAN)
 ENDIF(USE_DIRECT_FORTRAN)
 
 ADD_LIBRARY(bayesopt
-  ${KRIGGING_SRCS}   
+  ${BAYESOPT_SRCS}   
   ${PYTHON_SRC}
   ${OPT_SOURCE}
   )
@@ -168,24 +168,24 @@ ELSE(USE_DIRECT_FORTRAN)
   SET(EXT_LIBS ${NLOPT})
 ENDIF(USE_DIRECT_FORTRAN)
 
-ADD_EXECUTABLE(krigtest
-  ./app/testkrig.cpp
+ADD_EXECUTABLE(bayesopttest
+  ./app/testbayesopt.cpp
   )
 
-add_dependencies(krigtest bayesopt)
+add_dependencies(bayesopttest bayesopt)
 
 TARGET_LINK_LIBRARIES(bayesopt
   ${EXT_LIBS}
   ${PYTHON_LIB}
   )
 
-TARGET_LINK_LIBRARIES(krigtest
+TARGET_LINK_LIBRARIES(bayesopttest
   bayesopt
   )
 
 ADD_EXECUTABLE(randtest ./app/testrand.cpp)
 
-INSTALL(FILES ./include/krigging.hpp ./wrappers/krigwpr.h 
+INSTALL(FILES ./include/bayesopt.hpp ./wrappers/bayesoptwpr.h 
   DESTINATION include)
 
 INSTALL(TARGETS bayesopt

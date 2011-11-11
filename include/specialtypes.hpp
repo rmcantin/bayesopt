@@ -16,11 +16,13 @@ typedef boost::numeric::ublas::matrix<double>                   matrixd;
 typedef boost::numeric::ublas::identity_matrix<double>             eyed;
 
 typedef std::vector<vectord>                                   vecOfvec;
-typedef boost::numeric::ublas::bounded_matrix<double, 
+/*typedef boost::numeric::ublas::bounded_matrix<double, 
 					      MAX_ITERATIONS, 
 					      MAX_ITERATIONS> covMatrix; 
   
+*/
 
+typedef boost::numeric::ublas::matrix<double>                 covMatrix;
 
 /*typedef boost::numeric::ublas::symmetric_matrix<double,
 			 lower,

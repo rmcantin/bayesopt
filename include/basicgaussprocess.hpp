@@ -29,6 +29,9 @@
 /*@{*/
 
 
+/**
+ * \brief Standard zero mean gaussian process with noisy observations.
+ */
 class BasicGaussianProcess: public NonParametricProcess
 {
 public:

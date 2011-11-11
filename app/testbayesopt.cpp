@@ -1,6 +1,6 @@
 #include <ctime>
-#include "krigwpr.h"                 // For the C-AP
-#include "krigging.hpp"              // For the C++-API
+#include "bayesoptwpr.h"             // For the C-AP
+#include "bayesopt.hpp"              // For the C++-API
 
 
 /* Function to be used for C-API testing */
@@ -88,8 +88,8 @@ int main(int nargs, char *args[])
 
   // Run C interface
   start = clock();
-  krigging_optimization(n,&testFunction,NULL,l,u,x,fmin,
-			nIterations,par,c_name,s_name);
+  bayes_optimization(n,&testFunction,NULL,l,u,x,fmin,
+		     nIterations,par,c_name,s_name);
   end = clock();
   diff2 = (double)(end-start) / (double)CLOCKS_PER_SEC;
   /*******************************************/

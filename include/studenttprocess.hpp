@@ -28,6 +28,9 @@
 /*@{*/
 
 
+/**
+ * \brief Student's t process with hyperpriors on mean and signal variance parameters.
+ */
 class StudentTProcess: public NonParametricProcess
 {
 public:

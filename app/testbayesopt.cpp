@@ -21,9 +21,8 @@ class TestEGO: public SKO
 {
  public:
 
-  TestEGO( gp_params params, size_t nIter, 
-	   NonParametricProcess* gp):
-    SKO(params,nIter, gp) {}
+  TestEGO(NonParametricProcess* gp):
+    SKO(gp) {}
 
   double evaluateSample( const vectord &Xi ) 
   {
@@ -65,13 +64,13 @@ int main(int nargs, char *args[])
   
   // Configure C++ interface
   NonParametricProcess* gp = new StudentTProcess(par.theta,par.noise);
-  TestEGO gp_opt(par,nIterations,gp);
+  TestEGO gp_opt(gp);
   vectord result(n);
   gp_opt.setCriteria(c_name);
 
   // Run C++ interface
   start = clock();
-  gp_opt.optimize(result);
+  gp_opt.optimize(result,nIterations);
   end = clock();
   diff = (double)(end-start) / (double)CLOCKS_PER_SEC;
   /*******************************************/

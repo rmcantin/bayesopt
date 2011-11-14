@@ -36,8 +36,8 @@
 */
 
 
-#ifndef  _BAYESOPT_HPP_
-#define  _BAYESOPT_HPP_
+#ifndef  _BAYESOPTDISC_HPP_
+#define  _BAYESOPTDISC_HPP_
 
 #include "specialtypes.hpp"
 #include "elementwiseUblas.hpp"
@@ -61,7 +61,7 @@
  * \brief Sequential Kriging Optimization using different non-parametric 
  * processes as surrogate (kriging) functions. 
  */
-class SKO: public InnerOptimization
+class SKO_DISC: 
 {
  public:
   
@@ -70,14 +70,15 @@ class SKO: public InnerOptimization
    * 
    * @param gp        Pointer to the surrogate model
    */
-  SKO( NonParametricProcess* gp = NULL ); 
+  SKO_DISC( vecOfvec &querySpace,
+	    NonParametricProcess* gp = NULL); 
 
   /** 
    * Default destructor
    * 
    * @return 
    */
-  virtual ~SKO();
+  virtual ~SKO_DISC();
 
   /** 
    * Execute the optimization process of the function defined in evaluateSample.
@@ -96,33 +97,16 @@ class SKO: public InnerOptimization
   inline int optimize( vectord &bestPoint, 
 		       size_t nIterations )
   {
-    size_t dim = bestPoint.size();
-    vectord lowerBound = zvectord(dim);
-    vectord upperBound = svectord(dim,1.0);
-  
-    return optimize(bestPoint,lowerBound,upperBound,nIterations);
+    size_t index = 1;//find(bestPoint)
+    int result = optimize(index,nIterations);
+    bestPoint = mInputSet(index);
+    return result;
   }
 
 
-
-  /** 
-   * Execute the optimization process of the function defined in evaluateSample.
-   * We assume that the function is defined in the hypercube defined by 
-   * the lower and upper vectors. 
-   *
-   * @param bestPoint returns the optimum value in a ublas::vector x, 
-   * it might also be used as an initial point
-   * @param lowerBound vector with the lower bounds of the hypercube 
-   * @param upperBound vector with the upper bounds of the hypercube 
-   * @param nIterations number of iterations (budget)
-   * 
-   * @return 1 if terminate successfully, 0 otherwise
-   */
-  int optimize( vectord &bestPoint,
-		vectord &lowerBound,
-		vectord &upperBound,
+  int optimize( size_t &bestPointIndex, 
 		size_t nIterations );
-
+  
 
   /** 
    * Chooses which criterium to optimize in the inner loop.
@@ -205,7 +189,7 @@ protected:
   Criteria crit;                       /// Criteria model
   criterium_name crit_name;            /// Name of the criteria
   size_t mMaxIterations;               /// Maximum SKO evaluations (budget)
-  vectord mLowerBound, mRangeBound;    /// Lower bound and range of the input space
+  vecOfvec mInputSet;
   int mVerbose;                        /// Verbose level
 
 };

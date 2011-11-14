@@ -26,7 +26,8 @@
 #include "basicgaussprocess.hpp"
 
 
-SKO::SKO( NonParametricProcess* gp):
+SKO::SKO( vecOfvec &querySpace, NonParametricProcess* gp):
+  mInputSet(querySpace),
   mVerbose(0)
 { 
   crit_name = c_gp_hedge;
@@ -39,22 +40,15 @@ SKO::SKO( NonParametricProcess* gp):
 SKO::~SKO()
 {} // Default destructor
 
-int SKO::optimize( vectord &bestPoint,
-		   vectord &lowerBound,
-		   vectord &upperBound,
+int SKO::optimize( size_t &bestPointIndex, 
 		   size_t nIterations )
 {
   mVerbose = 1;
 
   crit.resetHedgeValues();
- 
-  mLowerBound = lowerBound;
-  mRangeBound = upperBound - lowerBound;
-
-  size_t nDims = bestPoint.size();
- 
   vectord xNext(nDims);
   double yNext;
+
   size_t nLHSSamples = N_LHS_EVALS_PER_DIM * nDims;
 
   if (nLHSSamples > MAX_LHS_EVALUATIONS)

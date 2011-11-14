@@ -20,9 +20,8 @@ class CSKO: public SKO
 {
  public:
 
-  CSKO( gp_params params, size_t nIter,
-	NonParametricProcess* gp = NULL): 
-    SKO(params,nIter,gp)
+  CSKO( NonParametricProcess* gp = NULL): 
+    SKO(gp)
   {}; 
 
 
@@ -94,12 +93,12 @@ int bayes_optimization(int nDim, eval_func f, void* f_data,
       return -1;
     }
 
-  CSKO optimizer(params, maxeval, gp);
+  CSKO optimizer(gp);
 
   optimizer.setCriteria(c_name);
   optimizer.set_eval_funct(f);
   optimizer.save_other_data(f_data);
-  optimizer.optimize(result);
+  optimizer.optimize(result,maxeval);
 
   copyVectorInArray(x,nDim,result);
 

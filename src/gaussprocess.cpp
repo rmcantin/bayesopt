@@ -109,9 +109,6 @@ int GaussianProcess::precomputeGPParams()
   svectord colMu(nSamples,mMu);
   mYUmu = mGPY - colMu;
 
-  std::cout << "Mu, Sigma" << mMu <<", "<< mSig << std::endl;
-  std::cout << "Eta" << mUInvRUDelta << std::endl;
-
   return 1;
 }
 

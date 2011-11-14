@@ -9,7 +9,7 @@
 #define PRIOR_BETA      1
 #define PRIOR_DELTA_SQ  1000.0
 #define DEF_REGULARIZER 1e-4
-#define MAX_ITERATIONS  300
+#define MAX_ITERATIONS  1000
 #define MAX_DIM         20
 
 // Default values

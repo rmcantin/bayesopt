@@ -59,7 +59,7 @@ SKO::~SKO()
 {} // Default destructor
 
 
-int SKO::optimize( vectord &bestPoint)
+int SKO::optimize( vectord &bestPoint )
 {
   size_t dim = bestPoint.size();
   vectord lowerBound = zvectord(dim);
@@ -70,7 +70,7 @@ int SKO::optimize( vectord &bestPoint)
 
 int SKO::optimize( vectord &bestPoint,
 		   vectord &lowerBound,
-		   vectord &upperBound)
+		   vectord &upperBound )
 {
   mVerbose = 1;
 
@@ -99,9 +99,11 @@ int SKO::optimize( vectord &bestPoint,
 	|| ( mMaxIterations <= 0) )
     mMaxIterations = MAX_ITERATIONS - nLHSSamples;
 
-  std::cout << "Sampling initial points..." << std::endl;
+  if (mVerbose) std::cout << "Sampling initial points..." << std::endl;
+
   sampleInitialPoints(nLHSSamples, nDims, true);
-  std::cout << "DONE" << std::endl;
+
+  if (mVerbose) std::cout << "DONE" << std::endl;
 
   for (size_t ii = 0; ii < mMaxIterations; ii++)
     {      
@@ -110,7 +112,8 @@ int SKO::optimize( vectord &bestPoint,
     
       if(mVerbose >0)
 	{ 
-	  std::cout << "Iteration " << ii+1 << std::endl;
+	  std::cout << "Iteration " << ii+1 << "  |  ";
+	  std::cout << "# of samples " << ii+1+nLHSSamples << std::endl;
 	  std::cout << "Trying: " << xNext << std::endl;
 	  std::cout << "Best: " << mGP->getPointAtMinimum() << std::endl; 
 	  std::cout << "Best outcome: " <<  mGP->getValueAtMinimum() <<  std::endl; 

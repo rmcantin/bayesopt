@@ -68,9 +68,10 @@ class SKO_DISC:
   /** 
    * Constructor
    * 
+   * @param validSet  Set of potential inputs
    * @param gp        Pointer to the surrogate model
    */
-  SKO_DISC( vecOfvec &querySpace,
+  SKO_DISC( vecOfvec &validSet,
 	    NonParametricProcess* gp = NULL); 
 
   /** 
@@ -145,20 +146,6 @@ class SKO_DISC:
    */ 
   virtual bool checkReachability( const vectord &query )
   { return true; };
-
-  /** 
-   * Function that returns the corresponding criteria of a series 
-   * of queries in the hypercube [0,1] in order to choose the best point to try
-   * the next iteration.
-   * 
-   * @param query point in the hypercube [0,1] to evaluate the Gaussian process
-   * 
-   * @return negative criteria (Expected Improvement, LCB, A-optimality, etc.).
-   */	
-
-  virtual double innerEvaluate( const vectord &query, 
-				vectord &grad )
-  {   return evaluateCriteria(query); }
 
 protected:
 

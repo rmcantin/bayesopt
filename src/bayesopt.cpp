@@ -19,7 +19,7 @@
    along with BayesOptimization.  If not, see <http://www.gnu.org/licenses/>.
 -----------------------------------------------------------------------------
 */
-
+#include <algorithm>
 #include "bayesopt.hpp"
 #include "lhs.hpp"
 #include "randgen.hpp"
@@ -55,11 +55,9 @@ int SKO::optimize( vectord &bestPoint,
  
   vectord xNext(nDims);
   double yNext;
-  size_t nLHSSamples = N_LHS_EVALS_PER_DIM * nDims;
+  size_t nLHSSamples = std::min(N_LHS_EVALS_PER_DIM*nDims,
+				MAX_LHS_EVALUATIONS);
 
-  if (nLHSSamples > MAX_LHS_EVALUATIONS)
-    nLHSSamples = MAX_LHS_EVALUATIONS;
-  
   if (  ( nIterations > (MAX_ITERATIONS - nLHSSamples) )  
 	|| ( nIterations <= 0) )
     nIterations = MAX_ITERATIONS - nLHSSamples;

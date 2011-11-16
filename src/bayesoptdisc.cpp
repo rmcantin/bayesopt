@@ -26,10 +26,11 @@
 #include "basicgaussprocess.hpp"
 
 
-SKO::SKO( vecOfvec &querySpace, NonParametricProcess* gp):
-  mInputSet(querySpace),
+SKO_DISC::SKO_DISC( vecOfvec &validSet, NonParametricProcess* gp):
+  mInputSet(validSet),
   mVerbose(0)
-{ 
+{
+  mObservedNodes 
   crit_name = c_gp_hedge;
   if (gp == NULL)
     mGP = new BasicGaussianProcess(KERNEL_THETA,DEF_REGULARIZER);
@@ -37,11 +38,11 @@ SKO::SKO( vecOfvec &querySpace, NonParametricProcess* gp):
     mGP = gp;
 } // Constructor
 
-SKO::~SKO()
+SKO_DISC::~SKO_DISC()
 {} // Default destructor
 
-int SKO::optimize( size_t &bestPointIndex, 
-		   size_t nIterations )
+int SKO_DISC::optimize( size_t &bestPointIndex, 
+			size_t nIterations )
 {
   mVerbose = 1;
 
@@ -49,10 +50,8 @@ int SKO::optimize( size_t &bestPointIndex,
   vectord xNext(nDims);
   double yNext;
 
-  size_t nLHSSamples = N_LHS_EVALS_PER_DIM * nDims;
-
-  if (nLHSSamples > MAX_LHS_EVALUATIONS)
-    nLHSSamples = MAX_LHS_EVALUATIONS;
+  size_t nLHSSamples = std::min(N_LHS_EVALS_PER_DIM*nDims,
+				MAX_LHS_EVALUATIONS);
   
   if (  ( nIterations > (MAX_ITERATIONS - nLHSSamples) )  
 	|| ( nIterations <= 0) )
@@ -60,14 +59,14 @@ int SKO::optimize( size_t &bestPointIndex,
 
   if (mVerbose > 0) std::cout << "Sampling initial points..." << std::endl;
 
-  sampleInitialPoints(nLHSSamples, nDims, true);
+  sampleInitialPoints(nLHSSamples);
 
   if (mVerbose > 0) std::cout << "DONE" << std::endl;
 
   for (size_t ii = 0; ii < nIterations; ii++)
     {      
       // Find what is the next point.
-      innerOptimize(xNext);
+      size_t nextIndex = findNextIndex;
     
       if(mVerbose >0)
 	{ 

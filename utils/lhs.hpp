@@ -2,25 +2,18 @@
 #define _LHS_HPP_
 
 #include "randgen.hpp"
+#include "indexvector.hpp"
 
-
-struct c_unique {
-  int current;
-  c_unique() {current=0;}
-  int operator()() {return ++current;}
-} UniqueNumber;
-
-
-/** \brief Generates an array of ramdom permutations
- * It is used to generate a uniform Latin hypercube
+/** \brief Modify an array using ramdom permutations.
+ *
+ * It is used to generate a uniform Latin hypercube.
+ * Equivalent to std::random_shuffle but using boost::random
  */
 void randomPerms(std::vector<int>& arr, 
 		 randEngine& mtRandom)
 {
   
   randInt sample(mtRandom, intUniformDist(0,arr.size()-1));
-			
-  generate (arr.begin(), arr.end(), UniqueNumber);
   for (std::vector<int>::iterator it=arr.begin(); it!=arr.end(); ++it)
     iter_swap(arr.begin()+sample(),it);
 } // randomPerms 
@@ -36,11 +29,13 @@ int lhs(M& Result,
   size_t nA = Result.size1();
   size_t nB = Result.size2();
   double ndA = static_cast<double>(nA);
-  std::vector<int> perms(nA);
-      
+  //  std::vector<int> perms(nA);
+  
   for (size_t i = 0; i < nB; i++)
     {
+      std::vector<int> perms = returnIndexVector(nA);
       randomPerms(perms, mtRandom);
+      //std::random_shuffle(perms.begin(),perms.end());
       
       for (size_t j = 0; j < nA; j++)
 	{		

@@ -4,23 +4,25 @@
 
 // TODO: This is really a bad hack
 
-#define KERNEL_THETA    0.06
-#define PRIOR_ALPHA     1.0
-#define PRIOR_BETA      1
-#define PRIOR_DELTA_SQ  1000.0
-#define DEF_REGULARIZER 1e-4
-#define MAX_ITERATIONS  1000
-#define MAX_DIM         20
+const double KERNEL_THETA    = 0.06;
+const double PRIOR_ALPHA     = 1.0;
+const double PRIOR_BETA      = 1.0;
+const double PRIOR_DELTA_SQ  = 1000.0;
+const double DEF_REGULARIZER = 1e-4;
+
+const size_t MAX_ITERATIONS  = 1000;
+const size_t MAX_DIM         = 20;
 
 // Default values
 
 // DIRECT default values
-#define MAX_DIRECT_EVALUATIONS  1000
-#define MAX_DIRECT_ITERATIONS   300
+const size_t MAX_DIRECT_EVALUATIONS = 1000;
+const size_t MAX_DIRECT_ITERATIONS  = 300;
 
 // Latin Hypercube Sampling (LHS) default values
-#define N_LHS_EVALS_PER_DIM     30
-#define MAX_LHS_EVALUATIONS     100
+
+const size_t N_LHS_EVALS_PER_DIM = 30;
+const size_t MAX_LHS_EVALUATIONS = 100;
 	
 
 #endif

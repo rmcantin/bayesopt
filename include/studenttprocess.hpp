@@ -104,6 +104,19 @@ public:
   double negativeProbabilityOfImprovement(double yPred, double sPred,
 					  double yMin, double epsilon = 0.1);
 
+  /** Function to sample from the generalized Student's t distribution that appears
+   *  in Pattern Recognition and Machine Learning from C.M. Bishop
+   */
+  double sample_query(const vectord& query, 
+		      randEngine& eng)
+  { 
+    double y,s;
+    size_t n = mGPXX.size() - 1;
+    prediction(query,y,s);
+    randNFloat normal(eng,normalDist(y,s));
+    randGFloat gamma(eng,gammaDist(n/2));
+    return normal() / sqrt(2*gamma()/n);
+  }
 
 
 protected:

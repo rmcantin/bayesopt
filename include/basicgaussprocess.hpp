@@ -106,6 +106,14 @@ public:
 					  double yMin, double epsilon = 0.1);
 
 			 
+  double sample_query(const vectord& query, 
+		      randEngine& eng)
+  { 
+    double y,s;
+    prediction(query,y,s);
+    randNFloat sample(eng,normalDist(y,s));
+    return sample();
+  }
 
 protected:
   inline double correlationFunction( const vectord &x1,const vectord &x2,

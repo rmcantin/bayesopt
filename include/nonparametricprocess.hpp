@@ -23,6 +23,7 @@
 #ifndef __NONPARAMETRICPROCESS_HPP__
 #define __NONPARAMETRICPROCESS_HPP__
 
+#include "randgen.hpp"
 #include "specialtypes.hpp"
 #include "cholesky.hpp"
 #include "inneroptimization.hpp"	
@@ -225,6 +226,10 @@ public:
     setTheta(query(0));
     return negativeLogLikelihood(grad(0),1);
   }
+
+  virtual double sample_query(const vectord& query, 
+			      randEngine& eng)
+  { return 0.0; }
 
 protected:
   virtual double correlationFunction( const vectord &x1,const vectord &x2, 

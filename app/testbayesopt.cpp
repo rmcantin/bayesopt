@@ -42,12 +42,12 @@ class TestEGO: public SKO
 int main(int nargs, char *args[])
 {    
   int n = 4;                   // Number of dimensions
-  int nIterations = 600;       // Number of iterations
+  int nIterations = 300;       // Number of iterations
 
   // Common configuration
   // See ctypes.h for the available options
-  criterium_name c_name = c_ei;
-  surrogate_name s_name = s_studentTProcess;
+  criterium_name c_name = c_optimisticSampling;
+  surrogate_name s_name = s_gaussianProcessHyperPriors;
   gp_params par;
 
   par.theta = KERNEL_THETA;

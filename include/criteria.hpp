@@ -65,7 +65,10 @@ public:
 
     double yPred, sPred, yMin = gp.getValueAtMinimum(); 
     gp.prediction(query,yPred,sPred);
-
+    randNFloat sample( mtRandom, normalDist(0,1) );
+    double yStar = sample();
+    
+    // TODO: Modify optimistic sampling for student t processes
     switch (criterium)
       {
       case c_ei: return gp.negativeExpectedImprovement(yPred,sPred,yMin,g);
@@ -73,6 +76,8 @@ public:
       case c_poi: return gp.negativeProbabilityOfImprovement(yPred,sPred,yMin,epsilon);
       case c_greedyAOptimality: return sPred;
       case c_expectedReturn: return yPred;
+      case c_optimisticSampling: return yPred + sPred*std::min(0.0,yStar);
+      case c_gp_hedge:
       default: std::cout << "Error in criterium" << std::endl; return 0.0;
       }
 

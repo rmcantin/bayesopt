@@ -41,7 +41,8 @@ extern "C" {
     c_poi,
     c_gp_hedge,
     c_greedyAOptimality,
-    c_expectedReturn
+    c_expectedReturn,
+    c_optimisticSampling
   } criterium_name;
 
   typedef enum {  

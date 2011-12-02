@@ -88,7 +88,6 @@ protected:
   // Precomputed GP prediction operations
   vectord mUInvR;              
   double mUInvRUDelta;
-  vectord mYUmu;
 
 };
 

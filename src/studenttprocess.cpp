@@ -69,7 +69,10 @@ int StudentTProcess::prediction( const vectord &query,
   rInvRr = inner_prod(rInvR,colR);
   uInvRr = inner_prod(mUInvR,colR);
   
-  yPred = meanf*mMu + inner_prod( rInvR, mYUmu );
+  svectord colMu(n,mMu);
+  vectord yumu = mGPY - meanf*colMu;
+  
+  yPred = meanf*mMu + inner_prod( rInvR, yumu );
   sPred = sqrt( mSig * (kn - rInvRr + (meanf - uInvRr) * (meanf - uInvRr) 
 			/ mUInvRUDelta ) );
 
@@ -98,9 +101,6 @@ int StudentTProcess::precomputeGPParams()
   YInvRY = inner_prod(YInvR,mGPY);
   
   mSig = (YInvRY - mMu*mMu*mUInvRUDelta) / (nSamples-1);
-  
-  svectord colMu(nSamples,mMu);
-  mYUmu = mGPY - colMu;
 
   return 1;
 }

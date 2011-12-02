@@ -64,7 +64,8 @@ double GaussianProcess::negativeLogLikelihood(double& grad,
 int GaussianProcess::prediction( const vectord &query,
 				 double& yPred, double& sPred)
 {
-  vectord rInvR(mGPXX.size());
+  size_t n = mGPXX.size();
+  vectord rInvR(n);
   double kn;
   double uInvRr, rInvRr;
   double meanf = meanFunction(query);
@@ -72,11 +73,14 @@ int GaussianProcess::prediction( const vectord &query,
   vectord colR = computeCrossCorrelation(query);
   kn = correlationFunction(query, query);
   
+  svectord colMu(n,mMu);
+  vectord yumu = mGPY - meanf*colMu;
+  
   noalias(rInvR) = prod(colR,mInvR);	
   rInvRr = inner_prod(rInvR,colR);
   uInvRr = inner_prod(mUInvR,colR);
   
-  yPred = meanf*mMu + inner_prod( rInvR, mYUmu );
+  yPred = meanf*mMu + inner_prod( rInvR, yumu );
   sPred = sqrt( mSig * (kn - rInvRr + (meanf - uInvRr) * (meanf - uInvRr) 
 			/ mUInvRUDelta ) );
 
@@ -106,9 +110,6 @@ int GaussianProcess::precomputeGPParams()
   
   mSig = (mBeta + YInvRY - mMu*mMu*mUInvRUDelta) / (mAlpha + (nSamples+1) + 2);
   
-  svectord colMu(nSamples,mMu);
-  mYUmu = mGPY - colMu;
-
   return 1;
 }
 

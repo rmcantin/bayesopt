@@ -9,10 +9,7 @@
 BasicGaussianProcess::BasicGaussianProcess( double theta, 
 					    double noise):
   NonParametricProcess(theta,noise)
-{
-  setAlgorithm(bobyqa);
-  setLimits(0.,100.);
-}  // Constructor
+{}  // Constructor
 
 
 BasicGaussianProcess::~BasicGaussianProcess()

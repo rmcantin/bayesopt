@@ -8,12 +8,8 @@ GaussianProcess::GaussianProcess( double theta, double noise,
 				  double alpha, double beta, 
 				  double delta):
   BasicGaussianProcess(theta,noise),
-  mAlpha(alpha), mBeta (beta),
-  mDelta2(delta)
-{
-  setAlgorithm(bobyqa);
-  setLimits(0.,100.);
-}  // Constructor
+  mAlpha(alpha), mBeta (beta), mDelta2(delta)
+{}  // Constructor
 
 
 

@@ -60,7 +60,6 @@ int SKO_DISC::optimize( size_t &bestPointIndex,
 
   if (mVerbose > 0) std::cout << "Sampling initial points..." << std::endl;
 
-  // FIXME: random sample indexes
   sampleInitialPoints(nLHSSamples);
 
   if (mVerbose > 0) std::cout << "DONE" << std::endl;
@@ -95,25 +94,22 @@ int SKO::sampleInitialPoints( size_t nSamples )
    * as appeared in Jones EGO
    */
    
-  matrixd xPoints(nSamples,nDims);
-  vectord yPoints(nSamples);
-  vectord sample(nDims);
+  vectord xPoint(nDims);
+  double yPoint;
   randEngine mtRandom(100u);
  
-  if (useLatinBox)
-      lhs(xPoints, mtRandom);
-  else
-      uniformSampling(xPoints, mtRandom);
+  randInt sample(mtRandom, intUniformDist(0,mSizeSet-1));
 
   for(size_t i = 0; i < nSamples; i++)
     {
-      sample = row(xPoints,i);
+      size_t index = sample();
+      xPoint = mInputSet(index);
       if(mVerbose >0)
-	std::cout << sample << std::endl;
-      yPoints(i) = evaluateNormalizedSample(sample);
+	std::cout << xPoint << std::endl;
+      yPoint = evaluateNormalizedSample(xPoint);
+      mGP->addSample(xPoint,yPoint);
     }
 
-  mGP->setSamples(xPoints,yPoints);
   mGP->fitGP();
 
   return 1;

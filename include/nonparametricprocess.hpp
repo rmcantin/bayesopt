@@ -38,7 +38,12 @@ public:
   NonParametricProcess(double theta = KERNEL_THETA,
 		       double noise = DEF_REGULARIZER):
     InnerOptimization(),  mTheta(theta), mRegularizer(noise)
-  { mMinIndex = 0; mMaxIndex = 0; }
+  { 
+    mMinIndex = 0; 
+    mMaxIndex = 0;   
+    setAlgorithm(bobyqa);
+    setLimits(0.,100.);
+  }
   
   virtual ~NonParametricProcess(){ }
 
@@ -128,7 +133,7 @@ public:
     vectord th = svectord(1,mTheta);  
 
     std::cout << "Initial theta: " << mTheta << " "<<th.size()<< std::endl;
-    innerOptimize(th);
+    //innerOptimize(th);
     setTheta(th(0));
     std::cout << "Final theta: " << mTheta << std::endl;
 

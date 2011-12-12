@@ -71,8 +71,8 @@ int SKO::optimize( vectord &bestPoint,
   for (size_t ii = 0; ii < nIterations; ii++)
     {      
       // Find what is the next point.
-      innerOptimize(xNext);
-    
+      nextPoint(xNext);
+      
       if(mVerbose >0)
 	{ 
 	  std::cout << "Iteration " << ii+1 << "  |  ";

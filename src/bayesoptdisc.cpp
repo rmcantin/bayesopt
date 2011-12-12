@@ -26,11 +26,12 @@
 #include "basicgaussprocess.hpp"
 
 
-SKO_DISC::SKO_DISC( vecOfvec &validSet, NonParametricProcess* gp):
+SKO_DISC::SKO_DISC( vecOfvec &validSet, NonParametricProcess* gp ):
   mInputSet(validSet),
   mVerbose(0)
 {
-  mObservedNodes 
+  mSizeSet = size(validSet);
+  mObservedNodes = zvectord(validSet);
   crit_name = c_gp_hedge;
   if (gp == NULL)
     mGP = new BasicGaussianProcess(KERNEL_THETA,DEF_REGULARIZER);
@@ -59,13 +60,14 @@ int SKO_DISC::optimize( size_t &bestPointIndex,
 
   if (mVerbose > 0) std::cout << "Sampling initial points..." << std::endl;
 
+  // FIXME: random sample indexes
   sampleInitialPoints(nLHSSamples);
 
   if (mVerbose > 0) std::cout << "DONE" << std::endl;
 
   for (size_t ii = 0; ii < nIterations; ii++)
     {      
-      // Find what is the next point.
+      // FIXME: Find what is the next point.
       size_t nextIndex = findNextIndex;
     
       if(mVerbose >0)
@@ -86,8 +88,7 @@ int SKO_DISC::optimize( size_t &bestPointIndex,
   return 1;
 } // optimize
 
-int SKO::sampleInitialPoints( size_t nSamples, size_t nDims,
-			      bool useLatinBox)
+int SKO::sampleInitialPoints( size_t nSamples )
 {
   /** \brief Sample a set of points to initialize GP fit
    * Use pure random sampling or uniform Latin Hypercube sampling

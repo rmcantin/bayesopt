@@ -4,7 +4,6 @@
 #include "cholesky.hpp"
 #include "trace.hpp"
 
-
   
 StudentTProcess::StudentTProcess( double theta, double noise):
   NonParametricProcess(theta,noise)

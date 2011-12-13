@@ -133,7 +133,7 @@ public:
     vectord th = svectord(1,mTheta);  
 
     std::cout << "Initial theta: " << mTheta << " "<<th.size()<< std::endl;
-    //innerOptimize(th);
+    innerOptimize(th);
     setTheta(th(0));
     std::cout << "Final theta: " << mTheta << std::endl;
 

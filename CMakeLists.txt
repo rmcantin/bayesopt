@@ -168,21 +168,27 @@ ELSE(USE_DIRECT_FORTRAN)
   SET(EXT_LIBS ${NLOPT})
 ENDIF(USE_DIRECT_FORTRAN)
 
-ADD_EXECUTABLE(bayesopttest
-  ./app/testbayesopt.cpp
-  )
-
-add_dependencies(bayesopttest bayesopt)
-
 TARGET_LINK_LIBRARIES(bayesopt
   ${EXT_LIBS}
   ${PYTHON_LIB}
   )
 
-TARGET_LINK_LIBRARIES(bayesopttest
-  bayesopt
-  )
+#Naive test
+ADD_EXECUTABLE(bayesopttest ./app/testbayesopt.cpp)
+add_dependencies(bayesopttest bayesopt)
+TARGET_LINK_LIBRARIES(bayesopttest bayesopt)
 
+#1D test
+ADD_EXECUTABLE(bayesoptonedtest ./app/testbopt_oned.cpp)
+add_dependencies(bayesoptonedtest bayesopt)
+TARGET_LINK_LIBRARIES(bayesoptonedtest bayesopt)
+
+#Branin
+ADD_EXECUTABLE(branintest ./app/testbranin.cpp )
+add_dependencies(branintest bayesopt)
+TARGET_LINK_LIBRARIES(branintest bayesopt )
+
+#Test for random number generator
 ADD_EXECUTABLE(randtest ./app/testrand.cpp)
 
 INSTALL(FILES ./include/bayesopt.hpp ./wrappers/bayesoptwpr.h 

@@ -132,23 +132,23 @@ int SKO::nextPoint(vectord &Xnext)
       vectord best_ei(Xnext);
       vectord best_lcb(Xnext);
       vectord best_poi(Xnext);
-      double r_ei,r_lcb,r_poi,foo;
+      double l_ei,l_lcb,l_poi,foo;
 
       crit.setCriterium(c_ei);
       innerOptimize(best_ei);
-      mGP->prediction(best_ei,r_ei,foo);
+      mGP->prediction(best_ei,l_ei,foo);
       
       crit.setCriterium(c_lcb);
       innerOptimize(best_lcb);
-      mGP->prediction(best_lcb,r_lcb,foo);
+      mGP->prediction(best_lcb,l_lcb,foo);
 
       crit.setCriterium(c_poi);
       innerOptimize(best_poi);
-      mGP->prediction(best_poi,r_poi,foo);
+      mGP->prediction(best_poi,l_poi,foo);
 
-      // Since we want to find the minimum, the highest reward is the
-      // lowest prediction value. Thus, we multiply by -1.
-      criterium_name better = crit.update_hedge(-r_ei,-r_lcb,-r_poi);
+      // Since we want to find the minimum, the predicted value is loss value, not a
+      // reward value.
+      criterium_name better = crit.update_hedge(l_ei,l_lcb,l_poi);
       switch(better)
 	{
 	case c_ei: 

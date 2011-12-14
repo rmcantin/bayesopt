@@ -83,6 +83,9 @@ public:
 
   }
 
+  double abs_max(double a, double b)
+  { return (std::abs(a)<std::abs(b)) ? b:a; }
+
   /** 
    * Update the accumulated rewards for the GP-Hedge algorithm. See References
    * for a detailled explanation
@@ -93,26 +96,28 @@ public:
    * 
    * @return name of the selected algorithm.
    */
-  criterium_name update_hedge(double r_ei, double r_lcb, double r_poi)
+  criterium_name update_hedge(double l_ei, double l_lcb, double l_poi)
   {
-    randFloat sample( mtRandom, realUniformDist(0,1) );    
+    randFloat sample( mtRandom, realUniformDist(0,1) );
+
+    double min_g = std::min(g_ei,std::min(g_lcb,g_poi));
+    
+    eta = sqrt(2*log(3)/min_g);
 
     // To avoid overflow
-    double offset = std::max(g_ei,std::max(g_lcb,g_poi));
+    double offset = 0.0;//abs_max(g_ei,abs_max(g_lcb,g_poi));
 
     std::cout << offset << "," << std::endl;
 
-    double p_ei = exp(eta*(g_ei - offset));
-    double p_lcb = exp(eta*(g_lcb - offset));
-    double p_poi = exp(eta*(g_poi - offset));
-    double sum_p = log(p_ei + p_lcb + p_poi) + eta*offset;
+    double p_ei = exp(-eta*(g_ei - offset));
+    double p_lcb = exp(-eta*(g_lcb - offset));
+    double p_poi = exp(-eta*(g_poi - offset));
+    double sum_p = p_ei + p_lcb + p_poi;
 
     std::cout << p_ei << "," << p_lcb << "," << p_poi << "," << std::endl;
 
     // Compute probabilities of choosing action
-    p_ei  = exp(eta*g_ei - sum_p); 
-    p_lcb = exp(eta*g_lcb - sum_p);
-    p_poi = exp(eta*g_poi - sum_p);
+    p_ei  /= sum_p; p_lcb /= sum_p; p_poi /= sum_p;
     
     // Update accumulated rewards for next time
     g_ei += r_ei; g_lcb += r_lcb; g_poi += r_poi;

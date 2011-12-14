@@ -2,7 +2,7 @@
 #define __DEFAULTS_HPP__
 // Default values
 
-// TODO: This is really a bad hack
+// TODO: This is really a hack
 
 const double KERNEL_THETA    = 0.06;
 const double PRIOR_ALPHA     = 1.0;
@@ -11,13 +11,13 @@ const double PRIOR_DELTA_SQ  = 1000.0;
 const double DEF_REGULARIZER = 1e-4;
 
 const size_t MAX_ITERATIONS  = 1000;
-const size_t MAX_DIM         = 20;
+const size_t MAX_DIM         = 40;
 
 // Default values
 
-// DIRECT default values
-const size_t MAX_DIRECT_EVALUATIONS = 1000;
-const size_t MAX_DIRECT_ITERATIONS  = 300;
+// INNER Optimizer default values
+const size_t MAX_INNER_EVALUATIONS = 1000;
+const size_t MAX_INNER_ITERATIONS  = 1000;
 
 // Latin Hypercube Sampling (LHS) default values
 

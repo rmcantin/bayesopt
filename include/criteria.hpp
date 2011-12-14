@@ -40,7 +40,7 @@ public:
     criterium = c_ei;
     resetAnnealValues();
     resetHedgeValues();
-    eta = 100;
+    eta = 1;
     use_annealing = false;
   }
 
@@ -48,7 +48,7 @@ public:
 
   
   inline void resetHedgeValues()
-  {   g_ei = 0;  g_lcb = 0;  g_poi = 0; }
+  { g_ei = 0;  g_lcb = 0;  g_poi = 0; }
   
   inline void resetAnnealValues()
   { n_calls = 0; g = 1; beta = 1; epsilon = 0.01; }
@@ -95,17 +95,31 @@ public:
    */
   criterium_name update_hedge(double r_ei, double r_lcb, double r_poi)
   {
-    randFloat sample( mtRandom, realUniformDist(0,1) );
-    double p_ei = exp(eta*g_ei);
-    double p_lcb = exp(eta*g_lcb);
-    double p_poi = exp(eta*g_poi);
-    double sum_p = p_ei + p_lcb + p_poi;
+    randFloat sample( mtRandom, realUniformDist(0,1) );    
+
+    // To avoid overflow
+    double offset = std::max(g_ei,std::max(g_lcb,g_poi));
+
+    std::cout << offset << "," << std::endl;
+
+    double p_ei = exp(eta*(g_ei - offset));
+    double p_lcb = exp(eta*(g_lcb - offset));
+    double p_poi = exp(eta*(g_poi - offset));
+    double sum_p = log(p_ei + p_lcb + p_poi) + eta*offset;
+
+    std::cout << p_ei << "," << p_lcb << "," << p_poi << "," << std::endl;
 
     // Compute probabilities of choosing action
-    p_ei /= sum_p; p_lcb /= sum_p; p_poi /= p_poi;
+    p_ei  = exp(eta*g_ei - sum_p); 
+    p_lcb = exp(eta*g_lcb - sum_p);
+    p_poi = exp(eta*g_poi - sum_p);
     
     // Update accumulated rewards for next time
-    g_ei += r_ei; g_lcb += r_lcb; g_poi += g_poi;
+    g_ei += r_ei; g_lcb += r_lcb; g_poi += r_poi;
+
+    std::cout << r_ei << "," << r_lcb << "," << r_poi << "," << std::endl;
+    std::cout << g_ei << "," << g_lcb << "," << g_poi << "," << std::endl;
+    std::cout << p_ei << "," << p_lcb << "," << p_poi << "," << std::endl;
 
     double u = sample();
 

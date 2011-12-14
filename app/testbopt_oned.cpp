@@ -32,8 +32,7 @@ int main(int nargs, char *args[])
   NonParametricProcess* gp = new BasicGaussianProcess(1.0,DEF_REGULARIZER);
   TestOneD opt(gp);
   vectord result(1);
-  opt.setCriteria(c_ei);
-
+  opt.setCriteria(c_gp_hedge);
   opt.optimize(result,nIterations);
   
   return 1;

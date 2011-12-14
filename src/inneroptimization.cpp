@@ -58,7 +58,7 @@ int InnerOptimization::innerOptimize(double* x, int n, void* objPointer)
 {
     double u[128], l[128];
     double fmin = 1;
-    int maxf = MAX_DIRECT_EVALUATIONS;    
+    int maxf = MAX_INNER_EVALUATIONS;    
     int ierror;
 
     for (int i = 0; i < n; ++i) {
@@ -77,7 +77,7 @@ int InnerOptimization::innerOptimize(double* x, int n, void* objPointer)
 		    int *, char *, int *, int);
     fpointer = &(DIRECT::evaluate_wrap_);
 
-    int maxT = MAX_DIRECT_ITERATIONS;
+    int maxT = MAX_INNER_ITERATIONS;
     DIRECT::direct(fpointer, x, &n, &fmin, l, u, 
 		   &ierror, &maxf, &maxT, objPointer);	
 

@@ -146,12 +146,23 @@ int SKO::nextPoint(vectord &Xnext)
       innerOptimize(best_poi);
       mGP->prediction(best_poi,r_poi,foo);
 
-      criterium_name better = crit.update_hedge(r_ei,r_lcb,r_poi);
+      // Since we want to find the minimum, the highest reward is the
+      // lowest prediction value. Thus, we multiply by -1.
+      criterium_name better = crit.update_hedge(-r_ei,-r_lcb,-r_poi);
       switch(better)
 	{
-	case c_ei: Xnext = best_ei; break;
-	case c_lcb: Xnext = best_lcb; break;
-	case c_poi: Xnext = best_poi; break;
+	case c_ei: 
+	  Xnext = best_ei;
+	  if (mVerbose > 0) std::cout << "EI used." << std::endl;
+	  break;
+	case c_lcb: 
+	  Xnext = best_lcb; 
+	  if (mVerbose > 0) std::cout << "LCB used." << std::endl;
+	  break;
+	case c_poi: 
+	  Xnext = best_poi; 
+	  if (mVerbose > 0) std::cout << "POI used." << std::endl;
+	  break;
 	default: return -1;
 	}
       return 1;

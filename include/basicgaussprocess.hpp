@@ -118,7 +118,11 @@ public:
 protected:
   inline double correlationFunction( const vectord &x1,const vectord &x2,
 				     size_t param_index = 0 )
-  { return kernels::MatternIso(x1,x2,param_index,mTheta,3); }
+  { 
+    vectord th = mTheta;    th.resize(th.size()+1);   th(th.size()-1) = 3;
+    return kernels::kernelFunction(k_matterniso,x1,x2,param_index,th); 
+  }
+
 
   inline double meanFunction( const vectord &x )
   { return means::Zero(x); }

@@ -100,18 +100,23 @@ public:
   {
     randFloat sample( mtRandom, realUniformDist(0,1) );
 
+    double max_g = std::max(g_ei,std::max(g_lcb,g_poi));
     double min_g = std::min(g_ei,std::min(g_lcb,g_poi));
-    
-    eta = sqrt(2*log(3)/min_g);
+    double rang_g = max_g - min_g;
+
+    //g_ei += min_g; g_lcb += min_g; g_poi += min_g;
+    //g_ei /= rang_g; g_lcb /= rang_g; g_poi /= rang_g;
+
+    eta = sqrt(2*log(3)/rang_g);
 
     // To avoid overflow
-    double offset = 0.0;//abs_max(g_ei,abs_max(g_lcb,g_poi));
+    double offset = min_g;//abs_max(g_ei,abs_max(g_lcb,g_poi));
 
     std::cout << offset << "," << std::endl;
 
-    double p_ei = exp(-eta*(g_ei - offset));
-    double p_lcb = exp(-eta*(g_lcb - offset));
-    double p_poi = exp(-eta*(g_poi - offset));
+    double p_ei = exp(eta*(g_ei - offset));
+    double p_lcb = exp(eta*(g_lcb - offset));
+    double p_poi = exp(eta*(g_poi - offset));
     double sum_p = p_ei + p_lcb + p_poi;
 
     std::cout << p_ei << "," << p_lcb << "," << p_poi << "," << std::endl;
@@ -120,9 +125,9 @@ public:
     p_ei  /= sum_p; p_lcb /= sum_p; p_poi /= sum_p;
     
     // Update accumulated rewards for next time
-    g_ei += r_ei; g_lcb += r_lcb; g_poi += r_poi;
+    g_ei -= l_ei; g_lcb -= l_lcb; g_poi -= l_poi; 
 
-    std::cout << r_ei << "," << r_lcb << "," << r_poi << "," << std::endl;
+    std::cout << l_ei << "," << l_lcb << "," << l_poi << "," << std::endl;
     std::cout << g_ei << "," << g_lcb << "," << g_poi << "," << std::endl;
     std::cout << p_ei << "," << p_lcb << "," << p_poi << "," << std::endl;
 

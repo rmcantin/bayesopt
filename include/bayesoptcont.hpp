@@ -1,5 +1,5 @@
 /**
- * @file   bayesopt.hpp
+ * @file   bayesoptcont.hpp
  * @author Ruben Martinez-Cantin <rmcantin@ist.isr.utl.pt>
  * @date   Thu Mar 26 02:12:36 2009
  * 
@@ -36,8 +36,8 @@
 */
 
 
-#ifndef  _BAYESOPT_HPP_
-#define  _BAYESOPT_HPP_
+#ifndef  _BAYESOPTCONT_HPP_
+#define  _BAYESOPTCONT_HPP_
 
 #include "specialtypes.hpp"
 #include "elementwiseUblas.hpp"

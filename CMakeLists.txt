@@ -62,8 +62,13 @@ if(BUILD_PYTHON_INTERFACE)
     if( ${_python_failed0} EQUAL 0 AND ${_python_failed1} EQUAL 0 AND ${_python_failed2} EQUAL 0 )
       if( NOT IS_DIRECTORY "${_python_distpackage}/numpy/core/include" )
         if( NOT IS_DIRECTORY "${_python_sitepackage}/numpy/core/include" )
-          message(STATUS "cannot find python numpy dir!")
-          set(PYTHON_EXECUTABLE)
+	  FIND_PACKAGE(Numpy REQUIRED)
+	  if(Numpy MATCHES Numpy-NOTFOUND)
+            message(STATUS "cannot find python numpy dir!")
+            set(PYTHON_EXECUTABLE)
+	  else()
+	    set(PYTHON_INCLUDE_PATH ${PYTHON_INCLUDE_PATH} ${PYTHON_NUMPY_INCLUDE_DIR})	   
+	  endif() 
         else()
           set(PYTHON_INCLUDE_PATH ${PYTHON_INCLUDE_PATH} ${_python_sitepackage_arch}/numpy/core/include)
         endif()
@@ -89,11 +94,9 @@ if(BUILD_PYTHON_INTERFACE)
 endif()
 
 IF(BUILD_PYTHON_INTERFACE)
-  FIND_PACKAGE(Numpy REQUIRED)
   SET(PYTHON_LIB  ${PYTHON_LIBRARIES} )
   INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH}
-                                       ${PYTHON_NUMPY_INCLUDE_DIR} 
-                                       ${PYTHON_INCLUDE_DIR})
+    ${PYTHON_INCLUDE_DIR})
 ENDIF(BUILD_PYTHON_INTERFACE)
 
 FIND_LIBRARY(NLOPT nlopt)
@@ -117,7 +120,7 @@ CONFIGURE_FILE(
 # here we define SAMPLE_SRCS variable that contains a list of all .cpp files
 # note that we don't need \ at the end of line
 SET( BAYESOPT_SRCS
-  ./src/bayesopt.cpp
+  ./src/bayesoptcont.cpp
   ./src/inneroptimization.cpp
   ./src/gaussprocess.cpp
   ./src/basicgaussprocess.cpp
@@ -126,7 +129,7 @@ SET( BAYESOPT_SRCS
   )
 
 IF(BUILD_PYTHON_INTERFACE)
-  SET(PYTHON_SRC  ./python/bayesopt_py.cpp)
+  SET(PYTHON_SRC  ./python/bayesopt.cpp)
 ELSE(BUILD_PYTHON_INTERFACE)
   SET(PYTHON_SRC )
 ENDIF(BUILD_PYTHON_INTERFACE)
@@ -191,7 +194,7 @@ TARGET_LINK_LIBRARIES(branintest bayesopt )
 #Test for random number generator
 ADD_EXECUTABLE(randtest ./app/testrand.cpp)
 
-INSTALL(FILES ./include/bayesopt.hpp ./wrappers/bayesoptwpr.h 
+INSTALL(FILES ./include/bayesoptcont.hpp ./wrappers/bayesoptwpr.h 
   DESTINATION include)
 
 INSTALL(TARGETS bayesopt

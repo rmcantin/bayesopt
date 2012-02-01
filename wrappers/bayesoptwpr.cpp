@@ -1,5 +1,5 @@
 #include "bayesoptwpr.h"
-#include "bayesopt.hpp"      
+#include "bayesoptcont.hpp"      
 
 
 inline void copyCarrayInVector(const double* array, int n, vectord& vec)

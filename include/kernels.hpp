@@ -22,9 +22,11 @@
 
 #include <boost/numeric/ublas/vector.hpp>
 #include "elementwiseUblas.hpp"
+#include "ctypes.h"
 
 namespace kernels
 {
+
   using namespace boost::numeric::ublas;	
 
   /** 
@@ -131,6 +133,41 @@ namespace kernels
     if (param_index == 0) return result;
     else return grad;
   }
+
+
+  /** 
+   * Common call function for the kernel functions
+   * 
+   * @param kname name of the kernel function
+   * @param x1 First point
+   * @param x2 Secont point
+   * @param param_index 
+   *           if < 0 return # of params
+   *           if = 0 return kernel value
+   *           if > 0 return the derivative of the ith param
+   * @param params for all functions: length-scales 
+   *               for Mattern: the last component is order+1/2 
+   * 
+   * @return 
+   */
+  inline double kernelFunction( kernel_name kname,
+				const vector<double> &x1, 
+				const vector<double> &x2,
+				size_t param_index,
+				vector<double> params )
+  {
+    // TODO: Add asserts for dimension checking depending on kernel function
+    switch(kname)
+      {
+      case k_matterniso: return MatternIso(x1,x2,param_index,params(0),params(1));
+      case k_seiso:      return SEIso(x1,x2,param_index,params(0));
+      case k_seard:      return SEard(x1,x2,param_index,params);
+      default: 
+	std::cout << "Kernel function not supported!" << std::endl; 
+	return 0.0;
+      }
+  }
+
 
 
 }

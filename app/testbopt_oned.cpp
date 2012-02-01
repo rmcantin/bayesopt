@@ -1,5 +1,5 @@
 #include <valarray>
-#include "bayesopt.hpp"
+#include "bayesoptcont.hpp"
 
 inline double sqr( double x ){ return x*x; }
 

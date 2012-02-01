@@ -53,7 +53,7 @@ double GaussianProcess::negativeLogLikelihood(double& grad,
   double lik1 = inner_prod(yumu,alphY) / (2*sigma); 
   double lik2 = trace(L) + 0.5*n*log(sigma) + n*0.91893853320467; //log(2*pi)/2
 
-  return lik1 + lik2 + mBeta/2 * mTheta - (mAlpha+1) * log(mTheta);
+  return lik1 + lik2 + mBeta/2 * mTheta(index) - (mAlpha+1) * log(mTheta(index));
 }
 
 

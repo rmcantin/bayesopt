@@ -36,15 +36,29 @@ class NonParametricProcess: public InnerOptimization
 {
 public:
   NonParametricProcess(double theta = KERNEL_THETA,
-		       double noise = DEF_REGULARIZER):
-    InnerOptimization(),  mTheta(theta), mRegularizer(noise)
+		       double noise = DEF_REGULARIZER,
+		       size_t dim = 1):
+    InnerOptimization(),  mRegularizer(noise)
   { 
+    mTheta = svectord(dim,theta);
     mMinIndex = 0; 
     mMaxIndex = 0;   
     setAlgorithm(bobyqa);
     setLimits(0.,100.);
   }
   
+  NonParametricProcess(vectord &thetav,
+		       double noise = DEF_REGULARIZER):
+    InnerOptimization(),  mRegularizer(noise)
+  { 
+    mTheta = thetav;
+    mMinIndex = 0; 
+    mMaxIndex = 0;   
+    setAlgorithm(bobyqa);
+    setLimits(0.,100.);
+  }
+  
+
   virtual ~NonParametricProcess(){ }
 
   /** 
@@ -129,12 +143,12 @@ public:
     size_t nSamples = mGPXX.size();
     for (size_t ii=0; ii<nSamples; ii++)
       checkBoundsY(ii);
-  
-    vectord th = svectord(1,mTheta);  
 
-    std::cout << "Initial theta: " << mTheta << " "<<th.size()<< std::endl;
-    innerOptimize(th);
-    setTheta(th(0));
+    vectord initialTheta = mTheta;
+  
+    std::cout << "Initial theta: " << mTheta << std::endl;
+    innerOptimize(initialTheta);
+    setTheta(initialTheta);
     std::cout << "Final theta: " << mTheta << std::endl;
 
     int error = computeInverseCorrMatrix(mRegularizer);
@@ -219,16 +233,16 @@ public:
   inline double getValueAtMinimum()
   { return mGPY(mMinIndex); }
 
-  inline double getTheta()
+  inline vectord getTheta()
   { return mTheta; }
 
-  inline void setTheta( double theta )
+  inline void setTheta( const vectord& theta )
   { mTheta = theta; }
 
   inline double innerEvaluate(const vectord& query, 
 			      vectord& grad)
   { 
-    setTheta(query(0));
+    setTheta(query);
     return negativeLogLikelihood(grad(0),1);
   }
 
@@ -317,7 +331,7 @@ protected:
 
   size_t mMinIndex, mMaxIndex;
 
-  double mTheta;                      // Kernel parameters
+  vectord mTheta;                      // Kernel parameters
   const double mRegularizer;  // GP prior parameters (Normal)
 
 };

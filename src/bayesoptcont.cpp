@@ -20,7 +20,7 @@
 -----------------------------------------------------------------------------
 */
 #include <algorithm>
-#include "bayesopt.hpp"
+#include "bayesoptcont.hpp"
 #include "lhs.hpp"
 #include "randgen.hpp"
 #include "basicgaussprocess.hpp"

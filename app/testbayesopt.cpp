@@ -1,6 +1,6 @@
 #include <ctime>
 #include "bayesoptwpr.h"             // For the C-AP
-#include "bayesopt.hpp"              // For the C++-API
+#include "bayesoptcont.hpp"              // For the C++-API
 
 
 /* Function to be used for C-API testing */

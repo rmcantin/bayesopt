@@ -35,6 +35,14 @@ extern "C" {
     double noise;
   } gp_params;
 
+
+  typedef enum {
+    k_matterniso,
+    k_seiso,
+    k_seard,
+  } kernel_name;
+
+
   typedef enum {  
     c_ei,
     c_lcb,

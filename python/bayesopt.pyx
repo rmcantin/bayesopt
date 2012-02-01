@@ -4,8 +4,8 @@
 
 import numpy as np
 cimport numpy as np
-from python_ref cimport Py_INCREF, Py_DECREF
-#from cpython cimport Py_INCREF, Py_DECREF
+#from python_ref cimport Py_INCREF, Py_DECREF
+from cpython cimport Py_INCREF, Py_DECREF
 
 cdef extern from "ctypes.h":
     ctypedef struct gp_params:
@@ -14,6 +14,12 @@ cdef extern from "ctypes.h":
         double beta
         double delta
         double noise
+
+    ctypedef enum kernel_name:
+        k_matterniso,
+        k_seiso,
+        k_seard
+
 
     ctypedef enum criterium_name:
         c_ei,

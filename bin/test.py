@@ -1,6 +1,6 @@
-import bayesopt as kp
 import numpy as np
 import time as tm
+import bayesopt as kp
 
 # Function for testing
 def testfunc(Xin):

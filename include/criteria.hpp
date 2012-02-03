@@ -88,35 +88,38 @@ public:
 
   /** 
    * Update the accumulated rewards for the GP-Hedge algorithm. See References
-   * for a detailled explanation
+   * for a detailled explanation. Although it has been carefully implemented to 
+   * avoid overflow or underflow it may still suffer from it if the predictions 
+   * of the GP produce very large numbers. 
    * 
-   * @param r_ei   Reward of the Expected Improvement algorithm
-   * @param r_lcb  Reward of the Lower Confidence Bound algorithm
-   * @param r_poi  Reward of the Probability of Improvement algorithm
+   * @param l_ei   Loss of the Expected Improvement algorithm
+   * @param l_lcb  Loss of the Lower Confidence Bound algorithm
+   * @param l_poi  Loss of the Probability of Improvement algorithm
    * 
    * @return name of the selected algorithm.
    */
   criterium_name update_hedge(double l_ei, double l_lcb, double l_poi)
   {
+    // TODO: Vectorize the function to support an arbitrary number of criteria.
     randFloat sample( mtRandom, realUniformDist(0,1) );
 
     double max_g = std::max(g_ei,std::max(g_lcb,g_poi));
     double min_g = std::min(g_ei,std::min(g_lcb,g_poi));
-    double rang_g = max_g - min_g;
 
-    //g_ei += min_g; g_lcb += min_g; g_poi += min_g;
-    //g_ei /= rang_g; g_lcb /= rang_g; g_poi /= rang_g;
+    double max_l = std::max(l_ei,std::max(l_lcb,l_poi));
+    l_ei += max_l; l_lcb += max_l; l_poi += max_l;        // We just care about the differences
 
-    eta = sqrt(2*log(3)/rang_g);
+    eta = sqrt(2*log(3)/max_g);                           // Optimal eta according to Shapire
 
     // To avoid overflow
-    double offset = min_g;//abs_max(g_ei,abs_max(g_lcb,g_poi));
+    double offset = min_g;
+    g_ei -= offset; g_lcb -= offset; g_poi -= offset; 
 
     std::cout << offset << "," << std::endl;
 
-    double p_ei = exp(eta*(g_ei - offset));
-    double p_lcb = exp(eta*(g_lcb - offset));
-    double p_poi = exp(eta*(g_poi - offset));
+    double p_ei = exp(eta*g_ei);
+    double p_lcb = exp(eta*g_lcb);
+    double p_poi = exp(eta*g_poi);
     double sum_p = p_ei + p_lcb + p_poi;
 
     std::cout << p_ei << "," << p_lcb << "," << p_poi << "," << std::endl;

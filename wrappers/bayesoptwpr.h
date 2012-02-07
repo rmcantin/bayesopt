@@ -32,6 +32,7 @@
 extern "C" {
 #endif 
 
+  /* TODO: make it const double *x */
   typedef double (*eval_func)(unsigned int n, double *x,
 			      double *gradient, /* NULL if not needed */
 			      void *func_data);

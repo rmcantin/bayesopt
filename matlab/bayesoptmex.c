@@ -26,9 +26,24 @@
 #include <math.h>
 #include <mex.h>
 
+#include "defaults.h"
 #include "bayesoptwpr.h"
 
 #define CHECK0(cond, msg) if (!(cond)) mexErrMsgTxt(msg);
+
+static double struct_val_default(const mxArray *s, const char *name, double dflt)
+{
+     mxArray *val = mxGetField(s, 0, name);
+     if (val) {
+	  CHECK0(mxIsNumeric(val) && !mxIsComplex(val) 
+		&& mxGetM(val) * mxGetN(val) == 1,
+		"param fields must be real scalars");
+	  return mxGetScalar(val);
+     }
+     return dflt;
+}
+
+
 
 #define FLEN 128 /* max length of user function name */
 #define MAXRHS 2 /* max nrhs for user function */
@@ -40,14 +55,16 @@ typedef struct {
      int verbose, neval;
 } user_function_data;
 
-static double user_function(unsigned n, const double *x,
+static double user_function(unsigned n, double *x,
 			    double *gradient, /* NULL if not needed */
 			    void *d_)
 {
   user_function_data *d = (user_function_data *) d_;
   double f;
 
+  
   d->plhs[0] = d->plhs[1] = NULL;
+
   memcpy(mxGetPr(d->prhs[d->xrhs]), x, n * sizeof(double));
 
   CHECK0(0 == mexCallMATLAB(gradient ? 2 : 1, d->plhs, 
@@ -78,13 +95,16 @@ void mexFunction(int nlhs, mxArray *plhs[],
                  int nrhs, const mxArray *prhs[])
 {
      unsigned n;
-     double *x, *x0, opt_f;
-     nlopt_result ret;
+     double *x, *x0;
      mxArray *x_mx, *func_name;
-     user_function_data d, *dfc = NULL, *dh = NULL;
+     user_function_data d;
 
-     // First term is the function handle
-     func_name = mxGetPr(prhs[0]);
+     /* TODO: Change This */
+     d.neval = 0;
+     d.verbose = 0;
+   
+     /* First term is the function handle or name */
+     func_name = prhs[0];
 
      if (mxIsChar(func_name))
        {
@@ -105,19 +125,54 @@ void mexFunction(int nlhs, mxArray *plhs[],
 	 mexErrMsgTxt("First term should be a function name or function handle");
        }
 
-     //TODO: Change This
-     d.neval = 0;
-     d.verbose = 0;
-     CHECK(mxIsDouble(prhs[1]) && !mxIsComplex(prhs[1])
+     CHECK0(mxIsDouble(prhs[1]) && !mxIsComplex(prhs[1])
 	   && (mxGetM(prhs[1]) == 1 || mxGetN(prhs[1]) == 1),
 	   "x must be real row or column vector");
-     n = mxGetM(prhs[1]) * mxGetN(prhs[1]),
+
+     n = mxGetM(prhs[1]) * mxGetN(prhs[1]);
      x0 = mxGetPr(prhs[1]);
+
+     d.prhs[d.xrhs] = mxCreateDoubleMatrix(1, n, mxREAL);
+
 
      x_mx = mxCreateDoubleMatrix(mxGetM(prhs[1]), mxGetN(prhs[1]), mxREAL);
      x = mxGetPr(x_mx);
      memcpy(x, x0, sizeof(double) * n);
      
-     //TODO:
-     ret = nlopt_optimize(opt, x, &opt_f);
+     /* Configure C interface */
+     int nIterations;       /* Number of iterations */
+     gp_params par;
+     
+     CHECK0(mxIsStruct(prhs[2]), "3rd element must be a struct");
+
+     par.theta = struct_val_default(prhs[2], "theta", KERNEL_THETA);
+     par.alpha = struct_val_default(prhs[2], "alpha", PRIOR_ALPHA);
+     par.beta = struct_val_default(prhs[2], "beta", PRIOR_BETA);
+     par.delta = struct_val_default(prhs[2], "delta", PRIOR_DELTA_SQ);
+     par.noise = struct_val_default(prhs[2], "noise", DEF_REGULARIZER);
+     nIterations = struct_val_default(prhs[2], "iterations", 300);
+
+     /* Common configuration
+     /  See ctypes.h for the available options */
+     criterium_name c_name = c_ei;
+     surrogate_name s_name = s_gaussianProcess;
+
+     double u[128], l[128];
+     double fmin;
+     int i;
+
+     for (i = 0; i < n; ++i) {
+       l[i] = 0.;    u[i] = 1.;
+     }
+
+     bayes_optimization(n,user_function,&d,l,u,x,&fmin,
+			nIterations,par,c_name,s_name);
+
+     mxDestroyArray(d.prhs[d.xrhs]);
+     plhs[0] = x_mx;
+     if (nlhs > 1) {
+	  plhs[1] = mxCreateDoubleMatrix(1, 1, mxREAL);
+	  *(mxGetPr(plhs[1])) = fmin;
+     }
+    
 }

@@ -1,0 +1,18 @@
+Implementation of the globally-convergent method-of-moving-asymptotes (MMA)
+algorithm for gradient-based local optimization, as described in:
+
+	Krister Svanberg, "A class of globally convergent optimization
+	methods based on conservative convex separable approximations,"
+	SIAM J. Optim. 12 (2), p. 555-573 (2002).
+
+In fact, this algorithm is much more general than most of the other
+algorithms in NLopt, in that it handles an arbitrary set of nonlinear
+(differentiable) constraints as well, in a very efficient manner.
+I've implemented the full nonlinear-constrained MMA algorithm, and it
+is exported under the nlopt_minimize_constrained API.
+
+It is under the same MIT license as the rest of my code in NLopt (see
+../COPYRIGHT).
+
+Steven G. Johnson
+July 2008

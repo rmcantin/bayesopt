@@ -20,7 +20,7 @@
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/storage.hpp>
 
-#include "directwpr.hpp"
+#include "directwpr.h"
 #include "inneroptimization.hpp"
  
 namespace DIRECT
@@ -31,14 +31,15 @@ namespace DIRECT
 			int *idsize, char *cdata,
 			int *icsize, int cdata_len)
   {
-    array_adaptor<double> shared((*n), x);
-    vector<double, array_adaptor<double> > sharedN((*n), shared); 
+    boost::numeric::ublas::array_adaptor<double> shared((*n), x);
+    boost::numeric::ublas::vector<double, 
+		 boost::numeric::ublas::array_adaptor<double> > sharedN((*n), shared); 
     
     // This is not very clever... but works!
     void *objPointer = iidata;
     InnerOptimization* OPTIMIZER = static_cast<InnerOptimization*>(objPointer);
     
-    vector<double> vgrad(n);
+    boost::numeric::ublas::vector<double> vgrad((*n));
     *f = OPTIMIZER->innerEvaluate(sharedN,vgrad);
     *flag__ = 0;
     

@@ -47,7 +47,7 @@ extern "C" {
  */
   int bayes_optimization(int nDim, eval_func f, void* f_data,
 			 const double *lb, const double *ub, /* bounds */
-			 double *x, /* in: initial guess, out: minimizer */
+			 double *x, /* out: minimizer */
 			 double *minf, /* out: minimum */
 			 int maxeval, gp_params params,
 			 criterium_name c_name,

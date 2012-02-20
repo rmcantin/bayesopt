@@ -99,6 +99,11 @@ void mexFunction(int nlhs, mxArray *plhs[],
      mxArray *x_mx, *func_name;
      user_function_data d;
 
+     /* TODO: Check correct number of parameters */
+
+     CHECK0(nlhs < 2 && (nrhs == 3 || nrhs == 5), 
+	    "wrong number of arguments")
+
      /* TODO: Change This */
      d.neval = 0;
      d.verbose = 0;
@@ -125,19 +130,21 @@ void mexFunction(int nlhs, mxArray *plhs[],
 	 mexErrMsgTxt("First term should be a function name or function handle");
        }
 
-     CHECK0(mxIsDouble(prhs[1]) && !mxIsComplex(prhs[1])
-	   && (mxGetM(prhs[1]) == 1 || mxGetN(prhs[1]) == 1),
-	   "x must be real row or column vector");
+     CHECK0(mxIsNumeric(prhs[1]) && !mxIsComplex(prhs[1]) 
+	    && mxGetM(prhs[1]) * mxGetN(prhs[1]) == 1,
+	    "nDim must be a real scalars");
 
-     n = mxGetM(prhs[1]) * mxGetN(prhs[1]);
-     x0 = mxGetPr(prhs[1]);
+     n = (int) mxGetScalar(prhs[1]);
+
+     /*     n = mxGetM(prhs[1]) * mxGetN(prhs[1]);
+	    x0 = mxGetPr(prhs[1]);*/
 
      d.prhs[d.xrhs] = mxCreateDoubleMatrix(1, n, mxREAL);
 
 
-     x_mx = mxCreateDoubleMatrix(mxGetM(prhs[1]), mxGetN(prhs[1]), mxREAL);
+     x_mx = mxCreateDoubleMatrix(1, n, mxREAL);
      x = mxGetPr(x_mx);
-     memcpy(x, x0, sizeof(double) * n);
+     /*     memcpy(x, x0, sizeof(double) * n);*/
      
      /* Configure C interface */
      int nIterations;       /* Number of iterations */
@@ -150,23 +157,53 @@ void mexFunction(int nlhs, mxArray *plhs[],
      par.beta = struct_val_default(prhs[2], "beta", PRIOR_BETA);
      par.delta = struct_val_default(prhs[2], "delta", PRIOR_DELTA_SQ);
      par.noise = struct_val_default(prhs[2], "noise", DEF_REGULARIZER);
-     nIterations = struct_val_default(prhs[2], "iterations", 300);
+     nIterations = (int) struct_val_default(prhs[2], "iterations", 300);
 
      /* Common configuration
      /  See ctypes.h for the available options */
      criterium_name c_name = c_ei;
      surrogate_name s_name = s_gaussianProcess;
 
-     double u[128], l[128];
+     double *u, *l;
      double fmin;
-     int i;
 
-     for (i = 0; i < n; ++i) {
-       l[i] = 0.;    u[i] = 1.;
-     }
+     if(nrhs == 5)
+       {
+	 /* Load limits */
+	 CHECK0(mxIsDouble(prhs[3]) && !mxIsComplex(prhs[3])
+		&& (mxGetM(prhs[3]) == 1 || mxGetN(prhs[3]) == 1)
+		&& (mxGetM(prhs[3]) == n || mxGetN(prhs[3]) == n),
+		"lowerBound must be real row or column vector");
+
+	 l = mxGetPr(prhs[3]);
+
+	 CHECK0(mxIsDouble(prhs[4]) && !mxIsComplex(prhs[4])
+		&& (mxGetM(prhs[4]) == 1 || mxGetN(prhs[4]) == 1)
+		&& (mxGetM(prhs[4]) == n || mxGetN(prhs[4]) == n),
+		"upperBound must be real row or column vector");
+
+	 u = mxGetPr(prhs[4]);
+       }
+     else
+       {
+	 l = mxCalloc(n,sizeof(double));
+	 u = mxCalloc(n,sizeof(double));
+	 int i;
+
+	 for (i = 0; i < n; ++i) 
+	   {
+	     l[i] = 0.;    
+	     u[i] = 1.;
+	   }
+       }
 
      bayes_optimization(n,user_function,&d,l,u,x,&fmin,
 			nIterations,par,c_name,s_name);
+
+     if(nrhs == 5)
+       {
+	 mxFree(l); mxFree(u);
+       }
 
      mxDestroyArray(d.prhs[d.xrhs]);
      plhs[0] = x_mx;

@@ -16,14 +16,8 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -----------------------------------------------------------------------------
 */
-#include "krig_config.h"
-
-#ifdef USE_DIRECT_FORTRAN
-  #include "directwpr.h"
-#else  // NLOPT
-  #include <nlopt.h>
-  #include "nloptwpr.h"
-#endif
+#include <nlopt.h>
+#include "nloptwpr.h"
 
 #include "inneroptimization.hpp"
 
@@ -64,25 +58,7 @@ int InnerOptimization::innerOptimize(double* x, int n, void* objPointer)
     for (int i = 0; i < n; ++i) {
 	l[i] = mDown;	u[i] = mUp;
     }
- 
-#ifdef USE_DIRECT_FORTRAN
 
-    if (alg != direct)
-      {
-	std::cout << "Not supported. Using direct instead." << std::endl;
-      }
-
-    int (*fpointer)(int *, double *, double *, 
-		    int *, int *,int *, double *,
-		    int *, char *, int *, int);
-    fpointer = &(DIRECT::evaluate_wrap_);
-
-    int maxT = MAX_INNER_ITERATIONS;
-    DIRECT::direct(fpointer, x, &n, &fmin, l, u, 
-		   &ierror, &maxf, &maxT, objPointer);	
-
-
-#else /* USE_DIRECT_FORTRAN */
     double (*fpointer)(unsigned int, const double *, double *, void *);
     fpointer = &(NLOPT_WPR::evaluate_nlopt);
 
@@ -127,7 +103,6 @@ int InnerOptimization::innerOptimize(double* x, int n, void* objPointer)
       std::cout << "Error:" << errortype << std::endl;
 
     ierror = static_cast<int>(errortype);
-#endif /* USE_DIRECT_FORTRAN */
 
     return ierror;
 

@@ -1,3 +1,5 @@
+/** \file nonparametricprocess.hpp 
+    \brief Nonparametric process abstract module */
 /*
 -----------------------------------------------------------------------------
    This file is part of BayesOptimization, an efficient C++ library for 
@@ -28,6 +30,9 @@
 #include "cholesky.hpp"
 #include "inneroptimization.hpp"	
 
+
+/** \addtogroup NonParametricProcesses */
+/**@{*/
 
 /**
  * \brief Abstract class to implement non-parametric processes
@@ -323,7 +328,7 @@ protected:
   };
 
 protected:
-  vecOfvec mGPXX;                     // TODO:Data inputs
+  vecOfvec mGPXX;                     // Data inputs
   vectord mGPY;                       // Data values
 	
   // Precomputed GP prediction operations
@@ -335,5 +340,7 @@ protected:
   const double mRegularizer;  // GP prior parameters (Normal)
 
 };
+
+/**@}*/
 
 #endif

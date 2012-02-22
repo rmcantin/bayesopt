@@ -64,8 +64,10 @@ int BasicGaussianProcess::prediction( const vectord &query,
   return 1;
 }
 	
-double BasicGaussianProcess::negativeExpectedImprovement(double yPred, double sPred,
-							 double yMin, size_t g)
+double BasicGaussianProcess::negativeExpectedImprovement(double yPred, 
+							 double sPred,
+							 double yMin, 
+							 size_t g)
 {
   
   using boost::math::factorial;
@@ -106,8 +108,10 @@ double BasicGaussianProcess::lowerConfidenceBound(double yPred, double sPred,
   return yPred - beta*sPred;;
 }  // lowerConfidenceBound
 
-double BasicGaussianProcess::negativeProbabilityOfImprovement(double yPred, double sPred,
-							      double yMin, double epsilon)
+double BasicGaussianProcess::negativeProbabilityOfImprovement(double yPred, 
+							      double sPred,
+							      double yMin, 
+							      double epsilon)
 {
   boost::math::normal d;
   return -cdf(d,(yMin - yPred + epsilon)/sPred);

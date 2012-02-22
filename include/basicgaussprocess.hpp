@@ -1,3 +1,5 @@
+/** \file basicgaussianprocess.hpp 
+    \brief Standard zero mean gaussian process with noisy observations */
 /*
 -----------------------------------------------------------------------------
    Copyright (C) 2011 Ruben Martinez-Cantin <rmcantin@unizar.es>
@@ -25,9 +27,8 @@
 #include "meanfuncs.hpp"
 
  
-/** \addtogroup BayesOptimization */
-/*@{*/
-
+/** \addtogroup NonParametricProcesses */
+/**@{*/
 
 /**
  * \brief Standard zero mean gaussian process with noisy observations.

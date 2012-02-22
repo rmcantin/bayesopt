@@ -1,15 +1,9 @@
 /**
  * @file   bayesoptcont.hpp
- * @author Ruben Martinez-Cantin <rmcantin@ist.isr.utl.pt>
- * @date   Thu Mar 26 02:12:36 2009
- * 
- * @brief  Sequential Krigging Optimization (SKO) 
+ * @brief  Sequential Krigging Optimization (SKO)
  * 
  * This file implements Sequential Krigging Optimization using different 
  * non-parametric processes as surrogate (krigging) functions.
- *
- * 
- * Copyright: See COPYING file that comes with this distribution
  */
 
 
@@ -55,7 +49,7 @@
 
 
 /** \addtogroup BayesOptimization */
-/*@{*/
+/**@{*/
 
 /**
  * \brief Sequential Kriging Optimization using different non-parametric 
@@ -211,7 +205,6 @@ protected:
 };
 
 /**@}*/
-// end namespaces
 
 
 #endif

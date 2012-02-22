@@ -1,3 +1,6 @@
+/** \file gaussprocess.hpp 
+    \brief Gaussian process with normal-inverse-gamma hyperprior 
+           on mean and signal variance parameters. */
 /*
 -----------------------------------------------------------------------------
    Copyright (C) 2011 Ruben Martinez-Cantin <rmcantin@unizar.es>
@@ -25,12 +28,13 @@
 #include "kernels.hpp"
 #include "meanfuncs.hpp"
  
-/** \addtogroup BayesOptimization */
-/*@{*/
+/** \addtogroup  NonParametricProcesses */
+/**@{*/
 
 
 /**
- * \brief Gaussian process with hyperpriors on mean and signal variance parameters.
+ * \brief Gaussian process with normal-inverse-gamma hyperprior 
+ *        on mean and signal variance parameters.
  */
 class GaussianProcess: public BasicGaussianProcess 
 {

@@ -1,3 +1,6 @@
+/** \file studenttprocess.hpp
+    \brief Student's t process with Jeffreys hyperprior 
+           on mean and signal variance parameters. */
 /*
 -----------------------------------------------------------------------------
    Copyright (C) 2011 Ruben Martinez-Cantin <rmcantin@unizar.es>
@@ -24,12 +27,13 @@
 #include "kernels.hpp"
 #include "meanfuncs.hpp"
  
-/** \addtogroup BayesOptimization */
-/*@{*/
+/** \addtogroup  NonParametricProcesses */
+/**@{*/
 
 
 /**
- * \brief Student's t process with hyperpriors on mean and signal variance parameters.
+ * \brief Student's t process with Jeffreys hyperprior 
+ *        on mean and signal variance parameters.
  */
 class StudentTProcess: public NonParametricProcess
 {
@@ -145,6 +149,6 @@ protected:
 
 
 /**@}*/
-// end namespaces
+
 
 #endif

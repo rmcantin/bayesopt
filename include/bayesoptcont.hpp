@@ -195,12 +195,12 @@ protected:
 
 protected:
 
-  NonParametricProcess* mGP;           /// Pointer to surrogate model
-  Criteria crit;                       /// Criteria model
-  criterium_name crit_name;            /// Name of the criteria
-  size_t mMaxIterations;               /// Maximum SKO evaluations (budget)
-  vectord mLowerBound, mRangeBound;    /// Lower bound and range of the input space
-  int mVerbose;                        /// Verbose level
+  NonParametricProcess* mGP;        ///< Pointer to surrogate model
+  Criteria crit;                    ///< Criteria model
+  criterium_name crit_name;         ///< Name of the criteria
+  size_t mMaxIterations;            ///< Maximum SKO evaluations (budget)
+  vectord mLowerBound, mRangeBound; ///< Lower bound and range of the input space
+  int mVerbose;                     ///< Verbose level
 
 };
 

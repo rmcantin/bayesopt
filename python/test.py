@@ -15,6 +15,7 @@ params = {"theta": 0.11, "alpha": 1.0, "beta": 0.1,
           "delta": 10.0, "noise": 0.001}
 crit = "ei"     # options: ei, lcb, poi, hedge, aoptimal, expmean
 surr = "gp"     # options: gp, gpwpriors, stp
+kernel = "seiso"
 
 n = 5                      # n dimensions
 niter = 200                # n iterations

@@ -48,6 +48,7 @@ int main(int nargs, char *args[])
   // See ctypes.h for the available options
   criterium_name c_name = c_ei;
   surrogate_name s_name = s_gaussianProcess;
+  kernel_name k_name = k_seiso;
   gp_params par;
 
   par.theta = KERNEL_THETA;
@@ -78,7 +79,8 @@ int main(int nargs, char *args[])
       gp = new StudentTProcess(par.theta,par.noise);
       break; 
     }
-    
+  gp->setKernel(k_name);
+
   TestEGO gp_opt(gp);
   vectord result(n);
   gp_opt.setCriteria(c_name);
@@ -103,7 +105,7 @@ int main(int nargs, char *args[])
   // Run C interface
   start = clock();
   bayes_optimization(n,&testFunction,NULL,l,u,x,fmin,
-		     nIterations,par,c_name,s_name);
+		     nIterations,par,c_name,s_name,k_name);
   end = clock();
   diff2 = (double)(end-start) / (double)CLOCKS_PER_SEC;
   /*******************************************/

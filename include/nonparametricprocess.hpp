@@ -25,6 +25,8 @@
 #ifndef __NONPARAMETRICPROCESS_HPP__
 #define __NONPARAMETRICPROCESS_HPP__
 
+#include "ctypes.h"
+#include "kernels.hpp"
 #include "randgen.hpp"
 #include "specialtypes.hpp"
 #include "cholesky.hpp"
@@ -244,6 +246,14 @@ public:
   inline void setTheta( const vectord& theta )
   { mTheta = theta; }
 
+  /** 
+   * Chooses which kernel to use in the surrogate process.
+   * 
+   * @param k kernel_name
+   */
+  void setKernel (kernel_name k)
+  {k_name = k;}
+
   inline double innerEvaluate(const vectord& query, 
 			      vectord& grad)
   { 
@@ -256,9 +266,16 @@ public:
   { return 0.0; }
 
 protected:
-  virtual double correlationFunction( const vectord &x1,const vectord &x2, 
-				      size_t param_index = 0)
-  {return 0.0;}
+  double correlationFunction( const vectord &x1,const vectord &x2, 
+			      size_t param_index = 0)
+  {
+    vectord th = mTheta;
+    //TODO: This should be configurable
+    if (k_name == k_materniso)
+	th.resize(th.size()+1);   
+	th(th.size()-1) = 3;
+	return kernels::kernelFunction(k_name,x1,x2,param_index,th);
+  }
 
   virtual double meanFunction( const vectord &x, size_t param_index = 0 )  
   {return 0.0;}
@@ -328,16 +345,17 @@ protected:
   };
 
 protected:
-  vecOfvec mGPXX;                     // Data inputs
-  vectord mGPY;                       // Data values
+  vecOfvec mGPXX;                                   ///< Data inputs
+  vectord mGPY;                                     ///< Data values
 	
   // Precomputed GP prediction operations
-  covMatrix mInvR;                   // Inverse Correlation matrix
+  covMatrix mInvR;                   ///< Inverse Correlation matrix
 
   size_t mMinIndex, mMaxIndex;
 
-  vectord mTheta;                      // Kernel parameters
-  const double mRegularizer;  // GP prior parameters (Normal)
+  kernel_name k_name;                        ///< Name of the kernel
+  vectord mTheta;                             ///< Kernel parameters
+  const double mRegularizer;  ///< GP likelihood parameters (Normal)
 
 };
 

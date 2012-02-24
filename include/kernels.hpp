@@ -30,7 +30,7 @@ namespace kernels
   using namespace boost::numeric::ublas;	
 
   /** 
-   * Mattern isotropic kernel
+   * Matern isotropic kernel
    * 
    * @param x1 First point
    * @param x2 Secont point
@@ -43,7 +43,7 @@ namespace kernels
    * 
    * @return see param_index
    */
-  inline double MatternIso( const vector<double> &x1, 
+  inline double MaternIso( const vector<double> &x1, 
 			    const vector<double> &x2,
 			    size_t param_index,
 			    double theta, int order)
@@ -146,7 +146,7 @@ namespace kernels
    *           if = 0 return kernel value
    *           if > 0 return the derivative of the ith param
    * @param params for all functions: length-scales 
-   *               for Mattern: the last component is order+1/2 
+   *               for Matern: the last component is order+1/2 
    * 
    * @return 
    */
@@ -159,7 +159,7 @@ namespace kernels
     // TODO: Add asserts for dimension checking depending on kernel function
     switch(kname)
       {
-      case k_matterniso: return MatternIso(x1,x2,param_index,params(0),params(1));
+      case k_materniso: return MaternIso(x1,x2,param_index,params(0),params(1));
       case k_seiso:      return SEIso(x1,x2,param_index,params(0));
       case k_seard:      return SEard(x1,x2,param_index,params);
       default: 

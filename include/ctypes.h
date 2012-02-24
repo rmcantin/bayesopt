@@ -20,8 +20,10 @@
 -----------------------------------------------------------------------------
 */
 
-#ifndef __CTYPES_H__
-#define __CTYPES_H__
+#ifndef __C_TYPES_H__
+#define __C_TYPES_H__
+
+#include <string.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,12 +39,13 @@ extern "C" {
 
 
   typedef enum {
-    k_matterniso,
+    k_materniso,
     k_seiso,
     k_seard,
+    k_error
   } kernel_name;
 
-
+  
   typedef enum {  
     c_ei,
     c_lcb,
@@ -50,14 +53,21 @@ extern "C" {
     c_gp_hedge,
     c_greedyAOptimality,
     c_expectedReturn,
-    c_optimisticSampling
+    c_optimisticSampling,
+    c_error
   } criterium_name;
+
 
   typedef enum {  
     s_gaussianProcess,
     s_gaussianProcessHyperPriors,
-    s_studentTProcess
+    s_studentTProcess,
+    s_error
   } surrogate_name;
+
+  kernel_name str2kernel(const char* name);
+  criterium_name str2crit(const char* name);
+  surrogate_name str2surrogate(const char* name);
 
 #ifdef __cplusplus
 }

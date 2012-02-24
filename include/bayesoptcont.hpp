@@ -126,7 +126,6 @@ class SKO: public InnerOptimization
   void setCriteria (criterium_name c)
   {crit_name = c;}
 
-
   /** 
    * Function that defines the actual mathematical function to be optimized.
    * Virtual function for polymorphism. This function must need to be modified 

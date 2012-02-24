@@ -67,6 +67,7 @@ SET( BAYESOPT_SRCS
   ./src/gaussprocess.cpp
   ./src/basicgaussprocess.cpp
   ./src/studenttprocess.cpp
+  ./src/ctypes.cpp
   ./wrappers/bayesoptwpr.cpp
   )
 

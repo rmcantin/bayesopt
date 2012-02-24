@@ -7,6 +7,8 @@ cimport numpy as np
 #from python_ref cimport Py_INCREF, Py_DECREF
 from cpython cimport Py_INCREF, Py_DECREF
 
+#TODO: Unify str to enum from ctypes with functions here
+#
 cdef extern from "ctypes.h":
     ctypedef struct gp_params:
         double theta
@@ -16,10 +18,10 @@ cdef extern from "ctypes.h":
         double noise
 
     ctypedef enum kernel_name:
-        k_matterniso,
+        k_materniso,
         k_seiso,
-        k_seard
-
+        k_seard,
+        k_error
 
     ctypedef enum criterium_name:
         c_ei,
@@ -27,13 +29,18 @@ cdef extern from "ctypes.h":
         c_poi,
         c_gp_hedge,
         c_greedyAOptimality,
-        c_expectedReturn
+        c_expectedReturn,
+        c_error
 
     ctypedef enum surrogate_name:
         s_gaussianProcess,
         s_gaussianProcessHyperPriors,
-        s_studentTProcess
+        s_studentTProcess,
+        s_error
 
+    kernel_name str2kernel(char* name)
+    criterium_name str2crit(char* name)
+    surrogate_name str2surrogate(char* name)
 
 
 cdef extern from "bayesoptwpr.h":
@@ -43,7 +50,9 @@ cdef extern from "bayesoptwpr.h":
     int bayes_optimization(int nDim, eval_func f, void* f_data,
                            double *lb, double *ub, double *x,
                            double *minf, int maxeval, gp_params params,
-                           criterium_name c_name, surrogate_name gp_name)
+                           criterium_name c_name,
+                           surrogate_name gp_name,
+                           kernel_name k_name)
 
 
 cdef dict2structparams(dict dparams, gp_params *params):
@@ -103,7 +112,8 @@ cdef double callback(unsigned int n, double *x,
 
 def optimize(f, int nDim, np.ndarray[np.double_t] np_lb,
              np.ndarray[np.double_t] np_ub, np.ndarray[np.double_t] np_x,
-             int maxeval, dict dparams, str criteria, str surrogate):
+             int maxeval, dict dparams,
+             str criteria, str surrogate, str kernel):
 
     cdef gp_params zero_params
     zero_params.theta = 0
@@ -121,7 +131,10 @@ def optimize(f, int nDim, np.ndarray[np.double_t] np_lb,
 
     cdef surrogate_name surr
     surr = find_surrogate(surrogate)
-    
+
+    cdef kernel_name ker
+    cdef char *k_name = kernel
+    ker = str2kernel(k_name)
     
     #cdef double lb[1000]
     #cdef double ub[1000]
@@ -132,7 +145,10 @@ def optimize(f, int nDim, np.ndarray[np.double_t] np_lb,
     #ndarray2pointer(np_ub,ub)
     #ndarray2pointer(np_x,c_x)
     Py_INCREF(f)
-    error_code = bayes_optimization(nDim, callback, <void *> f, <double *>np_lb.data, <double *>np_ub.data, <double *>np_x.data, minf, maxeval, params, crit, surr)
+    error_code = bayes_optimization(nDim, callback, <void *> f,
+                                    <double *>np_lb.data, <double *>np_ub.data,
+                                    <double *>np_x.data, minf, maxeval,
+                                    params, crit, surr, ker)
     Py_DECREF(f)
     min_value = minf[0]
     #point_min_value = pointer2ndarray(nDim,c_x)

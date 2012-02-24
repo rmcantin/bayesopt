@@ -51,7 +51,8 @@ extern "C" {
 			 double *minf, /* out: minimum */
 			 int maxeval, gp_params params,
 			 criterium_name c_name,
-			 surrogate_name gp_name);
+			 surrogate_name gp_name,
+			 kernel_name k_name);
   
 #ifdef __cplusplus
 }

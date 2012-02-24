@@ -33,16 +33,46 @@
 
 static double struct_val_default(const mxArray *s, const char *name, double dflt)
 {
-     mxArray *val = mxGetField(s, 0, name);
-     if (val) {
-	  CHECK0(mxIsNumeric(val) && !mxIsComplex(val) 
-		&& mxGetM(val) * mxGetN(val) == 1,
-		"param fields must be real scalars");
-	  return mxGetScalar(val);
-     }
-     return dflt;
+  mxArray *val = mxGetField(s, 0, name);
+  if (val) 
+    {
+      if(!(mxIsNumeric(val) && !mxIsComplex(val) 
+	   && mxGetM(val) * mxGetN(val) == 1))
+	{
+	  mexErrMsgTxt("param fields must be real scalars");
+	  return dflt;
+	}
+      return mxGetScalar(val);
+    }
+  return dflt;
 }
 
+static void struct_str_default(const mxArray *s, 
+			       const char *name, 
+			       char* dflt,
+			       char* result)
+{
+  mxArray *val = mxGetField(s, 0, name);
+  char *str;
+  result = dflt;
+  if (!val)  
+    return;
+  else
+    {
+      mwSize strlen = mxGetM(val) * mxGetN(val) + 1;
+      if( !mxIsChar(val) )
+	{
+	  mexErrMsgTxt("Method name must be a string");
+	  return;
+	}
+      if (mxGetString(val, result, strlen))
+	{
+	  mexErrMsgTxt("Error reading string");
+	  return;
+	}
+      result = str;
+    }
+}
 
 
 #define FLEN 128 /* max length of user function name */
@@ -167,8 +197,20 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
   /* Extra configuration
   /  See ctypes.h for the available options */
-  criterium_name c_name = c_ei;
-  surrogate_name s_name = s_gaussianProcess;
+  criterium_name c_name;
+  surrogate_name s_name;
+  kernel_name k_name;
+  char *c_str, *s_str, *k_str;
+
+  struct_str_default(params, "criteria", "ei", c_str);
+  c_name = str2crit(c_str);
+
+  struct_str_default(params, "surrogate", "gp", s_str);
+  s_name = str2surrogate(s_str);
+  
+  struct_str_default(params, "kernel", "materniso", k_str);
+  k_name = str2kernel(s_str);
+  
 
   double *ub, *lb;    /* Upper and lower bound */
   double fmin;
@@ -205,7 +247,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     }
 
   bayes_optimization(nDim,user_function,&udata,lb,ub,xptr,
-		     &fmin,nIterations,par,c_name,s_name);
+		     &fmin,nIterations,par,c_name,s_name,k_name);
 
   if(nrhs != 5)
     {

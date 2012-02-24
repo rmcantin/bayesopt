@@ -62,7 +62,8 @@ int bayes_optimization(int nDim, eval_func f, void* f_data,
 		       double *minf, /* out: minimum */
 		       int maxeval, gp_params params,
 		       criterium_name c_name,
-		       surrogate_name gp_name)
+		       surrogate_name gp_name,
+		       kernel_name k_name)
 {
 
   vectord result(nDim);
@@ -80,18 +81,24 @@ int bayes_optimization(int nDim, eval_func f, void* f_data,
     case s_gaussianProcess: 
       gp = new BasicGaussianProcess(params.theta,params.noise);
       break;
+
     case s_gaussianProcessHyperPriors:
       gp = new GaussianProcess(params.theta,params.noise,
 			       params.alpha,params.beta,
 			       params.delta);
       break;
+
     case s_studentTProcess:
       gp = new StudentTProcess(params.theta,params.noise);
       break;
+
+    case s_error:
     default: 
       std::cout << "Surrogate function not supported" << std::endl;
       return -1;
     }
+
+  gp->setKernel(k_name);
 
   CSKO optimizer(gp);
 

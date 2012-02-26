@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+import sys
 import numpy as np
 import time as tm
 import bayesopt as kp
@@ -13,12 +15,14 @@ def testfunc(Xin):
 # Let's define the parameters
 params = {"theta": 0.11, "alpha": 1.0, "beta": 0.1,
           "delta": 10.0, "noise": 0.001}
-crit = "ei"     # options: ei, lcb, poi, hedge, aoptimal, expmean
-surr = "gp"     # options: gp, gpwpriors, stp
+
+# options: see ctypes.cpp
+crit = "poi"        
+surr = "gp_ign" 
 kernel = "seiso"
 
-n = 5                      # n dimensions
-niter = 200                # n iterations
+n = 5                     # n dimensions
+niter = 10                # n iterations
 
 lb = np.zeros((n,))
 ub = np.ones((n,))
@@ -28,9 +32,12 @@ out = testfunc(x)
 
 start = tm.clock()
 
-mvalue, x_out, error = kp.optimize(testfunc, n, lb, ub, x,
-                                   niter, params, crit, surr)
+mvalue, x_out, error = kp.optimize(testfunc, n, lb, ub,
+                                   niter, params, crit, surr,
+                                   kernel)
 
 print "Result", x_out
 print "Seconds", tm.clock() - start
 
+print "Bye"
+sys.exit()

@@ -7,8 +7,7 @@ cimport numpy as np
 #from python_ref cimport Py_INCREF, Py_DECREF
 from cpython cimport Py_INCREF, Py_DECREF
 
-#TODO: Unify str to enum from ctypes with functions here
-#
+###########################################################################
 cdef extern from "ctypes.h":
     ctypedef struct gp_params:
         double theta
@@ -43,6 +42,7 @@ cdef extern from "ctypes.h":
     surrogate_name str2surrogate(char* name)
 
 
+###########################################################################
 cdef extern from "bayesoptwpr.h":
     ctypedef double (*eval_func)(unsigned int n, double *x,
                                  double *gradient, void *func_data)
@@ -55,6 +55,7 @@ cdef extern from "bayesoptwpr.h":
                            kernel_name k_name)
 
 
+###########################################################################
 cdef dict2structparams(dict dparams, gp_params *params):
     params.theta = dparams['theta']
     params.alpha = dparams['alpha']
@@ -62,88 +63,40 @@ cdef dict2structparams(dict dparams, gp_params *params):
     params.delta = dparams['delta']
     params.noise = dparams['noise']
 
-cdef criterium_name find_criterium(str criteria):
-    if criteria == 'ei':
-        return c_ei
-    elif criteria == 'lcb':
-        return c_lcb
-    elif criteria == 'poi':
-        return c_poi
-    elif criteria == 'hedge':
-        return c_gp_hedge
-    elif criteria == 'aoptimal':
-        return c_greedyAOptimality
-    elif criteria == 'expmean':
-        return c_expectedReturn
 
 
-
-cdef surrogate_name find_surrogate(str surrogate):
-    if surrogate == 'gp':
-        return s_gaussianProcess
-    elif surrogate == 'gpwpriors':
-        return s_gaussianProcessHyperPriors
-    elif surrogate == 'stp':
-        return s_studentTProcess
-
-
-cdef ndarray2pointer(varray, double* p_array):
-    # We assume is a vector. We just copy the first row
-    n = varray.shape[0];
-    for i in range(0,n):
-        p_array[i] = varray[i]
-
-        
-cdef pointer2ndarray(int n, double* p_array):
-    # We assume is a vector. We just copy the first row
-    varray = np.zeros(n)
-    for i in range(0,n):
-        varray[i] = p_array[i]
-    return varray
-    
 
 cdef double callback(unsigned int n, double *x,
                      double *gradient, void *func_data):
-    invector = pointer2ndarray(n,x)
-    result = (<object>func_data)(invector)
+    x_np = np.zeros(n)
+    for i in range(0,n):
+        x_np[i] = x[i]
+    result = (<object>func_data)(x_np)
     return result
 
 
 
 def optimize(f, int nDim, np.ndarray[np.double_t] np_lb,
-             np.ndarray[np.double_t] np_ub, np.ndarray[np.double_t] np_x,
+             np.ndarray[np.double_t] np_ub,
              int maxeval, dict dparams,
-             str criteria, str surrogate, str kernel):
+             bytes criteria, bytes surrogate, bytes kernel):
 
-    cdef gp_params zero_params
-    zero_params.theta = 0
-    zero_params.alpha = 0
-    zero_params.beta = 0
-    zero_params.delta = 0
-    zero_params.noise = 0
-    
     cdef gp_params params
-    dict2structparams(dparams,&zero_params)
-    params = zero_params
+    dict2structparams(dparams,&params)
 
     cdef criterium_name crit
-    crit = find_criterium(criteria)
+    crit = str2crit(criteria)
 
     cdef surrogate_name surr
-    surr = find_surrogate(surrogate)
+    surr = str2surrogate(surrogate)
 
     cdef kernel_name ker
     cdef char *k_name = kernel
     ker = str2kernel(k_name)
     
-    #cdef double lb[1000]
-    #cdef double ub[1000]
-    #cdef double c_x[1000]
     cdef double minf[1000]
-
-    #ndarray2pointer(np_lb,lb)
-    #ndarray2pointer(np_ub,ub)
-    #ndarray2pointer(np_x,c_x)
+    cdef np.ndarray np_x = np.zeros([nDim, 1], dtype=np.double)
+    
     Py_INCREF(f)
     error_code = bayes_optimization(nDim, callback, <void *> f,
                                     <double *>np_lb.data, <double *>np_ub.data,
@@ -151,5 +104,4 @@ def optimize(f, int nDim, np.ndarray[np.double_t] np_lb,
                                     params, crit, surr, ker)
     Py_DECREF(f)
     min_value = minf[0]
-    #point_min_value = pointer2ndarray(nDim,c_x)
     return min_value,np_x,error_code

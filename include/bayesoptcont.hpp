@@ -178,14 +178,16 @@ protected:
     return crit.evaluate(*mGP,query);       
   }  // evaluateCriteria
 
+  inline vectord unnormalizeVector( const vectord &vin)
+  {
+    vectord vout = ublas_elementwise_prod(vin,mRangeBound);
+    return ublas_elementwise_add(vout, mLowerBound);
+  }  // unnormalizeVector
+    
+
   inline double evaluateNormalizedSample( const vectord &query)
   { 
-    vectord unnormalizedQuery = ublas_elementwise_prod(query,
-						       mRangeBound);
-  
-    unnormalizedQuery = ublas_elementwise_add(unnormalizedQuery,
-					      mLowerBound);
-    
+    vectord unnormalizedQuery = unnormalizeVector(query);
     return evaluateSample(unnormalizedQuery);
   } // evaluateNormalizedSample
 

@@ -105,7 +105,7 @@ int bayes_optimization(int nDim, eval_func f, void* f_data,
   optimizer.setCriteria(c_name);
   optimizer.set_eval_funct(f);
   optimizer.save_other_data(f_data);
-  optimizer.optimize(result,maxeval);
+  optimizer.optimize(result,lowerBound,upperBound,maxeval);
 
   copyVectorInArray(x,nDim,result);
 

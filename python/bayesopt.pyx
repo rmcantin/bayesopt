@@ -17,7 +17,9 @@ cdef extern from "ctypes.h":
         double noise
 
     ctypedef enum kernel_name:
-        k_materniso,
+        k_materniso1,
+        k_materniso3,
+        k_materniso5,
         k_seiso,
         k_seard,
         k_error

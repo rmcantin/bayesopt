@@ -51,16 +51,28 @@ int SKO::optimize( vectord &bestPoint,
   mLowerBound = lowerBound;
   mRangeBound = upperBound - lowerBound;
 
+  if (mVerbose > 0)
+    {
+      std::cout << "Bounds: "<< std::endl;
+      std::cout << lowerBound << std::endl;
+      std::cout << upperBound << std::endl;
+    }
+
   size_t nDims = bestPoint.size();
  
   vectord xNext(nDims);
   double yNext;
-  size_t nLHSSamples = std::min(N_LHS_EVALS_PER_DIM*nDims,
-				MAX_LHS_EVALUATIONS);
+  /*size_t nLHSSamples = std::min(N_LHS_EVALS_PER_DIM*nDims,MAX_LHS_EVALUATIONS);
+  if ((nIterations > (MAX_ITERATIONS - nLHSSamples)) || (nIterations <= 0))
+	nIterations = MAX_ITERATIONS - nLHSSamples;*/
 
-  if (  ( nIterations > (MAX_ITERATIONS - nLHSSamples) )  
-	|| ( nIterations <= 0) )
-    nIterations = MAX_ITERATIONS - nLHSSamples;
+  // Configuration simplified.
+  // The number of initial samples is fixed 10% of the total budget
+  if (nIterations <= 0) 
+    nIterations = MAX_ITERATIONS;
+
+  size_t nLHSSamples = static_cast<size_t>(ceil(0.1*nIterations));
+  nIterations -= nLHSSamples;
 
   if (mVerbose > 0) std::cout << "Sampling initial points..." << std::endl;
 
@@ -75,10 +87,12 @@ int SKO::optimize( vectord &bestPoint,
       
       if(mVerbose >0)
 	{ 
-	  std::cout << "Iteration " << ii+1 << "  |  ";
-	  std::cout << "# of samples " << ii+1+nLHSSamples << std::endl;
-	  std::cout << "Trying: " << xNext << std::endl;
-	  std::cout << "Best: " << mGP->getPointAtMinimum() << std::endl; 
+	  vectord xScaled = unnormalizeVector(xNext);
+	  vectord xOpt = unnormalizeVector(mGP->getPointAtMinimum());
+	  std::cout << "Iteration: " << ii+1 << " of " << nIterations;
+	  std::cout << " | Total samples: " << ii+1+nLHSSamples << std::endl;
+	  std::cout << "Trying point at: " << xScaled << std::endl;
+	  std::cout << "Best found at: " << xOpt << std::endl; 
 	  std::cout << "Best outcome: " <<  mGP->getValueAtMinimum() <<  std::endl; 
 	}
      

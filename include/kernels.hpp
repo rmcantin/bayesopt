@@ -159,7 +159,9 @@ namespace kernels
     // TODO: Add asserts for dimension checking depending on kernel function
     switch(kname)
       {
-      case k_materniso: return MaternIso(x1,x2,param_index,params(0),params(1));
+      case k_materniso1: return MaternIso(x1,x2,param_index,params(0),1);
+      case k_materniso3: return MaternIso(x1,x2,param_index,params(0),3);
+      case k_materniso5: return MaternIso(x1,x2,param_index,params(0),5);
       case k_seiso:      return SEIso(x1,x2,param_index,params(0));
       case k_seard:      return SEard(x1,x2,param_index,params);
       default: 

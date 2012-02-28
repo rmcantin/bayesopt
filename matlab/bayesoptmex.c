@@ -54,9 +54,11 @@ static void struct_str_default(const mxArray *s,
 {
   mxArray *val = mxGetField(s, 0, name);
   char *str;
-  result = dflt;
   if (!val)  
-    return;
+    {
+      mexPrintf("Field not found. Returning default.");
+      strcpy(result, dflt);
+    }
   else
     {
       mwSize strlen = mxGetM(val) * mxGetN(val) + 1;
@@ -70,7 +72,6 @@ static void struct_str_default(const mxArray *s,
 	  mexErrMsgTxt("Error reading string");
 	  return;
 	}
-      result = str;
     }
 }
 
@@ -188,6 +189,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
       params = mxCreateStructMatrix(1,1,0,NULL);
     }
 
+
   par.theta = struct_val_default(params, "theta", KERNEL_THETA);
   par.alpha = struct_val_default(params, "alpha", PRIOR_ALPHA);
   par.beta = struct_val_default(params, "beta", PRIOR_BETA);
@@ -200,7 +202,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
   criterium_name c_name;
   surrogate_name s_name;
   kernel_name k_name;
-  char *c_str, *s_str, *k_str;
+  char c_str[50], s_str[50], k_str[50];
 
   struct_str_default(params, "criteria", "ei", c_str);
   c_name = str2crit(c_str);
@@ -208,9 +210,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
   struct_str_default(params, "surrogate", "gp", s_str);
   s_name = str2surrogate(s_str);
   
-  struct_str_default(params, "kernel", "materniso", k_str);
-  k_name = str2kernel(s_str);
-  
+  struct_str_default(params, "kernel", "materniso3", k_str);
+  k_name = str2kernel(k_str);
+
 
   double *ub, *lb;    /* Upper and lower bound */
   double fmin;
@@ -224,6 +226,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
 	     "lowerBound must be real row or column vector");
 
       lb = mxGetPr(prhs[3]);
+      mexPrintf("Loading bounds \n");
 
       CHECK0(mxIsDouble(prhs[4]) && !mxIsComplex(prhs[4])
 	     && (mxGetM(prhs[4]) == 1    || mxGetN(prhs[4]) == 1)

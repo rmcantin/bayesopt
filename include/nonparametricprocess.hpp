@@ -270,11 +270,7 @@ protected:
 			      size_t param_index = 0)
   {
     vectord th = mTheta;
-    //TODO: This should be configurable
-    if (k_name == k_materniso)
-	th.resize(th.size()+1);   
-	th(th.size()-1) = 3;
-	return kernels::kernelFunction(k_name,x1,x2,param_index,th);
+    return kernels::kernelFunction(k_name,x1,x2,param_index,th);
   }
 
   virtual double meanFunction( const vectord &x, size_t param_index = 0 )  

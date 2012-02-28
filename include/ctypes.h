@@ -39,7 +39,9 @@ extern "C" {
 
 
   typedef enum {
-    k_materniso,
+    k_materniso1,
+    k_materniso3,
+    k_materniso5,
     k_seiso,
     k_seard,
     k_error

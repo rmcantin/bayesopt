@@ -18,6 +18,7 @@ const size_t MAX_INNER_EVALUATIONS = 1000;
 const size_t MAX_INNER_ITERATIONS  = 1000;
 
 /* Latin Hypercube Sampling (LHS) default values */
+/* Not used */
 const size_t N_LHS_EVALS_PER_DIM = 30;
 const size_t MAX_LHS_EVALUATIONS = 100;
 	

@@ -1,172 +1,174 @@
---------------------------------------------------------------------------
----------              BAYESIAN-OPTIMIZATION                     ---------
---------------------------------------------------------------------------
+BAYESIAN-OPTIMIZATION
+This is an efficient, C++ implementation of several Bayesian
+optimization algorithms. See References for some of the papers.
 
+Appart from the standard C++ interface, it also provides interfaces
+with plain C, Python and Matlab. 
 
-This is an efficient, C++ implementation of the Bayesian optimization
-algorithm presented in the papers:
+Basically, it combines the use of an stochastic process as a surrogate
+function with the use of some "active learning" criterion. to find the
+optimum an "arbitrary" function using very few iterations. 
 
-----
-Ruben Martinez-Cantin, Nando de Freitas, Arnaud Doucet and Jose Castellanos.
-Active Policy Learning for Robot Planning and Exploration under Uncertainty 
-Robotics: Science and Systems. 2007
+It can also be used for sequential experimental design and stochastic
+bandits by changing the criterion. 
 
-Ruben Martinez-Cantin, Nando de Freitas, Eric Brochu, Jose Castellanos and 
-Arnaud Doucet (2009) A Bayesian Exploration-Exploitation Approach for 
-Optimal Online Sensing and Planning with a Visually Guided Mobile Robot. 
-Autonomous Robots - Special Issue on Robot Learning, Part B, 27(3):93-103.
-----
- 
-Basically, it uses the active learning strategy to optimize an "arbitrary" 
-funtion using few iterations.
+INDEX:
+------------
+Install
+Usage
+Known Issues
+References
+------------
 
+======================================================================
+1 - INSTALL:
+======================================================================
 
-
-*****************
-* 1 - INSTALL:  *
-*****************
-
-Libkrigging uses standard C/C++ code, standard libraries and it can
-be compiled in different platforms using CMake.
+Bayesian-optimization uses standard C/C++ code and it can be compiled
+in different platforms using CMake. 
 
 Linux or Mac OS:
+======================================================================
+In Ubuntu/Debian, you can get the dependencies by running:
+
+>> sudo apt-get install libboost-dev python-dev python-numpy cmake g++ cython
+
+In Mac OS you can install macports and run:
+
+>> sudo port install boost python27 py27-numpy gcc46 cmake py27-cython
+
+To compile the source code:
+
 >> cmake . 
 >> make
 >> sudo make install
 
-Using ccmake instead of cmake you will access a interface to select features 
-such as debug mode, which version of DIRECT to use (see below) and if you want
-to use shared libraries or not. Shared libraries are required to use the 
-Python interface.
+If you use ccmake instead of cmake you will access a graphical
+interface to select features such as debug/release mode and if you
+want to use shared libraries or not. Shared libraries are required to
+run the Python interface.
 
 If you have doxygen installed on your computer, you can compile the
-documentation directly using cmake. 
+documentation right after compiling the code by running.
 
-You just need to download UseDoxygen.cmake
->> darcs get http://tobias.rautenkranz.ch/cmake/doxygen
->> cd doxygen
->> cmake . && make install
-
-Then, in the directy where bayesian-optimization is, use:
-
->> cmake .
->> make
 >> make doc
->> make install
-The documentation will appear on the doc subdirectory.
 
+The documentation will appear in the "doc" subdirectory.
 
 Windows:
-It can be compilled using CMake and MinGW compilers.
+======================================================================
+This code uses Boost libraries for matrix operations (uBlas) and
+random number generation. They can be found in standard linux
+distributions or it can be downloaded from
+(http://www.boost.org). Since they are pure template libraries, they
+do not require compilation. Just make sure the headers are on the
+include path.
+
+Python and Numpy are needed if you want the python interface. The
+library has been tested with Python 2.6 and 2.7. The interface also
+relies on numpy arrays http://new.scipy.org/download.html
+
+Python development files such as Python.h are needed to compile the
+interface. It you want to modify the Python interface, you also need
+Cython.
+
+$ cython --cplus bayesopt.pyx
 
 
-****************
-* 2 - USAGE:   *
-****************
+Compile the MATLAB interface: 
+======================================================================
+To run the MATLAB interface: First, you need to compile it
+using the compile.m script. Just make sure the script finds the
+bayesopt library.
 
-Jointly with bayesian-optimization, the test program krigtest will be compiled.
-It can be used as an example of the interfaces that bayesian-optimization provide.
-There are three kind of interfaces.
+At run time, MATLAB also needs to access the bayesopt library. For
+example, in Linux and Mac OS you make sure to execute the
+exportlocalpath.sh script is executed before calling MATLAB.
 
-2.1 - C functional usage
-------------------------
 
-This interface is fully functional from C and C++. It resembles the classic 
-NLOPT interface, therefore, NLOPT manual can used as well. We just need to 
-define a function pointer to the function that we need to evaluate. The 
-function pointer must agree with the template provided in krigwpr.h
+======================================================================
+2 - USAGE:
+======================================================================
+Jointly with bayesian-optimization, the test program krigtest will be
+compiled. It can be used as an example of the interfaces that
+bayesian-optimization provide. There are three kind of interfaces.
 
-Note that the gradient has been included for future compatibility, although
-in the current implementation, it is not used. You can just use a NULL pointer.
+2.1 - C callback usage
+======================================================================
+This interface is fully functional from C and C++. It resembles the
+classic NLOPT interface, therefore, the NLOPT manual can used as
+well. We just need to define a function pointer to the function that
+we need to evaluate. The function pointer must agree with the template
+provided in krigwpr.h
 
+Note that the gradient has been included for future compatibility,
+although in the current implementation, it is not used. You can just
+use a NULL pointer.
 
 2.2 - C++ polymorphic usage
----------------------------
+======================================================================
+The second way to use the function is by creating an object that
+inherits from the SKO object defined in krigging.hpp
 
-The second way to use the function is by creating an object that inherits 
-from the Krigging object defined in krigging.hpp
+Then, we just need to define the virtual function evaluateSample,
+which has interfaces both for C arrays and uBlas vectors. You can just
+redefine your favorite interface.
 
-Then, we just need to define the virtual function evaluateSample, which 
-has interfaces both for C arrays and uBlas vectors. You can just redefine
-your favorite interface.
+We may also need to create an object of any of the non parametric
+processes to set the desired parameters.
 
-Note that the checkReachability function has been included for future 
-compatibility, although in the current implementation, it is not used.
+2.3 - Python callback usage
+======================================================================
+The file python/test.py provides an example of the Python
+interface. It is similar the C interface. The parameters must be
+defined as a Python dictionary and the surrogate function and
+criterium are selected using the corresponding string.
 
-2.3 - Python functional usage
------------------------------
-
-The file bin/test.py provides an example of the Python interface. It is similar
-the C interface. The parameters must be defined as a Python dictionary.
-
-
-
-***********************
-* 3 -  DEPENDENCIES:  *
-***********************
-
-3.1 - BOOST:
-============
-
-This code uses Boost libraries for matrix operations (uBlas) and random
-number generation. They can be found in standard linux distributions or
-it can be downloaded from (www.boost.org). Since they are pure template
-libraries, they do not require compilation. Just make sure the headers are
-on the include path.
-
-They are not very efficient, so it may change in future versions.
+2.4 - Matlab callback usage (Experimental)
+======================================================================
+The file matlab/testmatlab.m provides an example of the Matlab
+interface. It is similar the C interface. The parameters must be
+defined as a Matlab struct and function can be passed both by the name
+(as a string) or as a function handler.
 
 
-3.2 - DIRECT:
-=============
+======================================================================
+3. KNOWN ISSUES
+======================================================================
+In some systems, the linker, Python or MATLAB are not able to find the
+shared libraries. You just need to point the LD_LIBRARY_PATH and
+PYTHONPATH to the corresponding folder (by default: /usr/local/lib in
+Linux and Mac OS).
 
-This library requires some other nonlinear optimization library 
-(e.g.: DIRECT). 
+If you use bash, there is a shell script to do that
+exportlocalpaths.sh
 
+MATLAB for Linux ships with outdated libraries for gcc (4.3 in
+2011b). You might get errors like this one:
 
-a) Using Fortran DIRECT:
+/usr/lib/x86_64-linux-gnu/gcc/x86_64-linux-gnu/4.5.2/cc1:
+/usr/local/MATLAB/R2010b/sys/os/glnxa64/libstdc++.so.6: version
+`GLIBCXX_3.4.14' not found (required by /usr/lib/libppl_c.so.2) 
 
-For completeness, it includes a Fortran 77 implementation of the
-DIRECT-L algorithm by J. Gablonsky
-
-J. M. Gablonsky and C. T. Kelley, "A locally-biased form of the DIRECT 
-algorithm," J. Global Optimization, vol. 21 (1), p. 27-37 (2001). 
-
-The original code can be downloaded from 
-http://www4.ncsu.edu/~ctk/SOFTWARE/DIRECTv204.tar.gz
-which includes some parallel processing functions that are not yet 
-supported in bayesian-optimization.
-
-This code has only been tested using gcc and libgfortran. Due to some
-limitations of the F77 compiler, it doesn't work in 64bit OS.
-
-b) Using NLOPT (default):
-
-We recommend the use of NLOPT for the inner loop optimization. The latest
-version can be downloaded from 
-
-http://ab-initio.mit.edu/wiki/index.php/NLopt
-
-NLOPT does not require external libraries and it is compatible with 
-Windows and Mac. Although compiling it in Windows is tricky.
-
-3.3 - PYTHON:
-=============
-
-The library has been tested with Python 2.6.
+The solution is to change the symbolic links in
+matlabroot/sys/os/glnx86 for libgcc_s.so.1 and libstdc++.so.6 to point
+to the system libraries, which typically can be found in /lib or
+/usr/lib
 
 
+--------------------------------------------------------------------
+Copyright (C) 2011-2012 Ruben Martinez-Cantin <rmcantin@unizar.es>
 
+BayesOptimization is free software: you can redistribute it and/or
+modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
+BayesOptimization is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details.
 
-********************
-* 4. KNOWN ISSUES  *
-********************
-
-- In some systems, the linker is not able to find the shared libraries. You
-just need to point the LD_LIBRARY_PATH and PYTHONPATH to the corresponding
-folder (by default: /usr/local/lib)
-
-- I have found that in some versions of Linux, NLOPT callback procedure
-fails when using the Python interface of bayesian-optimization.
-
+You should have received a copy of the GNU General Public License
+along with BayesOptimization. If not, see
+<http:www.gnu.org/licenses/>.

@@ -1,8 +1,14 @@
-PROJECT( ego Fortran CXX)
+PROJECT(BayesianOptimization CXX)
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-#SET(CMAKE_BUILD_TYPE Release)
-#SET(CMAKE_BUILD_TYPE debug)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} 
+		      ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
+set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} /opt/local/lib /opt/local/Library)
+set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} /opt/local/include
+/opt/local/Library)
+set(CMAKE_PROGRAM_PATH ${CMAKE_PROGRAM_PATH} /opt/local/bin/ /opt/local/Library)
+
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING 
@@ -11,140 +17,128 @@ if(NOT CMAKE_BUILD_TYPE)
       FORCE)
 endif(NOT CMAKE_BUILD_TYPE)
 
-SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -fPIC -fwrapv -fno-strict-aliasing")
-SET(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG -fPIC -fwrapv -fno-strict-aliasing")
+SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG ${CMAKE_CXX_FLAGS}")
+SET(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG ${CMAKE_C_FLAGS}")
 
-SET(CMAKE_CXX_FLAGS_DEBUG "-g")
-SET(CMAKE_C_FLAGS_DEBUG "-g")
+SET(CMAKE_CXX_FLAGS_DEBUG "-g -pg ${CMAKE_CXX_FLAGS}")
+SET(CMAKE_C_FLAGS_DEBUG "-g -pg ${CMAKE_C_FLAGS}")
   
 # enable warnings
-ADD_DEFINITIONS( -Wall )
+ADD_DEFINITIONS("-Wall")
 
 SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
-OPTION(BUILD_SHARED_LIBS "Build shared libraries?" ON)
+option(BUILD_PYTHON_INTERFACE "Build Python Interface?" ON)
+option(MATLAB_COMPATIBLE "Build library compatible with Matlab?" ON)
 
-FIND_PACKAGE(PythonLibs 2.6)
-
-IF(PYTHONLIBS_FOUND)
-  SET(BUILD_PYTHON_INTERFACE ON CACHE BOOL "Build Python Interface?")
+if(BUILD_PYTHON_INTERFACE)
+  INCLUDE(PythonMagic)
+  SET(PYTHON_LIB  ${PYTHON_LIBRARIES} )
   INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
-ELSE(PYTHONLIBS_FOUND)
-  SET(BUILD_PYTHON_INTERFACE OFF CACHE BOOL "Build Python Interface?")
-ENDIF(PYTHONLIBS_FOUND)
+  SET(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared libraries?")
+ELSE()
+  SET(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared libraries?")
+ENDIF(BUILD_PYTHON_INTERFACE)
 
+find_package( Boost REQUIRED )
+if(Boost_FOUND)
+   include_directories(${Boost_INCLUDE_DIRS})
+else(Boost_FOUND)
+   find_library(Boost boost PATHS /opt/local/lib)
+   include_directories(${Boost_LIBRARY_PATH})
+endif()
 
 FIND_LIBRARY(NLOPT nlopt)
 
 IF(NLOPT MATCHES NLOPT-NOTFOUND)
-  SET(USE_DIRECT_FORTRAN ON CACHE BOOL "Use Fortran Code of DIRECT?")
+  SET(BUILD_NLOPT ON CACHE BOOL "Build included version of NLOPT?")
 ELSE(NLOPT MATCHES NLOPT-NOTFOUND)
-  SET(USE_DIRECT_FORTRAN OFF CACHE BOOL "Use Fortran Code of DIRECT?")
+  SET(BUILD_NLOPT OFF CACHE BOOL "Build included version of NLOPT?")
 ENDIF(NLOPT MATCHES NLOPT-NOTFOUND)
 
-SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
+#SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 INCLUDE(UseDoxygen)
 
-IF(USE_DIRECT_FORTRAN)
-  ADD_SUBDIRECTORY(direct)
-ENDIF(USE_DIRECT_FORTRAN)
-
-#ADD_SUBDIRECTORY(src)
-
-CONFIGURE_FILE(
-  ./include/krig_config.h.in
-  ./include/krig_config.h
-  )
-
-# with SET() command you can change variables or define new ones
-# here we define SAMPLE_SRCS variable that contains a list of all .cpp files
-# note that we don't need \ at the end of line
-SET( KRIGGING_SRCS
-  ./src/krigging.cpp
-  ./src/krigwpr.cpp
+SET( BAYESOPT_SRCS
+  ./src/bayesoptcont.cpp
+  ./src/inneroptimization.cpp
+  ./src/gaussprocess.cpp
+  ./src/basicgaussprocess.cpp
+  ./src/studenttprocess.cpp
+  ./src/ctypes.cpp
+  ./wrappers/bayesoptwpr.cpp
   )
 
 IF(BUILD_PYTHON_INTERFACE)
-  SET(PYHTON_SRC   ./src/bayesopt.cpp )
+  SET(PYTHON_SRC  ./python/bayesopt.cpp)
 ELSE(BUILD_PYTHON_INTERFACE)
-  SET(PYHTON_SRC )
+  SET(PYTHON_SRC )
 ENDIF(BUILD_PYTHON_INTERFACE)
 
-SET( DIRECT_SRCS ./src/direct.cpp )
-SET( NLOPT_SRCS  ./src/nloptwpr.cpp )
 
+INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/include 
+                     ${CMAKE_SOURCE_DIR}/wrappers
+		     ${CMAKE_SOURCE_DIR}/utils )
 
-SET( KRIGGING_HEAD
-  ./include/krigging.hpp
-  ./include/krigwpr.h
-  ./include/krig_config.h
-  )
-
-SET( DIRECT_HEAD ./include/direct.hpp )
-SET( NLOPT_HEAD  ./include/nloptwpr.hpp )
-
-SET( MATH_HEAD
-  ./include/lhs.hpp 
-  ./include/ublasinv.hpp 
-  ./include/randgen.hpp
-  ./include/elementwiseUblas.hpp
-  )
-
-
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/include )
-
-find_package( Boost REQUIRED )
-   if(Boost_FOUND)
-      include_directories(${Boost_INCLUDE_DIRS})
-   endif()
 
 LINK_DIRECTORIES( ${CMAKE_SOURCE_DIR}/lib )
 
-IF(USE_DIRECT_FORTRAN)
-  SET( OPT_SOURCE ${DIRECT_SRCS})
-ELSE(USE_DIRECT_FORTRAN)
-  SET( OPT_SOURCE ${NLOPT_SRCS})
-ENDIF(USE_DIRECT_FORTRAN)
+IF(BUILD_NLOPT)
+  ADD_SUBDIRECTORY(nlopt)
+  include_directories(${CMAKE_SOURCE_DIR}/nlopt/api)
+ENDIF(BUILD_NLOPT)
+
+SET( OPT_SOURCE ./wrappers/nloptwpr.cpp)
 
 ADD_LIBRARY(bayesopt
-  ${KRIGGING_SRCS}   
-  ${PYHTON_SRC}
+  ${BAYESOPT_SRCS}   
+  ${PYTHON_SRC}
   ${OPT_SOURCE}
   )
 
-SET_TARGET_PROPERTIES(bayesopt PROPERTIES PREFIX "")
+IF(MATLAB_COMPATIBLE)
+  SET_TARGET_PROPERTIES(bayesopt PROPERTIES COMPILE_FLAGS "-fPIC")
+ENDIF()
 
-IF(USE_DIRECT_FORTRAN)
-  SET(EXT_LIBS DIRect)
-  add_dependencies(bayesopt DIRect)
-ELSE(USE_DIRECT_FORTRAN)
-  SET(EXT_LIBS libnlopt.so)
-ENDIF(USE_DIRECT_FORTRAN)
+IF(BUILD_SHARED_LIBS AND NOT MSYS)
+  SET_TARGET_PROPERTIES(bayesopt PROPERTIES PREFIX "" SUFFIX ".so")
+#    COMPILE_FLAGS "-fPIC -fwrapv -fno-strict-aliasing")
+ENDIF()
 
-IF(BUILD_PYTHON_INTERFACE)
-  SET(PYHTON_LIB  ${PYTHON_LIBRARIES} )
-ELSE(BUILD_PYTHON_INTERFACE)
-  SET(PYHTON_LIB )
-ENDIF(BUILD_PYTHON_INTERFACE)
-
-ADD_EXECUTABLE(krigtest
-  ./src/krigtest.cpp
-  )
-
-add_dependencies(krigtest bayesopt)
+IF(BUILD_NLOPT)
+  add_dependencies(bayesopt nlopt)
+  SET(EXT_LIBS nlopt)
+ELSE(BUILD_NLOPT)
+  SET(EXT_LIBS ${NLOPT})
+ENDIF(BUILD_NLOPT)
 
 TARGET_LINK_LIBRARIES(bayesopt
   ${EXT_LIBS}
+  ${PYTHON_LIB}
   )
 
-TARGET_LINK_LIBRARIES(krigtest
-  bayesopt
-  ${PYHTON_LIB}
-  )
+#Naive test
+ADD_EXECUTABLE(bayesopttest ./app/testbayesopt.cpp)
+add_dependencies(bayesopttest bayesopt)
+TARGET_LINK_LIBRARIES(bayesopttest bayesopt)
 
-INSTALL(FILES ./include/krigging.hpp ./include/krigwpr.h 
+#1D test
+ADD_EXECUTABLE(bayesoptonedtest ./app/testbopt_oned.cpp)
+add_dependencies(bayesoptonedtest bayesopt)
+TARGET_LINK_LIBRARIES(bayesoptonedtest bayesopt)
+
+#Branin
+ADD_EXECUTABLE(branintest ./app/testbranin.cpp )
+add_dependencies(branintest bayesopt)
+TARGET_LINK_LIBRARIES(branintest bayesopt)
+
+#Test for random number generator
+ADD_EXECUTABLE(randtest ./app/testrand.cpp)
+
+
+INSTALL(FILES ./include/bayesoptcont.hpp ./wrappers/bayesoptwpr.h 
   DESTINATION include)
 
 INSTALL(TARGETS bayesopt

@@ -1,0 +1,14 @@
+doc
+CMakeFiles
+CMakeCache
+Makefile
+cmake_install.cmake
+Doxyfile
+bin/direct.out
+bin/krigtest
+bin/randtest
+install_manifest.txt
+syntax:glob
+*.a
+*.so
+*~

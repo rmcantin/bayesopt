@@ -32,6 +32,9 @@
 #ifndef  _BAYESOPTCONT_HPP_
 #define  _BAYESOPTCONT_HPP_
 
+#include <iostream>
+#include <fstream>
+
 //TODO: Check if everything is needed
 #include "specialtypes.hpp"
 #include "elementwiseUblas.hpp"
@@ -202,7 +205,7 @@ protected:
   size_t mMaxIterations;            ///< Maximum SKO evaluations (budget)
   vectord mLowerBound, mRangeBound; ///< Lower bound and range of the input space
   int mVerbose;                     ///< Verbose level
-
+  std::ofstream mLogFile;           ///< Log file in case it is used
 };
 
 /**@}*/

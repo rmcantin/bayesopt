@@ -55,6 +55,7 @@ public:
 
   inline void setCriterium(criterium_name c)
   { criterium = c; }
+
   inline void setAnnealing(bool anneal)
   { use_annealing = anneal; }
 
@@ -83,7 +84,7 @@ public:
 
   }
 
-  double abs_max(double a, double b)
+  inline double abs_max(double a, double b)
   { return (std::abs(a)<std::abs(b)) ? b:a; }
 
   /** 
@@ -115,24 +116,16 @@ public:
     double offset = min_g;
     g_ei -= offset; g_lcb -= offset; g_poi -= offset; 
 
-    std::cout << offset << "," << std::endl;
-
     double p_ei = exp(eta*g_ei);
     double p_lcb = exp(eta*g_lcb);
     double p_poi = exp(eta*g_poi);
     double sum_p = p_ei + p_lcb + p_poi;
-
-    std::cout << p_ei << "," << p_lcb << "," << p_poi << "," << std::endl;
 
     // Compute probabilities of choosing action
     p_ei  /= sum_p; p_lcb /= sum_p; p_poi /= sum_p;
     
     // Update accumulated rewards for next time
     g_ei -= l_ei; g_lcb -= l_lcb; g_poi -= l_poi; 
-
-    std::cout << l_ei << "," << l_lcb << "," << l_poi << "," << std::endl;
-    std::cout << g_ei << "," << g_lcb << "," << g_poi << "," << std::endl;
-    std::cout << p_ei << "," << p_lcb << "," << p_poi << "," << std::endl;
 
     double u = sample();
 

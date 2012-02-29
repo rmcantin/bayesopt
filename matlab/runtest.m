@@ -20,14 +20,16 @@
 clear all, close all
 addpath('testfunctions')
 
-params.iterations = 200;
+params.iterations = 300;
 params.criteria = 'ei';
 params.surrogate = 'gp';
 params.kernel = 'materniso3';
 
-lb = ones(2,1)*0;
-ub = ones(2,1)*3.2;
+n = 2;
+
+lb = ones(n,1)*-32.768;
+ub = ones(n,1)*32.768;
 
 tic;
-bayesopt('michalewicz',2,params,lb,ub)
+bayesopt('ackley',n,params,lb,ub)
 toc;

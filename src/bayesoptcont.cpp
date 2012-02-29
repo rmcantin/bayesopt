@@ -19,6 +19,8 @@
    along with BayesOptimization.  If not, see <http://www.gnu.org/licenses/>.
 -----------------------------------------------------------------------------
 */
+#include <ctime>
+#include <limits>
 #include <algorithm>
 #include "bayesoptcont.hpp"
 #include "lhs.hpp"
@@ -27,7 +29,7 @@
 
 
 SKO::SKO( NonParametricProcess* gp):
-  mVerbose(0)
+  mVerbose(0), mLogFile()
 { 
   crit_name = c_gp_hedge;
   if (gp == NULL)
@@ -44,7 +46,13 @@ int SKO::optimize( vectord &bestPoint,
 		   vectord &upperBound,
 		   size_t nIterations )
 {
-  mVerbose = 1;
+  mVerbose = -1;
+
+  if (mVerbose < 0)
+    {
+      mLogFile.open("log_bopt.out");
+      if ( !mLogFile.is_open() )  mVerbose = 1;
+    }
 
   crit.resetHedgeValues();
  
@@ -57,6 +65,7 @@ int SKO::optimize( vectord &bestPoint,
       std::cout << lowerBound << std::endl;
       std::cout << upperBound << std::endl;
     }
+
 
   size_t nDims = bestPoint.size();
  
@@ -76,6 +85,7 @@ int SKO::optimize( vectord &bestPoint,
 
   if (mVerbose > 0) std::cout << "Sampling initial points..." << std::endl;
 
+  clock_t start_time = clock();
   sampleInitialPoints(nLHSSamples, nDims, true);
 
   if (mVerbose > 0) std::cout << "DONE" << std::endl;
@@ -95,12 +105,23 @@ int SKO::optimize( vectord &bestPoint,
 	  std::cout << "Best found at: " << xOpt << std::endl; 
 	  std::cout << "Best outcome: " <<  mGP->getValueAtMinimum() <<  std::endl; 
 	}
-     
       yNext = evaluateNormalizedSample(xNext);
-      mGP->addNewPointToGP(xNext,yNext);     
+      mGP->addNewPointToGP(xNext,yNext); 
+
+      if(mVerbose<0)
+	{
+	  clock_t lap = clock();
+	  double t_lap = static_cast<double>(lap-start_time)/static_cast<double>(CLOCKS_PER_SEC);
+	  mLogFile << t_lap << "|" << mGP->getValueAtMinimum() << "|";
+	  mLogFile << yNext << "|" << unnormalizeVector(xNext) << std::endl;
+	}
+         
     }
 
   bestPoint = mGP->getPointAtMinimum();
+
+  if(mVerbose < 0)
+    mLogFile.close();
 
   return 1;
 } // optimize
@@ -113,22 +134,37 @@ int SKO::sampleInitialPoints( size_t nSamples, size_t nDims,
    * as appeared in Jones EGO
    */
    
+
   matrixd xPoints(nSamples,nDims);
   vectord yPoints(nSamples);
   vectord sample(nDims);
   randEngine mtRandom(100u);
+  clock_t start_time = clock();
  
   if (useLatinBox)
       lhs(xPoints, mtRandom);
   else
       uniformSampling(xPoints, mtRandom);
 
+  double ymin = std::numeric_limits<double>::max();
+
   for(size_t i = 0; i < nSamples; i++)
     {
       sample = row(xPoints,i);
       if(mVerbose >0)
 	std::cout << sample << std::endl;
+
       yPoints(i) = evaluateNormalizedSample(sample);
+
+      if (mVerbose < 0)
+	{ 
+	  if(yPoints(i)<ymin) 
+	    ymin = yPoints(i);
+	  clock_t lap = clock();
+	  double t_lap = static_cast<double>(lap-start_time)/static_cast<double>(CLOCKS_PER_SEC);
+	  mLogFile << t_lap << "|" << ymin << "|";
+	  mLogFile << yPoints(i) << "|" << unnormalizeVector(sample) << std::endl;
+	}
     }
 
   mGP->setSamples(xPoints,yPoints);

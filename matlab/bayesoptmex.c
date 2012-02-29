@@ -105,7 +105,7 @@ static double user_function(unsigned n, double *x,
 	"error calling user function");
 
   CHECK0(mxIsNumeric(d->plhs[0]) && !mxIsComplex(d->plhs[0]) 
-	&& mxGetM(d->plhs[0]) * mxGetN(d->plhs[0]) == 1,
+	 && (mxGetM(d->plhs[0]) * mxGetN(d->plhs[0]) == 1),
 	"user function must return real scalar");
   f = mxGetScalar(d->plhs[0]);
   mxDestroyArray(d->plhs[0]);

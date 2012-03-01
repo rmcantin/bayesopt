@@ -20,16 +20,17 @@
 clear all, close all
 addpath('testfunctions')
 
-params.iterations = 300;
+params.iterations = 500;
 params.criteria = 'ei';
-params.surrogate = 'gp';
+params.surrogate = 'gp_ign';
+params.noise = 0.005;
 params.kernel = 'materniso3';
 
-n = 2;
+n = 5;
 
-lb = ones(n,1)*-32.768;
-ub = ones(n,1)*32.768;
+lb = ones(n,1)*0;
+ub = ones(n,1)*pi;
 
 tic;
-bayesopt('ackley',n,params,lb,ub)
+bayesopt('michalewicz',n,params,lb,ub)
 toc;

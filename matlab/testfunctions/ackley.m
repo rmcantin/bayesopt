@@ -8,4 +8,4 @@ b = 0.2;
 c = 2*pi;
 ccx = cos(c*x);
 
-y = -a*exp(-b*sqrt(sum(x.^2)/n)) - exp(sum(ccx)) + a + exp(1);
+y = -a*exp(-b*sqrt(sum(x.^2)/n)) - exp(sum(ccx)/n) + a + exp(1);

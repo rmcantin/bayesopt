@@ -14,8 +14,8 @@ const size_t MAX_ITERATIONS  = 1000;
 const size_t MAX_DIM         = 40;
 
 /* INNER Optimizer default values */
-const size_t MAX_INNER_EVALUATIONS = 1000;
-const size_t MAX_INNER_ITERATIONS  = 1000;
+const size_t MAX_INNER_EVALUATIONS = 3000;
+const size_t MAX_INNER_ITERATIONS  = 3000;
 
 /* Latin Hypercube Sampling (LHS) default values */
 /* Not used */

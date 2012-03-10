@@ -129,6 +129,9 @@ class SKO: public InnerOptimization
   void setCriteria (criterium_name c)
   {crit_name = c;}
 
+  void setInitSet (int n)
+  {nInitSet = n;}
+
   /** 
    * Function that defines the actual mathematical function to be optimized.
    * Virtual function for polymorphism. This function must need to be modified 
@@ -200,6 +203,7 @@ protected:
 protected:
 
   NonParametricProcess* mGP;        ///< Pointer to surrogate model
+  size_t nInitSet;                  ///< Number of samples before optimization
   Criteria crit;                    ///< Criteria model
   criterium_name crit_name;         ///< Name of the criteria
   size_t mMaxIterations;            ///< Maximum SKO evaluations (budget)

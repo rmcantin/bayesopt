@@ -51,7 +51,8 @@ cdef extern from "bayesoptwpr.h":
 
     int bayes_optimization(int nDim, eval_func f, void* f_data,
                            double *lb, double *ub, double *x,
-                           double *minf, int maxeval, gp_params params,
+                           double *minf, int maxiniteval, int maxeval,
+                           gp_params params,
                            criterium_name c_name,
                            surrogate_name gp_name,
                            kernel_name k_name)
@@ -80,6 +81,7 @@ cdef double callback(unsigned int n, double *x,
 
 def optimize(f, int nDim, np.ndarray[np.double_t] np_lb,
              np.ndarray[np.double_t] np_ub,
+             int maxiniteval, 
              int maxeval, dict dparams,
              bytes criteria, bytes surrogate, bytes kernel):
 
@@ -102,8 +104,8 @@ def optimize(f, int nDim, np.ndarray[np.double_t] np_lb,
     Py_INCREF(f)
     error_code = bayes_optimization(nDim, callback, <void *> f,
                                     <double *>np_lb.data, <double *>np_ub.data,
-                                    <double *>np_x.data, minf, maxeval,
-                                    params, crit, surr, ker)
+                                    <double *>np_x.data, minf, maxiniteval,
+                                    maxeval, params, crit, surr, ker)
     Py_DECREF(f)
     min_value = minf[0]
     return min_value,np_x,error_code

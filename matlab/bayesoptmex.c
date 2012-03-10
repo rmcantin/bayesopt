@@ -196,6 +196,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
   par.delta = struct_val_default(params, "delta", PRIOR_DELTA_SQ);
   par.noise = struct_val_default(params, "noise", DEF_REGULARIZER);
   nIterations = (unsigned int) struct_val_default(params, "iterations", 300);
+  nInitIter = (unsigned int) struct_val_default(params, "init_iterations", 30);
 
   /* Extra configuration
   /  See ctypes.h for the available options */
@@ -250,7 +251,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     }
 
   bayes_optimization(nDim,user_function,&udata,lb,ub,xptr,
-		     &fmin,nIterations,par,c_name,s_name,k_name);
+		     &fmin,nInitIter,nIterations,par,c_name,s_name,k_name);
 
   if(nrhs != 5)
     {

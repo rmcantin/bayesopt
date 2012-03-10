@@ -15,6 +15,7 @@ class BayesOptModule:
         self.kernel = "materniso3"
 
         self.n = 5                      # n dimensions
+        self.ninititer = 10             # n initial iterations
         self.niter = 100                # n iterations
 
         self.lb = np.zeros((self.n,))
@@ -29,7 +30,7 @@ class BayesOptModule:
 
     def optimize(self):
         mvalue, x_out, error = kp.optimize(self.evalfunc, self.n,
-                                           self.lb, self.ub,
+                                           self.lb, self.ub, self.ninititer,
                                            self.niter, self.params,
                                            self.crit, self.surr, self.kernel)
         

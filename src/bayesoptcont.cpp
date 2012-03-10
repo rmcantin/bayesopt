@@ -46,7 +46,7 @@ int SKO::optimize( vectord &bestPoint,
 		   vectord &upperBound,
 		   size_t nIterations )
 {
-  mVerbose = -1;
+  mVerbose = 1;
 
   if (mVerbose < 0)
     {
@@ -80,8 +80,12 @@ int SKO::optimize( vectord &bestPoint,
   if (nIterations <= 0) 
     nIterations = MAX_ITERATIONS;
 
-  size_t nLHSSamples = static_cast<size_t>(ceil(0.1*nIterations));
-  nIterations -= nLHSSamples;
+  size_t nLHSSamples;
+
+  if (nInitSet <= 0)
+    nLHSSamples = static_cast<size_t>(ceil(0.1*nIterations));
+  else
+    nLHSSamples = nInitSet;
 
   if (mVerbose > 0) std::cout << "Sampling initial points..." << std::endl;
 

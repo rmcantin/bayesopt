@@ -43,6 +43,7 @@ int main(int nargs, char *args[])
 {    
   int n = 1;                   // Number of dimensions
   int nIterations = 300;       // Number of iterations
+  int nInitSet = 30;
 
   // Common configuration
   // See ctypes.h for the available options
@@ -83,6 +84,7 @@ int main(int nargs, char *args[])
 
   TestEGO gp_opt(gp);
   vectord result(n);
+  gp_opt.setInitSet(nInitSet);
   gp_opt.setCriteria(c_name);
 
   // Run C++ interface
@@ -104,7 +106,7 @@ int main(int nargs, char *args[])
 
   // Run C interface
   start = clock();
-  bayes_optimization(n,&testFunction,NULL,l,u,x,fmin,
+  bayes_optimization(n,&testFunction,NULL,l,u,x,fmin,nInitSet,
 		     nIterations,par,c_name,s_name,k_name);
   end = clock();
   diff2 = (double)(end-start) / (double)CLOCKS_PER_SEC;

@@ -20,22 +20,23 @@ class BayesOptTest(bopt.BayesOptModule):
     
 # Let's define the parameters
 params = {"theta": 0.11, "alpha": 1.0, "beta": 0.1,
-          "delta": 10.0, "noise": 0.001}
+          "delta": 1000.0, "noise": 0.001}
 
 # options: see ctypes.cpp
 crit = "ei"        
-surr = "gp_ign" 
+surr = "gp" 
 kernel = "materniso3"
 
 n = 5                     # n dimensions
-niter = 100                # n iterations
+ninit = 40                # n initial iterations
+niter = 100               # n iterations
 
 lb = np.zeros((n,))
 ub = np.ones((n,))
 
 start = tm.clock()
 
-mvalue, x_out, error = kp.optimize(testfunc, n, lb, ub,
+mvalue, x_out, error = kp.optimize(testfunc, n, lb, ub, ninit,
                                    niter, params, crit, surr,
                                    kernel)
 
@@ -43,8 +44,18 @@ print "Result", x_out
 print "Seconds", tm.clock() - start
 
 
-start = tm.clock()
 bo = BayesOptTest()
+bo.params = params
+bo.crit = crit
+bo.surr = surr
+bo.kernel = kernel
+bo.n = n
+bo.niter = niter
+bo.lb = lb
+bo.ub = ub
+bo.ninititer = ninit
+
+start = tm.clock()
 mvalue, x_out, error = bo.optimize()
 
 print "Result", x_out

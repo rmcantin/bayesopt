@@ -75,6 +75,10 @@ int bayes_optimization(int nDim, eval_func f, void* f_data,
   copyCarrayInVector(lb,nDim,lowerBound);
   copyCarrayInVector(ub,nDim,upperBound);
 
+  std::cout << "Limits" << std::endl;
+  std::cout << lowerBound << std::endl;
+  std::cout << upperBound << std::endl;
+
   NonParametricProcess* gp;
 
   switch(gp_name)

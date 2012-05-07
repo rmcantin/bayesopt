@@ -133,7 +133,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
   mxArray *xopt;
   const mxArray *func_name, *params;
   user_function_data udata;
-  unsigned int nDim, nIterations;    
+  unsigned int nDim, nIterations, nInitIter;    
   gp_params par;
      
      

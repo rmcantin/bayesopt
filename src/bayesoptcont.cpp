@@ -29,7 +29,7 @@
 
 
 SKO::SKO( NonParametricProcess* gp):
-  mVerbose(0), mLogFile()
+  InnerOptimization(), mVerbose(0), mLogFile()
 { 
   crit_name = c_gp_hedge;
   if (gp == NULL)
@@ -122,7 +122,7 @@ int SKO::optimize( vectord &bestPoint,
          
     }
 
-  bestPoint = mGP->getPointAtMinimum();
+  bestPoint = unnormalizeVector(mGP->getPointAtMinimum());
 
   if(mVerbose < 0)
     mLogFile.close();

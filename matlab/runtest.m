@@ -20,7 +20,8 @@
 clear all, close all
 addpath('testfunctions')
 
-params.iterations = 500;
+params.iterations = 200;
+params.init_iterations = 50;
 params.criteria = 'ei';
 params.surrogate = 'gp_ign';
 params.noise = 0.005;
@@ -28,7 +29,7 @@ params.kernel = 'materniso3';
 
 n = 5;
 
-lb = ones(n,1)*0;
+lb = ones(n,1)*pi/2;
 ub = ones(n,1)*pi;
 
 tic;

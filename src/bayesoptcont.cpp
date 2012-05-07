@@ -31,6 +31,7 @@
 SKO::SKO( NonParametricProcess* gp):
   InnerOptimization(), mVerbose(0), mLogFile()
 { 
+  setAlgorithm(direct);
   crit_name = c_gp_hedge;
   if (gp == NULL)
     mGP = new BasicGaussianProcess(KERNEL_THETA,DEF_REGULARIZER);

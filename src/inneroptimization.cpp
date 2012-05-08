@@ -21,6 +21,21 @@
 
 #include "inneroptimization.hpp"
 
+void checkNLOPTerror(nlopt_result errortype)
+{
+  //TODO: Raise exceptions.
+  switch(errortype)
+      {
+      case -1: std::cout << "NLOPT: General failure" << std::endl; break;
+      case -2: std::cout << "NLOPT: Invalid arguments. Check bounds." << std::endl; break;
+      case -3: std::cout << "NLOPT: Out of memory" << std::endl; break;
+      case -4: std::cout << "NLOPT Warning: Potential roundoff error. " 
+			 << "In general, this can be ignored." 
+			 << std::endl; break;
+      case -5: std::cout << "NLOPT: Force stop." << std::endl; break;
+      }
+}
+
 
 int InnerOptimization::innerOptimize(vectord &Xnext)
 {   
@@ -71,7 +86,7 @@ int InnerOptimization::innerOptimize(double* x, int n, void* objPointer)
     switch(alg)
       {
       case direct:      /* same as combined */
-      case combined: 	opt = nlopt_create(NLOPT_GN_ORIG_DIRECT_L, n); break;
+      case combined: 	opt = nlopt_create(NLOPT_GN_DIRECT_L, n); break;
       case bobyqa: 	opt = nlopt_create(NLOPT_LN_BOBYQA, n); break;
       case lbfgs:       opt = nlopt_create(NLOPT_LD_LBFGS, n); break;
       default: std::cout << "Algorithm not supported" << std::endl; return -1;
@@ -84,6 +99,7 @@ int InnerOptimization::innerOptimize(double* x, int n, void* objPointer)
 
 
     nlopt_result errortype = nlopt_optimize(opt, x, &fmin);
+    checkNLOPTerror(errortype);
 
     // Local refinement
     if ((alg == combined) && (coef < 1)) 
@@ -96,12 +112,11 @@ int InnerOptimization::innerOptimize(double* x, int n, void* objPointer)
 	nlopt_set_maxeval(opt, maxf-round(maxf*coef));
 	
 	errortype = nlopt_optimize(opt, x, &fmin);
+	checkNLOPTerror(errortype);
       }
       
     nlopt_destroy(opt);  // Destroy opt
-    if (errortype < 0)
-      std::cout << "Error:" << errortype << std::endl;
-
+    
     ierror = static_cast<int>(errortype);
 
     return ierror;

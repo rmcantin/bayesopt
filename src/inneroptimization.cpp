@@ -16,6 +16,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -----------------------------------------------------------------------------
 */
+#include <cmath>
 #include <nlopt.h>
 #include "nloptwpr.h"
 
@@ -72,6 +73,9 @@ int InnerOptimization::innerOptimize(double* x, int n, void* objPointer)
 
     for (int i = 0; i < n; ++i) {
 	l[i] = mDown;	u[i] = mUp;
+	// What if x is undefined?
+	if (x[i] < l[i] || x[i] > u[i])
+	  x[i]=(l[i]+u[i])/2.0;
     }
 
     double (*fpointer)(unsigned int, const double *, double *, void *);
@@ -95,7 +99,8 @@ int InnerOptimization::innerOptimize(double* x, int n, void* objPointer)
     nlopt_set_lower_bounds(opt, l);
     nlopt_set_upper_bounds(opt, u);
     nlopt_set_min_objective(opt, fpointer, objPointer);
-    nlopt_set_maxeval(opt, round(maxf*coef) ) ;
+    int nfeval = static_cast<int>(static_cast<double>(maxf)*coef);
+    nlopt_set_maxeval(opt, nfeval) ;
 
 
     nlopt_result errortype = nlopt_optimize(opt, x, &fmin);
@@ -109,7 +114,7 @@ int InnerOptimization::innerOptimize(double* x, int n, void* objPointer)
 	nlopt_set_lower_bounds(opt, l);
 	nlopt_set_upper_bounds(opt, u);
 	nlopt_set_min_objective(opt, fpointer, objPointer);
-	nlopt_set_maxeval(opt, maxf-round(maxf*coef));
+	nlopt_set_maxeval(opt, maxf-nfeval);
 	
 	errortype = nlopt_optimize(opt, x, &fmin);
 	checkNLOPTerror(errortype);

@@ -72,9 +72,6 @@ int SKO::optimize( vectord &bestPoint,
  
   vectord xNext(nDims);
   double yNext;
-  /*size_t nLHSSamples = std::min(N_LHS_EVALS_PER_DIM*nDims,MAX_LHS_EVALUATIONS);
-  if ((nIterations > (MAX_ITERATIONS - nLHSSamples)) || (nIterations <= 0))
-	nIterations = MAX_ITERATIONS - nLHSSamples;*/
 
   // Configuration simplified.
   // The number of initial samples is fixed 10% of the total budget

@@ -16,6 +16,7 @@ typedef boost::numeric::ublas::matrix<double>                   matrixd;
 typedef boost::numeric::ublas::identity_matrix<double>             eyed;
 
 typedef std::vector<vectord>                                   vecOfvec;
+typedef std::vector<vectord>::iterator                 vecOfvecIterator;
 
 // Surprisingly, this is the most efficient version of a growing matrix 
 // for uBlas, but I leave here the old trial because it might change in

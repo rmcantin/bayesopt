@@ -63,6 +63,7 @@ INCLUDE(UseDoxygen)
 
 SET( BAYESOPT_SRCS
   ./src/bayesoptcont.cpp
+  ./src/bayesoptdisc.cpp
   ./src/inneroptimization.cpp
   ./src/gaussprocess.cpp
   ./src/basicgaussprocess.cpp
@@ -138,7 +139,7 @@ TARGET_LINK_LIBRARIES(branintest bayesopt)
 ADD_EXECUTABLE(randtest ./app/testrand.cpp)
 
 
-INSTALL(FILES ./include/bayesoptcont.hpp ./wrappers/bayesoptwpr.h 
+INSTALL(FILES ./include/bayesoptcont.hpp ./include/bayesoptdisc.hpp ./wrappers/bayesoptwpr.h 
   DESTINATION include)
 
 INSTALL(TARGETS bayesopt

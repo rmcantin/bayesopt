@@ -5,10 +5,11 @@ struct c_unique {
   int current;
   c_unique() {current=0;}
   int operator()() {return ++current;}
-} UniqueNumber;
+};
 
 inline std::vector<int> returnIndexVector(size_t n)
 {
+  c_unique UniqueNumber;
   std::vector<int> arr(n);
   generate (arr.begin(), arr.end(), UniqueNumber);
   return arr;
@@ -16,6 +17,7 @@ inline std::vector<int> returnIndexVector(size_t n)
 
 inline void modifyIndexVector(std::vector<int>& arr)
 {
+  c_unique UniqueNumber;
   generate (arr.begin(), arr.end(), UniqueNumber);
 }
 

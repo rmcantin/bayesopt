@@ -140,7 +140,7 @@ int SKO::sampleInitialPoints( size_t nSamples, size_t nDims,
   matrixd xPoints(nSamples,nDims);
   vectord yPoints(nSamples);
   vectord sample(nDims);
-  randEngine mtRandom(100u);
+  randEngine mtRandom;
   clock_t start_time = clock();
  
   if (useLatinBox)

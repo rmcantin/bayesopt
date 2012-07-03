@@ -9,12 +9,14 @@
  * It is used to generate a uniform Latin hypercube.
  * Equivalent to std::random_shuffle but using boost::random
  */
-void randomPerms(std::vector<int>& arr, 
+template<class D>
+void randomPerms(D& arr, 
 		 randEngine& mtRandom)
 {
-  
+  typedef typename D::iterator iter;
+
   randInt sample(mtRandom, intUniformDist(0,arr.size()-1));
-  for (std::vector<int>::iterator it=arr.begin(); it!=arr.end(); ++it)
+  for (iter it=arr.begin(); it!=arr.end(); ++it)
     iter_swap(arr.begin()+sample(),it);
 } // randomPerms 
 

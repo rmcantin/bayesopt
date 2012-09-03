@@ -24,19 +24,11 @@
 #define __C_TYPES_H__
 
 #include <string.h>
+#include "defaults.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif 
-
-  typedef struct {
-    double theta;
-    double alpha;
-    double beta;
-    double delta;
-    double noise;
-  } gp_params;
-
 
   typedef enum {
     k_materniso1,
@@ -67,9 +59,40 @@ extern "C" {
     s_error
   } surrogate_name;
 
+  typedef enum {
+    m_zero,
+    m_one,
+    m_linear,
+    m_error
+  } mean_name;
+
+  typedef struct {
+    unsigned int n_iterations, n_init_samples;
+    double theta;  
+    double alpha, beta, delta;
+    double noise;
+    surrogate_name s_name;
+    kernel_name k_name;
+    criterium_name c_name;
+  } sko_params;
+
+  const sko_params DEFAULT_PARAMS = {
+    300, 30,
+    KERNEL_THETA, 
+    PRIOR_ALPHA, PRIOR_BETA, PRIOR_DELTA_SQ,
+    DEF_REGULARIZER,
+    s_gaussianProcess,
+    k_materniso3,
+    c_ei
+  };
+
+  /*These functions are added to simplify wrapping code*/
+
   kernel_name str2kernel(const char* name);
   criterium_name str2crit(const char* name);
   surrogate_name str2surrogate(const char* name);
+  mean_name str2mean(const char* name);
+  sko_params initialize_parameters_to_default(void);
 
 #ifdef __cplusplus
 }

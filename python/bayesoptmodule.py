@@ -5,19 +5,20 @@ import bayesopt as kp
 class BayesOptModule:
     def __init__(self):
         # Let's define the parameters
+        # For different options: see ctypes.h and cpp
+        # If a parameter is not define, it will be automatically set
+        # to a default value.
         self.params = {"theta": 0.11,
-                       "alpha": 1.0, "beta": 0.1,
-                       "delta": 10.0, "noise": 0.001}
-
-        # options: see ctypes.cpp
-        self.crit = "ei"        
-        self.surr = "gp_ign" 
-        self.kernel = "materniso3"
+          "alpha": 1.0, "beta": 0.1,
+          "delta": 1000.0,
+          "noise": 0.001,
+          "crit" : "ei",        
+          "surr" : "gp" ,
+          "kernel" : "materniso3",
+          "n_iter" : 100,
+          "n_samples" : 40}
 
         self.n = 5                      # n dimensions
-        self.ninititer = 10             # n initial iterations
-        self.niter = 100                # n iterations
-
         self.lb = np.zeros((self.n,))
         self.ub = np.ones((self.n,))
 

@@ -26,6 +26,9 @@
 
 namespace kernels
 {
+  //TODO: reconsider namespaces
+  //TODO: build it as functor
+  //http://www.dreamincode.net/forums/topic/38412-the-command-pattern-c/
 
   using namespace boost::numeric::ublas;	
 

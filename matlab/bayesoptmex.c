@@ -134,7 +134,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
   const mxArray *func_name, *params;
   user_function_data udata;
   unsigned int nDim, nIterations, nInitIter;    
-  gp_params par;
+  sko_params parameters;
      
      
   /* Check correct number of parameters */
@@ -190,29 +190,28 @@ void mexFunction(int nlhs, mxArray *plhs[],
     }
 
 
-  par.theta = struct_val_default(params, "theta", KERNEL_THETA);
-  par.alpha = struct_val_default(params, "alpha", PRIOR_ALPHA);
-  par.beta = struct_val_default(params, "beta", PRIOR_BETA);
-  par.delta = struct_val_default(params, "delta", PRIOR_DELTA_SQ);
-  par.noise = struct_val_default(params, "noise", DEF_REGULARIZER);
-  nIterations = (unsigned int) struct_val_default(params, "iterations", 300);
-  nInitIter = (unsigned int) struct_val_default(params, "init_iterations", 30);
+
+  parameters.n_iterations = (unsigned int) struct_val_default(params, "iterations", 300);
+  parameters.n_init_samples = (unsigned int) struct_val_default(params, "init_iterations", 30);
+
+  parameters.theta = struct_val_default(params, "theta", KERNEL_THETA);
+  parameters.alpha = struct_val_default(params, "alpha", PRIOR_ALPHA);
+  parameters.beta = struct_val_default(params, "beta", PRIOR_BETA);
+  parameters.delta = struct_val_default(params, "delta", PRIOR_DELTA_SQ);
+  parameters.noise = struct_val_default(params, "noise", DEF_REGULARIZER);
 
   /* Extra configuration
   /  See ctypes.h for the available options */
-  criterium_name c_name;
-  surrogate_name s_name;
-  kernel_name k_name;
   char c_str[50], s_str[50], k_str[50];
 
   struct_str_default(params, "criteria", "ei", c_str);
-  c_name = str2crit(c_str);
+  parameters.criterium_name = str2crit(c_str);
 
   struct_str_default(params, "surrogate", "gp", s_str);
-  s_name = str2surrogate(s_str);
+  parameters.surrogate_name = str2surrogate(s_str);
   
   struct_str_default(params, "kernel", "materniso3", k_str);
-  k_name = str2kernel(k_str);
+  parameters.kernel_name = str2kernel(k_str);
 
 
   double *ub, *lb;    /* Upper and lower bound */
@@ -251,7 +250,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     }
 
   bayes_optimization(nDim,user_function,&udata,lb,ub,xptr,
-		     &fmin,nInitIter,nIterations,par,c_name,s_name,k_name);
+		     &fmin,parameters);
 
   if(nrhs != 5)
     {

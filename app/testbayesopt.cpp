@@ -42,21 +42,21 @@ class TestEGO: public SKO
 int main(int nargs, char *args[])
 {    
   int n = 1;                   // Number of dimensions
-  int nIterations = 300;       // Number of iterations
-  int nInitSet = 30;
 
   // Common configuration
   // See ctypes.h for the available options
-  criterium_name c_name = c_ei;
-  surrogate_name s_name = s_gaussianProcess;
-  kernel_name k_name = k_seiso;
-  gp_params par;
+  sko_params par;
 
   par.theta = KERNEL_THETA;
   par.alpha = PRIOR_ALPHA;
   par.beta = PRIOR_BETA;
   par.delta = PRIOR_DELTA_SQ;
   par.noise = DEF_REGULARIZER;
+  par.c_name = c_ei;
+  par.s_name = s_gaussianProcess;
+  par.k_name = k_seiso;
+  par.n_iterations = 300;       // Number of iterations
+  par.n_init_samples = 30;
   /*******************************************/
 
   clock_t start, end;
@@ -66,7 +66,7 @@ int main(int nargs, char *args[])
   NonParametricProcess* gp;
 
   // Configure C++ interface
-  switch(s_name)
+  switch(par.s_name)
     {
     case s_gaussianProcess: 
       gp = new BasicGaussianProcess(par.theta,par.noise);
@@ -80,16 +80,16 @@ int main(int nargs, char *args[])
       gp = new StudentTProcess(par.theta,par.noise);
       break; 
     }
-  gp->setKernel(k_name);
+  gp->setKernel(par.k_name);
 
   TestEGO gp_opt(gp);
   vectord result(n);
-  gp_opt.setInitSet(nInitSet);
-  gp_opt.setCriteria(c_name);
+  gp_opt.setInitSet(par.n_init_samples);
+  gp_opt.setCriteria(par.c_name);
 
   // Run C++ interface
   start = clock();
-  gp_opt.optimize(result,nIterations);
+  gp_opt.optimize(result,par.n_iterations);
   end = clock();
   diff = (double)(end-start) / (double)CLOCKS_PER_SEC;
   /*******************************************/
@@ -106,8 +106,7 @@ int main(int nargs, char *args[])
 
   // Run C interface
   start = clock();
-  bayes_optimization(n,&testFunction,NULL,l,u,x,fmin,nInitSet,
-		     nIterations,par,c_name,s_name,k_name);
+  bayes_optimization(n,&testFunction,NULL,l,u,x,fmin,par);
   end = clock();
   diff2 = (double)(end-start) / (double)CLOCKS_PER_SEC;
   /*******************************************/

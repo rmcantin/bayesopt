@@ -9,12 +9,6 @@ from cpython cimport Py_INCREF, Py_DECREF
 
 ###########################################################################
 cdef extern from "ctypes.h":
-    ctypedef struct gp_params:
-        double theta
-        double alpha
-        double beta
-        double delta
-        double noise
 
     ctypedef enum kernel_name:
         k_materniso1,
@@ -39,10 +33,27 @@ cdef extern from "ctypes.h":
         s_studentTProcess,
         s_error
 
+    ctypedef enum mean_name:
+        m_zero,
+        m_one,
+        m_linear,
+        m_error
+
+ 
+    ctypedef struct sko_params:
+        unsigned int n_iterations, n_init_samples
+        double theta
+        double alpha, beta, delta
+        double noise
+        surrogate_name s_name
+        kernel_name k_name
+        criterium_name c_name
+
     kernel_name str2kernel(char* name)
     criterium_name str2crit(char* name)
     surrogate_name str2surrogate(char* name)
-
+    mean_name str2mean(char* name)
+    sko_params initialize_parameters_to_default()
 
 ###########################################################################
 cdef extern from "bayesoptwpr.h":
@@ -51,61 +62,62 @@ cdef extern from "bayesoptwpr.h":
 
     int bayes_optimization(int nDim, eval_func f, void* f_data,
                            double *lb, double *ub, double *x,
-                           double *minf, int maxiniteval, int maxeval,
-                           gp_params params,
-                           criterium_name c_name,
-                           surrogate_name gp_name,
-                           kernel_name k_name)
+                           double *minf,
+                           sko_params params)
 
-
+    
 ###########################################################################
-cdef dict2structparams(dict dparams, gp_params *params):
-    params.theta = dparams['theta']
-    params.alpha = dparams['alpha']
-    params.beta = dparams['beta']
-    params.delta = dparams['delta']
-    params.noise = dparams['noise']
+cdef sko_params dict2structparams(dict dparams):
 
+    params = initialize_parameters_to_default()
+    
+    params.n_iterations = dparams.get('n_iter',params.n_iterations)
+    params.n_init_samples = dparams.get('n_samples',params.n_init_samples)
 
+    params.theta = dparams.get('theta',params.theta)
+    params.alpha = dparams.get('alpha',params.alpha)
+    params.beta = dparams.get('beta',params.beta)
+    params.delta = dparams.get('delta',params.delta)
+    params.noise = dparams.get('noise',params.noise)
+    
 
+    criteria = dparams.get('c_name',None)
+    if criteria is not None:
+        params.c_name = str2crit(criteria)
+        
+    surrogate = dparams.get('s_name', None)
+    if criteria is not None:
+        params.s_name = str2surrogate(surrogate)
+
+    kernel = dparams.get('k_name',None)
+    if kernel is not None:
+        params.k_name = str2kernel(kernel)
+    
+    return params
 
 cdef double callback(unsigned int n, double *x,
                      double *gradient, void *func_data):
     x_np = np.zeros(n)
     for i in range(0,n):
         x_np[i] = x[i]
-    result = (<object>func_data)(x_np)
+        result = (<object>func_data)(x_np)
     return result
 
 
 
 def optimize(f, int nDim, np.ndarray[np.double_t] np_lb,
-             np.ndarray[np.double_t] np_ub,
-             int maxiniteval, 
-             int maxeval, dict dparams,
-             bytes criteria, bytes surrogate, bytes kernel):
+             np.ndarray[np.double_t] np_ub, dict dparams):
 
-    cdef gp_params params
-    dict2structparams(dparams,&params)
-
-    cdef criterium_name crit
-    crit = str2crit(criteria)
-
-    cdef surrogate_name surr
-    surr = str2surrogate(surrogate)
-
-    cdef kernel_name ker
-    cdef char *k_name = kernel
-    ker = str2kernel(k_name)
+    cdef sko_params params = dict2structparams(dparams)
     
     cdef double minf[1000]
     cdef np.ndarray np_x = np.zeros([nDim, 1], dtype=np.double)
     
     Py_INCREF(f)
+    
     error_code = bayes_optimization(nDim, callback, <void *> f,
                                     <double *>np_lb.data, <double *>np_ub.data,
-                                    <double *>np_x.data, minf, maxiniteval,
-                                    maxeval, params, crit, surr, ker)
+                                    <double *>np_x.data, minf, params)
     Py_DECREF(f)
     min_value = minf[0]
     return min_value,np_x,error_code

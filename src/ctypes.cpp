@@ -48,3 +48,18 @@ surrogate_name str2surrogate(const char* name)
     return s_studentTProcess;
   else return s_error;
 }
+
+mean_name str2mean(const char* name)
+{
+  if (strcmp(name, "one") == 0)
+    return m_one;
+  else if (strcmp(name, "zero") == 0)
+    return m_zero;
+  else if (strcmp(name, "linear") == 0)
+    return m_linear;
+  else return m_error;
+}
+
+sko_params initialize_parameters_to_default(void){
+  return DEFAULT_PARAMS;
+}

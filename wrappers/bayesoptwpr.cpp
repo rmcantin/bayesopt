@@ -4,14 +4,14 @@
 
 inline void copyCarrayInVector(const double* array, int n, vectord& vec)
 {
-  for(int i = 0; i<n;i++)
+  for(int i = 0; i < n; ++i)
     vec(i) = array[i];
 }
 
 
 inline void copyVectorInArray(double* array, int n, const vectord& vec)
 {
-  for(int i = 0; i<n;i++)
+  for(int i = 0; i < n; ++i)
     array[i] = vec(i);
 }
 
@@ -60,11 +60,7 @@ int bayes_optimization(int nDim, eval_func f, void* f_data,
 		       const double *lb, const double *ub, /* bounds */
 		       double *x, /* in: initial guess, out: minimizer */
 		       double *minf, /* out: minimum */
-		       int maxiniteval, int maxeval, 
-		       gp_params params,
-		       criterium_name c_name,
-		       surrogate_name gp_name,
-		       kernel_name k_name)
+		       sko_params parameters)
 {
 
   vectord result(nDim);
@@ -75,26 +71,22 @@ int bayes_optimization(int nDim, eval_func f, void* f_data,
   copyCarrayInVector(lb,nDim,lowerBound);
   copyCarrayInVector(ub,nDim,upperBound);
 
-  std::cout << "Limits" << std::endl;
-  std::cout << lowerBound << std::endl;
-  std::cout << upperBound << std::endl;
-
   NonParametricProcess* gp;
 
-  switch(gp_name)
+  switch(parameters.s_name)
     {
     case s_gaussianProcess: 
-      gp = new BasicGaussianProcess(params.theta,params.noise);
+      gp = new BasicGaussianProcess(parameters.theta,parameters.noise);
       break;
 
     case s_gaussianProcessHyperPriors:
-      gp = new GaussianProcess(params.theta,params.noise,
-			       params.alpha,params.beta,
-			       params.delta);
+      gp = new GaussianProcess(parameters.theta,parameters.noise,
+			       parameters.alpha,parameters.beta,
+			       parameters.delta);
       break;
 
     case s_studentTProcess:
-      gp = new StudentTProcess(params.theta,params.noise);
+      gp = new StudentTProcess(parameters.theta,parameters.noise);
       break;
 
     case s_error:
@@ -103,15 +95,15 @@ int bayes_optimization(int nDim, eval_func f, void* f_data,
       return -1;
     }
 
-  gp->setKernel(k_name);
+  gp->setKernel(parameters.k_name);
 
   CSKO optimizer(gp);
 
-  optimizer.setCriteria(c_name);
+  optimizer.setCriteria(parameters.c_name);
   optimizer.set_eval_funct(f);
   optimizer.save_other_data(f_data);
-  optimizer.setInitSet(maxiniteval);
-  optimizer.optimize(result,lowerBound,upperBound,maxeval);
+  optimizer.setInitSet(parameters.n_init_samples);
+  optimizer.optimize(result,lowerBound,upperBound,parameters.n_iterations);
 
   copyVectorInArray(x,nDim,result);
 

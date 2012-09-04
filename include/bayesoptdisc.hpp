@@ -39,14 +39,12 @@
 #ifndef  _BAYESOPTDISC_HPP_
 #define  _BAYESOPTDISC_HPP_
 
-#include <iostream>
-#include <fstream>
-
 #include "specialtypes.hpp"
 #include "elementwiseUblas.hpp"
 
 #include "inneroptimization.hpp"
 #include "nonparametricprocess.hpp"
+#include "logger.hpp"
 
 #include "ctypes.h"
 #include "criteria.hpp"
@@ -64,7 +62,7 @@
  * \brief Sequential Kriging Optimization using different non-parametric 
  * processes as surrogate (kriging) functions. 
  */
-class SKO_DISC
+class SKO_DISC : public Logger
 {
  public:
   
@@ -75,7 +73,9 @@ class SKO_DISC
    * @param gp        Pointer to the surrogate model
    */
   SKO_DISC( vecOfvec &validSet,
-	    NonParametricProcess* gp = NULL); 
+	    sko_params params,
+	    bool uselogfile = false,
+	    const char* logfilename = "bayesopt.log");
 
   /** 
    * Default destructor
@@ -94,21 +94,11 @@ class SKO_DISC
    *
    * @param bestPoint returns the optimum value in a ublas::vector defined in 
    * the hypercube [0,1], it might also be used as an initial point
-   * @param nIterations number of iterations (budget)
    * 
    * @return 1 if terminate successfully, 0 otherwise
    */
-  inline int optimize( vectord &bestPoint, 
-		       size_t nIterations );
+  inline int optimize( vectord &bestPoint);
   
-
-  /** 
-   * Chooses which criterium to optimize in the inner loop.
-   * 
-   * @param c criterium name
-   */
-  void setCriteria (criterium_name c)
-  { crit_name = c; }
 
 
   /** 
@@ -141,6 +131,33 @@ class SKO_DISC
   { return true; };
 
 protected:
+  /** 
+   * Set the surrogate function based on the current parameters
+   * 
+   * @return 0 if terminate successfully
+   */
+  int setSurrogateFunction();
+
+  /** 
+   * Chooses which criterium to optimize in the inner loop.
+   * 
+   * @param c criterium name
+   */
+  inline void setNumberIterations()
+  {
+    if ((mParameters.n_iterations <= 0) || (mParameters.n_iterations > MAX_ITERATIONS))
+      mParameters.n_iterations = MAX_ITERATIONS;
+  };
+
+  inline size_t setInitSet()
+  {  
+    // Configuration simplified.
+    // The number of initial samples is fixed 10% of the total budget
+    if (mParameters.n_init_samples <= 0)
+      return static_cast<size_t>(ceil(0.1*mParameters.n_iterations));
+    else
+      return mParameters.n_init_samples;
+  };
 
   inline double evaluateCriteria( const vectord &query )
   {
@@ -155,15 +172,10 @@ protected:
 
 protected:
 
-  NonParametricProcess* mGP;        ///< Pointer to surrogate model
-  size_t nInitSet;                  ///< Number of samples before optimization
-  Criteria crit;                    ///< Criteria model
-  criterium_name crit_name;         ///< Name of the criteria
-  size_t mMaxIterations;            ///< Maximum SKO evaluations (budget)
   vecOfvec mInputSet;               ///< List of input points
-  int mVerbose;                     ///< Verbose level
-  std::ofstream mLogFile;           ///< Log file in case it is used
-
+  NonParametricProcess* mGP;        ///< Pointer to surrogate model
+  Criteria crit;                    ///< Criteria model
+  sko_params mParameters;
 };
 
 /**@}*/

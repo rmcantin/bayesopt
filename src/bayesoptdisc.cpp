@@ -26,33 +26,52 @@
 #include "basicgaussprocess.hpp"
 
 
-SKO_DISC::SKO_DISC( vecOfvec &validSet, NonParametricProcess* gp ):
-  mInputSet(validSet), mVerbose(0), mLogFile()
-{
-  //mObservedNodes = zvectord(validSet);
-  crit_name = c_gp_hedge;
-
-  if (gp == NULL) 
-    mGP = new BasicGaussianProcess(KERNEL_THETA,DEF_REGULARIZER);
-  else            
-    mGP = gp;
+SKO_DISC::SKO_DISC( vecOfvec &validSet, sko_params parameters,
+       bool uselogfile,
+       const char* logfilename):
+  Logger(uselogfile,logfilename),
+  mInputSet(validSet), mGP(NULL)
+{ 
+  mParameters = parameters;
+  setNumberIterations();
 } // Constructor
 
 
 SKO_DISC::~SKO_DISC()
-{} // Default destructor
-
-
-int SKO_DISC::optimize( vectord &bestPoint, 
-			size_t nIterations )
 {
-  mVerbose = 1;
+   delete mGP;
+} // Default destructor
 
-  if (mVerbose < 0)
+
+int SKO_DISC::setSurrogateFunction()
+{
+  if (mGP != NULL)
+    delete mGP;
+ 
+  switch(mParameters.s_name)
     {
-      mLogFile.open("log_bopt.out");
-      if ( !mLogFile.is_open() )  mVerbose = 1;
+    case s_gaussianProcess: 
+      mGP = new BasicGaussianProcess(mParameters.theta,mParameters.noise); break;
+
+    case s_gaussianProcessHyperPriors: 
+      mGP = new GaussianProcess(mParameters.theta,mParameters.noise,
+			       mParameters.alpha,mParameters.beta,
+			       mParameters.delta);  break;
+
+    case s_studentTProcess:
+      mGP = new StudentTProcess(mParameters.theta,mParameters.noise); break;
+
+    default:
+      std::cout << "Error: surrogate function not supported." << std::endl;
+      return -1;
     }
+
+  mGP->setKernel(mParameters.k_name);
+  return 0;
+}
+
+int SKO_DISC::optimize( vectord &bestPoint )
+{
 
   crit.resetHedgeValues();
 
@@ -61,36 +80,28 @@ int SKO_DISC::optimize( vectord &bestPoint,
   vectord xNext(nDims);
   double yNext;
 
-  // Configuration simplified.
-  // The number of initial samples is fixed 10% of the total budget
-  if (nIterations <= 0) 
-    nIterations = MAX_ITERATIONS;
+  size_t nRandomSamples = setInitSet();
 
-  size_t nRandomSamples;
-
-  if (nInitSet <= 0)
-    nRandomSamples = static_cast<size_t>(ceil(0.1*nIterations));
-  else
-    nRandomSamples = nInitSet;
-
-  if (mVerbose > 0) std::cout << "Sampling initial points..." << std::endl;
+  if (mParameters.verbose_level > 0) 
+    mOutput << "Sampling initial points..." << std::endl;
 
   sampleRandomPoints(nRandomSamples);
 
-  if (mVerbose > 0) std::cout << "DONE" << std::endl;
+  if (mParameters.verbose_level > 0) 
+    mOutput << "DONE" << std::endl;
 
-  for (size_t ii = 0; ii < nIterations; ii++)
+  for (size_t ii = 0; ii < mParameters.n_iterations; ii++)
     {      
       // FIXME: Find what is the next point.
       nextPoint(xNext);
     
-      if(mVerbose >0)
+      if(mParameters.verbose_level >0)
 	{ 
-	  std::cout << "Iteration: " << ii+1 << " of " << nIterations;
-	  std::cout << " | Total samples: " << ii+1+nRandomSamples << std::endl;
-	  std::cout << "Trying point at: " << xNext << std::endl;
-	  std::cout << "Best found at: " << mGP->getPointAtMinimum() << std::endl; 
-	  std::cout << "Best outcome: " <<  mGP->getValueAtMinimum() <<  std::endl; 
+	  mOutput << "Iteration: " << ii+1 << " of " << mParameters.n_iterations;
+	  mOutput << " | Total samples: " << ii+1+nRandomSamples << std::endl;
+	  mOutput << "Trying point at: " << xNext << std::endl;
+	  mOutput << "Best found at: " << mGP->getPointAtMinimum() << std::endl; 
+	  mOutput << "Best outcome: " <<  mGP->getValueAtMinimum() <<  std::endl; 
 	}
      
       yNext = evaluateSample(xNext);
@@ -116,8 +127,11 @@ int SKO_DISC::sampleRandomPoints( size_t nSamples )
   
   for(size_t i = 0; i < nSamples; i++)
     {
-      yPoint = evaluateSample(perms[i]);
-      mGP->addSample(perms[i],yPoint);
+      vectord xPoint = perms[i];
+      if(mParameters.verbose_level >0)
+	mOutput << xPoint << std::endl;
+      yPoint = evaluateSample(xPoint);
+      mGP->addSample(xPoint,yPoint);
     }
   /*randInt sample(mtRandom, intUniformDist(0,mInputSet.size()-1));
 
@@ -125,8 +139,8 @@ int SKO_DISC::sampleRandomPoints( size_t nSamples )
     {
       size_t index = sample();
       vectord xPoint = mInputSet[index];
-      if(mVerbose >0)
-	std::cout << xPoint << std::endl;
+      if(mParameters.verbose_level >0)
+	mOutput << xPoint << std::endl;
       yPoint = evaluateSample(xPoint);
       mGP->addSample(xPoint,yPoint);
     }
@@ -160,7 +174,7 @@ int SKO_DISC::findOptimal(vectord &xOpt)
 int SKO_DISC::nextPoint(vectord &Xnext)
 {
   crit.resetAnnealValues();
-  if (crit_name == c_gp_hedge)
+  if (mParameters.c_name == c_gp_hedge)
     {
       vectord best_ei(Xnext);
       vectord best_lcb(Xnext);
@@ -191,7 +205,7 @@ int SKO_DISC::nextPoint(vectord &Xnext)
     }
   else
     {
-      crit.setCriterium(crit_name);
+      crit.setCriterium(mParameters.c_name);
       return findOptimal(Xnext);
     }
 }

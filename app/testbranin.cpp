@@ -6,8 +6,8 @@ inline double sqr( double x ){ return x*x; }
 class TestOneD: public SKO
 {
 public:
-  TestOneD(NonParametricProcess* gp):
-  SKO(gp) {}
+  TestOneD(sko_params par):
+  SKO(par) {}
 
   double evaluateSample( const vectord& xin)
   {
@@ -30,13 +30,14 @@ public:
 
 int main(int nargs, char *args[])
 {
-  size_t nIterations = 400;
-  NonParametricProcess* gp = new StudentTProcess(1.0,DEF_REGULARIZER);
-  TestOneD opt(gp);
+  sko_params par = DEFAULT_PARAMS;
+  par.n_iterations = 400;
+  par.theta = 1.0;
+  par.c_name = c_gp_hedge;
+  TestOneD opt(par);
   vectord result(2);
-  opt.setCriteria(c_gp_hedge);
 
-  opt.optimize(result,nIterations);
+  opt.optimize(result);
 
   std::cout << "Soluciones: 0.1239    0.8183" << std::endl;
   std::cout << "Soluciones: 0.1239    0.1517" << std::endl;

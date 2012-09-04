@@ -41,6 +41,7 @@
 
 #include "inneroptimization.hpp"
 #include "nonparametricprocess.hpp"
+#include "logger.hpp"
 
 #include "ctypes.h"
 #include "criteria.hpp"
@@ -58,7 +59,7 @@
  * \brief Sequential Kriging Optimization using different non-parametric 
  * processes as surrogate (kriging) functions. 
  */
-class SKO: public InnerOptimization
+class SKO: public InnerOptimization, Logger
 {
  public:
   
@@ -67,7 +68,9 @@ class SKO: public InnerOptimization
    * 
    * @param gp        Pointer to the surrogate model
    */
-  SKO( NonParametricProcess* gp = NULL ); 
+  SKO( sko_params parameters,
+       bool uselogfile = false,
+       const char* logfilename = "bayesopt.log"); 
 
   /** 
    * Default destructor
@@ -90,14 +93,13 @@ class SKO: public InnerOptimization
    * 
    * @return 1 if terminate successfully, 0 otherwise
    */
-  inline int optimize( vectord &bestPoint, 
-		       size_t nIterations )
+  inline int optimize( vectord &bestPoint)
   {
     size_t dim = bestPoint.size();
     vectord lowerBound = zvectord(dim);
     vectord upperBound = svectord(dim,1.0);
   
-    return optimize(bestPoint,lowerBound,upperBound,nIterations);
+    return optimize(bestPoint,lowerBound,upperBound);
   }
 
 
@@ -117,20 +119,9 @@ class SKO: public InnerOptimization
    */
   int optimize( vectord &bestPoint,
 		vectord &lowerBound,
-		vectord &upperBound,
-		size_t nIterations );
+		vectord &upperBound);
 
 
-  /** 
-   * Chooses which criterium to optimize in the inner loop.
-   * 
-   * @param c criterium name
-   */
-  void setCriteria (criterium_name c)
-  {crit_name = c;}
-
-  void setInitSet (int n)
-  {nInitSet = n;}
 
   /** 
    * Function that defines the actual mathematical function to be optimized.
@@ -170,12 +161,40 @@ class SKO: public InnerOptimization
    * 
    * @return negative criteria (Expected Improvement, LCB, A-optimality, etc.).
    */	
-
   virtual double innerEvaluate( const vectord &query, 
 				vectord &grad )
-  {   return evaluateCriteria(query); }
+  { return evaluateCriteria(query); };
 
 protected:
+
+  /** 
+   * Set the surrogate function based on the current parameters
+   * 
+   * @return 0 if terminate successfully
+   */
+  int setSurrogateFunction();
+
+  /** 
+   * Chooses which criterium to optimize in the inner loop.
+   * 
+   * @param c criterium name
+   */
+  inline void setNumberIterations()
+  {
+    if ((mParameters.n_iterations <= 0) || (mParameters.n_iterations > MAX_ITERATIONS))
+      mParameters.n_iterations = MAX_ITERATIONS;
+  };
+
+  inline size_t setInitSet()
+  {  
+    // Configuration simplified.
+    // The number of initial samples is fixed 10% of the total budget
+    if (mParameters.n_init_samples <= 0)
+      return static_cast<size_t>(ceil(0.1*mParameters.n_iterations));
+    else
+      return mParameters.n_init_samples;
+  };
+
 
   inline double evaluateCriteria( const vectord &query )
   {
@@ -203,13 +222,10 @@ protected:
 protected:
 
   NonParametricProcess* mGP;        ///< Pointer to surrogate model
-  size_t nInitSet;                  ///< Number of samples before optimization
   Criteria crit;                    ///< Criteria model
-  criterium_name crit_name;         ///< Name of the criteria
-  size_t mMaxIterations;            ///< Maximum SKO evaluations (budget)
   vectord mLowerBound, mRangeBound; ///< Lower bound and range of the input space
-  int mVerbose;                     ///< Verbose level
-  std::ofstream mLogFile;           ///< Log file in case it is used
+  sko_params mParameters;
+
 };
 
 /**@}*/

@@ -20,8 +20,8 @@ class CSKO: public SKO
 {
  public:
 
-  CSKO( NonParametricProcess* gp = NULL): 
-    SKO(gp)
+  CSKO( sko_params params):
+    SKO(params)
   {}; 
 
 
@@ -71,39 +71,11 @@ int bayes_optimization(int nDim, eval_func f, void* f_data,
   copyCarrayInVector(lb,nDim,lowerBound);
   copyCarrayInVector(ub,nDim,upperBound);
 
-  NonParametricProcess* gp;
+  CSKO optimizer(parameters);
 
-  switch(parameters.s_name)
-    {
-    case s_gaussianProcess: 
-      gp = new BasicGaussianProcess(parameters.theta,parameters.noise);
-      break;
-
-    case s_gaussianProcessHyperPriors:
-      gp = new GaussianProcess(parameters.theta,parameters.noise,
-			       parameters.alpha,parameters.beta,
-			       parameters.delta);
-      break;
-
-    case s_studentTProcess:
-      gp = new StudentTProcess(parameters.theta,parameters.noise);
-      break;
-
-    case s_error:
-    default: 
-      std::cout << "Surrogate function not supported" << std::endl;
-      return -1;
-    }
-
-  gp->setKernel(parameters.k_name);
-
-  CSKO optimizer(gp);
-
-  optimizer.setCriteria(parameters.c_name);
   optimizer.set_eval_funct(f);
   optimizer.save_other_data(f_data);
-  optimizer.setInitSet(parameters.n_init_samples);
-  optimizer.optimize(result,lowerBound,upperBound,parameters.n_iterations);
+  optimizer.optimize(result,lowerBound,upperBound);
 
   copyVectorInArray(x,nDim,result);
 

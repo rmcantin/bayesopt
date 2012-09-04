@@ -34,6 +34,7 @@ void checkNLOPTerror(nlopt_result errortype)
 			 << "In general, this can be ignored." 
 			 << std::endl; break;
       case -5: std::cout << "NLOPT: Force stop." << std::endl; break;
+      default: ;
       }
 }
 

@@ -66,18 +66,29 @@ extern "C" {
     m_error
   } mean_name;
 
+  /** Parameters */
   typedef struct {
-    unsigned int n_iterations, n_init_samples;
+    /** Maximum SKO evaluations (budget) */
+    unsigned int n_iterations;
+    /** Number of samples before optimization */
+    unsigned int n_init_samples;
+    /** Verbose level */
+    unsigned int verbose_level;
+    /** Surrogate function parameters */
     double theta;  
     double alpha, beta, delta;
+    /** Observation noise */
     double noise;
+    /** Name of the surrogate function */
     surrogate_name s_name;
+    /** Name of the kernel */
     kernel_name k_name;
+    /** Name of the criteria */
     criterium_name c_name;
   } sko_params;
 
   const sko_params DEFAULT_PARAMS = {
-    300, 30,
+    300, 30, 1,
     KERNEL_THETA, 
     PRIOR_ALPHA, PRIOR_BETA, PRIOR_DELTA_SQ,
     DEF_REGULARIZER,
@@ -86,8 +97,7 @@ extern "C" {
     c_ei
   };
 
-  /*These functions are added to simplify wrapping code*/
-
+  /* These functions are added to simplify wrapping code */
   kernel_name str2kernel(const char* name);
   criterium_name str2crit(const char* name);
   surrogate_name str2surrogate(const char* name);

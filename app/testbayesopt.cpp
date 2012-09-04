@@ -21,8 +21,8 @@ class TestEGO: public SKO
 {
  public:
 
-  TestEGO(NonParametricProcess* gp):
-    SKO(gp) {}
+  TestEGO(sko_params param):
+    SKO(param) {}
 
   double evaluateSample( const vectord &Xi ) 
   {
@@ -45,7 +45,9 @@ int main(int nargs, char *args[])
 
   // Common configuration
   // See ctypes.h for the available options
-  sko_params par;
+  // If we initialize the struct with the DEFAUL_PARAMS,
+  // the we can optionally change only few of them 
+  sko_params par = DEFAULT_PARAMS;
 
   par.theta = KERNEL_THETA;
   par.alpha = PRIOR_ALPHA;
@@ -63,33 +65,14 @@ int main(int nargs, char *args[])
   double diff,diff2;
 
   std::cout << "Running C++ interface" << std::endl;
-  NonParametricProcess* gp;
-
   // Configure C++ interface
-  switch(par.s_name)
-    {
-    case s_gaussianProcess: 
-      gp = new BasicGaussianProcess(par.theta,par.noise);
-      break;
-    case s_gaussianProcessHyperPriors: 
-      gp = new GaussianProcess(par.theta,par.noise,
-			       par.alpha,par.beta,
-			       par.delta);
-      break;
-    case s_studentTProcess:
-      gp = new StudentTProcess(par.theta,par.noise);
-      break; 
-    }
-  gp->setKernel(par.k_name);
 
-  TestEGO gp_opt(gp);
+  TestEGO gp_opt(par);
   vectord result(n);
-  gp_opt.setInitSet(par.n_init_samples);
-  gp_opt.setCriteria(par.c_name);
 
   // Run C++ interface
   start = clock();
-  gp_opt.optimize(result,par.n_iterations);
+  gp_opt.optimize(result);
   end = clock();
   diff = (double)(end-start) / (double)CLOCKS_PER_SEC;
   /*******************************************/

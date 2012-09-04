@@ -39,6 +39,7 @@ SKO::SKO( sko_params parameters,
   mParameters = parameters;
   setNumberIterations();
   setAlgorithm(direct);
+  setSurrogateFunction();
 } // Constructor
 
 SKO::~SKO()

@@ -34,6 +34,7 @@ SKO_DISC::SKO_DISC( vecOfvec &validSet, sko_params parameters,
 { 
   mParameters = parameters;
   setNumberIterations();
+  setSurrogateFunction();
 } // Constructor
 
 

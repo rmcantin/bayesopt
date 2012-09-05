@@ -1,13 +1,13 @@
+
 #include "gaussprocess.hpp"
 #include "cholesky.hpp"
 #include "trace.hpp"
 
 
   
-GaussianProcess::GaussianProcess( double theta, double noise,
-				  double alpha, double beta, 
-				  double delta):
-  BasicGaussianProcess(theta,noise),
+GaussianProcess::GaussianProcess( double noise, double alpha, 
+				  double beta, double delta):
+  BasicGaussianProcess(noise),
   mAlpha(alpha), mBeta (beta), mDelta2(delta)
 {}  // Constructor
 
@@ -52,7 +52,10 @@ double GaussianProcess::negativeLogLikelihood(size_t index)
   double lik1 = inner_prod(yumu,alphY) / (2*sigma); 
   double lik2 = trace(L) + 0.5*n*log(sigma) + n*0.91893853320467; //log(2*pi)/2
 
-  return lik1 + lik2 + mBeta/2 * mTheta(index) - (mAlpha+1) * log(mTheta(index));
+  double th = mKernel->getScale(index);
+
+  return lik1 + lik2 + mBeta/2 * th -
+    (mAlpha+1) * log(th);
 }
 
 
@@ -66,7 +69,7 @@ int GaussianProcess::prediction( const vectord &query,
   double meanf = meanFunction(query);
 
   vectord colR = computeCrossCorrelation(query);
-  kn = correlationFunction(query, query);
+  kn = (*mKernel)(query, query);
   
   svectord colMu(n,mMu);
   vectord yumu = mGPY - meanf*colMu;

@@ -93,7 +93,7 @@ class SKO: public InnerOptimization, Logger
    * 
    * @return 1 if terminate successfully, 0 otherwise
    */
-  inline int optimize( vectord &bestPoint)
+  inline int optimize(vectord &bestPoint)
   {
     size_t dim = bestPoint.size();
     vectord lowerBound = zvectord(dim);

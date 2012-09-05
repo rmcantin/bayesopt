@@ -44,7 +44,8 @@ SKO::SKO( sko_params parameters,
 
 SKO::~SKO()
 {
-  delete mGP;
+  if (mGP != NULL)
+    delete mGP;
 } // Default destructor
 
 int SKO::setSurrogateFunction()
@@ -55,22 +56,21 @@ int SKO::setSurrogateFunction()
   switch(mParameters.s_name)
     {
     case s_gaussianProcess: 
-      mGP = new BasicGaussianProcess(mParameters.theta,mParameters.noise); break;
+      mGP = new BasicGaussianProcess(mParameters.noise); break;
 
     case s_gaussianProcessHyperPriors: 
-      mGP = new GaussianProcess(mParameters.theta,mParameters.noise,
-			       mParameters.alpha,mParameters.beta,
-			       mParameters.delta);  break;
+      mGP = new GaussianProcess(mParameters.noise, mParameters.alpha,
+				mParameters.beta,mParameters.delta);  break;
 
     case s_studentTProcess:
-      mGP = new StudentTProcess(mParameters.theta,mParameters.noise); break;
+      mGP = new StudentTProcess(mParameters.noise); break;
 
     default:
       std::cout << "Error: surrogate function not supported." << std::endl;
       return -1;
     }
   
-  mGP->setKernel(mParameters.k_name);
+  mGP->setKernel(mParameters.theta,mParameters.k_name);
   return 0;
 }
 

@@ -5,8 +5,8 @@
 #include "trace.hpp"
 
   
-StudentTProcess::StudentTProcess( double theta, double noise):
-  NonParametricProcess(theta,noise)
+StudentTProcess::StudentTProcess(double noise):
+  NonParametricProcess(noise)
 {}  // Constructor
 
 
@@ -58,7 +58,7 @@ int StudentTProcess::prediction( const vectord &query,
   double meanf = meanFunction(query);
   
   vectord colR = computeCrossCorrelation(query);
-  kn = correlationFunction(query, query);
+  kn = (*mKernel)(query, query);
   
   noalias(rInvR) = prod(colR,mInvR);	
   rInvRr = inner_prod(rInvR,colR);

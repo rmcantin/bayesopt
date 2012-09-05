@@ -26,7 +26,7 @@
 #define __NONPARAMETRICPROCESS_HPP__
 
 #include "ctypes.h"
-#include "kernels.hpp"
+#include "kernel_functors.hpp"
 #include "meanfuncs.hpp"
 #include "randgen.hpp"
 #include "specialtypes.hpp"
@@ -42,13 +42,8 @@
 class NonParametricProcess: public InnerOptimization
 {
 public:
-  NonParametricProcess(double theta = KERNEL_THETA,
-		       double noise = DEF_REGULARIZER,
-		       size_t dim = 1);
+  NonParametricProcess(double noise = DEF_REGULARIZER);
   
-  NonParametricProcess(vectord &thetav,
-		       double noise = DEF_REGULARIZER);
-
   virtual ~NonParametricProcess();
 
   /** 
@@ -172,19 +167,28 @@ public:
   inline double getValueAtMinimum()
   { return mGPY(mMinIndex); };
 
+  /*
   inline vectord getTheta()
   { return mTheta; };
-
+  
   inline void setTheta( const vectord& theta )
   { mTheta = theta; };
+  */
 
   /** 
    * Chooses which kernel to use in the surrogate process.
    * 
-   * @param k kernel_name
+   * @param theta kernel parameter
+   * @param k_name kernel name
    */
-  void setKernel (kernel_name k)
-  { k_name = k; };
+  int setKernel (double theta,
+		 kernel_name k_name)
+  {
+    return setKernel(svectord(1,theta), k_name);
+  };
+
+  int setKernel (const vectord &thetav,
+		 kernel_name k_name);
 
   virtual double sample_query(const vectord& query, 
 			      randEngine& eng)
@@ -193,15 +197,8 @@ public:
 protected:
   double innerEvaluate(const vectord& query)
   { 
-    setTheta(query);
+    mKernel->setScale(query);
     return negativeLogLikelihood(1);
-  };
-
-  inline double correlationFunction( const vectord &x1,const vectord &x2, 
-			      size_t param_index = 0)
-  {
-    vectord th = mTheta;
-    return kernels::kernelFunction(k_name,x1,x2,param_index,th);
   };
 
   inline double meanFunction( const vectord &x, size_t param_index = 0 )  
@@ -245,8 +242,8 @@ protected:
 
   size_t mMinIndex, mMaxIndex;
 
-  kernel_name k_name;                        ///< Name of the kernel
-  vectord mTheta;                             ///< Kernel parameters
+  Kernel* mKernel;                   ///< Pointer to kernel function
+  //  vectord mTheta;                             ///< Kernel parameters
   const double mRegularizer;  ///< GP likelihood parameters (Normal)
 
 };

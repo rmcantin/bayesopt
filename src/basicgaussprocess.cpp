@@ -6,9 +6,8 @@
 #include "trace.hpp"
 
 
-BasicGaussianProcess::BasicGaussianProcess( double theta, 
-					    double noise):
-  NonParametricProcess(theta,noise)
+BasicGaussianProcess::BasicGaussianProcess( double noise ):
+  NonParametricProcess(noise)
 {}  // Constructor
 
 
@@ -41,7 +40,7 @@ int BasicGaussianProcess::prediction( const vectord &query,
   double rInvRr;
 
   vectord colR = computeCrossCorrelation(query);
-  kn = correlationFunction(query, query);
+  kn = (*mKernel)(query, query);
   
   noalias(rInvR) = prod(colR,mInvR);	
   rInvRr = inner_prod(rInvR,colR);

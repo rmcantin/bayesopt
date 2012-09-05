@@ -57,7 +57,7 @@ int main(int nargs, char *args[])
   par.c_name = c_ei;
   par.s_name = s_gaussianProcess;
   par.k_name = k_seiso;
-  par.n_iterations = 300;       // Number of iterations
+  par.n_iterations = 10;       // Number of iterations
   par.n_init_samples = 30;
   /*******************************************/
 

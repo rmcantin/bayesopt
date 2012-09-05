@@ -36,8 +36,7 @@
 class StudentTProcess: public NonParametricProcess
 {
 public:
-  StudentTProcess( double theta = KERNEL_THETA, 
-		   double noise = DEF_REGULARIZER);
+  StudentTProcess(double noise = DEF_REGULARIZER);
   virtual ~StudentTProcess();
 
   /** 

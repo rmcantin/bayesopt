@@ -24,12 +24,14 @@
 #include <boost/numeric/ublas/vector.hpp>
 #include <algorithm>
 
+/*
 template <class D>
 D op_add(D in1, D in2) {return in1+in2;}
 template <class D>
 D op_prod(D in1, D in2) {return in1*in2;}
 template <class D>
 D op_div(D in1, D in2) {return in1/in2;}
+*/
 
 /** 
  * Computes the elementwise sum of two vectors.
@@ -44,7 +46,7 @@ v1 ublas_elementwise_add(const v1& a, const v2& b)
 {
   typedef typename v1::value_type D;
   v1 c(a.size());
-  std::transform(a.begin(),a.end(),b.begin(),c.begin(),op_add<D>);
+  std::transform(a.begin(),a.end(),b.begin(),c.begin(),std::plus<D>());
   return c;
 }
 
@@ -54,7 +56,7 @@ v1 ublas_elementwise_prod(const v1& a, const v2& b)
 {
   typedef typename v1::value_type D;
   v1 c(a.size());
-  std::transform(a.begin(),a.end(),b.begin(),c.begin(),op_prod<D>);
+  std::transform(a.begin(),a.end(),b.begin(),c.begin(),std::multiplies<D>());
   return c;
 }
 
@@ -63,7 +65,7 @@ v1 ublas_elementwise_div(const v1& a, const v2& b)
 {
   typedef typename v1::value_type D;
   v1 c(a.size());
-  std::transform(a.begin(),a.end(),b.begin(),c.begin(),op_div<D>);
+  std::transform(a.begin(),a.end(),b.begin(),c.begin(),std::divides<D>());
   return c;
 }
 

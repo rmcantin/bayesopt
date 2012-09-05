@@ -34,8 +34,7 @@
 class BasicGaussianProcess: public NonParametricProcess
 {
 public:
-  BasicGaussianProcess( double theta = KERNEL_THETA, 
-			double noise = DEF_REGULARIZER);
+  BasicGaussianProcess( double noise = DEF_REGULARIZER);
   virtual ~BasicGaussianProcess();
 
   /** 

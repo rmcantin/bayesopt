@@ -37,8 +37,7 @@
 class GaussianProcess: public BasicGaussianProcess 
 {
 public:
-  GaussianProcess( double theta = KERNEL_THETA,
-		   double noise = DEF_REGULARIZER,
+  GaussianProcess( double noise = DEF_REGULARIZER,
 		   double alpha = PRIOR_ALPHA, 
 		   double beta  = PRIOR_BETA, 
 		   double delta = PRIOR_DELTA_SQ );

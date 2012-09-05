@@ -42,18 +42,6 @@ public:
   virtual ~InnerOptimization(){};
 
   /** 
-   * Virtual function to be overriden by the actual function to be evaluated
-   * 
-   * @param query input point
-   * @param grad output gradient at query point
-   * 
-   * @return function value at query point
-   */
-  virtual double innerEvaluate(const vectord& query, 
-			       vectord& grad)
-  {return 0.0;}
-
-  /** 
    * Set the optimization algorithm
    * 
    * @param newAlg 
@@ -61,13 +49,17 @@ public:
   void setAlgorithm(innerOptAlgorithms newAlg)
   { alg = newAlg; }
 
+  /** 
+   * Limits of the hypercube. 
+   * Currently, it assumes that all dimensions have the same limits.
+   * 
+   * @param down 
+   * @param up 
+   */
   void setLimits(double down, double up)
   {
     mDown = down;   mUp = up;
   }
-
-
-protected:
 
   /** 
    * Compute the inner optimization algorithm
@@ -78,6 +70,33 @@ protected:
    */
   int innerOptimize(vectord &Xnext);
   int innerOptimize(double* x, int n, void* objPointer);	
+
+
+  /** 
+   * Virtual function to be overriden by the actual function to be evaluated
+   * 
+   * @param query input point
+   * 
+   * @return function value at query point
+   */
+  virtual double innerEvaluate(const vectord& query) 
+  {return 0.0;};
+
+
+  /** 
+   * Virtual function to be overriden by the actual function to be evaluated
+   * 
+   * @param query input point
+   * @param grad output gradient at query point
+   * 
+   * @return function value at query point
+   */
+  virtual double innerEvaluate(const vectord& query, 
+			       vectord& grad) 
+  {return 0.0;};
+
+
+protected:
 
   innerOptAlgorithms alg;
   double mDown, mUp;

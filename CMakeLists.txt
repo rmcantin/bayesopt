@@ -67,6 +67,7 @@ SET( BAYESOPT_SRCS
   ./src/inneroptimization.cpp
   ./src/gaussprocess.cpp
   ./src/basicgaussprocess.cpp
+  ./src/nonparametricprocess.cpp
   ./src/studenttprocess.cpp
   ./src/ctypes.cpp
   ./wrappers/bayesoptwpr.cpp

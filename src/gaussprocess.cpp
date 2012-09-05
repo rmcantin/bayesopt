@@ -19,10 +19,9 @@ GaussianProcess::~GaussianProcess()
 
 
 
-double GaussianProcess::negativeLogLikelihood(double& grad,
-					      size_t index)
+double GaussianProcess::negativeLogLikelihood(size_t index)
 {
-  matrixd K = computeCorrMatrix(mRegularizer,0);
+  matrixd K = computeCorrMatrix(0);
   size_t n = K.size1();
   matrixd L(n,n);
   cholesky_decompose(K,L);

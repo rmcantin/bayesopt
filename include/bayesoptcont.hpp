@@ -132,8 +132,7 @@ class SKO: public InnerOptimization, Logger
    * 
    * @return value of the function at the point evaluated.
    */
-  virtual double evaluateSample( const vectord &query ) 
-  { return 0.0; };
+  virtual double evaluateSample( const vectord &query ) = 0;
   
   /** 
    * This function checks if the query is valid or not. It can be used 
@@ -150,20 +149,8 @@ class SKO: public InnerOptimization, Logger
    *         the query point or not.
    */ 
   virtual bool checkReachability( const vectord &query )
-  { return true; };
+  {return true;};
 
-  /** 
-   * Function that returns the corresponding criteria of a series 
-   * of queries in the hypercube [0,1] in order to choose the best point to try
-   * the next iteration.
-   * 
-   * @param query point in the hypercube [0,1] to evaluate the Gaussian process
-   * 
-   * @return negative criteria (Expected Improvement, LCB, A-optimality, etc.).
-   */	
-  virtual double innerEvaluate( const vectord &query, 
-				vectord &grad )
-  { return evaluateCriteria(query); };
 
 protected:
 
@@ -181,7 +168,8 @@ protected:
    */
   inline void setNumberIterations()
   {
-    if ((mParameters.n_iterations <= 0) || (mParameters.n_iterations > MAX_ITERATIONS))
+    if ((mParameters.n_iterations <= 0) || 
+	(mParameters.n_iterations > MAX_ITERATIONS))
       mParameters.n_iterations = MAX_ITERATIONS;
   };
 
@@ -195,12 +183,20 @@ protected:
       return mParameters.n_init_samples;
   };
 
-
-  inline double evaluateCriteria( const vectord &query )
+  /** 
+   * Function that returns the corresponding criteria of a series 
+   * of queries in the hypercube [0,1] in order to choose the best point to try
+   * the next iteration.
+   * 
+   * @param query point in the hypercube [0,1] to evaluate the Gaussian process
+   * 
+   * @return negative criteria (Expected Improvement, LCB, A-optimality, etc.).
+   */	
+  double innerEvaluate( const vectord &query )
   {
     bool reachable = checkReachability(query);
     if (!reachable)  return 0.0;
-    return crit.evaluate(*mGP,query);       
+    return crit.evaluate(mGP,query);       
   }  // evaluateCriteria
 
   inline vectord unnormalizeVector( const vectord &vin)

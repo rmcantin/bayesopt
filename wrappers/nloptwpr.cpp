@@ -45,6 +45,24 @@ namespace NLOPT_WPR
     void *objPointer = my_func_data;
     InnerOptimization* OPTIMIZER = static_cast<InnerOptimization*>(objPointer);
     
+    return OPTIMIZER->innerEvaluate(sharedN);
+  } /* evaluate_criteria_nlopt */
+
+
+  double evaluate_nlopt_grad (unsigned int n, const double *x,
+			      double *grad, void *my_func_data)
+
+  {
+    double xcopy[128];
+    for (unsigned int i=0;i<n;i++)
+      xcopy[i] = x[i];
+    array_adaptor<double> shared(n, xcopy);
+    vector<double, array_adaptor<double> > sharedN(n, shared); 
+    
+    // This is not very clever... but works!
+    void *objPointer = my_func_data;
+    InnerOptimization* OPTIMIZER = static_cast<InnerOptimization*>(objPointer);
+    
     vector<double> vgrad = zero_vector<double>(n);
 
     double f =  OPTIMIZER->innerEvaluate(sharedN,vgrad);
@@ -56,5 +74,4 @@ namespace NLOPT_WPR
 
     return f;
   } /* evaluate_criteria_nlopt */
-
 }

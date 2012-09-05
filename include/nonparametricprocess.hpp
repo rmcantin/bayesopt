@@ -27,9 +27,9 @@
 
 #include "ctypes.h"
 #include "kernels.hpp"
+#include "meanfuncs.hpp"
 #include "randgen.hpp"
 #include "specialtypes.hpp"
-#include "cholesky.hpp"
 #include "inneroptimization.hpp"	
 
 
@@ -44,29 +44,12 @@ class NonParametricProcess: public InnerOptimization
 public:
   NonParametricProcess(double theta = KERNEL_THETA,
 		       double noise = DEF_REGULARIZER,
-		       size_t dim = 1):
-    InnerOptimization(),  mRegularizer(noise)
-  { 
-    mTheta = svectord(dim,theta);
-    mMinIndex = 0; 
-    mMaxIndex = 0;   
-    setAlgorithm(bobyqa);
-    setLimits(0.,100.);
-  }
+		       size_t dim = 1);
   
   NonParametricProcess(vectord &thetav,
-		       double noise = DEF_REGULARIZER):
-    InnerOptimization(),  mRegularizer(noise)
-  { 
-    mTheta = thetav;
-    mMinIndex = 0; 
-    mMaxIndex = 0;   
-    setAlgorithm(bobyqa);
-    setLimits(0.,100.);
-  }
-  
+		       double noise = DEF_REGULARIZER);
 
-  virtual ~NonParametricProcess(){ }
+  virtual ~NonParametricProcess();
 
   /** 
    * Function that returns the prediction of the GP for a query point
@@ -79,10 +62,20 @@ public:
    * @return error code.
    */	
   virtual int prediction(const vectord &query,
-			 double& yPred, double& sPred)
-  {return 1;}  
+			 double& yPred, double& sPred) = 0;
 
   /** 
+   * Computes the negative log likelihood of the data.
+   * 
+   * @param grad gradient of the negative Log Likelihood
+   * @param param value of the param to be optimized
+   * 
+   * @return value negative log likelihood
+   */
+  virtual double negativeLogLikelihood(size_t index = 1) = 0;
+
+  /** 
+   * CURRENTLY NOT USED:
    * Computes the negative log likelihood and its gradient of the data.
    * 
    * @param grad gradient of the negative Log Likelihood
@@ -92,7 +85,8 @@ public:
    */
   virtual double negativeLogLikelihood(double& grad,
 				       size_t index = 1)
-  {return 0.0;}
+  {return 0.0;};
+
  
   /** 
    * Expected Improvement algorithm for minimization
@@ -106,7 +100,7 @@ public:
    */
   virtual double negativeExpectedImprovement(double yPred, double sPred,
 					     double yMin, size_t g = 1)
-  {return 0.0;}
+  {return 0.0;};
 
   /** 
    * Lower confindence bound. Can be seen as the inverse of the Upper 
@@ -120,7 +114,7 @@ public:
    */
   virtual double lowerConfidenceBound(double yPred, double sPred,
 				     double beta = 1)
-  {return 0.0;}
+  {return 0.0;};
 
   /** 
    * Probability of improvement algorithm for minimization
@@ -133,10 +127,9 @@ public:
    * @return negative value of the probability of improvement
    */
   virtual double negativeProbabilityOfImprovement(double yPred, double sPred,
-						  double yMin, double epsilon = 0.1)
-  {return 0.0;}
-
-
+						  double yMin, 
+						  double epsilon = 0.1)
+  {return 0.0;};
 		 		 
   /** 
    *  Computes the GP based on mGPXX
@@ -145,27 +138,7 @@ public:
    * 
    * @return error code
    */
-  int fitGP()
-  {
-    size_t nSamples = mGPXX.size();
-    for (size_t ii=0; ii<nSamples; ii++)
-      checkBoundsY(ii);
-
-    vectord initialTheta = mTheta;
-  
-    std::cout << "Initial theta: " << mTheta << std::endl;
-    innerOptimize(initialTheta);
-    setTheta(initialTheta);
-    std::cout << "Final theta: " << mTheta << std::endl;
-
-    int error = computeInverseCorrMatrix(mRegularizer);
-
-    if (error < 0)
-      return error;
-
-    return precomputeGPParams();
-  } // fitGP
-
+  int fitGP();
   
   /** 
    *  Add new point efficiently using Matrix Decomposition Lemma
@@ -175,76 +148,35 @@ public:
    * @return error code
    */   
   int addNewPointToGP( const vectord &Xnew,
-		       double Ynew)
-  {
-    size_t nSamples = mGPXX.size();
-    size_t XDim = mGPXX[1].size();
-  
-    vectord Li(nSamples);
-    vectord wInvR(nSamples);
-    double wInvRw;
-    double selfCorrelation, Ni;
-  
-    if (XDim != Xnew.size())
-      {
-	std::cout << "Dimensional Error" << std::endl;
-	return -1;
-      }
-    
-    vectord correlationNewValue = computeCrossCorrelation(Xnew);
-  
-    selfCorrelation = correlationFunction(Xnew, Xnew) + mRegularizer;
-  
-    noalias(wInvR) = prod(correlationNewValue,mInvR);
-    wInvRw = inner_prod(wInvR,correlationNewValue);
-    Ni = 1/(selfCorrelation + wInvRw);
-    noalias(Li) = -Ni * wInvR;
-    mInvR += outer_prod(Li,Li) / Ni;
-  
-    //TODO: There must be a better way to do this.
-    mInvR.resize(nSamples+1,nSamples+1);
-  
-    Li.resize(nSamples+1);
-    Li(nSamples) = Ni;
-  
-    row(mInvR,nSamples) = Li;
-    column(mInvR,nSamples) = Li;
-
-    addSample(Xnew,Ynew);
-    checkBoundsY(nSamples);
-  
-    return precomputeGPParams();
-  } // addNewPointToGP
+		       double Ynew);
 
 
   // Getters and setters
   inline void setSamples(matrixd x, vectord y)
   {
-    size_t nPoints = x.size1();
-    
-    for (size_t i=0; i<nPoints; ++i)
+    for (size_t i=0; i<x.size1(); ++i)
       mGPXX.push_back(row(x,i));
 
     mGPY = y;
-  }
+  };
 
   inline void addSample(vectord x, double y)
   {
     mGPXX.push_back(x);
     mGPY.resize(mGPY.size()+1);  mGPY(mGPY.size()-1) = y;
-  }
+  };
 
   inline vectord getPointAtMinimum()
-  { return mGPXX[mMinIndex]; }
+  { return mGPXX[mMinIndex]; };
 
   inline double getValueAtMinimum()
-  { return mGPY(mMinIndex); }
+  { return mGPY(mMinIndex); };
 
   inline vectord getTheta()
-  { return mTheta; }
+  { return mTheta; };
 
   inline void setTheta( const vectord& theta )
-  { mTheta = theta; }
+  { mTheta = theta; };
 
   /** 
    * Chooses which kernel to use in the surrogate process.
@@ -252,29 +184,29 @@ public:
    * @param k kernel_name
    */
   void setKernel (kernel_name k)
-  {k_name = k;}
-
-  inline double innerEvaluate(const vectord& query, 
-			      vectord& grad)
-  { 
-    setTheta(query);
-    return negativeLogLikelihood(grad(0),1);
-  }
+  { k_name = k; };
 
   virtual double sample_query(const vectord& query, 
 			      randEngine& eng)
   { return 0.0; }
 
 protected:
-  double correlationFunction( const vectord &x1,const vectord &x2, 
+  double innerEvaluate(const vectord& query)
+  { 
+    setTheta(query);
+    return negativeLogLikelihood(1);
+  };
+
+  inline double correlationFunction( const vectord &x1,const vectord &x2, 
 			      size_t param_index = 0)
   {
     vectord th = mTheta;
     return kernels::kernelFunction(k_name,x1,x2,param_index,th);
-  }
+  };
 
-  virtual double meanFunction( const vectord &x, size_t param_index = 0 )  
-  {return 0.0;}
+  inline double meanFunction( const vectord &x, size_t param_index = 0 )  
+  { //TODO: Parametrize this
+    return means::One(x); };
 
   /** 
    * Precompute some values of the prediction that do not depends on the query
@@ -290,48 +222,11 @@ protected:
    * 
    * @return error code
    */
-  int computeInverseCorrMatrix( double noise )
-  {
-    size_t nSamples = mGPXX.size();
-    if ( (nSamples != mInvR.size1()) || (nSamples != mInvR.size2()) )
-      mInvR.resize(nSamples,nSamples);
-    
-    matrixd corrMatrix = computeCorrMatrix(noise);
+  int computeInverseCorrMatrix();
 
-    //return InvertMatrix(corrMatrix,mInvR);
-    return inverse_cholesky(corrMatrix,mInvR);
-  }
+  matrixd computeCorrMatrix(size_t dth_index = 0);
 
-  matrixd computeCorrMatrix( double noise , size_t dth_index = 0)
-  {
-    size_t nSamples = mGPXX.size();
-    matrixd corrMatrix(nSamples,nSamples);
-  
-    for (size_t ii=0; ii< nSamples; ii++)
-      {
-	for (size_t jj=0; jj < ii; jj++)
-	  {
-	    corrMatrix(ii,jj) = correlationFunction(mGPXX[ii], mGPXX[jj], dth_index);
-	    corrMatrix(jj,ii) = corrMatrix(ii,jj);
-	  }
-	corrMatrix(ii,ii) = correlationFunction(mGPXX[ii],mGPXX[ii], dth_index);
-	if (dth_index == 0) 
-	  corrMatrix(ii,ii) += noise;
-      }
-    return corrMatrix;
-  }
-
-
-  inline vectord computeCrossCorrelation(const vectord &query)
-  {
-    vectord knx(mGPXX.size());
-
-    //TODO: Replace by transform
-    for (size_t ii=0; ii<mGPXX.size(); ++ii)
-	knx(ii) = correlationFunction(mGPXX[ii], query);
-
-    return knx;
-  }
+  vectord computeCrossCorrelation(const vectord &query);
 
 
   inline void checkBoundsY( size_t i )
@@ -339,6 +234,7 @@ protected:
     if ( mGPY(mMinIndex) > mGPY(i) )       mMinIndex = i;
     else if ( mGPY(mMaxIndex) < mGPY(i) )  mMaxIndex = i;
   };
+
 
 protected:
   vecOfvec mGPXX;                                   ///< Data inputs

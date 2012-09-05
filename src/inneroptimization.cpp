@@ -79,15 +79,18 @@ int InnerOptimization::innerOptimize(double* x, int n, void* objPointer)
 	  x[i]=(l[i]+u[i])/2.0;
     }
 
-    double (*fpointer)(unsigned int, const double *, double *, void *);
-    fpointer = &(NLOPT_WPR::evaluate_nlopt);
-
-    double coef = 0.8;  //Percentaje of resources used in local optimization
-    if (alg != combined)  coef = 1.0;
-
     nlopt_opt opt;
+    double (*fpointer)(unsigned int, const double *, double *, void *);
+    double coef = 1.0;  //Percentaje of resources used in local optimization
 
     /* algorithm and dims */
+    if (alg == lbfgs)                                     //Require gradient
+      fpointer = &(NLOPT_WPR::evaluate_nlopt_grad);
+    else                                           //Do not require gradient
+      fpointer = &(NLOPT_WPR::evaluate_nlopt);
+
+    if (alg == combined)  coef = 0.8;
+
     switch(alg)
       {
       case direct:      /* same as combined */

@@ -23,8 +23,6 @@
 #define  _BASICGAUSSPROCESS_HPP_
 
 #include "nonparametricprocess.hpp"
-#include "kernels.hpp"
-#include "meanfuncs.hpp"
 
  
 /** \addtogroup NonParametricProcesses */
@@ -62,8 +60,7 @@ public:
    * 
    * @return value negative log likelihood
    */
-  double negativeLogLikelihood(double& grad,
-			       size_t index = 1);
+  double negativeLogLikelihood(size_t index = 1);
 
    
   /** 
@@ -117,11 +114,6 @@ public:
   }
 
 protected:
-
-
-  inline double meanFunction( const vectord &x )
-  { return means::Zero(x); }
-
 
   int precomputeGPParams()
   {return 1;};

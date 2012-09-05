@@ -17,10 +17,9 @@ StudentTProcess::~StudentTProcess()
 
 
 
-double StudentTProcess::negativeLogLikelihood(double &grad,
-					      size_t index)
+double StudentTProcess::negativeLogLikelihood(size_t index)
 {
-  matrixd K = computeCorrMatrix(mRegularizer,0);
+  matrixd K = computeCorrMatrix(0);
   size_t n = K.size1();
   
   matrixd L(n,n);

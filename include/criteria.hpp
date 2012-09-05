@@ -28,7 +28,7 @@
 #include "ctypes.h"
 #include "specialtypes.hpp"
 #include "randgen.hpp"
-
+#include "nonparametricprocess.hpp"
 
 class Criteria
 {
@@ -59,24 +59,24 @@ public:
   inline void setAnnealing(bool anneal)
   { use_annealing = anneal; }
 
-  inline double evaluate(NonParametricProcess &gp, const vectord &query)
+  inline double evaluate(NonParametricProcess *gp, const vectord &query)
   {
     n_calls++;
     if (use_annealing) updateCoolingScheme(query.size());
 
-    double yPred, sPred, yMin = gp.getValueAtMinimum(); 
-    gp.prediction(query,yPred,sPred);
+    double yPred, sPred, yMin = gp->getValueAtMinimum(); 
+    gp->prediction(query,yPred,sPred);
     double yStar;
     
      switch (criterium)
       {
-      case c_ei: return gp.negativeExpectedImprovement(yPred,sPred,yMin,g);
-      case c_lcb: return gp.lowerConfidenceBound(yPred,sPred,beta);
-      case c_poi: return gp.negativeProbabilityOfImprovement(yPred,sPred,yMin,epsilon);
+      case c_ei: return gp->negativeExpectedImprovement(yPred,sPred,yMin,g);
+      case c_lcb: return gp->lowerConfidenceBound(yPred,sPred,beta);
+      case c_poi: return gp->negativeProbabilityOfImprovement(yPred,sPred,yMin,epsilon);
       case c_greedyAOptimality: return sPred;
       case c_expectedReturn: return yPred;
       case c_optimisticSampling: 
-	yStar = gp.sample_query(query,mtRandom);
+	yStar = gp->sample_query(query,mtRandom);
 	return std::min(yPred,yStar);
       case c_gp_hedge:
       default: std::cout << "Error in criterium" << std::endl; return 0.0;

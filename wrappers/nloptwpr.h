@@ -30,13 +30,27 @@ namespace NLOPT_WPR
    * 
    * @param n # of dimensions
    * @param x input point
-   * @param grad returns gradient evaluation
+   * @param grad (only for compatibily, not used or changed)
    * @param my_func_data pointer to the InnerOptimization object
    * 
    * @return function evaluation
    */  
   double evaluate_nlopt (unsigned int n, const double *x,
-				  double *grad, void *my_func_data);
+			 double *grad, void *my_func_data);
+
+  /** 
+   * Wrapper of inner optimization to be evaluated by NLOPT
+   * 
+   * @param n # of dimensions
+   * @param x input point
+   * @param grad returns gradient evaluation
+   * @param my_func_data pointer to the InnerOptimization object
+   * 
+   * @return function evaluation
+   */  
+  double evaluate_nlopt_grad (unsigned int n, const double *x,
+			      double *grad, void *my_func_data);
+
   
   }
 }

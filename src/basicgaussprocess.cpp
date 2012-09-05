@@ -17,10 +17,9 @@ BasicGaussianProcess::~BasicGaussianProcess()
 
 
 
-double BasicGaussianProcess::negativeLogLikelihood(double &grad,
-						   size_t index)
+double BasicGaussianProcess::negativeLogLikelihood(size_t index)
 {
-  matrixd K = computeCorrMatrix(mRegularizer,0);
+  matrixd K = computeCorrMatrix(0);
   size_t n = K.size1();
   matrixd L(n,n);
   cholesky_decompose(K,L);
@@ -29,17 +28,6 @@ double BasicGaussianProcess::negativeLogLikelihood(double &grad,
   vectord alpha(mGPY);
   boost::numeric::ublas::inplace_solve(L,alpha,boost::numeric::ublas::lower_tag());
   double loglik = .5*inner_prod(mGPY,alpha) + trace(L) + n*0.91893853320467; //log(2*pi)/2
-
-#if 0 // BUG:
-  // Compute the ith derivative
-  if (index > 0)
-    {
-      matrixd inverse = eyed(n);
-      boost::numeric::ublas::inplace_solve(L,inverse,lower_tag());
-      matrixd dK = computeCorrMatrix(0,index);
-      grad = -.5 * trace_prod(outer_prod(alpha,alpha) - inverse, dK);
-    }
-#endif
 
   return loglik;
 }

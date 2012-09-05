@@ -163,7 +163,7 @@ protected:
   {
     bool reachable = checkReachability(query);
     if (!reachable)  return 0.0;
-    return crit.evaluate(*mGP,query);       
+    return crit.evaluate(mGP,query);       
   }  // evaluateCriteria
 
   int sampleRandomPoints( size_t nSamples );

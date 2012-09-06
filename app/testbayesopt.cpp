@@ -17,12 +17,12 @@ double testFunction(unsigned int n, double *x,
 }
 
 /* Class to be used for C++-API testing */
-class TestEGO: public SKO 
+class TestEGO: public SKO_CONT
 {
  public:
 
   TestEGO(sko_params param):
-    SKO(param) {}
+    SKO_CONT(param) {}
 
   double evaluateSample( const vectord &Xi ) 
   {

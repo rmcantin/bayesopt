@@ -27,49 +27,19 @@
 
 
 SKO_DISC::SKO_DISC( vecOfvec &validSet, sko_params parameters,
-       bool uselogfile,
-       const char* logfilename):
-  Logger(uselogfile,logfilename),
-  mInputSet(validSet), mGP(NULL)
+		    bool uselogfile,
+		    const char* logfilename):
+  SKO_BASE(parameters,uselogfile,logfilename),
+  mInputSet(validSet)
 { 
-  mParameters = parameters;
   setNumberIterations();
   setSurrogateFunction();
 } // Constructor
 
 
 SKO_DISC::~SKO_DISC()
-{
-   delete mGP;
-} // Default destructor
+{} // Default destructor
 
-
-int SKO_DISC::setSurrogateFunction()
-{
-  if (mGP != NULL)
-    delete mGP;
- 
-  switch(mParameters.s_name)
-    {
-    case s_gaussianProcess: 
-      mGP = new BasicGaussianProcess(mParameters.noise); break;
-
-    case s_gaussianProcessHyperPriors: 
-      mGP = new GaussianProcess(mParameters.noise,
-			       mParameters.alpha,mParameters.beta,
-			       mParameters.delta);  break;
-
-    case s_studentTProcess:
-      mGP = new StudentTProcess(mParameters.noise); break;
-
-    default:
-      std::cout << "Error: surrogate function not supported." << std::endl;
-      return -1;
-    }
-
-  mGP->setKernel(mParameters.theta,mParameters.k_name);
-  return 0;
-}
 
 int SKO_DISC::optimize( vectord &bestPoint )
 {
@@ -170,45 +140,6 @@ int SKO_DISC::findOptimal(vectord &xOpt)
 	}
     }
   return 1;
-}
-
-int SKO_DISC::nextPoint(vectord &Xnext)
-{
-  crit.resetAnnealValues();
-  if (mParameters.c_name == c_gp_hedge)
-    {
-      vectord best_ei(Xnext);
-      vectord best_lcb(Xnext);
-      vectord best_poi(Xnext);
-      double r_ei,r_lcb,r_poi,foo;
-
-      crit.setCriterium(c_ei);
-      findOptimal(best_ei);
-      mGP->prediction(best_ei,r_ei,foo);
-      
-      crit.setCriterium(c_lcb);
-      findOptimal(best_lcb);
-      mGP->prediction(best_lcb,r_lcb,foo);
-
-      crit.setCriterium(c_poi);
-      findOptimal(best_poi);
-      mGP->prediction(best_poi,r_poi,foo);
-
-      criterium_name better = crit.update_hedge(r_ei,r_lcb,r_poi);
-      switch(better)
-	{
-	case c_ei: Xnext = best_ei; break;
-	case c_lcb: Xnext = best_lcb; break;
-	case c_poi: Xnext = best_poi; break;
-	default: return -1;
-	}
-      return 1;
-    }
-  else
-    {
-      crit.setCriterium(mParameters.c_name);
-      return findOptimal(Xnext);
-    }
 }
 
 

@@ -3,11 +3,11 @@
 
 inline double sqr( double x ){ return x*x; }
 
-class TestOneD: public SKO
+class TestOneD: public SKO_CONT
 {
 public:
   TestOneD(sko_params par):
-  SKO(par) {}
+  SKO_CONT(par) {}
 
   double evaluateSample( const vectord& xin)
   {

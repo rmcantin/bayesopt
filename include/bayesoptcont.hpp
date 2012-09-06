@@ -32,24 +32,21 @@
 #ifndef  _BAYESOPTCONT_HPP_
 #define  _BAYESOPTCONT_HPP_
 
-#include <iostream>
-#include <fstream>
+//#include <iostream>
+//#include <fstream>
 
 //TODO: Check if everything is needed
+#include "ctypes.h"
 #include "specialtypes.hpp"
-#include "elementwiseUblas.hpp"
+#include "boundingbox.hpp"
 
 #include "inneroptimization.hpp"
-#include "nonparametricprocess.hpp"
-#include "logger.hpp"
-
-#include "ctypes.h"
-#include "criteria.hpp"
+#include "bayesoptbase.hpp"
 
 // Included here to simplify the C++-API
-#include "gaussprocess.hpp"
-#include "basicgaussprocess.hpp"
-#include "studenttprocess.hpp"
+//#include "gaussprocess.hpp"
+//#include "basicgaussprocess.hpp"
+//#include "studenttprocess.hpp"
 
 
 /** \addtogroup BayesOptimization */
@@ -59,7 +56,7 @@
  * \brief Sequential Kriging Optimization using different non-parametric 
  * processes as surrogate (kriging) functions. 
  */
-class SKO: public InnerOptimization, Logger
+class SKO_CONT: public InnerOptimization, SKO_BASE
 {
  public:
   
@@ -68,7 +65,7 @@ class SKO: public InnerOptimization, Logger
    * 
    * @param gp        Pointer to the surrogate model
    */
-  SKO( sko_params parameters,
+  SKO_CONT( sko_params parameters,
        bool uselogfile = false,
        const char* logfilename = "bayesopt.log"); 
 
@@ -77,111 +74,53 @@ class SKO: public InnerOptimization, Logger
    * 
    * @return 
    */
-  virtual ~SKO();
+  virtual ~SKO_CONT();
 
   /** 
    * Execute the optimization process of the function defined in evaluateSample.
-   * We assume that the function is defined in the [0,1] hypercube, as a 
-   * normalized representation of the bound constrains.
+   * If no bounding box is defined, we assume that the function is defined in the 
+   * [0,1] hypercube, as a normalized representation of the bound constrains.
    * 
    * @see scaleInput
    * @see evaluateSample
    *
-   * @param bestPoint returns the optimum value in a ublas::vector defined in 
-   * the hypercube [0,1], it might also be used as an initial point
-   * @param nIterations number of iterations (budget)
+   * @param bestPoint returns the optimum value in a ublas::vector, it might also
+   * be used as an initial point
    * 
-   * @return 1 if terminate successfully, 0 otherwise
+   * @return 0 if terminate successfully, nonzero otherwise
    */
-  inline int optimize(vectord &bestPoint)
-  {
-    size_t dim = bestPoint.size();
-    vectord lowerBound = zvectord(dim);
-    vectord upperBound = svectord(dim,1.0);
-  
-    return optimize(bestPoint,lowerBound,upperBound);
-  }
+  int optimize(vectord &bestPoint);
 
 
 
   /** 
-   * Execute the optimization process of the function defined in evaluateSample.
-   * We assume that the function is defined in the hypercube defined by 
-   * the lower and upper vectors. 
+   * Sets the bounding box. 
    *
-   * @param bestPoint returns the optimum value in a ublas::vector x, 
-   * it might also be used as an initial point
    * @param lowerBound vector with the lower bounds of the hypercube 
    * @param upperBound vector with the upper bounds of the hypercube 
-   * @param nIterations number of iterations (budget)
    * 
-   * @return 1 if terminate successfully, 0 otherwise
+   * @return 0 if terminate successfully, nonzero otherwise
    */
-  int optimize( vectord &bestPoint,
-		vectord &lowerBound,
-		vectord &upperBound);
+  inline int setBoundingBox( const vectord &lowerBound,
+			     const vectord &upperBound)
+  {
+    if (mBB != NULL)
+      delete mBB;
 
+    mBB = new BoundingBox<vectord>(lowerBound,upperBound);
 
-
-  /** 
-   * Function that defines the actual mathematical function to be optimized.
-   * Virtual function for polymorphism. This function must need to be modified 
-   * according to the specific problem.
-   *
-   * @param query point to be evaluated. 
-   * 
-   * @return value of the function at the point evaluated.
-   */
-  virtual double evaluateSample( const vectord &query ) = 0;
-  
-  /** 
-   * This function checks if the query is valid or not. It can be used 
-   * to introduce arbitrary constrains. Since the Gaussian process 
-   * assumes smoothness, constrains are managed by DIRECT, being highly
-   * time consuming. If the constrain is very tricky, DIRECT will need
-   * much more function evaluations.
-   *
-   * Note: This function is experimental. 
-   * 
-   * @param query point to be evaluated.
-   * 
-   * @return boolean value showing if the the function is valid at
-   *         the query point or not.
-   */ 
-  virtual bool checkReachability( const vectord &query )
-  {return true;};
+    if (mParameters.verbose_level > 1)
+      {
+	mOutput << "Bounds: "<< std::endl;
+	mOutput << lowerBound << std::endl;
+	mOutput << upperBound << std::endl;
+      }
+    return 0;
+  };
 
 
 protected:
 
-  /** 
-   * Set the surrogate function based on the current parameters
-   * 
-   * @return 0 if terminate successfully
-   */
-  int setSurrogateFunction();
-
-  /** 
-   * Chooses which criterium to optimize in the inner loop.
-   * 
-   * @param c criterium name
-   */
-  inline void setNumberIterations()
-  {
-    if ((mParameters.n_iterations <= 0) || 
-	(mParameters.n_iterations > MAX_ITERATIONS))
-      mParameters.n_iterations = MAX_ITERATIONS;
-  };
-
-  inline size_t setInitSet()
-  {  
-    // Configuration simplified.
-    // The number of initial samples is fixed 10% of the total budget
-    if (mParameters.n_init_samples <= 0)
-      return static_cast<size_t>(ceil(0.1*mParameters.n_iterations));
-    else
-      return mParameters.n_init_samples;
-  };
 
   /** 
    * Function that returns the corresponding criteria of a series 
@@ -194,33 +133,25 @@ protected:
    */	
   double innerEvaluate( const vectord &query )
   {
-    bool reachable = checkReachability(query);
-    if (!reachable)  return 0.0;
-    return crit.evaluate(mGP,query);       
-  }  // evaluateCriteria
+    return evaluateCriteria(query);       
+  };  // evaluateCriteria
 
-  inline vectord unnormalizeVector( const vectord &vin)
-  {
-    vectord vout = ublas_elementwise_prod(vin,mRangeBound);
-    return ublas_elementwise_add(vout, mLowerBound);
-  }  // unnormalizeVector
     
 
   inline double evaluateNormalizedSample( const vectord &query)
   { 
-    vectord unnormalizedQuery = unnormalizeVector(query);
+    vectord unnormalizedQuery = mBB->unnormalizeVector(query);
     return evaluateSample(unnormalizedQuery);
-  } // evaluateNormalizedSample
+  }; // evaluateNormalizedSample
 
   int sampleInitialPoints( size_t nSamples, size_t nDims, bool useLatinBox );
-  int nextPoint( vectord &Xnext );  
+
+  inline int findOptimal(vectord &xOpt)
+  { return innerOptimize(xOpt);};
 
 protected:
 
-  NonParametricProcess* mGP;        ///< Pointer to surrogate model
-  Criteria crit;                    ///< Criteria model
-  vectord mLowerBound, mRangeBound; ///< Lower bound and range of the input space
-  sko_params mParameters;
+  BoundingBox<vectord> *mBB;
 
 };
 

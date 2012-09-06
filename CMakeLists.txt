@@ -64,6 +64,7 @@ INCLUDE(UseDoxygen)
 SET( BAYESOPT_SRCS
   ./src/bayesoptcont.cpp
   ./src/bayesoptdisc.cpp
+  ./src/bayesoptbase.cpp
   ./src/inneroptimization.cpp
   ./src/gaussprocess.cpp
   ./src/basicgaussprocess.cpp

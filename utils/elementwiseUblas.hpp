@@ -50,6 +50,15 @@ v1 ublas_elementwise_add(const v1& a, const v2& b)
   return c;
 }
 
+template <class v1, class v2>
+v1 ublas_elementwise_substract(const v1& a, const v2& b)
+{
+  typedef typename v1::value_type D;
+  v1 c(a.size());
+  std::transform(a.begin(),a.end(),b.begin(),c.begin(),std::minus<D>());
+  return c;
+}
+
 
 template <class v1, class v2>
 v1 ublas_elementwise_prod(const v1& a, const v2& b)

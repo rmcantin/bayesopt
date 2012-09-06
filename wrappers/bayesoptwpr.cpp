@@ -16,12 +16,12 @@ inline void copyVectorInArray(double* array, int n, const vectord& vec)
 }
 
 
-class CSKO: public SKO 
+class CSKO: public SKO_CONT 
 {
  public:
 
   CSKO( sko_params params):
-    SKO(params)
+    SKO_CONT(params)
   {}; 
 
 
@@ -75,7 +75,8 @@ int bayes_optimization(int nDim, eval_func f, void* f_data,
 
   optimizer.set_eval_funct(f);
   optimizer.save_other_data(f_data);
-  optimizer.optimize(result,lowerBound,upperBound);
+  optimizer.setBoundingBox(lowerBound,upperBound);
+  optimizer.optimize(result);
 
   copyVectorInArray(x,nDim,result);
 

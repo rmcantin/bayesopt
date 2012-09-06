@@ -20,79 +20,43 @@
 -----------------------------------------------------------------------------
 */
 
-#include <ctime>
-#include <limits>
-#include <algorithm>
-#include "bayesoptcont.hpp"
 #include "lhs.hpp"
 #include "randgen.hpp"
-#include "basicgaussprocess.hpp"
+#include "bayesoptcont.hpp"
 
 
-SKO::SKO( sko_params parameters,
+
+SKO_CONT::SKO_CONT( sko_params parameters,
        bool uselogfile,
        const char* logfilename):
-  InnerOptimization(), 
-  Logger(uselogfile,logfilename),
-  mGP(NULL)
+  SKO_BASE(parameters,uselogfile,logfilename), 
+  mBB(NULL)
 { 
-  mParameters = parameters;
   setNumberIterations();
   setAlgorithm(direct);
   setSurrogateFunction();
 } // Constructor
 
-SKO::~SKO()
+SKO_CONT::~SKO_CONT()
 {
-  if (mGP != NULL)
-    delete mGP;
+  if (mBB != NULL)
+    delete mBB;
 } // Default destructor
 
-int SKO::setSurrogateFunction()
-{
-  if (mGP != NULL)
-    delete mGP;
- 
-  switch(mParameters.s_name)
-    {
-    case s_gaussianProcess: 
-      mGP = new BasicGaussianProcess(mParameters.noise); break;
 
-    case s_gaussianProcessHyperPriors: 
-      mGP = new GaussianProcess(mParameters.noise, mParameters.alpha,
-				mParameters.beta,mParameters.delta);  break;
-
-    case s_studentTProcess:
-      mGP = new StudentTProcess(mParameters.noise); break;
-
-    default:
-      std::cout << "Error: surrogate function not supported." << std::endl;
-      return -1;
-    }
-  
-  mGP->setKernel(mParameters.theta,mParameters.k_name);
-  return 0;
-}
-
-int SKO::optimize( vectord &bestPoint,
-		   vectord &lowerBound,
-		   vectord &upperBound)
+int SKO_CONT::optimize( vectord &bestPoint)
 {
   crit.resetHedgeValues();
- 
-  mLowerBound = lowerBound;
-  mRangeBound = upperBound - lowerBound;
-
-  if (mParameters.verbose_level > 1)
-    {
-      mOutput << "Bounds: "<< std::endl;
-      mOutput << lowerBound << std::endl;
-      mOutput << upperBound << std::endl;
-    }
-
 
   size_t nDims = bestPoint.size();
- 
+
+  if (mBB == NULL)
+    {
+      vectord lowerBound = zvectord(nDims);
+      vectord upperBound = svectord(nDims,1.0);
+      mBB = new BoundingBox<vectord>(lowerBound,upperBound);
+    }
+  
   vectord xNext(nDims);
   double yNext;
 
@@ -114,14 +78,15 @@ int SKO::optimize( vectord &bestPoint,
       
       if(mParameters.verbose_level >0)
 	{ 
-	  vectord xScaled = unnormalizeVector(xNext);
-	  vectord xOpt = unnormalizeVector(mGP->getPointAtMinimum());
+	  vectord xScaled = mBB->unnormalizeVector(xNext);
+	  vectord xOpt = mBB->unnormalizeVector(mGP->getPointAtMinimum());
 	  mOutput << "Iteration: " << ii+1 << " of " << mParameters.n_iterations;
 	  mOutput << " | Total samples: " << ii+1+nLHSSamples << std::endl;
 	  mOutput << "Trying point at: " << xScaled << std::endl;
 	  mOutput << "Best found at: " << xOpt << std::endl; 
 	  mOutput << "Best outcome: " <<  mGP->getValueAtMinimum() <<  std::endl; 
 	}
+
       yNext = evaluateNormalizedSample(xNext);
       mGP->addNewPointToGP(xNext,yNext); 
 
@@ -130,17 +95,17 @@ int SKO::optimize( vectord &bestPoint,
 	  clock_t lap = clock();
 	  double t_lap = static_cast<double>(lap-start_time)/CLOCKS_PER_SEC;
 	  mOutput << t_lap << "|" << mGP->getValueAtMinimum() << "|";
-	  mOutput << yNext << "|" << unnormalizeVector(xNext) << std::endl;
+	  mOutput << yNext << "|" << mBB->unnormalizeVector(xNext) << std::endl;
 	}
          
     }
 
-  bestPoint = unnormalizeVector(mGP->getPointAtMinimum());
+  bestPoint = mBB->unnormalizeVector(mGP->getPointAtMinimum());
 
   return 1;
 } // optimize
 
-int SKO::sampleInitialPoints( size_t nSamples, size_t nDims,
+int SKO_CONT::sampleInitialPoints( size_t nSamples, size_t nDims,
 			      bool useLatinBox)
 {
   /** \brief Sample a set of points to initialize GP fit
@@ -180,7 +145,7 @@ int SKO::sampleInitialPoints( size_t nSamples, size_t nDims,
 	      double t_lap = static_cast<double>(lap-start_time)/CLOCKS_PER_SEC;
 	      mOutput << t_lap << "|" << ymin << "|";
 	      mOutput << yPoints(i) << "|" 
-		       << unnormalizeVector(sample) << std::endl;
+		       << mBB->unnormalizeVector(sample) << std::endl;
 	    }
 	}
     }
@@ -191,56 +156,6 @@ int SKO::sampleInitialPoints( size_t nSamples, size_t nDims,
   return 1;
 } // sampleInitialPoints
 
-
-int SKO::nextPoint(vectord &Xnext)
-{
-  crit.resetAnnealValues();
-  if (mParameters.c_name == c_gp_hedge)
-    {
-      vectord best_ei(Xnext);
-      vectord best_lcb(Xnext);
-      vectord best_poi(Xnext);
-      double l_ei,l_lcb,l_poi,foo;
-
-      crit.setCriterium(c_ei);
-      innerOptimize(best_ei);
-      mGP->prediction(best_ei,l_ei,foo);
-      
-      crit.setCriterium(c_lcb);
-      innerOptimize(best_lcb);
-      mGP->prediction(best_lcb,l_lcb,foo);
-
-      crit.setCriterium(c_poi);
-      innerOptimize(best_poi);
-      mGP->prediction(best_poi,l_poi,foo);
-
-      // Since we want to find the minimum, the predicted value is loss value, not a
-      // reward value.
-      criterium_name better = crit.update_hedge(l_ei,l_lcb,l_poi);
-      switch(better)
-	{
-	case c_ei: 
-	  Xnext = best_ei;
-	  if (mParameters.verbose_level > 0) mOutput << "EI used." << std::endl;
-	  break;
-	case c_lcb: 
-	  Xnext = best_lcb; 
-	  if (mParameters.verbose_level > 0) mOutput << "LCB used." << std::endl;
-	  break;
-	case c_poi: 
-	  Xnext = best_poi; 
-	  if (mParameters.verbose_level > 0) mOutput << "POI used." << std::endl;
-	  break;
-	default: return -1;
-	}
-      return 1;
-    }
-  else
-    {
-      crit.setCriterium(mParameters.c_name);
-      return innerOptimize(Xnext);
-    }
-}
 
 
 

@@ -35,7 +35,7 @@ public:
   virtual double getScale(size_t index) {return 0.0;};
   virtual vectord getScale() {return zvectord(1);};
   virtual double operator()( const vectord &x1, const vectord &x2,
-			     size_t grad_index = 0) = 0;
+			     size_t grad_index = -1) = 0;
   virtual ~Kernel(){};
 };
 
@@ -75,12 +75,12 @@ class MaternIso1: public ISOkernel
 {
 public:
   double operator()( const vectord &x1, const vectord &x2,
-		     size_t grad_index = 0)
+		     size_t grad_index = -1)
   {
     double r = norm_2(x1-x2)/mTheta;
     double er = exp(-r);
 
-    if (grad_index == 0) 
+    if (grad_index < 0) 
       return er;
     else 
       return r*er;
@@ -93,12 +93,12 @@ class MaternIso3: public ISOkernel
 {
 public:
   double operator()( const vectord &x1, const vectord &x2,
-		     size_t grad_index = 0 )
+		     size_t grad_index = -1 )
   {
     double r = sqrt(3) * norm_2(x1-x2)/mTheta;
     double er = exp(-r);
 
-    if (grad_index == 0) 
+    if (grad_index < 0) 
       return (1+r)*er;
     else 
       return r*r*er; 
@@ -111,12 +111,12 @@ class MaternIso5: public ISOkernel
 {
 public:
   double operator()( const vectord &x1, const vectord &x2,
-		     size_t grad_index = 0 )
+		     size_t grad_index = -1 )
   {
     double r = sqrt(5) * norm_2(x1-x2)/mTheta;
     double er = exp(-r);
 
-    if (grad_index == 0) 
+    if (grad_index < 0) 
       return (1+r*(1+r/3))*er;
     else 
       return r*(1+r)/3*r*er; 
@@ -130,12 +130,12 @@ class SEIso: public ISOkernel
 {
 public:
   double operator()( const vectord &x1, const vectord &x2,
-		     size_t grad_index = 0 )
+		     size_t grad_index = -1 )
   {
     double rl = norm_2(x1-x2)/mTheta;
     double k = rl*rl;
 
-    if (grad_index == 0)
+    if (grad_index < 0)
       return exp(-k/2);
     else 
       return exp(-k/2)*k;
@@ -148,7 +148,7 @@ class SEArd: public ARDkernel
 {
 public:
   double operator()( const vectord &x1, const vectord &x2,
-		     size_t grad_index = 0 )
+		     size_t grad_index = -1 )
   {
     vectord xd = x1-x2;
     vectord ri = ublas_elementwise_div(xd, mTheta);
@@ -156,7 +156,7 @@ public:
     double rl = norm_2(ri);
     double k = rl*rl;
 
-    if (grad_index == 0)
+    if (grad_index < 0)
       return exp(-k/2);
     else 
       return exp(-k/2)*sqrt(ri(grad_index));

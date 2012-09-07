@@ -118,7 +118,8 @@ double StudentTProcess::negativeExpectedImprovement(double yPred, double sPred,
     }
   else
     {
-      return -1.0 * ( yDiff * cdf(d,yNorm) + (dof*sPred+yNorm*yDiff)/(dof-1) * pdf(d,yNorm) );
+      return -( yDiff * cdf(d,yNorm) + 
+		(dof*sPred+yNorm*yDiff)/(dof-1) * pdf(d,yNorm) );
     }
   
 }  // negativeExpectedImprovement
@@ -130,8 +131,10 @@ double StudentTProcess::lowerConfidenceBound(double yPred, double sPred,
   return yPred - beta*sPred/sqrt(n);
 }  // lowerConfidenceBound
 
-double StudentTProcess::negativeProbabilityOfImprovement(double yPred, double sPred,
-							      double yMin, double epsilon)
+double StudentTProcess::negativeProbabilityOfImprovement(double yPred, 
+							 double sPred,
+							 double yMin, 
+							 double epsilon)
 {  
   size_t dof = mGPXX.size() - 1;
   boost::math::students_t d(dof);

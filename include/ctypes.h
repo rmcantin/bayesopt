@@ -38,7 +38,6 @@ extern "C" {
     k_seard,
     k_error
   } kernel_name;
-
   
   typedef enum {  
     c_ei,
@@ -51,6 +50,10 @@ extern "C" {
     c_error
   } criterium_name;
 
+  const unsigned int nAlgorithmsInGPHedge = 5;
+  const criterium_name algorithmsInGPHedge[] = {c_ei, c_lcb, c_poi, 
+					      c_expectedReturn,
+					      c_optimisticSampling };
 
   typedef enum {  
     s_gaussianProcess,

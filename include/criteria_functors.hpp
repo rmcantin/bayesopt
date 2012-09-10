@@ -224,19 +224,23 @@ class GP_Hedge: public Criteria
 {
 public:
   GP_Hedge(NonParametricProcess *proc):
-    AnnealedCriteria(proc)
-  {
-    resetHedgeValues();
-  };
+    AnnealedCriteria(proc), mtRandom(100u),
+    sampleUniform( mtRandom, realUniformDist(0,1)),
+    gain(zvectord(nAlgorithmsInGPHedge)), 
+    prob(zvectord(nAlgorithmsInGPHedge)),
+    cumprob(zvectord(nAlgorithmsInGPHedge))
+  {};
 
   virtual ~GP_Hedge(){};
 
+  inline void resetHedgeValues()
+  { gain = zvectord(gain.size()); }
+
+
   inline double softmax(double g) {return exp(mEta*g);};
 
-  size_t update_hedge(vectord& loss)
+  criterium_name update_hedge(vectord& loss)
   {
-    randFloat sample( mtRandom, realUniformDist(0,1) );
-
     double max_g = std::max_element(gains);
     double min_g = std::min_element(gains);
 
@@ -268,31 +272,25 @@ public:
     std::partial_sum(prob.begin(), prob.end(), cumprob.begin(), 
 		     std::plus<double>());
 
-    double u = sample();
+    double u = sampleUniform();
 
     for (size_t i=0; i < cumprob.size(); ++i)
       {
 	if (u < cumprob(i))
-	  return i;
+	  return algorithmsInGPHedge[i];
       }
-    return -1;
+    return c_error;
   }
 
 
   double operator()( const vectord &x)
   {
-    ++nCalls;
-    size_t nDims = x.size();
-    double coef = 5.0;
-
-    beta = sqrt(2*log(nCalls*nCalls)*(nDims+1) + log(nDims)*nDims*coef);
-
-    double yPred, sPred;
-    gp->prediction(query,yPred,sPred);
-    return gp->LowerConfidenceBound(yPred,sPred,mBeta);
   };
+
 protected:
-  double mBeta;
+  randEngine mtRandom;
+  randFloat sampleUniform;
+  vectord gains, prob, cumprob;
 };
 
 #endif

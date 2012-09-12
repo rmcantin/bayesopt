@@ -7,8 +7,6 @@
 #include <boost/numeric/ublas/io.hpp>
 #include <boost/numeric/ublas/symmetric.hpp>
 
-#include "defaults.h"
-
 typedef boost::numeric::ublas::vector<double>                   vectord;
 typedef boost::numeric::ublas::zero_vector<double>             zvectord;
 typedef boost::numeric::ublas::scalar_vector<double>           svectord;
@@ -20,7 +18,7 @@ typedef std::vector<vectord>::iterator                 vecOfvecIterator;
 
 // Surprisingly, this is the most efficient version of a growing matrix 
 // for uBlas, but I leave here the old trial because it might change in
-// future.
+// the future.
 typedef boost::numeric::ublas::matrix<double>                 covMatrix;
 
 // typedef boost::numeric::ublas::bounded_matrix<double, MAX_ITERATIONS, 

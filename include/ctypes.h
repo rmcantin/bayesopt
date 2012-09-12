@@ -24,87 +24,113 @@
 #define __C_TYPES_H__
 
 #include <string.h>
-#include "defaults.h"
+//#include "defaults.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif 
 
+  /*** Type definitions                                       **/
+  /*************************************************************/
+  
   typedef enum {
-    k_materniso1,
-    k_materniso3,
-    k_materniso5,
-    k_seiso,
-    k_seard,
-    k_error
+    K_MATERN_ISO1,
+    K_MATERN_ISO3,
+    K_MATERN_ISO5,
+    K_SE_ISO,
+    K_SE_ARD,
+    K_ERROR = -1
   } kernel_name;
   
-  typedef enum {  
-    c_ei,
-    c_lcb,
-    c_poi,
-    c_gp_hedge,
-    c_greedyAOptimality,
-    c_expectedReturn,
-    c_optimisticSampling,
-    c_error
-  } criterium_name;
-
-  const unsigned int nAlgorithmsInGPHedge = 5;
-  const criterium_name algorithmsInGPHedge[] = {c_ei, c_lcb, c_poi, 
-					      c_expectedReturn,
-					      c_optimisticSampling };
-
-  typedef enum {  
-    s_gaussianProcess,
-    s_gaussianProcessHyperPriors,
-    s_studentTProcess,
-    s_error
-  } surrogate_name;
-
   typedef enum {
-    m_zero,
-    m_one,
-    m_linear,
-    m_error
+    M_ZERO,
+    M_ONE,
+    M_LINEAR,
+    M_ERROR = -1
   } mean_name;
 
-  /** Parameters */
+  typedef enum {  
+    C_EI,
+    C_LCB,
+    C_POI,
+    C_GP_HEDGE,
+    C_GREEDY_A_OPTIMALITY,
+    C_EXPECTED_RETURN,
+    C_OPTIMISTIC_SAMPLING,
+    C_ERROR = -1
+  } criterium_name;
+
+  typedef enum {  
+    S_GAUSSIAN_PROCESS,
+    S_GAUSSIAN_PROCESS_INV_GAMMA_NORMAL,
+    S_STUDENT_T_PROCESS_JEFFREYS,
+    S_ERROR = -1
+  } surrogate_name;
+
+  /** SKO Parameters */
   typedef struct {
-    /** Maximum SKO evaluations (budget) */
-    unsigned int n_iterations;
-    /** Number of samples before optimization */
-    unsigned int n_init_samples;
-    /** Verbose level */
-    unsigned int verbose_level;
-    /** Surrogate function parameters */
-    double theta;  
-    double alpha, beta, delta;
-    /** Observation noise */
-    double noise;
-    /** Name of the surrogate function */
-    surrogate_name s_name;
-    /** Name of the kernel */
-    kernel_name k_name;
-    /** Name of the criteria */
-    criterium_name c_name;
+    unsigned int n_iterations;   /**< Maximum SKO evaluations (budget) */
+    unsigned int n_init_samples; /**< Number of samples before optimization */
+    unsigned int verbose_level;  /**< Verbose level */
+    double theta;                /**< Kernel hyperparameters */
+    double alpha, beta, delta;   /**< Inv-Gamma-Normal hyperparameters */
+    double noise;                /**< Observation noise */
+    surrogate_name s_name;       /**< Name of the surrogate function */
+    kernel_name k_name;          /**< Name of the kernel function */
+    criterium_name c_name;       /**< Name of the criterion */
+    mean_name m_name;            /**< Name of the mean function */
   } sko_params;
 
+
+  /* Default values                                            */
+  /*************************************************************/
+
+  /* Nonparametric process "parameters" */
+  const double KERNEL_THETA    = 0.06;
+  const double PRIOR_ALPHA     = 1.0;
+  const double PRIOR_BETA      = 1.0;
+  const double PRIOR_DELTA_SQ  = 1000.0;
+  const double DEFAULT_NOISE   = 1e-4;
+
+  /* Algorithm parameters */
+  const size_t DEFAULT_ITERATIONS  = 300;
+  const size_t DEFAULT_SAMPLES     = 30;
+  const size_t DEFAULT_VERBOSE     = 1;
+
+  /* Algorithm limits */
+  const size_t MAX_ITERATIONS  = 1000;       /* Not used */
+  const size_t MAX_DIM         = 40;         /* Not used */
+
+  /* INNER Optimizer default values */
+  const size_t MAX_INNER_EVALUATIONS = 3000;
+  const size_t MAX_INNER_ITERATIONS  = 3000; /* Not used */
+
+  /* Latin Hypercube Sampling (LHS) default values */
+  const size_t N_LHS_EVALS_PER_DIM = 30;     /* Not used */
+  const size_t MAX_LHS_EVALUATIONS = 100;    /* Not used */
+
+  const size_t nAlgorithmsInGPHedge = 5;
+  const criterium_name algorithmsInGPHedge[] = { C_EI, C_LCB, C_POI,
+						 C_EXPECTED_RETURN,
+						 C_OPTIMISTIC_SAMPLING };
+
+
   const sko_params DEFAULT_PARAMS = {
-    300, 30, 1,
+    DEFAULT_ITERATIONS, DEFAULT_SAMPLES, DEFAULT_VERBOSE,
     KERNEL_THETA, 
     PRIOR_ALPHA, PRIOR_BETA, PRIOR_DELTA_SQ,
-    DEF_REGULARIZER,
-    s_gaussianProcess,
-    k_materniso3,
-    c_ei
+    DEFAULT_NOISE,
+    S_GAUSSIAN_PROCESS,
+    K_MATERN_ISO3,
+    C_EI
   };
 
   /* These functions are added to simplify wrapping code */
-  kernel_name str2kernel(const char* name);
-  criterium_name str2crit(const char* name);
-  surrogate_name str2surrogate(const char* name);
-  mean_name str2mean(const char* name);
+  kernel_name    str2kernel    (const char* name);
+  criterium_name str2crit      (const char* name);
+  surrogate_name str2surrogate (const char* name);
+  mean_name      str2mean      (const char* name);
+
   sko_params initialize_parameters_to_default(void);
 
 #ifdef __cplusplus

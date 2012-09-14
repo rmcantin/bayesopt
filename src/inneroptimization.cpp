@@ -18,6 +18,7 @@
 */
 #include <cmath>
 #include <nlopt.h>
+#include "ctypes.h"
 #include "nloptwpr.h"
 
 #include "inneroptimization.hpp"
@@ -84,19 +85,19 @@ int InnerOptimization::innerOptimize(double* x, int n, void* objPointer)
     double coef = 1.0;  //Percentaje of resources used in local optimization
 
     /* algorithm and dims */
-    if (alg == lbfgs)                                     //Require gradient
+    if (alg == LBFGS)                                     //Require gradient
       fpointer = &(NLOPT_WPR::evaluate_nlopt_grad);
     else                                           //Do not require gradient
       fpointer = &(NLOPT_WPR::evaluate_nlopt);
 
-    if (alg == combined)  coef = 0.8;
+    if (alg == COMBINED)  coef = 0.8;
 
     switch(alg)
       {
-      case direct:      /* same as combined */
-      case combined: 	opt = nlopt_create(NLOPT_GN_DIRECT_L, n); break;
-      case bobyqa: 	opt = nlopt_create(NLOPT_LN_BOBYQA, n); break;
-      case lbfgs:       opt = nlopt_create(NLOPT_LD_LBFGS, n); break;
+      case DIRECT:      /* same as combined */
+      case COMBINED: 	opt = nlopt_create(NLOPT_GN_DIRECT_L, n); break;
+      case BOBYQA: 	opt = nlopt_create(NLOPT_LN_BOBYQA, n); break;
+      case LBFGS:       opt = nlopt_create(NLOPT_LD_LBFGS, n); break;
       default: std::cout << "Algorithm not supported" << std::endl; return -1;
       }
 
@@ -111,7 +112,7 @@ int InnerOptimization::innerOptimize(double* x, int n, void* objPointer)
     checkNLOPTerror(errortype);
 
     // Local refinement
-    if ((alg == combined) && (coef < 1)) 
+    if ((alg == COMBINED) && (coef < 1)) 
       {
 	nlopt_destroy(opt);  // Destroy previous one
 	opt = nlopt_create(NLOPT_LN_SBPLX, n); /* algorithm and dims */

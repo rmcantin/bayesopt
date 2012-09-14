@@ -32,10 +32,10 @@ class Kernel
 public:
   virtual void setScale( const vectord &theta ) {};
   virtual void setScale( double theta ) {};
-  virtual double getScale(size_t index) {return 0.0;};
+  virtual double getScale(int index) {return 0.0;};
   virtual vectord getScale() {return zvectord(1);};
   virtual double operator()( const vectord &x1, const vectord &x2,
-			     size_t grad_index = -1) = 0;
+			     int grad_index = -1) = 0;
   virtual ~Kernel(){};
 };
 
@@ -46,7 +46,7 @@ class ISOkernel : public Kernel
 public:
   void setScale( const vectord &theta ) {mTheta = theta(0);};
   void setScale( double theta ) {mTheta = theta;};
-  double getScale(size_t index) {return mTheta;};
+  double getScale(int index) {return mTheta;};
   vectord getScale() {return svectord(1,mTheta);};
   virtual ~ISOkernel(){};
 
@@ -75,7 +75,7 @@ class MaternIso1: public ISOkernel
 {
 public:
   double operator()( const vectord &x1, const vectord &x2,
-		     size_t grad_index = -1)
+		     int grad_index = -1)
   {
     double r = norm_2(x1-x2)/mTheta;
     double er = exp(-r);
@@ -93,7 +93,7 @@ class MaternIso3: public ISOkernel
 {
 public:
   double operator()( const vectord &x1, const vectord &x2,
-		     size_t grad_index = -1 )
+		     int grad_index = -1 )
   {
     double r = sqrt(3) * norm_2(x1-x2)/mTheta;
     double er = exp(-r);
@@ -111,7 +111,7 @@ class MaternIso5: public ISOkernel
 {
 public:
   double operator()( const vectord &x1, const vectord &x2,
-		     size_t grad_index = -1 )
+		     int grad_index = -1 )
   {
     double r = sqrt(5) * norm_2(x1-x2)/mTheta;
     double er = exp(-r);
@@ -130,7 +130,7 @@ class SEIso: public ISOkernel
 {
 public:
   double operator()( const vectord &x1, const vectord &x2,
-		     size_t grad_index = -1 )
+		     int grad_index = -1 )
   {
     double rl = norm_2(x1-x2)/mTheta;
     double k = rl*rl;
@@ -148,7 +148,7 @@ class SEArd: public ARDkernel
 {
 public:
   double operator()( const vectord &x1, const vectord &x2,
-		     size_t grad_index = -1 )
+		     int grad_index = -1 )
   {
     vectord xd = x1-x2;
     vectord ri = ublas_elementwise_div(xd, mTheta);

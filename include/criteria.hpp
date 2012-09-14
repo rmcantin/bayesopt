@@ -37,7 +37,7 @@ public:
   Criteria():
     mtRandom(100u)
   {
-    criterium = c_ei;
+    criterium = C_EI;
     resetAnnealValues();
     resetHedgeValues();
     eta = 1;
@@ -70,15 +70,15 @@ public:
     
      switch (criterium)
       {
-      case c_ei: return gp->negativeExpectedImprovement(yPred,sPred,yMin,g);
-      case c_lcb: return gp->lowerConfidenceBound(yPred,sPred,beta);
-      case c_poi: return gp->negativeProbabilityOfImprovement(yPred,sPred,yMin,epsilon);
-      case c_greedyAOptimality: return sPred;
-      case c_expectedReturn: return yPred;
-      case c_optimisticSampling: 
+      case C_EI: return gp->negativeExpectedImprovement(yPred,sPred,yMin,g);
+      case C_LCB: return gp->lowerConfidenceBound(yPred,sPred,beta);
+      case C_POI: return gp->negativeProbabilityOfImprovement(yPred,sPred,yMin,epsilon);
+      case C_GREEDY_A_OPTIMALITY: return sPred;
+      case C_EXPECTED_RETURN: return yPred;
+      case C_OPTIMISTIC_SAMPLING: 
 	yStar = gp->sample_query(query,mtRandom);
 	return std::min(yPred,yStar);
-      case c_gp_hedge:
+      case C_GP_HEDGE:
       default: std::cout << "Error in criterium" << std::endl; return 0.0;
       }
 
@@ -130,11 +130,11 @@ public:
     double u = sample();
 
     if (u < p_ei)
-      return c_ei;
+      return C_EI;
     else if (u < p_lcb+p_ei)
-      return c_lcb;
+      return C_LCB;
     else
-    return c_poi;
+    return C_POI;
   }
 
 protected:

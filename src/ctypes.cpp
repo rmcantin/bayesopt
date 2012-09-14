@@ -35,7 +35,7 @@ criterium_name str2crit(const char* name)
     return C_EXPECTED_RETURN;
   else if (!strcmp(name,  "OPTIMISTIC_SAMPLING"))
     return C_OPTIMISTIC_SAMPLING;
-  else return c_error;
+  else return C_ERROR;
 }
 
 surrogate_name str2surrogate(const char* name)

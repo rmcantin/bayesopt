@@ -33,7 +33,7 @@ int main(int nargs, char *args[])
   sko_params par = DEFAULT_PARAMS;
   par.n_iterations = 400;
   par.theta = 1.0;
-  par.c_name = c_gp_hedge;
+  par.c_name = C_GP_HEDGE;
   TestOneD opt(par);
   vectord result(2);
 

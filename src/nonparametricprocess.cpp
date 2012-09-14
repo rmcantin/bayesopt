@@ -25,7 +25,7 @@ NonParametricProcess::NonParametricProcess(double noise):
 { 
   mMinIndex = 0; 
   mMaxIndex = 0;   
-  setAlgorithm(bobyqa);
+  setAlgorithm(BOBYQA);
   setLimits(0.,100.);
 };
 
@@ -44,11 +44,11 @@ int NonParametricProcess::setKernel (const vectord &thetav,
 
   switch(k_name)
     {
-    case k_materniso1: mKernel = new MaternIso1(); break;
-    case k_materniso3: mKernel = new MaternIso3(); break;
-    case k_materniso5: mKernel = new MaternIso5(); break;
-    case k_seiso: mKernel = new SEIso(); break;
-    case k_seard: mKernel = new SEArd(); break;
+    case K_MATERN_ISO1: mKernel = new MaternIso1(); break;
+    case K_MATERN_ISO3: mKernel = new MaternIso3(); break;
+    case K_MATERN_ISO5: mKernel = new MaternIso5(); break;
+    case K_SE_ISO: mKernel = new SEIso(); break;
+    case K_SE_ARD: mKernel = new SEArd(); break;
     default:
       std::cout << "Error: kernel function not supported." << std::endl;
       return -1;
@@ -137,7 +137,7 @@ int NonParametricProcess::computeInverseCorrMatrix()
   return inverse_cholesky(corrMatrix,mInvR);
 }
 
-matrixd NonParametricProcess::computeCorrMatrix(size_t dth_index)
+matrixd NonParametricProcess::computeCorrMatrix(int dth_index)
 {
   size_t nSamples = mGPXX.size();
   matrixd corrMatrix(nSamples,nSamples);
@@ -151,7 +151,7 @@ matrixd NonParametricProcess::computeCorrMatrix(size_t dth_index)
 	  corrMatrix(jj,ii) = corrMatrix(ii,jj);
 	}
       corrMatrix(ii,ii) = (*mKernel)(mGPXX[ii],mGPXX[ii], dth_index);
-      if (dth_index == 0) 
+      if (dth_index < 0) 
 	corrMatrix(ii,ii) += mRegularizer;
     }
   return corrMatrix;

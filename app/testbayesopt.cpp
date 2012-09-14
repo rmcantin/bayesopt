@@ -53,10 +53,10 @@ int main(int nargs, char *args[])
   par.alpha = PRIOR_ALPHA;
   par.beta = PRIOR_BETA;
   par.delta = PRIOR_DELTA_SQ;
-  par.noise = DEF_REGULARIZER;
-  par.c_name = c_ei;
-  par.s_name = s_gaussianProcess;
-  par.k_name = k_seiso;
+  par.noise = DEFAULT_NOISE;
+  par.c_name = C_EI;
+  par.s_name = S_GAUSSIAN_PROCESS;
+  par.k_name = K_SE_ISO;
   par.n_iterations = 10;       // Number of iterations
   par.n_init_samples = 30;
   /*******************************************/

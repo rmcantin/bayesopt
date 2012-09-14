@@ -31,10 +31,7 @@ SKO_DISC::SKO_DISC( vecOfvec &validSet, sko_params parameters,
 		    const char* logfilename):
   SKO_BASE(parameters,uselogfile,logfilename),
   mInputSet(validSet)
-{ 
-  setNumberIterations();
-  setSurrogateFunction();
-} // Constructor
+{} // Constructor
 
 
 SKO_DISC::~SKO_DISC()

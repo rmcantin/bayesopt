@@ -36,7 +36,7 @@
 class StudentTProcess: public NonParametricProcess
 {
 public:
-  StudentTProcess(double noise = DEF_REGULARIZER);
+  StudentTProcess(double noise = DEFAULT_NOISE);
   virtual ~StudentTProcess();
 
   /** 

@@ -31,7 +31,7 @@ int main(int nargs, char *args[])
   sko_params parameters = DEFAULT_PARAMS;
   parameters.n_iterations = 300;
   parameters.theta = 1.0;
-  parameters.c_name = c_gp_hedge;
+  parameters.c_name = C_GP_HEDGE;
   TestOneD opt(parameters);
   vectord result(1);
   opt.optimize(result);

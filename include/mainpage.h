@@ -1,13 +1,18 @@
-/** \mainpage Bayesian optimization toolbox
+/** \mainpage BayesOpt: A Bayesian optimization toolbox
  * 
  * This is an efficient, C++ implementation of the Bayesian
- * optimization methodology for expensive functions, also called
- * Sequential Kriging Optimization (SKO), Efficient Global
- * Optimization (EGO). Basically, it uses a distribution over function
- * to build a metamodel of the unknown function for we are looking the
- * extrema, and then applying some sort of active learning strategy to
- * select the query points that provides most potential improvement in
- * the seek.
+ * optimization methodology for nonlinear-optimization, experimental
+ * design and stochastic bandits. In the literature it is also called
+ * Sequential Kriging Optimization (SKO) or Efficient Global
+ * Optimization (EGO). 
+ * 
+ * Basically, it uses a distribution over functions to build a
+ * metamodel of the unknown function for we are looking the extrema,
+ * and then apply some active learning strategy to select the query
+ * points that provides most potential interest for the seek. For that
+ * reason, it has been traditionally intended for optimization of
+ * expensive function. However, the efficiency of the library make it
+ * also interesting for many types of functions.
  *
  * It is intended to be both fast and clear for development and
  * research. At the same time, it does everything the "right way". For

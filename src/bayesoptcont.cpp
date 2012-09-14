@@ -32,9 +32,7 @@ SKO_CONT::SKO_CONT( sko_params parameters,
   SKO_BASE(parameters,uselogfile,logfilename), 
   mBB(NULL)
 { 
-  setNumberIterations();
-  setAlgorithm(direct);
-  setSurrogateFunction();
+  setAlgorithm(DIRECT);
 } // Constructor
 
 SKO_CONT::~SKO_CONT()

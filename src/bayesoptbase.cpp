@@ -49,14 +49,14 @@ int SKO_BASE::setSurrogateFunction()
  
   switch(mParameters.s_name)
     {
-    case s_gaussianProcess: 
+    case S_GAUSSIAN_PROCESS: 
       mGP = new BasicGaussianProcess(mParameters.noise); break;
 
-    case s_gaussianProcessHyperPriors: 
+    case S_GAUSSIAN_PROCESS_INV_GAMMA_NORMAL:
       mGP = new GaussianProcess(mParameters.noise, mParameters.alpha,
 				mParameters.beta,mParameters.delta);  break;
 
-    case s_studentTProcess:
+    case S_STUDENT_T_PROCESS_JEFFREYS:
       mGP = new StudentTProcess(mParameters.noise); break;
 
     default:
@@ -73,22 +73,22 @@ int SKO_BASE::setSurrogateFunction()
 int SKO_BASE::nextPoint(vectord &Xnext)
 {
   crit.resetAnnealValues();
-  if (mParameters.c_name == c_gp_hedge)
+  if (mParameters.c_name == C_GP_HEDGE)
     {
       vectord best_ei(Xnext);
       vectord best_lcb(Xnext);
       vectord best_poi(Xnext);
       double l_ei,l_lcb,l_poi,foo;
 
-      crit.setCriterium(c_ei);
+      crit.setCriterium(C_EI);
       findOptimal(best_ei);
       mGP->prediction(best_ei,l_ei,foo);
       
-      crit.setCriterium(c_lcb);
+      crit.setCriterium(C_LCB);
       findOptimal(best_lcb);
       mGP->prediction(best_lcb,l_lcb,foo);
 
-      crit.setCriterium(c_poi);
+      crit.setCriterium(C_POI);
       findOptimal(best_poi);
       mGP->prediction(best_poi,l_poi,foo);
 
@@ -97,15 +97,15 @@ int SKO_BASE::nextPoint(vectord &Xnext)
       criterium_name better = crit.update_hedge(l_ei,l_lcb,l_poi);
       switch(better)
 	{
-	case c_ei: 
+	case C_EI: 
 	  Xnext = best_ei;
 	  if (mParameters.verbose_level > 0) mOutput << "EI used." << std::endl;
 	  break;
-	case c_lcb: 
+	case C_LCB: 
 	  Xnext = best_lcb; 
 	  if (mParameters.verbose_level > 0) mOutput << "LCB used." << std::endl;
 	  break;
-	case c_poi: 
+	case C_POI: 
 	  Xnext = best_poi; 
 	  if (mParameters.verbose_level > 0) mOutput << "POI used." << std::endl;
 	  break;

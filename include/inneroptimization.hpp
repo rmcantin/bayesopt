@@ -24,10 +24,10 @@
 
 // We plan to add more in the future since nlopt actually support many of them
 enum innerOptAlgorithms {
-  direct, // Global optimization
-  lbfgs, // Local, derivative based
-  bobyqa, // Local, derivative free
-  combined // Global exploration, local refinement
+  DIRECT, // Global optimization
+  LBFGS, // Local, derivative based
+  BOBYQA, // Local, derivative free
+  COMBINED // Global exploration, local refinement
 };
 
 
@@ -36,7 +36,7 @@ class InnerOptimization
 public:
   InnerOptimization()
   { 
-    alg = direct;    mDown = 0.;    mUp = 1.;
+    alg = DIRECT;    mDown = 0.;    mUp = 1.;
   };
 
   virtual ~InnerOptimization(){};

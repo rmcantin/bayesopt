@@ -34,7 +34,7 @@
 class BasicGaussianProcess: public NonParametricProcess
 {
 public:
-  BasicGaussianProcess( double noise = DEF_REGULARIZER);
+  BasicGaussianProcess( double noise = DEFAULT_NOISE);
   virtual ~BasicGaussianProcess();
 
   /** 

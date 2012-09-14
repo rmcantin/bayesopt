@@ -42,7 +42,7 @@
 class NonParametricProcess: public InnerOptimization
 {
 public:
-  NonParametricProcess(double noise = DEF_REGULARIZER);
+  NonParametricProcess(double noise = DEFAULT_NOISE);
   
   virtual ~NonParametricProcess();
 
@@ -221,7 +221,7 @@ protected:
    */
   int computeInverseCorrMatrix();
 
-  matrixd computeCorrMatrix(size_t dth_index = 0);
+  matrixd computeCorrMatrix(int dth_index = -1);
 
   vectord computeCrossCorrelation(const vectord &query);
 

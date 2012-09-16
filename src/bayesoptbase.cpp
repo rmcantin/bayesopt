@@ -92,8 +92,8 @@ int SKO_BASE::nextPoint(vectord &Xnext)
       findOptimal(best_poi);
       mGP->prediction(best_poi,l_poi,foo);
 
-      // Since we want to find the minimum, the predicted value is loss value, not a
-      // reward value.
+      // Since we want to find the minimum, the predicted value 
+      // is loss value, not a reward value.
       criterium_name better = crit.update_hedge(l_ei,l_lcb,l_poi);
       switch(better)
 	{

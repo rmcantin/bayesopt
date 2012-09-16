@@ -36,13 +36,14 @@ public:
 
   inline vectord unnormalizeVector( const V &vin )
   {
-    return ublas_elementwise_add(ublas_elementwise_prod(vin,mRangeBound), 
-				 mLowerBound);
+    return ublas_elementwise_prod(vin,mRangeBound) + mLowerBound;
+    //return ublas_elementwise_add(ublas_elementwise_prod(vin,mRangeBound), 
+    //				 mLowerBound);
   };  // unnormalizeVector
 
   inline vectord normalizeVector( const V &vin )
   {
-    return ublas_elementwise_div(ublas_elementwise_substract(vin,mLowerBound), 
+    return ublas_elementwise_div(vin - mLowerBound, 
 				 mRangeBound);
   }  // normalizeVector
   

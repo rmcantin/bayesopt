@@ -1,3 +1,4 @@
+
 #
 #   Pyrex wrapper for the bayesian optimization API
 #
@@ -6,6 +7,9 @@ import numpy as np
 cimport numpy as np
 #from python_ref cimport Py_INCREF, Py_DECREF
 from cpython cimport Py_INCREF, Py_DECREF
+
+cdef extern from *:
+    ctypedef double* const_double_ptr "const double*"
 
 ###########################################################################
 cdef extern from "ctypes.h":
@@ -57,7 +61,7 @@ cdef extern from "ctypes.h":
 
 ###########################################################################
 cdef extern from "bayesoptwpr.h":
-    ctypedef double (*eval_func)(unsigned int n, double *x,
+    ctypedef double (*eval_func)(unsigned int n, const_double_ptr x,
                                  double *gradient, void *func_data)
 
     int bayes_optimization(int nDim, eval_func f, void* f_data,
@@ -95,11 +99,11 @@ cdef sko_params dict2structparams(dict dparams):
     
     return params
 
-cdef double callback(unsigned int n, double *x,
+cdef double callback(unsigned int n, const_double_ptr x,
                      double *gradient, void *func_data):
     x_np = np.zeros(n)
     for i in range(0,n):
-        x_np[i] = x[i]
+        x_np[i] = <double>x[i]
         result = (<object>func_data)(x_np)
     return result
 

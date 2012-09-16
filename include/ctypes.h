@@ -109,10 +109,10 @@ extern "C" {
   const size_t N_LHS_EVALS_PER_DIM = 30;     /* Not used */
   const size_t MAX_LHS_EVALUATIONS = 100;    /* Not used */
 
-  const size_t nAlgorithmsInGPHedge = 5;
-  const criterium_name algorithmsInGPHedge[] = { C_EI, C_LCB, C_POI,
-						 C_EXPECTED_RETURN,
-						 C_OPTIMISTIC_SAMPLING };
+  const size_t N_ALGORITHMS_IN_GP_HEDGE = 5;
+  const criterium_name ALGORITHMS_IN_GP_HEDGE[] = { C_EI, C_LCB, C_POI,
+						    C_EXPECTED_RETURN,
+						    C_OPTIMISTIC_SAMPLING };
 
 
   const sko_params DEFAULT_PARAMS = {

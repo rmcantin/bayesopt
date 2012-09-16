@@ -4,7 +4,7 @@
 
 
 /* Function to be used for C-API testing */
-double testFunction(unsigned int n, double *x,
+double testFunction(unsigned int n, const double *x,
 		    double *gradient, /* NULL if not needed */
 		    void *func_data)
 {
@@ -41,7 +41,7 @@ class TestEGO: public SKO_CONT
 
 int main(int nargs, char *args[])
 {    
-  int n = 1;                   // Number of dimensions
+  int n = 6;                   // Number of dimensions
 
   // Common configuration
   // See ctypes.h for the available options
@@ -56,9 +56,9 @@ int main(int nargs, char *args[])
   par.noise = DEFAULT_NOISE;
   par.c_name = C_EI;
   par.s_name = S_GAUSSIAN_PROCESS;
-  par.k_name = K_SE_ISO;
-  par.n_iterations = 10;       // Number of iterations
-  par.n_init_samples = 30;
+  par.k_name = K_MATERN_ISO3;
+  par.n_iterations = 100;       // Number of iterations
+  par.n_init_samples = 50;
   /*******************************************/
 
   clock_t start, end;

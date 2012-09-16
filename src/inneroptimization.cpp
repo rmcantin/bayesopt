@@ -29,7 +29,8 @@ void checkNLOPTerror(nlopt_result errortype)
   switch(errortype)
       {
       case -1: std::cout << "NLOPT: General failure" << std::endl; break;
-      case -2: std::cout << "NLOPT: Invalid arguments. Check bounds." << std::endl; break;
+      case -2: std::cout << "NLOPT: Invalid arguments. Check bounds." 
+			 << std::endl; break;
       case -3: std::cout << "NLOPT: Out of memory" << std::endl; break;
       case -4: std::cout << "NLOPT Warning: Potential roundoff error. " 
 			 << "In general, this can be ignored." 
@@ -42,26 +43,25 @@ void checkNLOPTerror(nlopt_result errortype)
 
 int InnerOptimization::innerOptimize(vectord &Xnext)
 {   
-    double x[128];
+  // double x[128];
     void *objPointer = static_cast<void *>(this);
     int n = static_cast<int>(Xnext.size());
     int error;
 
     if (objPointer == 0)
-      std::cout << "Error casting the current object!" << std::endl;
+      {
+	std::cout << "Error casting the current object!" << std::endl;
+	return -6;
+      }
 
-    for (int i = 0; i < n; ++i) 
-	x[i] = Xnext(i);
+    error = innerOptimize(&Xnext(0), n, objPointer);
+
+    // for (int i = 0; i < n; ++i) 
+    // 	x[i] = Xnext(i);
  
-    error = innerOptimize(x, n, objPointer);
+    // error = innerOptimize(x, n, objPointer);
 
-    // There should be a clever way to do this.
-    boost::numeric::ublas::array_adaptor<double> shared(n, x);
-    boost::numeric::ublas::vector<double, 
-				  boost::numeric::ublas::array_adaptor<double> 
-				  > Xshared(n, shared); 
-
-    Xnext = Xshared;
+    // std::copy(x, x+n, Xnext.begin());
     
     return error;
 } // nextPoint (uBlas)

@@ -61,6 +61,7 @@ public:
   };
 };
 
+
 ////////////////////////////////////////////////////////////////////////////////
 class LowerConfidenceBound: public Criteria
 {
@@ -226,15 +227,15 @@ public:
   GP_Hedge(NonParametricProcess *proc):
     AnnealedCriteria(proc), mtRandom(100u),
     sampleUniform( mtRandom, realUniformDist(0,1)),
-    gain(zvectord(nAlgorithmsInGPHedge)), 
-    prob(zvectord(nAlgorithmsInGPHedge)),
-    cumprob(zvectord(nAlgorithmsInGPHedge))
+    gain(zvectord(N_ALGORITHMS_IN_GP_HEDGE)), 
+    prob(zvectord(N_ALGORITHMS_IN_GP_HEDGE)),
+    cumprob(zvectord(N_ALGORITHMS_IN_GP_HEDGE))
   {};
 
   virtual ~GP_Hedge(){};
 
   inline void resetHedgeValues()
-  { gain = zvectord(gain.size()); }
+  { gain = zvectord(N_ALGORITHMS_IN_GP_HEDGE); }
 
 
   inline double softmax(double g) {return exp(mEta*g);};
@@ -277,13 +278,13 @@ public:
     for (size_t i=0; i < cumprob.size(); ++i)
       {
 	if (u < cumprob(i))
-	  return algorithmsInGPHedge[i];
+	  return ALGORITHMS_IN_GP_HEDGE[i];
       }
-    return c_error;
+    return C_ERROR;
   }
 
 
-  double operator()( const vectord &x)
+  double operator()(const vectord &x)
   {
   };
 

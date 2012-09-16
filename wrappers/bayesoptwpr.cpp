@@ -28,11 +28,11 @@ class CSKO: public SKO_CONT
   double evaluateSample( const vectord &Xi ) 
   {
     int n = static_cast<int>(Xi.size());
-    double *x = new double[n];
+    //    double *x = new double[n];
 
-    copyVectorInArray(x,n,Xi);
-    double result = mF(n,x,NULL,mOtherData);
-    delete[] x;
+    //    copyVectorInArray(x,n,Xi);
+    double result = mF(n,&Xi[0],NULL,mOtherData);
+    // delete[] x;
 
     return result;
   };
@@ -68,8 +68,11 @@ int bayes_optimization(int nDim, eval_func f, void* f_data,
   vectord lowerBound(nDim); 
   vectord upperBound(nDim); 
 
-  copyCarrayInVector(lb,nDim,lowerBound);
-  copyCarrayInVector(ub,nDim,upperBound);
+  std::copy(lb, lb+nDim, lowerBound.begin());
+  std::copy(ub, ub+nDim, upperBound.begin());
+
+  // copyCarrayInVector(lb,nDim,lowerBound);
+  // copyCarrayInVector(ub,nDim,upperBound);
 
   CSKO optimizer(parameters);
 

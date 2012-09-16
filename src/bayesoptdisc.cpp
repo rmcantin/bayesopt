@@ -58,7 +58,7 @@ int SKO_DISC::optimize( vectord &bestPoint )
   if (mParameters.verbose_level > 0) 
     mOutput << "DONE" << std::endl;
 
-  for (size_t ii = 0; ii < mParameters.n_iterations; ii++)
+  for (size_t ii = 0; ii < mParameters.n_iterations; ++ii)
     {      
       // FIXME: Find what is the next point.
       nextPoint(xNext);

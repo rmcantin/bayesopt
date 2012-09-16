@@ -24,15 +24,6 @@
 #include <boost/numeric/ublas/vector.hpp>
 #include <algorithm>
 
-/*
-template <class D>
-D op_add(D in1, D in2) {return in1+in2;}
-template <class D>
-D op_prod(D in1, D in2) {return in1*in2;}
-template <class D>
-D op_div(D in1, D in2) {return in1/in2;}
-*/
-
 /** 
  * Computes the elementwise sum of two vectors.
  * 

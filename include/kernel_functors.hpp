@@ -30,7 +30,7 @@
 class Kernel
 {
 public:
-  virtual void setScale( const vectord &theta ) {};
+  virtual void setScale( const vectord & theta ) {};
   virtual void setScale( double theta ) {};
   virtual double getScale(int index) {return 0.0;};
   virtual vectord getScale() {return zvectord(1);};

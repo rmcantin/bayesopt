@@ -22,10 +22,10 @@ addpath('testfunctions')
 
 params.iterations = 200;
 params.init_iterations = 50;
-params.criteria = 'ei';
-params.surrogate = 'gp_ign';
+params.criteria = 'EI';
+params.surrogate = 'GAUSSIAN_PROCESS';
 params.noise = 0.005;
-params.kernel = 'materniso3';
+params.kernel = 'MATERN_ISO3';
 
 n = 5;
 

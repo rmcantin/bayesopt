@@ -11,7 +11,7 @@ double testFunction(unsigned int n, const double *x,
   double f = 10.;
   for (unsigned int i = 0; i < n; ++i)
     {
-      f += (x[i] - .53f) * (x[i] - .53f);
+      f += (x[i] - .53) * (x[i] - .53);
     }
   return f;
 }
@@ -47,7 +47,7 @@ int main(int nargs, char *args[])
   // See ctypes.h for the available options
   // If we initialize the struct with the DEFAUL_PARAMS,
   // the we can optionally change only few of them 
-  sko_params par = DEFAULT_PARAMS;
+  sko_params par = initialize_parameters_to_default();
 
   par.theta = KERNEL_THETA;
   par.alpha = PRIOR_ALPHA;

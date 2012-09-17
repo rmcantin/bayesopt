@@ -17,6 +17,9 @@ if(NOT CMAKE_BUILD_TYPE)
       FORCE)
 endif(NOT CMAKE_BUILD_TYPE)
 
+#SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wdouble-promotion -Wpedantic -Wfloat-equal -Wno-endif-labels -Wshadow")
+#SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -Wall -Wextra -Wdouble-promotion -Wpedantic -Wfloat-equal -Wno-endif-labels -Wshadow")
+
 SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG ${CMAKE_CXX_FLAGS}")
 SET(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG ${CMAKE_C_FLAGS}")
 
@@ -25,6 +28,7 @@ SET(CMAKE_C_FLAGS_DEBUG "-g -pg ${CMAKE_C_FLAGS}")
   
 # enable warnings
 ADD_DEFINITIONS("-Wall")
+# ADD_DEFINITIONS("-Wextra -Wdouble-promotion -pedantic -Wfloat-equal -Wno-endif-labels -Wshadow")
 
 SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)

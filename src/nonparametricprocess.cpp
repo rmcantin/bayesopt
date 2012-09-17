@@ -27,14 +27,14 @@ NonParametricProcess::NonParametricProcess(double noise):
   mMaxIndex = 0;   
   setAlgorithm(BOBYQA);
   setLimits(0.,100.);
-};
+}
 
 
 NonParametricProcess::~NonParametricProcess()
 {
   if (mKernel != NULL)
     delete mKernel;
-};
+}
 
 int NonParametricProcess::setKernel (const vectord &thetav,
 				     kernel_name k_name)
@@ -57,7 +57,7 @@ int NonParametricProcess::setKernel (const vectord &thetav,
   mKernel->setScale(thetav);
 
   return 0;
-};
+}
 
 int NonParametricProcess::fitGP()
 {

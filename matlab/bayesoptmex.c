@@ -26,12 +26,12 @@
 #include <math.h>
 #include <mex.h>
 
-#include "defaults.h"
+#include "ctypes.h"
 #include "bayesoptwpr.h"
 
 #define CHECK0(cond, msg) if (!(cond)) mexErrMsgTxt(msg);
 
-static double struct_val_default(const mxArray *s, const char *name, double dflt)
+static void struct_value(const mxArray *s, const char *name, double *result)
 {
   mxArray *val = mxGetField(s, 0, name);
   if (val) 
@@ -40,24 +40,41 @@ static double struct_val_default(const mxArray *s, const char *name, double dflt
 	   && mxGetM(val) * mxGetN(val) == 1))
 	{
 	  mexErrMsgTxt("param fields must be real scalars");
-	  return dflt;
 	}
-      return mxGetScalar(val);
+      else
+	{
+	  *result = mxGetScalar(val);
+	}
     }
-  return dflt;
+  return;
 }
 
-static void struct_str_default(const mxArray *s, 
-			       const char *name, 
-			       char* dflt,
-			       char* result)
+static void struct_size(const mxArray *s, const char *name, size_t *result)
+{
+  mxArray *val = mxGetField(s, 0, name);
+  if (val) 
+    {
+      if(!(mxIsNumeric(val) && !mxIsComplex(val) 
+	   && mxGetM(val) * mxGetN(val) == 1))
+	{
+	  mexErrMsgTxt("param fields must be real scalars");
+	}
+      else
+	{
+	  *result = (size_t) mxGetScalar(val);
+	}
+    }
+  return;
+}
+
+
+static void struct_string(const mxArray *s, const char *name, char* result)
 {
   mxArray *val = mxGetField(s, 0, name);
   char *str;
   if (!val)  
     {
-      mexPrintf("Field not found. Returning default.");
-      strcpy(result, dflt);
+      mexPrintf("Field not found. Default not modified.");
     }
   else
     {
@@ -73,6 +90,7 @@ static void struct_str_default(const mxArray *s,
 	  return;
 	}
     }
+  return;
 }
 
 
@@ -88,7 +106,7 @@ typedef struct {
 
 
 
-static double user_function(unsigned n, double *x,
+static double user_function(unsigned n, const double *x,
 			    double *gradient, /* NULL if not needed */
 			    void *d_)
 {
@@ -133,8 +151,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
   mxArray *xopt;
   const mxArray *func_name, *params;
   user_function_data udata;
-  unsigned int nDim, nIterations, nInitIter;    
-  sko_params parameters;
+  size_t nDim;
+  sko_params parameters = initialize_parameters_to_default();
      
      
   /* Check correct number of parameters */
@@ -157,7 +175,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     }
   else if (mxIsFunctionHandle(func_name))
     {
-      udata.prhs[0] = func_name;
+      udata.prhs[0] = (mxArray *)func_name;
       strcpy(udata.f, "feval");
       udata.nrhs = 2;
       udata.xrhs = 1;
@@ -189,29 +207,35 @@ void mexFunction(int nlhs, mxArray *plhs[],
       params = mxCreateStructMatrix(1,1,0,NULL);
     }
 
+  struct_size(params,"iterations", &parameters.n_iterations);
+  struct_size(params, "init_iterations", &parameters.n_init_samples);
 
-
-  parameters.n_iterations = (unsigned int) struct_val_default(params, "iterations", 300);
-  parameters.n_init_samples = (unsigned int) struct_val_default(params, "init_iterations", 30);
-
-  parameters.theta = struct_val_default(params, "theta", KERNEL_THETA);
-  parameters.alpha = struct_val_default(params, "alpha", PRIOR_ALPHA);
-  parameters.beta = struct_val_default(params, "beta", PRIOR_BETA);
-  parameters.delta = struct_val_default(params, "delta", PRIOR_DELTA_SQ);
-  parameters.noise = struct_val_default(params, "noise", DEF_REGULARIZER);
+  struct_value(params, "theta", &parameters.theta);
+  struct_value(params, "alpha", &parameters.alpha);
+  struct_value(params, "beta",  &parameters.beta);
+  struct_value(params, "delta", &parameters.delta);
+  struct_value(params, "noise", &parameters.noise);
 
   /* Extra configuration
   /  See ctypes.h for the available options */
-  char c_str[50], s_str[50], k_str[50];
-
-  struct_str_default(params, "criteria", "ei", c_str);
-  parameters.criterium_name = str2crit(c_str);
-
-  struct_str_default(params, "surrogate", "gp", s_str);
-  parameters.surrogate_name = str2surrogate(s_str);
+  char c_str[100], s_str[100], k_str[100], m_str[100];
   
-  struct_str_default(params, "kernel", "materniso3", k_str);
-  parameters.kernel_name = str2kernel(k_str);
+  strcpy( c_str, crit2str(parameters.c_name));
+  strcpy( s_str, surrogate2str(parameters.s_name));
+  strcpy( k_str, kernel2str(parameters.k_name));
+  strcpy( m_str, mean2str(parameters.m_name));
+
+  struct_string(params, "criteria", c_str);
+  parameters.c_name = str2crit(c_str);
+
+  struct_string(params, "surrogate", s_str);
+  parameters.s_name = str2surrogate(s_str);
+  
+  struct_string(params, "kernel", k_str);
+  parameters.k_name = str2kernel(k_str);
+
+  struct_string(params, "mean", m_str);
+  parameters.m_name = str2mean(m_str);
 
 
   double *ub, *lb;    /* Upper and lower bound */

@@ -28,7 +28,7 @@ public:
 
 int main(int nargs, char *args[])
 {
-  sko_params parameters = DEFAULT_PARAMS;
+  sko_params parameters = initialize_parameters_to_default();
   parameters.n_iterations = 300;
   parameters.theta = 1.0;
   parameters.c_name = C_GP_HEDGE;

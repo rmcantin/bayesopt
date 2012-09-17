@@ -24,7 +24,7 @@
 #define __C_TYPES_H__
 
 #include <string.h>
-//#include "defaults.h"
+/*#include "defaults.h"*/
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,7 +44,7 @@ extern "C" {
   
   typedef enum {
     M_ZERO,
-    M_ONE,
+    M_CONSTANT,
     M_LINEAR,
     M_ERROR = -1
   } mean_name;
@@ -69,9 +69,9 @@ extern "C" {
 
   /** SKO Parameters */
   typedef struct {
-    unsigned int n_iterations;   /**< Maximum SKO evaluations (budget) */
-    unsigned int n_init_samples; /**< Number of samples before optimization */
-    unsigned int verbose_level;  /**< Verbose level */
+    size_t n_iterations;   /**< Maximum SKO evaluations (budget) */
+    size_t n_init_samples; /**< Number of samples before optimization */
+    size_t verbose_level;  /**< Verbose level */
     double theta;                /**< Kernel hyperparameters */
     double alpha, beta, delta;   /**< Inv-Gamma-Normal hyperparameters */
     double noise;                /**< Observation noise */
@@ -86,7 +86,7 @@ extern "C" {
   /*************************************************************/
 
   /* Nonparametric process "parameters" */
-  const double KERNEL_THETA    = 0.06;
+  const double KERNEL_THETA    = 1.0;
   const double PRIOR_ALPHA     = 1.0;
   const double PRIOR_BETA      = 1.0;
   const double PRIOR_DELTA_SQ  = 1000.0;
@@ -114,22 +114,16 @@ extern "C" {
 						    C_EXPECTED_RETURN,
 						    C_OPTIMISTIC_SAMPLING };
 
-
-  const sko_params DEFAULT_PARAMS = {
-    DEFAULT_ITERATIONS, DEFAULT_SAMPLES, DEFAULT_VERBOSE,
-    KERNEL_THETA, 
-    PRIOR_ALPHA, PRIOR_BETA, PRIOR_DELTA_SQ,
-    DEFAULT_NOISE,
-    S_GAUSSIAN_PROCESS,
-    K_MATERN_ISO3,
-    C_EI
-  };
-
   /* These functions are added to simplify wrapping code */
   kernel_name    str2kernel    (const char* name);
   criterium_name str2crit      (const char* name);
   surrogate_name str2surrogate (const char* name);
   mean_name      str2mean      (const char* name);
+
+  const char* kernel2str(kernel_name name);
+  const char* crit2str(criterium_name name);
+  const char* surrogate2str(surrogate_name name);
+  const char* mean2str(mean_name name);
 
   sko_params initialize_parameters_to_default(void);
 

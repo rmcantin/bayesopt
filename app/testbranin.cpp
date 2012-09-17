@@ -30,7 +30,7 @@ public:
 
 int main(int nargs, char *args[])
 {
-  sko_params par = DEFAULT_PARAMS;
+  sko_params par = initialize_parameters_to_default();
   par.n_iterations = 400;
   par.theta = 1.0;
   par.c_name = C_GP_HEDGE;

@@ -26,23 +26,23 @@
 
 
 
-SKO_CONT::SKO_CONT( sko_params parameters,
+BayesOptContinuous::BayesOptContinuous( bopt_params parameters,
        bool uselogfile,
        const char* logfilename):
-  SKO_BASE(parameters,uselogfile,logfilename), 
+  BayesOptBase(parameters,uselogfile,logfilename), 
   mBB(NULL)
 { 
   setAlgorithm(DIRECT);
 } // Constructor
 
-SKO_CONT::~SKO_CONT()
+BayesOptContinuous::~BayesOptContinuous()
 {
   if (mBB != NULL)
     delete mBB;
 } // Default destructor
 
 
-int SKO_CONT::optimize( vectord &bestPoint)
+int BayesOptContinuous::optimize( vectord &bestPoint)
 {
   crit.resetHedgeValues();
 
@@ -103,7 +103,7 @@ int SKO_CONT::optimize( vectord &bestPoint)
   return 1;
 } // optimize
 
-int SKO_CONT::sampleInitialPoints( size_t nSamples, size_t nDims,
+int BayesOptContinuous::sampleInitialPoints( size_t nSamples, size_t nDims,
 			      bool useLatinBox)
 {
   /** \brief Sample a set of points to initialize GP fit

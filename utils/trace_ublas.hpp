@@ -1,4 +1,4 @@
-/** -*- c++ -*- \file boundingbox.hpp \brief Functions for bounding box limits */
+/** -*- c++ -*- \file trace_ublas.hpp \brief Trace computation for uBlas */
 /*
 -----------------------------------------------------------------------------
    Copyright (C) 2011 Ruben Martinez-Cantin <rmcantin@unizar.es>
@@ -17,35 +17,35 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -----------------------------------------------------------------------------
 */
-#ifndef  _BOUNDING_BOX_HPP_
-#define  _BOUNDING_BOX_HPP_
+#ifndef __TRACE_UBLAS_HPP__
+#define __TRACE_UBLAS_HPP__
 
-// BOOST Libraries
-#include <boost/numeric/ublas/vector.hpp>
-#include "elementwise_ublas.hpp"
+#include <boost/numeric/ublas/matrix.hpp>
+#include <boost/numeric/ublas/matrix_proxy.hpp>
 
-template <class V>
-class BoundingBox
+template<class E>
+typename E::value_type trace(const E &A)
 {
-public:
-  BoundingBox(const V &lbound, const V &ubound):
-    mLowerBound(lbound), mRangeBound(ubound - lbound)
-  {};
+  size_t n = std::min(A.size1(),A.size2());
+  typename E::value_type sum = 0;
+  for (size_t i=0; i<n; ++i)
+    sum += A(i,i);
 
-  virtual ~BoundingBox(){};
+  return sum; 
+}
 
-  inline vectord unnormalizeVector( const V &vin )
-  {
-    return ublas_elementwise_prod(vin,mRangeBound) + mLowerBound;
-  };  // unnormalizeVector
+template<class E1, class E2>
+typename E1::value_type trace_prod(const E1 & A, const E2 & B )
+{
+  size_t n = std::min(A.size1(),B.size2());
+  typename E1::value_type sum = 0;
+  for (size_t i=0; i<n; ++i)
+    sum += boost::numeric::ublas::inner_prod(boost::numeric::ublas::row(A,i),
+					     boost::numeric::ublas::column(B,i));
 
-  inline vectord normalizeVector( const V &vin )
-  {
-    return ublas_elementwise_div(vin - mLowerBound, mRangeBound);
-  }  // normalizeVector
-  
-protected:
-  V mLowerBound, mRangeBound; ///< Lower bound and range of the input space
-};
+  return sum; 
+}
+
+
 
 #endif

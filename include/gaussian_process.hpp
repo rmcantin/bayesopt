@@ -31,11 +31,11 @@
 /**
  * \brief Standard zero mean gaussian process with noisy observations.
  */
-class BasicGaussianProcess: public NonParametricProcess
+class GaussianProcess: public NonParametricProcess
 {
 public:
-  BasicGaussianProcess( double noise = DEFAULT_NOISE);
-  virtual ~BasicGaussianProcess();
+  GaussianProcess( double noise = DEFAULT_NOISE);
+  virtual ~GaussianProcess();
 
   /** 
    * Function that returns the prediction of the GP for a query point

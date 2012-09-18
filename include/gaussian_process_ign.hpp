@@ -23,8 +23,7 @@
 #ifndef  _GAUSSPROCESS_HPP_
 #define  _GAUSSPROCESS_HPP_
 
-//#include "nonparametricprocess.hpp"
-#include "basicgaussprocess.hpp"
+#include "gaussian_process.hpp"
  
 /** \addtogroup  NonParametricProcesses */
 /**@{*/
@@ -34,15 +33,15 @@
  * \brief Gaussian process with normal-inverse-gamma hyperprior 
  *        on mean and signal variance parameters.
  */
-class GaussianProcess: public BasicGaussianProcess 
+class GaussianProcessIGN: public GaussianProcess 
 {
 public:
-  GaussianProcess( double noise = DEFAULT_NOISE,
+  GaussianProcessIGN( double noise = DEFAULT_NOISE,
 		   double alpha = PRIOR_ALPHA, 
 		   double beta  = PRIOR_BETA, 
 		   double delta = PRIOR_DELTA_SQ );
 
-  virtual ~GaussianProcess();
+  virtual ~GaussianProcessIGN();
 
   /** 
    * Function that returns the prediction of the GP for a query point

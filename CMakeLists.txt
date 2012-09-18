@@ -34,14 +34,14 @@ SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
-option(BUILD_PYTHON_INTERFACE "Build Python Interface?" ON)
+option(BUILD_PYTHON_INTERFACE "Build Python Interface?" OFF)
 option(MATLAB_COMPATIBLE "Build library compatible with Matlab?" ON)
 
 if(BUILD_PYTHON_INTERFACE)
   INCLUDE(PythonMagic)
   SET(PYTHON_LIB  ${PYTHON_LIBRARIES} )
   INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
-  SET(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared libraries?")
+  SET(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared libraries?" FORCE)
 ELSE()
   SET(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared libraries?")
 ENDIF(BUILD_PYTHON_INTERFACE)
@@ -70,10 +70,10 @@ SET( BAYESOPT_SRCS
   ./src/bayesoptdisc.cpp
   ./src/bayesoptbase.cpp
   ./src/inneroptimization.cpp
-  ./src/gaussprocess.cpp
-  ./src/basicgaussprocess.cpp
+  ./src/gaussian_process.cpp
+  ./src/gaussian_process_ign.cpp
+  ./src/student_t_process.cpp
   ./src/nonparametricprocess.cpp
-  ./src/studenttprocess.cpp
   ./src/ctypes.cpp
   ./wrappers/bayesoptwpr.cpp
   )
@@ -145,7 +145,9 @@ TARGET_LINK_LIBRARIES(branintest bayesopt)
 ADD_EXECUTABLE(randtest ./app/testrand.cpp)
 
 
-INSTALL(FILES ./include/bayesoptcont.hpp ./include/bayesoptdisc.hpp ./wrappers/bayesoptwpr.h 
+INSTALL(FILES ./include/bayesoptcont.hpp 
+              ./include/bayesoptdisc.hpp 
+	      ./wrappers/bayesoptwpr.h 
   DESTINATION include)
 
 INSTALL(TARGETS bayesopt

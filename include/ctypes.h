@@ -79,7 +79,7 @@ extern "C" {
     kernel_name k_name;          /**< Name of the kernel function */
     criterium_name c_name;       /**< Name of the criterion */
     mean_name m_name;            /**< Name of the mean function */
-  } sko_params;
+  } bopt_params;
 
 
   /* Default values                                            */
@@ -125,7 +125,7 @@ extern "C" {
   const char* surrogate2str(surrogate_name name);
   const char* mean2str(mean_name name);
 
-  sko_params initialize_parameters_to_default(void);
+  bopt_params initialize_parameters_to_default(void);
 
 #ifdef __cplusplus
 }

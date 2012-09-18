@@ -1,3 +1,4 @@
+/** -*- c++ -*- \file bayesoptbase.hpp \brief Bayesian optimization module */
 /*
 -----------------------------------------------------------------------------
    This file is part of BayesOptimization, an efficient C++ library for 
@@ -36,10 +37,10 @@
 /*@{*/
 
 /**
- * \brief Sequential Kriging Optimization using different non-parametric 
- * processes as surrogate (kriging) functions. 
+ * \brief Bayesian optimization using different non-parametric 
+ * processes as surrogate functions (non-parametric processes). 
  */
-class SKO_BASE : public Logger
+class BayesOptBase : public Logger
 {
  public:
   
@@ -49,16 +50,14 @@ class SKO_BASE : public Logger
    * @param validSet  Set of potential inputs
    * @param gp        Pointer to the surrogate model
    */
-  SKO_BASE( sko_params params,
-	    bool uselogfile = false,
-	    const char* logfilename = "bayesopt.log");
+  BayesOptBase( bopt_params params,
+		 bool uselogfile = false,
+		 const char* logfilename = "bayesopt.log");
 
   /** 
    * Default destructor
-   * 
-   * @return 
    */
-  virtual ~SKO_BASE();
+  virtual ~BayesOptBase();
 
   /** 
    * Execute the optimization process of the function defined in evaluateSample.
@@ -148,7 +147,7 @@ protected:
 
   NonParametricProcess* mGP;        ///< Pointer to surrogate model
   Criteria crit;                    ///< Criteria model
-  sko_params mParameters;
+  bopt_params mParameters;
 };
 
 /**@}*/

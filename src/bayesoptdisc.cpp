@@ -23,22 +23,19 @@
 #include "bayesoptdisc.hpp"
 #include "randgen.hpp"
 #include "lhs.hpp"
-#include "basicgaussprocess.hpp"
 
 
-SKO_DISC::SKO_DISC( vecOfvec &validSet, sko_params parameters,
-		    bool uselogfile,
-		    const char* logfilename):
-  SKO_BASE(parameters,uselogfile,logfilename),
-  mInputSet(validSet)
+BayesOptDiscrete::BayesOptDiscrete( vecOfvec &validSet, bopt_params parameters,
+				    bool uselogfile, const char* logfilename):
+  BayesOptBase(parameters,uselogfile,logfilename), mInputSet(validSet)
 {} // Constructor
 
 
-SKO_DISC::~SKO_DISC()
+BayesOptDiscrete::~BayesOptDiscrete()
 {} // Default destructor
 
 
-int SKO_DISC::optimize( vectord &bestPoint )
+int BayesOptDiscrete::optimize( vectord &bestPoint )
 {
 
   crit.resetHedgeValues();
@@ -81,7 +78,7 @@ int SKO_DISC::optimize( vectord &bestPoint )
   return 1;
 } // optimize
 
-int SKO_DISC::sampleRandomPoints( size_t nSamples )
+int BayesOptDiscrete::sampleRandomPoints( size_t nSamples )
 {
   /** \brief Sample a set of points to initialize GP fit
    */
@@ -119,7 +116,7 @@ int SKO_DISC::sampleRandomPoints( size_t nSamples )
 } // sampleInitialPoints
 
 
-int SKO_DISC::findOptimal(vectord &xOpt)
+int BayesOptDiscrete::findOptimal(vectord &xOpt)
 {
   double current, min;
   

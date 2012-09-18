@@ -1,18 +1,4 @@
-/**
- * @file   bayesopt.hpp
- * @author Ruben Martinez-Cantin <rmcantin@ist.isr.utl.pt>
- * @date   Thu Mar 26 02:12:36 2009
- * 
- * @brief  Sequential Krigging Optimization (SKO) 
- * 
- * This file implements Sequential Krigging Optimization using different 
- * non-parametric processes as surrogate (krigging) functions.
- *
- * 
- * Copyright: See COPYING file that comes with this distribution
- */
-
-
+/** -*- c++ -*- \file bayesoptdisc.hpp \brief Discrete Bayesian optimization */
 /*
 -----------------------------------------------------------------------------
    This file is part of BayesOptimization, an efficient C++ library for 
@@ -58,7 +44,7 @@
  * \brief Sequential Kriging Optimization using different non-parametric 
  * processes as surrogate (kriging) functions. 
  */
-class SKO_DISC : public SKO_BASE
+class BayesOptDiscrete : public BayesOptBase
 {
  public:
   
@@ -68,8 +54,8 @@ class SKO_DISC : public SKO_BASE
    * @param validSet  Set of potential inputs
    * @param gp        Pointer to the surrogate model
    */
-  SKO_DISC( vecOfvec &validSet,
-	    sko_params params,
+  BayesOptDiscrete( vecOfvec &validSet,
+	    bopt_params params,
 	    bool uselogfile = false,
 	    const char* logfilename = "bayesopt.log");
 
@@ -78,7 +64,7 @@ class SKO_DISC : public SKO_BASE
    * 
    * @return 
    */
-  virtual ~SKO_DISC();
+  virtual ~BayesOptDiscrete();
 
   /** 
    * Execute the optimization process of the function defined in evaluateSample.

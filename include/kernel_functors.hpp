@@ -23,7 +23,7 @@
 
 #include "ctypes.h"
 #include "specialtypes.hpp"
-#include "elementwiseUblas.hpp"
+#include "elementwise_ublas.hpp"
 
 
 ////////////////////////////////////////////////////////////////////////////////

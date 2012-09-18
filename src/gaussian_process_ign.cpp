@@ -1,25 +1,25 @@
 
-#include "gaussprocess.hpp"
+#include "gaussian_process_ign.hpp"
 #include "cholesky.hpp"
-#include "trace.hpp"
+#include "trace_ublas.hpp"
 
 
   
-GaussianProcess::GaussianProcess( double noise, double alpha, 
-				  double beta, double delta):
-  BasicGaussianProcess(noise),
+GaussianProcessIGN::GaussianProcessIGN( double noise, double alpha, 
+					double beta, double delta):
+  GaussianProcess(noise),
   mAlpha(alpha), mBeta (beta), mDelta2(delta)
 {}  // Constructor
 
 
 
-GaussianProcess::~GaussianProcess()
+GaussianProcessIGN::~GaussianProcessIGN()
 {} // Default destructor
 
 
 
 
-double GaussianProcess::negativeLogLikelihood(size_t index)
+double GaussianProcessIGN::negativeLogLikelihood(size_t index)
 {
   matrixd K = computeCorrMatrix();
   size_t n = K.size1();
@@ -59,7 +59,7 @@ double GaussianProcess::negativeLogLikelihood(size_t index)
 }
 
 
-int GaussianProcess::prediction( const vectord &query,
+int GaussianProcessIGN::prediction( const vectord &query,
 				 double& yPred, double& sPred)
 {
   size_t n = mGPXX.size();
@@ -86,7 +86,7 @@ int GaussianProcess::prediction( const vectord &query,
 }
 	
 
-int GaussianProcess::precomputeGPParams()
+int GaussianProcessIGN::precomputeGPParams()
 {
   size_t nSamples = mGPXX.size();
   vectord colU(nSamples);

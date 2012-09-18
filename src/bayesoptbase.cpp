@@ -20,12 +20,12 @@
 -----------------------------------------------------------------------------
 */
 #include "bayesoptbase.hpp"
-#include "gaussprocess.hpp"
-#include "basicgaussprocess.hpp"
-#include "studenttprocess.hpp"
+#include "gaussian_process_ign.hpp"
+#include "gaussian_process.hpp"
+#include "student_t_process.hpp"
 
 
-SKO_BASE::SKO_BASE( sko_params parameters,
+BayesOptBase::BayesOptBase( bopt_params parameters,
        bool uselogfile,
        const char* logfilename):
   Logger(uselogfile,logfilename),
@@ -36,13 +36,13 @@ SKO_BASE::SKO_BASE( sko_params parameters,
   setSurrogateFunction();
 } // Constructor
 
-SKO_BASE::~SKO_BASE()
+BayesOptBase::~BayesOptBase()
 {
   if (mGP != NULL)
     delete mGP;
 } // Default destructor
 
-int SKO_BASE::setSurrogateFunction()
+int BayesOptBase::setSurrogateFunction()
 {
   if (mGP != NULL)
     delete mGP;
@@ -50,11 +50,11 @@ int SKO_BASE::setSurrogateFunction()
   switch(mParameters.s_name)
     {
     case S_GAUSSIAN_PROCESS: 
-      mGP = new BasicGaussianProcess(mParameters.noise); break;
+      mGP = new GaussianProcess(mParameters.noise); break;
 
     case S_GAUSSIAN_PROCESS_INV_GAMMA_NORMAL:
-      mGP = new GaussianProcess(mParameters.noise, mParameters.alpha,
-				mParameters.beta,mParameters.delta);  break;
+      mGP = new GaussianProcessIGN(mParameters.noise, mParameters.alpha,
+				   mParameters.beta,mParameters.delta);  break;
 
     case S_STUDENT_T_PROCESS_JEFFREYS:
       mGP = new StudentTProcess(mParameters.noise); break;
@@ -70,7 +70,7 @@ int SKO_BASE::setSurrogateFunction()
 
 
 
-int SKO_BASE::nextPoint(vectord &Xnext)
+int BayesOptBase::nextPoint(vectord &Xnext)
 {
   crit.resetAnnealValues();
   if (mParameters.c_name == C_GP_HEDGE)

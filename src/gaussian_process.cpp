@@ -1,22 +1,25 @@
 #include <boost/math/special_functions/factorials.hpp>
 #include <boost/math/distributions/normal.hpp> // for normal_distribution
 
-#include "basicgaussprocess.hpp"
+#include "gaussian_process.hpp"
 #include "cholesky.hpp"
-#include "trace.hpp"
+#include "trace_ublas.hpp"
 
+using boost::numeric::ublas::inplace_solve;
+using boost::numeric::ublas::lower_tag;
+using boost::numeric::ublas::inner_prod;
 
-BasicGaussianProcess::BasicGaussianProcess( double noise ):
+GaussianProcess::GaussianProcess( double noise ):
   NonParametricProcess(noise)
 {}  // Constructor
 
 
-BasicGaussianProcess::~BasicGaussianProcess()
+GaussianProcess::~GaussianProcess()
 {} // Default destructor
 
 
 
-double BasicGaussianProcess::negativeLogLikelihood(size_t index)
+double GaussianProcess::negativeLogLikelihood(size_t index)
 {
   matrixd K = computeCorrMatrix();
   size_t n = K.size1();
@@ -25,14 +28,14 @@ double BasicGaussianProcess::negativeLogLikelihood(size_t index)
 
   // Compute the likelihood
   vectord alpha(mGPY);
-  boost::numeric::ublas::inplace_solve(L,alpha,boost::numeric::ublas::lower_tag());
+  inplace_solve(L,alpha,lower_tag());
   double loglik = .5*inner_prod(mGPY,alpha) + trace(L) + n*0.91893853320467; //log(2*pi)/2
 
   return loglik;
 }
 
 
-int BasicGaussianProcess::prediction( const vectord &query,
+int GaussianProcess::prediction( const vectord &query,
 				      double& yPred, double& sPred)
 {
   vectord rInvR(mGPXX.size());
@@ -51,7 +54,7 @@ int BasicGaussianProcess::prediction( const vectord &query,
   return 1;
 }
 	
-double BasicGaussianProcess::negativeExpectedImprovement(double yPred, 
+double GaussianProcess::negativeExpectedImprovement(double yPred, 
 							 double sPred,
 							 double yMin, 
 							 size_t g)
@@ -89,13 +92,13 @@ double BasicGaussianProcess::negativeExpectedImprovement(double yPred,
   
 }  // negativeExpectedImprovement
 
-double BasicGaussianProcess::lowerConfidenceBound(double yPred, double sPred,
+double GaussianProcess::lowerConfidenceBound(double yPred, double sPred,
 						  double beta)
 {    
   return yPred - beta*sPred;;
 }  // lowerConfidenceBound
 
-double BasicGaussianProcess::negativeProbabilityOfImprovement(double yPred, 
+double GaussianProcess::negativeProbabilityOfImprovement(double yPred, 
 							      double sPred,
 							      double yMin, 
 							      double epsilon)

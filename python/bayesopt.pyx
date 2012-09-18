@@ -44,7 +44,7 @@ cdef extern from "ctypes.h":
         m_error
 
  
-    ctypedef struct sko_params:
+    ctypedef struct bopt_params:
         unsigned int n_iterations, n_init_samples
         double theta
         double alpha, beta, delta
@@ -57,7 +57,7 @@ cdef extern from "ctypes.h":
     criterium_name str2crit(char* name)
     surrogate_name str2surrogate(char* name)
     mean_name str2mean(char* name)
-    sko_params initialize_parameters_to_default()
+    bopt_params initialize_parameters_to_default()
 
 ###########################################################################
 cdef extern from "bayesoptwpr.h":
@@ -67,11 +67,11 @@ cdef extern from "bayesoptwpr.h":
     int bayes_optimization(int nDim, eval_func f, void* f_data,
                            double *lb, double *ub, double *x,
                            double *minf,
-                           sko_params params)
+                           bopt_params params)
 
     
 ###########################################################################
-cdef sko_params dict2structparams(dict dparams):
+cdef bopt_params dict2structparams(dict dparams):
 
     params = initialize_parameters_to_default()
     
@@ -112,7 +112,7 @@ cdef double callback(unsigned int n, const_double_ptr x,
 def optimize(f, int nDim, np.ndarray[np.double_t] np_lb,
              np.ndarray[np.double_t] np_ub, dict dparams):
 
-    cdef sko_params params = dict2structparams(dparams)
+    cdef bopt_params params = dict2structparams(dparams)
     
     cdef double minf[1000]
     cdef np.ndarray np_x = np.zeros([nDim, 1], dtype=np.double)

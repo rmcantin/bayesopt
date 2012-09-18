@@ -1,3 +1,4 @@
+/** -*- c -*- \file bayesoptwpr.hpp \brief C-wrapper for Bayesian optimization */
 /*
 -----------------------------------------------------------------------------
    This file is part of BayesOptimization, an efficient C++ library for 
@@ -49,7 +50,7 @@ extern "C" {
 			 const double *lb, const double *ub, /* bounds */
 			 double *x, /* out: minimizer */
 			 double *minf, /* out: minimum */
-			 sko_params parameters);
+			 bopt_params parameters);
   
 #ifdef __cplusplus
 }

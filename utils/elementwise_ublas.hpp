@@ -1,4 +1,4 @@
-/** -*- c++ -*- \file elementwiseUblas.hpp \brief elementwise operations */
+/** -*- c++ -*- \file elementwise_ublas.hpp \brief Elementwise operations */
 /*
 -----------------------------------------------------------------------------
    Copyright (C) 2011 Ruben Martinez-Cantin <rmcantin@unizar.es>
@@ -17,6 +17,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -----------------------------------------------------------------------------
 */
+
 #ifndef  _ELEMENTWISE_UBLAS_HPP_
 #define  _ELEMENTWISE_UBLAS_HPP_
 
@@ -25,32 +26,11 @@
 #include <algorithm>
 
 /** 
- * Computes the elementwise sum of two vectors.
+ * Computes the elementwise product of two vectors or matrices.
  * 
- * @param a first vector
- * @param b second vector
- * 
- * @return sum vector.
+ * c_i = a_i * b_i
+ *
  */
-template <class v1, class v2>
-v1 ublas_elementwise_add(const v1& a, const v2& b)
-{
-  typedef typename v1::value_type D;
-  v1 c(a.size());
-  std::transform(a.begin(),a.end(),b.begin(),c.begin(),std::plus<D>());
-  return c;
-}
-
-template <class v1, class v2>
-v1 ublas_elementwise_substract(const v1& a, const v2& b)
-{
-  typedef typename v1::value_type D;
-  v1 c(a.size());
-  std::transform(a.begin(),a.end(),b.begin(),c.begin(),std::minus<D>());
-  return c;
-}
-
-
 template <class v1, class v2>
 v1 ublas_elementwise_prod(const v1& a, const v2& b)
 {
@@ -60,6 +40,12 @@ v1 ublas_elementwise_prod(const v1& a, const v2& b)
   return c;
 }
 
+/** 
+ * Computes the elementwise division of two vectors or matrices.
+ * 
+ * c_i = a_i / b_i
+ *
+ */
 template <class v1, class v2>
 v1 ublas_elementwise_div(const v1& a, const v2& b)
 {

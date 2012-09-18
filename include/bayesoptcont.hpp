@@ -1,11 +1,4 @@
-/**
- * @file   bayesoptcont.hpp
- * @brief  Sequential Krigging Optimization (SKO)
- * 
- * This file implements Sequential Krigging Optimization using different 
- * non-parametric processes as surrogate (krigging) functions.
- */
-
+/** -*- c++ -*- \file bayesoptcont.hpp \brief Continuous Bayesian optimization */
 /*
 -----------------------------------------------------------------------------
    This file is part of BayesOptimization, an efficient C++ library for 
@@ -56,7 +49,7 @@
  * \brief Sequential Kriging Optimization using different non-parametric 
  * processes as surrogate (kriging) functions. 
  */
-class SKO_CONT: public InnerOptimization, SKO_BASE
+class BayesOptContinuous: public InnerOptimization, BayesOptBase
 {
  public:
   
@@ -65,7 +58,7 @@ class SKO_CONT: public InnerOptimization, SKO_BASE
    * 
    * @param gp        Pointer to the surrogate model
    */
-  SKO_CONT( sko_params parameters,
+  BayesOptContinuous( bopt_params parameters,
        bool uselogfile = false,
        const char* logfilename = "bayesopt.log"); 
 
@@ -74,7 +67,7 @@ class SKO_CONT: public InnerOptimization, SKO_BASE
    * 
    * @return 
    */
-  virtual ~SKO_CONT();
+  virtual ~BayesOptContinuous();
 
   /** 
    * Execute the optimization process of the function defined in evaluateSample.

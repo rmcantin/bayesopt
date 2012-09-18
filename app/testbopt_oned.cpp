@@ -3,11 +3,11 @@
 
 inline double sqr( double x ){ return x*x; }
 
-class TestOneD: public SKO_CONT
+class TestOneD: public BayesOptContinuous
 {
 public:
-  TestOneD(sko_params par):
-  SKO_CONT(par) {}
+  TestOneD(bopt_params par):
+  BayesOptContinuous(par) {}
 
   double evaluateSample( const vectord& xin)
   {
@@ -28,7 +28,7 @@ public:
 
 int main(int nargs, char *args[])
 {
-  sko_params parameters = initialize_parameters_to_default();
+  bopt_params parameters = initialize_parameters_to_default();
   parameters.n_iterations = 300;
   parameters.theta = 1.0;
   parameters.c_name = C_GP_HEDGE;

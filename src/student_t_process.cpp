@@ -1,8 +1,8 @@
 #include <boost/math/distributions/students_t.hpp> // for student t distribution
 
-#include "studenttprocess.hpp"
+#include "student_t_process.hpp"
 #include "cholesky.hpp"
-#include "trace.hpp"
+#include "trace_ublas.hpp"
 
   
 StudentTProcess::StudentTProcess(double noise):

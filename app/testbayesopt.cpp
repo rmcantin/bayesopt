@@ -17,12 +17,12 @@ double testFunction(unsigned int n, const double *x,
 }
 
 /* Class to be used for C++-API testing */
-class TestEGO: public SKO_CONT
+class TestEGO: public BayesOptContinuous
 {
  public:
 
-  TestEGO(sko_params param):
-    SKO_CONT(param) {}
+  TestEGO(bopt_params param):
+    BayesOptContinuous(param) {}
 
   double evaluateSample( const vectord &Xi ) 
   {
@@ -47,7 +47,7 @@ int main(int nargs, char *args[])
   // See ctypes.h for the available options
   // If we initialize the struct with the DEFAUL_PARAMS,
   // the we can optionally change only few of them 
-  sko_params par = initialize_parameters_to_default();
+  bopt_params par = initialize_parameters_to_default();
 
   par.theta = KERNEL_THETA;
   par.alpha = PRIOR_ALPHA;

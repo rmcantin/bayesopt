@@ -121,7 +121,7 @@ const char* mean2str(mean_name name)
 
 
 
-const sko_params DEFAULT_PARAMS = {
+const bopt_params DEFAULT_PARAMS = {
   DEFAULT_ITERATIONS, DEFAULT_SAMPLES, DEFAULT_VERBOSE,
   KERNEL_THETA, 
   PRIOR_ALPHA, PRIOR_BETA, PRIOR_DELTA_SQ,
@@ -132,7 +132,7 @@ const sko_params DEFAULT_PARAMS = {
 };
 
 
-sko_params initialize_parameters_to_default(void)
+bopt_params initialize_parameters_to_default(void)
 {
   return DEFAULT_PARAMS;
 }

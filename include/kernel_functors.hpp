@@ -21,7 +21,7 @@
 #define  _KERNEL_FUNCTORS_HPP_
 
 
-#include "ctypes.h"
+//#include "parameters.h"
 #include "specialtypes.hpp"
 #include "elementwise_ublas.hpp"
 

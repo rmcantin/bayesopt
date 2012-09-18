@@ -25,7 +25,7 @@
 #ifndef __NONPARAMETRICPROCESS_HPP__
 #define __NONPARAMETRICPROCESS_HPP__
 
-#include "ctypes.h"
+#include "parameters.h"
 #include "kernel_functors.hpp"
 #include "meanfuncs.hpp"
 #include "randgen.hpp"

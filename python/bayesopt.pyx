@@ -12,7 +12,7 @@ cdef extern from *:
     ctypedef double* const_double_ptr "const double*"
 
 ###########################################################################
-cdef extern from "ctypes.h":
+cdef extern from "parameters.h":
 
     ctypedef enum kernel_name:
         k_materniso1,
@@ -57,6 +57,12 @@ cdef extern from "ctypes.h":
     criterium_name str2crit(char* name)
     surrogate_name str2surrogate(char* name)
     mean_name str2mean(char* name)
+
+    char* kernel2str(kernel_name name)
+    char* crit2str(criterium_name name)
+    char* surrogate2str(surrogate_name name)
+    char* mean2str(mean_name name)
+    
     bopt_params initialize_parameters_to_default()
 
 ###########################################################################

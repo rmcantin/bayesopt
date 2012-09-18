@@ -29,17 +29,9 @@
 //#include <fstream>
 
 //TODO: Check if everything is needed
-#include "ctypes.h"
-#include "specialtypes.hpp"
 #include "boundingbox.hpp"
-
 #include "inneroptimization.hpp"
 #include "bayesoptbase.hpp"
-
-// Included here to simplify the C++-API
-//#include "gaussprocess.hpp"
-//#include "basicgaussprocess.hpp"
-//#include "studenttprocess.hpp"
 
 
 /** \addtogroup BayesOptimization */

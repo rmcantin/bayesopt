@@ -22,7 +22,7 @@
 
 #include <boost/numeric/ublas/vector.hpp>
 #include "elementwiseUblas.hpp"
-#include "ctypes.h"
+#include "parameters.h"
 
 namespace kernels
 {

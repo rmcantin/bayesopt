@@ -25,7 +25,7 @@
 #ifndef  _BAYESOPTBASE_HPP_
 #define  _BAYESOPTBASE_HPP_
 
-#include "ctypes.h"
+#include "parameters.h"
 #include "specialtypes.hpp"
 #include "logger.hpp"
 

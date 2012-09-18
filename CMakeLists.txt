@@ -74,7 +74,11 @@ SET( BAYESOPT_SRCS
   ./src/gaussian_process_ign.cpp
   ./src/student_t_process.cpp
   ./src/nonparametricprocess.cpp
-  ./src/ctypes.cpp
+  ./src/parameters.cpp
+  )
+
+SET(WRAPPPERS_SRC 
+  ./wrappers/nloptwpr.cpp
   ./wrappers/bayesoptwpr.cpp
   )
 
@@ -97,12 +101,10 @@ IF(BUILD_NLOPT)
   include_directories(${CMAKE_SOURCE_DIR}/nlopt/api)
 ENDIF(BUILD_NLOPT)
 
-SET( OPT_SOURCE ./wrappers/nloptwpr.cpp)
-
 ADD_LIBRARY(bayesopt
   ${BAYESOPT_SRCS}   
+  ${WRAPPPERS_SRC}
   ${PYTHON_SRC}
-  ${OPT_SOURCE}
   )
 
 IF(MATLAB_COMPATIBLE)
@@ -142,15 +144,16 @@ add_dependencies(branintest bayesopt)
 TARGET_LINK_LIBRARIES(branintest bayesopt)
 
 #Test for random number generator
-ADD_EXECUTABLE(randtest ./app/testrand.cpp)
+#ADD_EXECUTABLE(randtest ./app/testrand.cpp)
 
 
 INSTALL(FILES ./include/bayesoptcont.hpp 
               ./include/bayesoptdisc.hpp 
 	      ./wrappers/bayesoptwpr.h 
-  DESTINATION include)
+	DESTINATION include)
 
-INSTALL(TARGETS bayesopt
+INSTALL(
+  TARGETS bayesopt
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
 )

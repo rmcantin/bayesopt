@@ -25,17 +25,7 @@
 #ifndef  _BAYESOPTDISC_HPP_
 #define  _BAYESOPTDISC_HPP_
 
-#include "ctypes.h"
-#include "specialtypes.hpp"
 #include "bayesoptbase.hpp"
-
-
-
-// Included here to simplify the C++-API
-//#include "gaussprocess.hpp"
-//#include "basicgaussprocess.hpp"
-//#include "studenttprocess.hpp"
-
 
 /** \addtogroup BayesOptimization */
 /*@{*/

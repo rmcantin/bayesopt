@@ -1,5 +1,5 @@
 #include <iostream>
-#include "ctypes.h"
+#include "parameters.h"
 
 
 // TODO: All !strcmp should be negated!!!

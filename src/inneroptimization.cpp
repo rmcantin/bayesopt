@@ -17,10 +17,11 @@
 -----------------------------------------------------------------------------
 */
 #include <cmath>
+
 #include <nlopt.h>
-#include "ctypes.h"
 #include "nloptwpr.h"
 
+#include "parameters.h"
 #include "inneroptimization.hpp"
 
 void checkNLOPTerror(nlopt_result errortype)

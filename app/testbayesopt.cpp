@@ -44,7 +44,7 @@ int main(int nargs, char *args[])
   int n = 6;                   // Number of dimensions
 
   // Common configuration
-  // See ctypes.h for the available options
+  // See parameters.h for the available options
   // If we initialize the struct with the DEFAUL_PARAMS,
   // the we can optionally change only few of them 
   bopt_params par = initialize_parameters_to_default();

@@ -24,7 +24,7 @@
 #ifndef _BAYESOPTWPR_H_
 #define _BAYESOPTWPR_H_
 
-#include "ctypes.h"
+#include "parameters.h"
 
 /** \addtogroup BayesOptimization */
 /*@{*/

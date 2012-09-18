@@ -25,7 +25,7 @@
 
 #include <algorithm>
 
-#include "ctypes.h"
+#include "parameters.h"
 #include "specialtypes.hpp"
 #include "randgen.hpp"
 #include "nonparametricprocess.hpp"

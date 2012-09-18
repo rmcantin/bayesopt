@@ -173,13 +173,15 @@ void mexFunction(int nlhs, mxArray *plhs[],
       udata.nrhs = 1;
       udata.xrhs = 0;
     }
+#ifndef HAVE_OCTAVE
   else if (mxIsFunctionHandle(func_name))
     {
       udata.prhs[0] = (mxArray *)func_name;
       strcpy(udata.f, "feval");
       udata.nrhs = 2;
       udata.xrhs = 1;
-    }
+      }
+#endif
   else
     {
       mexErrMsgTxt("First term should be a function name or function handle");

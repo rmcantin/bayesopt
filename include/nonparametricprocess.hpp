@@ -246,6 +246,9 @@ protected:
   //  vectord mTheta;                             ///< Kernel parameters
   const double mRegularizer;  ///< GP likelihood parameters (Normal)
 
+  matrixd mL;
+  vectord mAlphaV;
+
 };
 
 /**@}*/

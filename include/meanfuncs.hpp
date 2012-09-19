@@ -24,14 +24,12 @@
 
 namespace means
 {
-  using namespace boost::numeric::ublas;	
-
   /** 
    * Constant unit function
    * 
    * @return 1
    */
-  inline double One( const vector<double> &x )
+  inline double One( const boost::numeric::ublas::vector<double> &x )
   { return 1; } 
   
   /** 
@@ -39,7 +37,7 @@ namespace means
    * 
    * @return 0
    */
-  inline double Zero( const vector<double> &x)
+  inline double Zero( const boost::numeric::ublas::vector<double> &x)
   { return 0; } 
 
   /** 
@@ -50,9 +48,9 @@ namespace means
    * 
    * @return a \dot x
    */
-  inline double Linear (const vector<double> &x,
-			const vector<double> &a)
-  { return inner_prod(x,a); }
+  inline double Linear (const boost::numeric::ublas::vector<double> &x,
+			const boost::numeric::ublas::vector<double> &a)
+  { return boost::numeric::ublas::inner_prod(x,a); }
 }
 
 

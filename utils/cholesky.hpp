@@ -94,7 +94,6 @@ template < class MATRIX >
 size_t cholesky_decompose(MATRIX& A)
 {
   using namespace ublas;
-
   typedef typename MATRIX::value_type T;
   
   const MATRIX& A_c(A);
@@ -250,5 +249,48 @@ inverse_cholesky(const Min& M, Mout& inverse)
 
   return 0;
 }
+
+/** \brief decompose the symmetric positive definit matrix A into product L L^T.
+ *
+ * \param MATRIX type of input matrix 
+ * \param TRIA type of lower triangular output matrix
+ * \param A square symmetric positive definite input matrix (only the lower triangle is accessed)
+ * \param L lower triangular output matrix 
+ * \return nonzero if decompositon fails (the value ist 1 + the numer of the failing row)
+ */
+template < class TRIA, class VECTOR >
+size_t cholesky_add_row(TRIA& L, const VECTOR& v)
+{
+  using namespace ublas;
+
+  typedef typename TRIA::value_type T;
+  
+  assert( L.size1() == L.size2() );
+  assert( L.size1()+1 == v.size() );
+
+  const size_t n = v.size();
+  L.resize(n,n);
+
+  double qL_kk = v(n-1) - inner_prod( project( row(L, n-1), range(0, n-1) ),
+				      project( row(L, n-1), range(0, n-1) ) );
+    
+  if (qL_kk <= 0) {
+    return n;
+  } else {
+    double L_kk = sqrt( qL_kk );
+    L(n-1,n-1) = L_kk;
+
+    for (size_t j = 0; j < n; ++j)
+      {
+	double s = 0;
+	for (size_t k = 0; k < j; ++k)
+	  s += L(n-1,k) * L(j,k);
+        
+	L(n-1, j) = (1.0 / L(j,j) * (v(j) - s));
+      }
+  }
+  return 0;      
+}
+
 
 #endif

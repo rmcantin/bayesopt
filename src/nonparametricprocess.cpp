@@ -72,7 +72,10 @@ int NonParametricProcess::fitGP()
   mKernel->setScale(optimalTheta);
   std::cout << "Final theta: " << optimalTheta << std::endl;
 
-  int error = computeInverseCorrMatrix();
+  mL.resize(nSamples,nSamples);
+  int error = cholesky_decompose(computeCorrMatrix(),mL);
+
+  //  int error = computeInverseCorrMatrix();
 
   if (error < 0)
     return error;
@@ -84,41 +87,52 @@ int NonParametricProcess::fitGP()
 int NonParametricProcess::addNewPointToGP( const vectord &Xnew,
 					   double Ynew)
 {
-  size_t nSamples = mGPXX.size();
-  size_t XDim = mGPXX[1].size();
+  // size_t nSamples = mGPXX.size();
+  // size_t XDim = mGPXX[1].size();
   
-  vectord Li(nSamples);
-  vectord wInvR(nSamples);
-  double wInvRw;
-  double selfCorrelation, Ni;
+  // vectord Li(nSamples);
+  // vectord wInvR(nSamples);
+  // double wInvRw;
+  // double selfCorrelation, Ni;
   
-  if (XDim != Xnew.size())
-    {
-      std::cout << "Dimensional Error" << std::endl;
-      return -1;
-    }
+  // if (XDim != Xnew.size())
+  //   {
+  //     std::cout << "Dimensional Error" << std::endl;
+  //     return -1;
+  //   }
     
-  vectord correlationNewValue = computeCrossCorrelation(Xnew);
+  // vectord correlationNewValue = computeCrossCorrelation(Xnew);
   
-  selfCorrelation = (*mKernel)(Xnew, Xnew) + mRegularizer;
+  // selfCorrelation = (*mKernel)(Xnew, Xnew) + mRegularizer;
   
-  noalias(wInvR) = prod(correlationNewValue,mInvR);
-  wInvRw = inner_prod(wInvR,correlationNewValue);
-  Ni = 1/(selfCorrelation + wInvRw);
-  noalias(Li) = -Ni * wInvR;
-  mInvR += outer_prod(Li,Li) / Ni;
+  // noalias(wInvR) = prod(correlationNewValue,mInvR);
+  // wInvRw = inner_prod(wInvR,correlationNewValue);
+  // Ni = 1/(selfCorrelation + wInvRw);
+  // noalias(Li) = -Ni * wInvR;
+  // mInvR += outer_prod(Li,Li) / Ni;
   
-  //TODO: There must be a better way to do this.
-  mInvR.resize(nSamples+1,nSamples+1);
+  // //TODO: There must be a better way to do this.
+  // mInvR.resize(nSamples+1,nSamples+1);
   
-  Li.resize(nSamples+1);
-  Li(nSamples) = Ni;
+  // Li.resize(nSamples+1);
+  // Li(nSamples) = Ni;
   
-  row(mInvR,nSamples) = Li;
-  column(mInvR,nSamples) = Li;
+  // row(mInvR,nSamples) = Li;
+  // column(mInvR,nSamples) = Li;
 
   addSample(Xnew,Ynew);
-  checkBoundsY(nSamples);
+  size_t nSamples = mGPXX.size();
+  checkBoundsY(nSamples-1);
+  
+  mL.resize(nSamples,nSamples,false);
+  matrixd bar = computeCorrMatrix();
+  cholesky_decompose(bar,mL);
+  
+  //TODO: Solve bug in cholesky_add_row
+  //vectord newK = computeCrossCorrelation(Xnew);
+  //cholesky_add_row(mL,newK);
+
+  //computeInverseCorrMatrix();
   
   return precomputeGPParams();
 } // addNewPointToGP

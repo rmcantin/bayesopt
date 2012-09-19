@@ -7,6 +7,7 @@
 
 using boost::numeric::ublas::inplace_solve;
 using boost::numeric::ublas::lower_tag;
+using boost::numeric::ublas::lower;
 using boost::numeric::ublas::inner_prod;
 
 GaussianProcess::GaussianProcess( double noise ):
@@ -28,7 +29,7 @@ double GaussianProcess::negativeLogLikelihood(size_t index)
 
   // Compute the likelihood
   vectord alpha(mGPY);
-  inplace_solve(L,alpha,lower_tag());
+  cholesky_solve(L,alpha,lower());
   double loglik = .5*inner_prod(mGPY,alpha) + trace(L) + n*0.91893853320467; //log(2*pi)/2
 
   return loglik;
@@ -36,28 +37,39 @@ double GaussianProcess::negativeLogLikelihood(size_t index)
 
 
 int GaussianProcess::prediction( const vectord &query,
-				      double& yPred, double& sPred)
+				 double& yPred, double& sPred)
 {
-  vectord rInvR(mGPXX.size());
-  double kn;
-  double rInvRr;
+  double kn = (*mKernel)(query, query);
+  vectord kStar = computeCrossCorrelation(query);
 
-  vectord colR = computeCrossCorrelation(query);
-  kn = (*mKernel)(query, query);
+  yPred = inner_prod(kStar,mAlphaV);
+
+  vectord vd(kStar);
+  inplace_solve(mL,vd,lower_tag());
+  sPred = sqrt(kn - inner_prod(vd,vd));
+  /*
+  vectord rInvR = prod(kStar,mInvR);
+  yPred = inner_prod(rInvR,mGPY);
+  sPred = sqrt(kn - inner_prod(rInvR,kStar));
+  */
+  return 1;
+}
+
+int GaussianProcess::precomputeGPParams()
+{
+  size_t n = mGPY.size();
   
-  noalias(rInvR) = prod(colR,mInvR);	
-  rInvRr = inner_prod(rInvR,colR);
-    
-  yPred = inner_prod( rInvR, mGPY );
-  sPred = sqrt(kn - rInvRr);
+  mAlphaV.resize(n,false);
+  mAlphaV = mGPY;
+  cholesky_solve(mL,mAlphaV,lower());
 
   return 1;
 }
 	
 double GaussianProcess::negativeExpectedImprovement(double yPred, 
-							 double sPred,
-							 double yMin, 
-							 size_t g)
+						    double sPred,
+						    double yMin, 
+						    size_t g)
 {
   
   using boost::math::factorial;
@@ -99,9 +111,9 @@ double GaussianProcess::lowerConfidenceBound(double yPred, double sPred,
 }  // lowerConfidenceBound
 
 double GaussianProcess::negativeProbabilityOfImprovement(double yPred, 
-							      double sPred,
-							      double yMin, 
-							      double epsilon)
+							 double sPred,
+							 double yMin, 
+							 double epsilon)
 {
   boost::math::normal d;
   return -cdf(d,(yMin - yPred + epsilon)/sPred);

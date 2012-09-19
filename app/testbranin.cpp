@@ -31,7 +31,8 @@ public:
 int main(int nargs, char *args[])
 {
   bopt_params par = initialize_parameters_to_default();
-  par.n_iterations = 400;
+  par.n_iterations = 200;
+  par.n_init_samples = 50;
   par.theta = 1.0;
   par.c_name = C_GP_HEDGE;
   TestOneD opt(par);

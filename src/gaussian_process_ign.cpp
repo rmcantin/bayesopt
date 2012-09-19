@@ -3,7 +3,9 @@
 #include "cholesky.hpp"
 #include "trace_ublas.hpp"
 
-
+using boost::numeric::ublas::inplace_solve;
+using boost::numeric::ublas::lower_tag;
+using boost::numeric::ublas::lower;
   
 GaussianProcessIGN::GaussianProcessIGN( double noise, double alpha, 
 					double beta, double delta):
@@ -33,11 +35,11 @@ double GaussianProcessIGN::negativeLogLikelihood(size_t index)
     colU(ii) = meanFunction(mGPXX[ii]);
 
   vectord alphU(colU);
-  boost::numeric::ublas::inplace_solve(L,alphU,boost::numeric::ublas::lower_tag());
+  inplace_solve(L,alphU,lower_tag());
   double eta = inner_prod(colU,alphU) + 1/mDelta2;
   
   vectord alphY(mGPY);
-  boost::numeric::ublas::inplace_solve(L,alphY,boost::numeric::ublas::lower_tag());
+  inplace_solve(L,alphY,lower_tag());
   double mu     = inner_prod(colU,alphY) / eta;
   double YInvRY = inner_prod(mGPY,alphY);
     
@@ -47,7 +49,7 @@ double GaussianProcessIGN::negativeLogLikelihood(size_t index)
   vectord yumu = mGPY - colMu;
   
   alphY = yumu;
-  boost::numeric::ublas::inplace_solve(L,alphY,boost::numeric::ublas::lower_tag());
+  inplace_solve(L,alphY,lower_tag());
 
   double lik1 = inner_prod(yumu,alphY) / (2*sigma); 
   double lik2 = trace(L) + 0.5*n*log(sigma) + n*0.91893853320467; //log(2*pi)/2
@@ -60,10 +62,10 @@ double GaussianProcessIGN::negativeLogLikelihood(size_t index)
 
 
 int GaussianProcessIGN::prediction( const vectord &query,
-				 double& yPred, double& sPred)
+				    double& yPred, double& sPred)
 {
   size_t n = mGPXX.size();
-  vectord rInvR(n);
+  //vectord rInvR(n);
   double kn;
   double uInvRr, rInvRr;
   double meanf = meanFunction(query);
@@ -72,13 +74,17 @@ int GaussianProcessIGN::prediction( const vectord &query,
   kn = (*mKernel)(query, query);
   
   svectord colMu(n,mMu);
-  vectord yumu = mGPY - meanf*colMu;
+  vectord invRy = mGPY - meanf*colMu;
+  cholesky_solve(mL,invRy,lower());
+
+  vectord invRr(colR);
+  cholesky_solve(mL,invRr,lower());
+
+  //  noalias(rInvR) = prod(colR,mInvR);	
+  rInvRr = inner_prod(colR,invRr);
+  uInvRr = inner_prod(mMeanV,invRr);
   
-  noalias(rInvR) = prod(colR,mInvR);	
-  rInvRr = inner_prod(rInvR,colR);
-  uInvRr = inner_prod(mUInvR,colR);
-  
-  yPred = meanf*mMu + inner_prod( rInvR, yumu );
+  yPred = meanf*mMu + inner_prod( colR, invRy );
   sPred = sqrt( mSig * (kn - rInvRr + (meanf - uInvRr) * (meanf - uInvRr) 
 			/ mUInvRUDelta ) );
 
@@ -89,22 +95,35 @@ int GaussianProcessIGN::prediction( const vectord &query,
 int GaussianProcessIGN::precomputeGPParams()
 {
   size_t nSamples = mGPXX.size();
-  vectord colU(nSamples);
+  
+  //mMeanV(nSamples);
+  //std::transform(mGPXX.begin(),mGPXX.end(),mMeanV.begin(),NonParametricProcess::meanFunction);
 
   //TODO: Replace by transform
-  for (size_t ii=0; ii< nSamples; ii++) 
-    colU(ii) = meanFunction(mGPXX[ii]);
+  for (size_t ii=0; ii< nSamples; ++ii) 
+    mMeanV(ii) = meanFunction(mGPXX[ii]);
 
-  mUInvR = prod(colU,mInvR);
-  mUInvRUDelta = inner_prod(mUInvR,colU) + 1/mDelta2;
+  mAlphaV.resize(nSamples,false);
+  mAlphaV = mGPY;
+  cholesky_solve(mL,mAlphaV,lower());
+
+  vectord alphaMean(mMeanV);
+  inplace_solve(mL,alphaMean,lower_tag());
+  mUInvRUDelta = inner_prod(alphaMean,alphaMean) + 1/mDelta2;
+
+  mMu = inner_prod(mMeanV,mAlphaV) / mUInvRUDelta;
+  double YInvRY = inner_prod(mGPY,mAlphaV);
+
+  //  mUInvR = prod(colU,mInvR);
+  // mUInvRUDelta = inner_prod(mUInvR,colU) + 1/mDelta2;
   
-  vectord YInvR(nSamples);
+  /*  vectord YInvR(nSamples);
   double YInvRY;
   
   mMu =  inner_prod(mUInvR,mGPY) / mUInvRUDelta;
   
   noalias(YInvR) = prod(mGPY,mInvR);
-  YInvRY = inner_prod(YInvR,mGPY);
+  YInvRY = inner_prod(YInvR,mGPY);*/
   
   mSig = (mBeta + YInvRY - mMu*mMu*mUInvRUDelta) / (mAlpha + (nSamples+1) + 2);
   

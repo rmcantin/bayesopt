@@ -102,7 +102,7 @@ extern "C" {
   const size_t MAX_DIM         = 40;         /* Not used */
 
   /* INNER Optimizer default values */
-  const size_t MAX_INNER_EVALUATIONS = 3000;
+  const size_t MAX_INNER_EVALUATIONS = 5000;
   const size_t MAX_INNER_ITERATIONS  = 3000; /* Not used */
 
   /* Latin Hypercube Sampling (LHS) default values */

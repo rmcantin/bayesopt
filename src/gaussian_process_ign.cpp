@@ -73,15 +73,19 @@ int GaussianProcessIGN::prediction( const vectord &query,
   vectord colR = computeCrossCorrelation(query);
   kn = (*mKernel)(query, query);
   
-  svectord colMu(n,mMu);
-  vectord invRy = mGPY - meanf*colMu;
+  svectord colMean(n, meanf * mMu);
+  vectord invRy = mGPY - colMean;
   cholesky_solve(mL,invRy,lower());
+
+  // vectord ymu = mGPY - colMean;
+  // vectord rInvR = prod(colR,mInvR);
 
   vectord invRr(colR);
   cholesky_solve(mL,invRr,lower());
 
   //  noalias(rInvR) = prod(colR,mInvR);	
-  rInvRr = inner_prod(colR,invRr);
+  rInvRr = inner_prod(colR,invRr);//inner_prod(rInvR,colR);//
+  //TODO:
   uInvRr = inner_prod(mMeanV,invRr);
   
   yPred = meanf*mMu + inner_prod( colR, invRy );
@@ -95,7 +99,7 @@ int GaussianProcessIGN::prediction( const vectord &query,
 int GaussianProcessIGN::precomputeGPParams()
 {
   size_t nSamples = mGPXX.size();
-  
+  mMeanV.resize(nSamples);
   //mMeanV(nSamples);
   //std::transform(mGPXX.begin(),mGPXX.end(),mMeanV.begin(),NonParametricProcess::meanFunction);
 
@@ -113,6 +117,10 @@ int GaussianProcessIGN::precomputeGPParams()
 
   mMu = inner_prod(mMeanV,mAlphaV) / mUInvRUDelta;
   double YInvRY = inner_prod(mGPY,mAlphaV);
+
+  // mInvR.resize(nSamples,nSamples);
+  // mInvR.assign(boost::numeric::ublas::identity_matrix<value_type>(nSamples));
+  // cholesky_solve(mL,mInvR,lower);
 
   //  mUInvR = prod(colU,mInvR);
   // mUInvRUDelta = inner_prod(mUInvR,colU) + 1/mDelta2;

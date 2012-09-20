@@ -124,13 +124,15 @@ int NonParametricProcess::addNewPointToGP( const vectord &Xnew,
   size_t nSamples = mGPXX.size();
   checkBoundsY(nSamples-1);
   
-  mL.resize(nSamples,nSamples,false);
-  matrixd bar = computeCorrMatrix();
-  cholesky_decompose(bar,mL);
+  // SLOW alternative
+  // mL.resize(nSamples,nSamples,false);
+  // matrixd bar = computeCorrMatrix();
+  // cholesky_decompose(bar,mL);
+  // matrixd foo(mL);
   
   //TODO: Solve bug in cholesky_add_row
-  //vectord newK = computeCrossCorrelation(Xnew);
-  //cholesky_add_row(mL,newK);
+  vectord newK = computeCrossCorrelation(Xnew);
+  cholesky_add_row(mL,newK);
 
   //computeInverseCorrMatrix();
   

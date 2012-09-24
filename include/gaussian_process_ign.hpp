@@ -80,8 +80,9 @@ protected:
 
   // Precomputed GP prediction operations
   vectord mMeanV;              
+  vectord mUInvR;
   double mUInvRUDelta;
-
+  
 };
 
 

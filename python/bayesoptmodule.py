@@ -8,16 +8,7 @@ class BayesOptModule:
         # For different options: see ctypes.h and cpp
         # If a parameter is not define, it will be automatically set
         # to a default value.
-        self.params = {"theta": 0.11,
-          "alpha": 1.0, "beta": 0.1,
-          "delta": 1000.0,
-          "noise": 0.001,
-          "crit" : "ei",        
-          "surr" : "gp" ,
-          "kernel" : "materniso3",
-          "n_iter" : 100,
-          "n_samples" : 40}
-
+        self.params = kp.initialize_params()
         self.n = 5                      # n dimensions
         self.lb = np.zeros((self.n,))
         self.ub = np.ones((self.n,))
@@ -31,9 +22,7 @@ class BayesOptModule:
 
     def optimize(self):
         mvalue, x_out, error = kp.optimize(self.evalfunc, self.n,
-                                           self.lb, self.ub, self.ninititer,
-                                           self.niter, self.params,
-                                           self.crit, self.surr, self.kernel)
+                                           self.lb, self.ub,self.params)
         
         return mvalue, x_out, error
 

@@ -73,6 +73,9 @@ int BayesOptContinuous::optimize( vectord &bestPoint)
     {      
       // Find what is the next point.
       nextPoint(xNext);
+
+      yNext = evaluateNormalizedSample(xNext);
+      mGP->addNewPointToGP(xNext,yNext); 
       
       if(mParameters.verbose_level >0)
 	{ 
@@ -84,9 +87,6 @@ int BayesOptContinuous::optimize( vectord &bestPoint)
 	  mOutput << "Best found at: " << xOpt << std::endl; 
 	  mOutput << "Best outcome: " <<  mGP->getValueAtMinimum() <<  std::endl; 
 	}
-
-      yNext = evaluateNormalizedSample(xNext);
-      mGP->addNewPointToGP(xNext,yNext); 
 
       if(mParameters.verbose_level>1)
 	{

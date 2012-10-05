@@ -15,33 +15,38 @@ cdef extern from *:
 cdef extern from "parameters.h":
 
     ctypedef enum kernel_name:
-        k_materniso1,
-        k_materniso3,
-        k_materniso5,
-        k_seiso,
-        k_seard,
-        k_error
+        K_MATERN_ISO1,
+        K_MATERN_ISO3,
+        K_MATERN_ISO5,
+        K_SE_ISO,
+        K_SE_ARD,
+        K_ERROR = -1
 
-    ctypedef enum criterium_name:
-        c_ei,
-        c_lcb,
-        c_poi,
-        c_gp_hedge,
-        c_greedyAOptimality,
-        c_expectedReturn,
-        c_error
-
-    ctypedef enum surrogate_name:
-        s_gaussianProcess,
-        s_gaussianProcessHyperPriors,
-        s_studentTProcess,
-        s_error
 
     ctypedef enum mean_name:
-        m_zero,
-        m_one,
-        m_linear,
-        m_error
+        M_ZERO,
+        M_CONSTANT,
+        M_LINEAR,
+        M_ERROR = -1
+        
+        
+    ctypedef enum criterium_name:
+        C_EI,
+        C_LCB,
+        C_POI,
+        C_GP_HEDGE,
+        C_GREEDY_A_OPTIMALITY,
+        C_EXPECTED_RETURN,
+        C_OPTIMISTIC_SAMPLING,
+        C_ERROR = -1
+    
+
+    ctypedef enum surrogate_name:
+        S_GAUSSIAN_PROCESS,
+        S_GAUSSIAN_PROCESS_INV_GAMMA_NORMAL,
+        S_STUDENT_T_PROCESS_JEFFREYS,
+        S_ERROR = -1
+
 
  
     ctypedef struct bopt_params:

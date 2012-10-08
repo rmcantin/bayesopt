@@ -75,7 +75,7 @@ int StudentTProcess::prediction( const vectord &query,
 }
 	
 
-int StudentTProcess::precomputeGPParams()
+int StudentTProcess::precomputePrediction()
 {
   size_t nSamples = mGPXX.size();
   vectord colU(nSamples);

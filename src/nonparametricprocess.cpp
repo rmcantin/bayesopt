@@ -19,6 +19,7 @@
 
 #include "nonparametricprocess.hpp"
 #include "cholesky.hpp"
+#include "ublas_extra.hpp"
 
 NonParametricProcess::NonParametricProcess(double noise):
   InnerOptimization(),  mKernel(NULL), mRegularizer(noise)
@@ -61,10 +62,6 @@ int NonParametricProcess::setKernel (const vectord &thetav,
 
 int NonParametricProcess::fitGP()
 {
-  size_t nSamples = mGPXX.size();
-  for (size_t ii=0; ii<nSamples; ++ii)
-    checkBoundsY(ii);
-
   vectord optimalTheta = mKernel->getScale();
   
   std::cout << "Initial theta: " << optimalTheta << std::endl;
@@ -72,76 +69,94 @@ int NonParametricProcess::fitGP()
   mKernel->setScale(optimalTheta);
   std::cout << "Final theta: " << optimalTheta << std::endl;
 
-  mL.resize(nSamples,nSamples);
-  int error = cholesky_decompose(computeCorrMatrix(),mL);
-
-  //  int error = computeInverseCorrMatrix();
+  int error = computeCholeskyCorrelation();
+  error = computeInverseCorrelation();
 
   if (error < 0)
     return error;
 
-  return precomputeGPParams();
+  return precomputePrediction();
 } // fitGP
-
 
 int NonParametricProcess::addNewPointToGP( const vectord &Xnew,
 					   double Ynew)
 {
-  // size_t nSamples = mGPXX.size();
-  // size_t XDim = mGPXX[1].size();
-  
-  // vectord Li(nSamples);
-  // vectord wInvR(nSamples);
-  // double wInvRw;
-  // double selfCorrelation, Ni;
-  
-  // if (XDim != Xnew.size())
-  //   {
-  //     std::cout << "Dimensional Error" << std::endl;
-  //     return -1;
-  //   }
-    
-  // vectord correlationNewValue = computeCrossCorrelation(Xnew);
-  
-  // selfCorrelation = (*mKernel)(Xnew, Xnew) + mRegularizer;
-  
-  // noalias(wInvR) = prod(correlationNewValue,mInvR);
-  // wInvRw = inner_prod(wInvR,correlationNewValue);
-  // Ni = 1/(selfCorrelation + wInvRw);
-  // noalias(Li) = -Ni * wInvR;
-  // mInvR += outer_prod(Li,Li) / Ni;
-  
-  // //TODO: There must be a better way to do this.
-  // mInvR.resize(nSamples+1,nSamples+1);
-  
-  // Li.resize(nSamples+1);
-  // Li(nSamples) = Ni;
-  
-  // row(mInvR,nSamples) = Li;
-  // column(mInvR,nSamples) = Li;
+  assert( mGPXX[1].size() == Xnew.size() );
 
-  addSample(Xnew,Ynew);
-  size_t nSamples = mGPXX.size();
-  checkBoundsY(nSamples-1);
+  vectord newK = computeCrossCorrelation(Xnew);
+  double selfCorrelation = (*mKernel)(Xnew, Xnew) + mRegularizer;
   
+  addSample(Xnew,Ynew);
+
+  addNewPointToCholesky(newK,selfCorrelation);
+  addNewPointToInverse(newK,selfCorrelation);
+
   // SLOW alternative
+  
   // mL.resize(nSamples,nSamples,false);
   // matrixd bar = computeCorrMatrix();
   // cholesky_decompose(bar,mL);
   // matrixd foo(mL);
-  
-  //TODO: Solve bug in cholesky_add_row
-  vectord newK = computeCrossCorrelation(Xnew);
-  cholesky_add_row(mL,newK);
 
-  //computeInverseCorrMatrix();
+  //computeInverseCorrelation();
   
-  return precomputeGPParams();
+  return precomputePrediction();
 } // addNewPointToGP
 
 
+int NonParametricProcess::addNewPointToCholesky(const vectord& correlation,
+						double selfcorrelation)
+{
+  //TODO: Optimize
+  vectord newK = correlation;
+  append(newK, selfcorrelation);
+  cholesky_add_row(mL,correlation);
 
-int NonParametricProcess::computeInverseCorrMatrix()
+  return 1;
+}
+
+
+int NonParametricProcess::computeCholeskyCorrelation()
+{
+  size_t nSamples = mGPXX.size();
+  mL.resize(nSamples,nSamples);
+  
+  return cholesky_decompose(computeCorrMatrix(),mL);
+}
+
+int NonParametricProcess::addNewPointToInverse(const vectord& correlation,
+					       double selfcorrelation)
+{
+  size_t nSamples = correlation.size();
+  
+  vectord Li(nSamples);
+  vectord wInvR(nSamples);
+  double wInvRw;
+  double Ni;
+
+  noalias(wInvR) = prod(correlation,mInvR);
+  wInvRw = inner_prod(wInvR,correlation);
+
+  Ni = 1/(selfcorrelation - wInvRw);
+
+  noalias(Li) = -Ni * wInvR;
+  mInvR += outer_prod(Li,Li) / Ni;
+  
+  //TODO: There must be a better way to do this.
+  mInvR.resize(nSamples+1,nSamples+1,true);
+  
+  Li.resize(nSamples+1);
+  Li(nSamples) = Ni;
+  
+  row(mInvR,nSamples) = Li;
+  column(mInvR,nSamples) = Li;
+
+  return 1;
+
+}
+
+
+int NonParametricProcess::computeInverseCorrelation()
 {
   size_t nSamples = mGPXX.size();
   if ( (nSamples != mInvR.size1()) || (nSamples != mInvR.size2()) )
@@ -152,6 +167,9 @@ int NonParametricProcess::computeInverseCorrMatrix()
   //return InvertMatrix(corrMatrix,mInvR);
   return inverse_cholesky(corrMatrix,mInvR);
 }
+
+
+
 
 matrixd NonParametricProcess::computeCorrMatrix(int dth_index)
 {
@@ -173,10 +191,12 @@ matrixd NonParametricProcess::computeCorrMatrix(int dth_index)
   return corrMatrix;
 }
 
+
+
 vectord NonParametricProcess::computeCrossCorrelation(const vectord &query)
 {
   vectord knx(mGPXX.size());
-  
+
   //TODO: Replace by transform
   for (size_t ii=0; ii<mGPXX.size(); ++ii)
     knx(ii) = (*mKernel)(mGPXX[ii], query);

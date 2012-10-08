@@ -103,7 +103,7 @@ int GaussianProcessIGN::prediction( const vectord &query,
 }
 	
 
-int GaussianProcessIGN::precomputeGPParams()
+int GaussianProcessIGN::precomputePrediction()
 {
   size_t nSamples = mGPXX.size();
   mMeanV.resize(nSamples,false);
@@ -126,10 +126,10 @@ int GaussianProcessIGN::precomputeGPParams()
   mMu = inner_prod(mMeanV,mAlphaV) / mUInvRUDelta;
   double YInvRY = inner_prod(mGPY,mAlphaV);
 #else
-  mInvR.resize(nSamples,nSamples);
-  mInvR.assign(boost::numeric::ublas::identity_matrix<double>(nSamples));
-  cholesky_solve(mL,mInvR,lower());
-  
+  // mInvR.resize(nSamples,nSamples);
+  // mInvR.assign(boost::numeric::ublas::identity_matrix<double>(nSamples));
+  // cholesky_solve(mL,mInvR,lower());
+
   mUInvR.resize(nSamples,false);
   mUInvR = prod(mMeanV,mInvR);
   mUInvRUDelta = inner_prod(mUInvR,mMeanV) + 1/mDelta2;

@@ -55,7 +55,7 @@ int GaussianProcess::prediction( const vectord &query,
   return 1;
 }
 
-int GaussianProcess::precomputeGPParams()
+int GaussianProcess::precomputePrediction()
 {
   size_t n = mGPY.size();
   

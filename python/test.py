@@ -22,10 +22,12 @@ class BayesOptTest(bopt.BayesOptModule):
 
 
 # Let's define the parameters
-# For different options: see ctypes.h and cpp
+# For different options: see parameters.h and cpp
 # If a parameter is not define, it will be automatically set
 # to a default value.
 params = kp.initialize_params()
+params['n_iterations'] = 100
+params['s_name'] = "GAUSSIAN_PROCESS_INV_GAMMA_NORMAL"
 
 n = 5                     # n dimensions
 lb = np.zeros((n,))

@@ -149,16 +149,20 @@ public:
   // Getters and setters
   inline void setSamples(matrixd x, vectord y)
   {
-    for (size_t i=0; i<x.size1(); ++i)
-      mGPXX.push_back(row(x,i));
-
     mGPY = y;
+    for (size_t i=0; i<x.size1(); ++i)
+      {
+	mGPXX.push_back(row(x,i));
+	checkBoundsY(i);
+      } 
+
   };
 
   inline void addSample(vectord x, double y)
   {
     mGPXX.push_back(x);
     mGPY.resize(mGPY.size()+1);  mGPY(mGPY.size()-1) = y;
+    checkBoundsY(mGPY.size()-1);
   };
 
   inline vectord getPointAtMinimum()
@@ -195,6 +199,7 @@ public:
   { return 0.0; }
 
 protected:
+
   double innerEvaluate(const vectord& query)
   { 
     mKernel->setScale(query);
@@ -210,7 +215,7 @@ protected:
    * 
    * @return error code
    */
-  virtual int precomputeGPParams()
+  virtual int precomputePrediction()
   {return 1;}
 
 
@@ -219,10 +224,15 @@ protected:
    * 
    * @return error code
    */
-  int computeInverseCorrMatrix();
+  int computeInverseCorrelation();
+  int addNewPointToInverse(const vectord& correlation,
+			   double selfcorrelation);
+
+  int computeCholeskyCorrelation();
+  int addNewPointToCholesky(const vectord& correlation,
+			    double selfcorrelation);
 
   matrixd computeCorrMatrix(int dth_index = -1);
-
   vectord computeCrossCorrelation(const vectord &query);
 
 

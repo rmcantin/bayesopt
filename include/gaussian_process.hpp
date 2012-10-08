@@ -114,7 +114,7 @@ public:
 
 protected:
 
-  int precomputeGPParams();
+  int precomputePrediction();
 
 
 };

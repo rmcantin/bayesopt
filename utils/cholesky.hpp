@@ -269,18 +269,20 @@ size_t cholesky_add_row(TRIA& L, const VECTOR& v)
   assert( L.size1()+1 == v.size() );
 
   const size_t n = v.size();
+
   L.resize(n,n);
+  double L_j;
 
-  L(n-1,0) = v(0) /L(0,0);
-  for (size_t j = 1; j < n; ++j)
+  for (size_t j = 0; j < n-1; ++j)
     {
-      L(n-1,j) = (v(j) - inner_prod(project (row(L, j), range(0,j)), project (row(L, n-1), range(0,j)))) / L(j,j);
+      L_j = v(j) - inner_prod(project (row(L, j), range(0,j)), 
+			      project (row(L,n-1), range(0,j)));
+      L(n-1,j) = (L_j) / L(j,j);
     }
-  double qL_kk = v(n-1) - inner_prod( project( row(L, n-1), range(0, n-1) ),
-				      project( row(L, n-1), range(0, n-1) ) );
-  if (qL_kk <= 0)  return n;
+  L_j = v(n-1) - inner_prod(project (row(L, n-1), range(0,n-1)), 
+			    project (row(L,n-1), range(0,n-1)));
+  L(n-1,n-1) = sqrt(L_j);
 
-  L(n-1,n-1) = sqrt(qL_kk);
 
   return 0;      
 }

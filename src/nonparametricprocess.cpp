@@ -17,6 +17,8 @@
 -----------------------------------------------------------------------------
 */
 
+#include <cstdio>
+
 #include "nonparametricprocess.hpp"
 #include "cholesky.hpp"
 #include "ublas_extra.hpp"
@@ -63,16 +65,20 @@ int NonParametricProcess::setKernel (const vectord &thetav,
 int NonParametricProcess::fitGP()
 {
   vectord optimalTheta = mKernel->getScale();
-  
+  int error = -1;
+
   std::cout << "Initial theta: " << optimalTheta << std::endl;
   innerOptimize(optimalTheta);
   mKernel->setScale(optimalTheta);
   std::cout << "Final theta: " << optimalTheta << std::endl;
 
-  int error = computeCholeskyCorrelation();
+  //#ifdef USE_CHOLESKY
+  error = computeCholeskyCorrelation();
+  //#else
   error = computeInverseCorrelation();
+  //#end
 
-  if (error < 0)
+  if (error < 0)   
     return error;
 
   return precomputePrediction();
@@ -88,17 +94,33 @@ int NonParametricProcess::addNewPointToGP( const vectord &Xnew,
   
   addSample(Xnew,Ynew);
 
+  //TODO: Choose one!
   addNewPointToCholesky(newK,selfCorrelation);
   addNewPointToInverse(newK,selfCorrelation);
 
-  // SLOW alternative
-  
-  // mL.resize(nSamples,nSamples,false);
-  // matrixd bar = computeCorrMatrix();
-  // cholesky_decompose(bar,mL);
-  // matrixd foo(mL);
+  // USED FOR TESTING
+  // using boost::numeric::ublas::identity_matrix;
+  // using boost::numeric::ublas::lower;
+  // matrixd testInv(identity_matrix<double>(mInvR.size1()));
+  // cholesky_solve(mL,testInv,lower());
+  // matrixd newR = mInvR;
+  // matrixd newL = mL;
 
-  //computeInverseCorrelation();
+  // computeCholeskyCorrelation();
+
+  // matrixd testInv2(identity_matrix<double>(mInvR.size1()));
+  // cholesky_solve(mL,testInv2,lower());
+
+  // computeInverseCorrelation();
+
+  // for(size_t i=0; i<mInvR.size1(); ++i)
+  //   for(size_t j=0; j<mInvR.size2(); ++j)
+  //     if (std::abs(mL(i,j)-newL(i,j)) > 0.01)
+  // 	{
+  // 	  std::cout << "ERROR! " << i << "," << j << " | "
+  // 		    << mL(i,j) << "," << newL(i,j) << std::endl;
+  // 	  std::getchar();
+  // 	}
   
   return precomputePrediction();
 } // addNewPointToGP
@@ -110,7 +132,7 @@ int NonParametricProcess::addNewPointToCholesky(const vectord& correlation,
   //TODO: Optimize
   vectord newK = correlation;
   append(newK, selfcorrelation);
-  cholesky_add_row(mL,correlation);
+  cholesky_add_row(mL,newK);
 
   return 1;
 }
@@ -121,7 +143,8 @@ int NonParametricProcess::computeCholeskyCorrelation()
   size_t nSamples = mGPXX.size();
   mL.resize(nSamples,nSamples);
   
-  return cholesky_decompose(computeCorrMatrix(),mL);
+  const matrixd K = computeCorrMatrix();
+  return cholesky_decompose(K,mL);
 }
 
 int NonParametricProcess::addNewPointToInverse(const vectord& correlation,
@@ -202,7 +225,4 @@ vectord NonParametricProcess::computeCrossCorrelation(const vectord &query)
     knx(ii) = (*mKernel)(mGPXX[ii], query);
 
   return knx;
-
-  /*  std::transform(mGPXX.begin(),mGPXX.end(),knx.begin(),
-      std::bind2nd(mKernel(),query))*/
 }

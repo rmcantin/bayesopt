@@ -51,7 +51,9 @@ extern "C" {
 
   typedef enum {  
     C_EI,
+    C_EI_A,
     C_LCB,
+    C_LCB_A,
     C_POI,
     C_GP_HEDGE,
     C_GREEDY_A_OPTIMALITY,

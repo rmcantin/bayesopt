@@ -102,10 +102,20 @@ class BayesOptBase : public Logger
   virtual bool checkReachability( const vectord &query )
   { return true; };
 
+
+  /** 
+   * Getter to access the underlying surrogate function.
+   * Used mainly for visualization purposed.
+   * 
+   * @return Pointer to the surrogate function object.
+   */  
+  NonParametricProcess* getSurrogateFunctionPointer()
+  { return mGP; };
+
 protected:
+  
   /** 
    * Set the surrogate function based on the current parameters
-   * 
    * @return 0 if terminate successfully
    */
   int setSurrogateFunction();
@@ -115,7 +125,8 @@ protected:
    */
   inline void setNumberIterations()
   {
-    if ((mParameters.n_iterations <= 0) || (mParameters.n_iterations > MAX_ITERATIONS))
+    if ((mParameters.n_iterations <= 0) || 
+	(mParameters.n_iterations > MAX_ITERATIONS))
       mParameters.n_iterations = MAX_ITERATIONS;
   };
 
@@ -124,22 +135,28 @@ protected:
    * If the number is not set properly n<=0, then the number of initial samples
    * is fixed 10% of the total budget
    */
-  inline size_t setInitSet()
+  inline void setInitSet()
   { 
     if (mParameters.n_init_samples <= 0)
-      return static_cast<size_t>(ceil(0.1*mParameters.n_iterations));
-    else
-      return mParameters.n_init_samples;
+      mParameters.n_init_samples = 
+	static_cast<size_t>(ceil(0.1*mParameters.n_iterations));
   };
 
+  /** 
+   * Evaluate the criteria considering if the query is reachable or not.
+   * This is a way to include non-linear restrictions.
+   * @param query query point
+   * @return value of the criteria, 0 otherwise.
+   */
   inline double evaluateCriteria( const vectord &query )
   {
     bool reachable = checkReachability(query);
     if (!reachable)  return 0.0;
     return crit.evaluate(mGP,query);       
-  }  // evaluateCriteria
+  };
 
   virtual int findOptimal(vectord &xOpt) = 0;
+  virtual int sampleInitialPoints() = 0;
 
   int nextPoint( vectord &Xnext );  
 
@@ -147,7 +164,8 @@ protected:
 
   NonParametricProcess* mGP;        ///< Pointer to surrogate model
   Criteria crit;                    ///< Criteria model
-  bopt_params mParameters;
+  bopt_params mParameters;          ///< Configuration parameters
+  size_t mDims;                     ///< Number of dimensions
 };
 
 /**@}*/

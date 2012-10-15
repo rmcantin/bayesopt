@@ -26,12 +26,13 @@
 
 
 BayesOptBase::BayesOptBase( bopt_params parameters,
-       bool uselogfile,
-       const char* logfilename):
+			    bool uselogfile,
+			    const char* logfilename):
   Logger(uselogfile,logfilename),
   mGP(NULL)
 { 
   mParameters = parameters;
+  setInitSet();
   setNumberIterations();
   setSurrogateFunction();
 } // Constructor
@@ -67,8 +68,6 @@ int BayesOptBase::setSurrogateFunction()
   mGP->setKernel(mParameters.theta,mParameters.k_name);
   return 0;
 }
-
-
 
 int BayesOptBase::nextPoint(vectord &Xnext)
 {

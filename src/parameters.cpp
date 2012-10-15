@@ -39,6 +39,10 @@ criterium_name str2crit(const char* name)
     return C_EI;
   else if (!strcmp(name,  "LCB"))
     return C_LCB;
+  else if (!strcmp(name,  "EI_A"))
+    return C_EI_A;
+  else if (!strcmp(name,  "LCB_A"))
+    return C_LCB_A;
   else if (!strcmp(name,  "POI"))
     return C_POI;
   else if (!strcmp(name,  "GP_HEDGE"))
@@ -59,6 +63,8 @@ const char* crit2str(criterium_name name)
     {
     case C_EI: return "EI"; 
     case C_LCB: return "LBC"; 
+    case C_EI_A: return "EI_A"; 
+    case C_LCB_A: return "LBC_A"; 
     case C_POI: return "POI"; 
     case C_GP_HEDGE: return "GP_HEDGE"; 
     case C_GREEDY_A_OPTIMALITY: return "GREEDY_A_OPTIMALITY";

@@ -26,6 +26,7 @@
 #include <numeric>
 #include <algorithm>
 
+
 class Criteria
 {
 public:
@@ -34,9 +35,12 @@ public:
     mProc = proc; 
     mYMin = 0,0;
   };
+
   virtual ~Criteria(){};
-  inline setMinimum(double mYMin) { mYMin = gp->getValueAtMinimum();};
+
+  inline void setMinimum(double mYMin) { mYMin = mProc->getValueAtMinimum();};
   virtual double operator()( const vectord &x) = 0;
+  virtual void resetAnneal() {};  //dummy function
 
 protected:
   NonParametricProcess *mProc;
@@ -49,15 +53,14 @@ protected:
 class ExpectedImprovement: public Criteria
 {
 public:
-  ExpectedImprovement(NonParametricProcess *proc):
-    Criteria(proc){};
+  ExpectedImprovement(NonParametricProcess *proc): Criteria(proc){};
 
   virtual ~ExpectedImprovement(){};
   double operator()( const vectord &x)
   {
     double yPred, sPred;
-    gp->prediction(query,yPred,sPred);
-    return gp->negativeExpectedImprovement(yPred,sPred,mYMin);
+    mProc->prediction(query,yPred,sPred);
+    return mProc->negativeExpectedImprovement(yPred,sPred,mYMin);
   };
 };
 
@@ -66,8 +69,7 @@ public:
 class LowerConfidenceBound: public Criteria
 {
 public:
-  LowerConfidenceBound(NonParametricProcess *proc):
-    Criteria(proc) { mBeta = 1; };
+  LowerConfidenceBound(NonParametricProcess *proc): Criteria(proc) { mBeta = 1; };
 
   virtual ~LowerConfidenceBound(){};
   inline void setBeta(double beta) { mBeta = beta; };
@@ -75,8 +77,8 @@ public:
   double operator()( const vectord &x)
   {
     double yPred, sPred;
-    gp->prediction(query,yPred,sPred);
-    return gp->LowerConfidenceBound(yPred,sPred,mBeta);
+    mProc->prediction(query,yPred,sPred);
+    return mProc->LowerConfidenceBound(yPred,sPred,mBeta);
   };
 protected:
   double mBeta;
@@ -86,16 +88,15 @@ protected:
 class ProbabilityOfImprovement: public Criteria
 {
 public:
-  ProbabilityOfImprovement(NonParametricProcess *proc):
-    Criteria(proc) {mEpsilon = 0.01;};
+  ProbabilityOfImprovement(NonParametricProcess *proc): Criteria(proc) {mEpsilon = 0.01;};
   virtual ~ProbabilityOfImprovement(){};
   inline void setEpsilon(double eps) {mEpsilon = eps;};
 
   double operator()( const vectord &x)
   {
     double yPred, sPred;
-    gp->prediction(query,yPred,sPred);
-    return gp->negativeProbabilityOfImprovement(yPred,sPred,mYMin,
+    mProc->prediction(query,yPred,sPred);
+    return mProc->negativeProbabilityOfImprovement(yPred,sPred,mYMin,
 						mEpsilon);
   };
 protected:
@@ -106,14 +107,13 @@ protected:
 class GreedyAOptimality: public Criteria
 {
 public:
-  GreedyAOptimality(NonParametricProcess *proc):
-    Criteria(proc){};
+  GreedyAOptimality(NonParametricProcess *proc): Criteria(proc){};
   virtual ~GreedyAOptimality(){};
 
   double operator()( const vectord &x)
   {
     double yPred, sPred;
-    gp->prediction(query,yPred,sPred);
+    mProc->prediction(query,yPred,sPred);
     return sPred;
   };
 };
@@ -122,14 +122,14 @@ public:
 class ExpectedReturn: public Criteria
 {
 public:
-  ExpectedReturn(NonParametricProcess *proc):
-    Criteria(proc){};
+  ExpectedReturn(NonParametricProcess *proc): Criteria(proc){};
+
   virtual ~ExpectedReturn(){};
 
   double operator()( const vectord &x)
   {
     double yPred, sPred;
-    gp->prediction(query,yPred,sPred);
+    mProc->prediction(query,yPred,sPred);
     return yPred;
   };
 };
@@ -138,14 +138,14 @@ public:
 class OptimisticSampling: public Criteria
 {
 public:
-  OptimisticSampling(NonParametricProcess *proc):
-    mtRandom(100u), Criteria(proc){};
+  OptimisticSampling(NonParametricProcess *proc): mtRandom(100u), Criteria(proc){};
+
   virtual ~OptimisticSampling(){};
 
   double operator()( const vectord &x)
   {
-    double yPred, sPred, yStar = gp->sample_query(x,mtRandom);
-    gp->prediction(query,yPred,sPred);
+    double yPred, sPred, yStar = mProc->sample_query(x,mtRandom);
+    mProc->prediction(query,yPred,sPred);
     return std::min(yPred,yStar);
   };
 };
@@ -157,9 +157,7 @@ public:
   AnnealedCriteria(NonParametricProcess *proc):
     Criteria(proc), nCalls(0) {};
   virtual ~AnnealedCriteria(){};
-
-  inline void resetAnneal()
-  { nCalls = 0; };
+  virtual void resetAnneal() { nCalls = 0; };
 
 protected:
   unsigned int nCalls;
@@ -171,11 +169,12 @@ class AnnealedExpectedImprovement: public AnnealedCriteria
 {
 public:
   AnnealedExpectedImprovement(NonParametricProcess *proc):
-    AnnealedCriteria(proc), mExp(1) {};
+    AnnealedCriteria(proc), mExp(10) {};
 
   virtual ~AnnealedExpectedImprovement(){};
 
   inline void setExponent(double exp) {mExp = exp;};
+  void resetAnneal() { nCalls = 0; mExp(10);};
 
   double operator()( const vectord &x)
   {
@@ -185,8 +184,8 @@ public:
       mExp = std::min(1,static_cast<int>(round(mExp/2.0)));
 
     double yPred, sPred;
-    gp->prediction(query,yPred,sPred);
-    return gp->negativeExpectedImprovement(yPred,sPred,mYMin,mExp);
+    mProc->prediction(query,yPred,sPred);
+    return mProc->negativeExpectedImprovement(yPred,sPred,mYMin,mExp);
   };
 
 protected:
@@ -198,49 +197,124 @@ class AnnealedLowerConfindenceBound: public AnnealedCriteria
 {
 public:
   AnnealedLowerConfindenceBound(NonParametricProcess *proc):
-    AnnealedCriteria(proc), mBeta(1) {};
+    AnnealedCriteria(proc), mCoef(5.0) {};
 
   virtual ~AnnealedLowerConfindenceBound(){};
 
-  inline void setBeta(double beta) { mBeta = beta; };
+  inline void setBetaCoef(double betac) { mCoef = betac; };
 
   double operator()( const vectord &x)
   {
     ++nCalls;
     size_t nDims = x.size();
-    double coef = 5.0;
-
-    beta = sqrt(2*log(nCalls*nCalls)*(nDims+1) + log(nDims)*nDims*coef);
+    
+    double beta = sqrt(2*log(static_cast<double>(nCalls*nCalls))*(nDims+1) 
+		       + log(static_cast<double>(nDims))*nDims*coef);
 
     double yPred, sPred;
-    gp->prediction(query,yPred,sPred);
-    return gp->LowerConfidenceBound(yPred,sPred,mBeta);
+    mProc->prediction(query,yPred,sPred);
+    return mProc->LowerConfidenceBound(yPred,sPred,beta);
   };
 protected:
-  double mBeta;
+  double mCoef;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-class GP_Hedge: public Criteria
+
+class MetaCriteria
 {
 public:
-  GP_Hedge(NonParametricProcess *proc):
-    AnnealedCriteria(proc), mtRandom(100u),
+  MetaCriteria(BayesOptBase *opt) 
+  {
+    mOpt = opt;
+    mCurrentCriterium = NULL;
+  };
+
+  virtual ~MetaCriteria()
+  {
+    if (mCurrentCriterium != NULL)
+      delete mCurrentCriterium;
+  }
+
+  int setCriterium(criterium_name name)
+  {
+    yieldCriteria(name,mCurrentCriterium);
+  }
+  
+  int yieldCriteria(criterium_name name,
+		    Criteria *crit)
+  {
+    NonParametricProcess* proc = mOpt->getSurrogateFunctionPointer();
+
+    if (crit != NULL)
+      delete crit;
+
+    switch(name)
+      {
+      case C_EI:     crit = new ExpectedImprovement(proc);             break;
+      case C_EI_A:   crit = new AnnealedExpectedImprovement(proc);     break;
+      case C_LCB:    crit = new LowerConfidenceBound(proc);            break;
+      case C_LCB_A:  crit = new AnnealedLowerConfindenceBound(proc);   break;
+      case C_POI:    crit = new ProbabilityOfImprovement(proc);        break;
+      case C_GREEDY_A_OPTIMALITY: crit = new GreedyAOptimality(proc);  break;
+      case C_EXPECTED_RETURN:     crit = new ExpectedReturn(proc);     break;
+      case C_OPTIMISTIC_SAMPLING: crit = new OptimisticSampling(proc); break;
+      case C_GP_HEDGE:            crit = new GP_Hedge(proc);           break;
+      case C_ERROR:
+      default:
+	std::cout << "Error in criterium" << std::endl; return -1;
+      }
+    return 1;
+  };
+
+  inline double operator()( const vectord &x)
+  {
+    return (*mCurrentCriterium)(x);
+  }  
+
+  virtual int returnBest(vectord& best)
+  { 
+    return mOpt->findOptimal(Xnext);
+  }
+
+protected:
+  BayesOptBase *mOpt;
+  Criteria *mCurrentCriterium;
+};
+
+
+class GP_Hedge: public MetaCriteria
+{
+public:
+  GP_Hedge(BayesOptBase *opt):
+    MetaCriteria(proc), mtRandom(100u),
     sampleUniform( mtRandom, realUniformDist(0,1)),
     gain(zvectord(N_ALGORITHMS_IN_GP_HEDGE)), 
     prob(zvectord(N_ALGORITHMS_IN_GP_HEDGE)),
     cumprob(zvectord(N_ALGORITHMS_IN_GP_HEDGE))
-  {};
+  {
+    for(size_t i = 0; i<N_ALGORITHMS_IN_GP_HEDGE; ++i)
+      {
+	Criteria *newC = NULL;
+	yieldCriteria(ALGORITHMS_IN_GP_HEDGE[i],false,newC);
+	mCriteriaList.push_back(newC);
+      }
+  };
 
-  virtual ~GP_Hedge(){};
+  virtual ~GP_Hedge()
+  {
+    for(size_t i = 0; i<N_ALGORITHMS_IN_GP_HEDGE; ++i)
+      {
+	delete mCriteriaList[i];
+      }
+  };
 
   inline void resetHedgeValues()
-  { gain = zvectord(N_ALGORITHMS_IN_GP_HEDGE); }
-
+  { gain = zvectord(N_ALGORITHMS_IN_GP_HEDGE); };
 
   inline double softmax(double g) {return exp(mEta*g);};
 
-  criterium_name update_hedge(vectord& loss)
+  int update_hedge()
   {
     double max_g = std::max_element(gains);
     double min_g = std::min_element(gains);
@@ -248,27 +322,31 @@ public:
     double max_l = std::max_element(loss);
 
     // We just care about the differences
-    std::transform(loss.begin(), loss.end(), loss.begin(),
-		   std::bind2nd(std::plus<double>(), max_l));       
+    // std::transform(loss.begin(), loss.end(), loss.begin(),
+    // 		   std::bind2nd(std::plus<double>(), max_l));       
+    loss += svectord(loss.size(),max_l)
 
     // Optimal eta according to Shapire
     mEta = sqrt(2*log(3)/max_g);
 
     // To avoid overflow
-    std::transform(gain.begin(), gain.end(), gain.begin(),
-		   std::bind2nd(std::minus<double>(), min_g));       
+    // std::transform(gain.begin(), gain.end(), gain.begin(),
+    //		   std::bind2nd(std::minus<double>(), min_g));       
+    gain -= svectord(gain.size(),min_g);
 
     std::transform(gain.begin(), gain.end(), prob.begin(),
 		   softmax());       
 
     //Normalize
     sum_p =std::accumulate(prob.begin(),prob.end(),0);
-    std::transform(prob.begin(), prob.end(), prob.begin(),
-		   std::bind2nd(std::divides<double>(), sum_p));       
+    //    std::transform(prob.begin(), prob.end(), prob.begin(),
+    //		   std::bind2nd(std::divides<double>(), sum_p));       
+    prob /= sum_p;
 
     //Update bandits gains
-    std::transform(gain.begin(), gain.end(), loss.begin(), gain.begin(),
-		   std::minus<double>());       
+    //    std::transform(gain.begin(), gain.end(), loss.begin(), gain.begin(),
+    //		   std::minus<double>());       
+    gain -= loss;
 
     std::partial_sum(prob.begin(), prob.end(), cumprob.begin(), 
 		     std::plus<double>());
@@ -278,20 +356,58 @@ public:
     for (size_t i=0; i < cumprob.size(); ++i)
       {
 	if (u < cumprob(i))
-	  return ALGORITHMS_IN_GP_HEDGE[i];
+	  return i;
       }
-    return C_ERROR;
-  }
-
-
-  double operator()(const vectord &x)
-  {
+    return -1;
   };
+
+  int returnBest(vectord& best)
+  { 
+    vectord bestList(N_ALGORITHMS_IN_GP_HEDGE);
+    double foo;
+
+    for(size_t i = 0; i<N_ALGORITHMS_IN_GP_HEDGE; ++i)
+      {
+	mCurrentCriterium = mCriteriaList[i];
+	mOpt->findOptimal(bestList(i));
+
+	// The reward of the bandit problem is the estimated outcome mean 
+	// at each optimal point.
+	NonParametricProcess* gp = mOpt->getSurrogateFunctionPointer();
+	gp->prediction(bestList(i),loss(i),foo);
+      }
+
+    int optIndex = update_hedge();
+    plotResult(optIndex);
+
+    if (optIndex < 0)
+      return optIndex;
+
+    best = bestList(optIndex);
+    return 1;
+  };
+
+
+  int plotResult(int optIndex)
+  {
+    if(mParameters.verbose_level > 0)
+      {
+	criterium_name name;
+	if (optIndex < 0)
+	  name = C_ERROR;
+	else
+	  name = ALGORITHMS_IN_GP_HEDGE[optIndex];
+	
+	mOutput << crit2str(name) << " was selected." << std::endl;
+      }
+  };
+
 
 protected:
   randEngine mtRandom;
   randFloat sampleUniform;
-  vectord gains, prob, cumprob;
+  vectord loss, gains, prob, cumprob;
+  std::vectord<Criteria*> mCriteriaList;
 };
 
 #endif

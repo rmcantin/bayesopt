@@ -147,7 +147,7 @@ public:
 
 
   // Getters and setters
-  inline void setSamples(matrixd x, vectord y)
+  inline void setSamples(const matrixd &x, const vectord &y)
   {
     mGPY = y;
     for (size_t i=0; i<x.size1(); ++i)
@@ -158,12 +158,18 @@ public:
 
   };
 
-  inline void addSample(vectord x, double y)
+  inline void addSample(const vectord &x, double y)
   {
     mGPXX.push_back(x);
     mGPY.resize(mGPY.size()+1);  mGPY(mGPY.size()-1) = y;
     checkBoundsY(mGPY.size()-1);
   };
+
+  inline double getSample(size_t index, vectord &x)
+  {
+    x = mGPXX[index];
+    return mGPY(index);
+  }
 
   inline vectord getPointAtMinimum()
   { return mGPXX[mMinIndex]; };

@@ -42,60 +42,30 @@ BayesOptContinuous::~BayesOptContinuous()
 } // Default destructor
 
 
-int BayesOptContinuous::optimize( vectord &bestPoint)
+
+
+int BayesOptContinuous::optimize(vectord &bestPoint)
 {
   crit.resetHedgeValues();
-
-  size_t nDims = bestPoint.size();
+  mDims = bestPoint.size();
 
   if (mBB == NULL)
     {
-      vectord lowerBound = zvectord(nDims);
-      vectord upperBound = svectord(nDims,1.0);
+      vectord lowerBound = zvectord(mDims);
+      vectord upperBound = svectord(mDims,1.0);
       mBB = new BoundingBox<vectord>(lowerBound,upperBound);
     }
-  
-  vectord xNext(nDims);
-  double yNext;
 
-  size_t nLHSSamples = setInitSet();
+  sampleInitialPoints();
 
-  if (mParameters.verbose_level > 0) 
-    mOutput << "Sampling initial points..." << std::endl;
-
-  clock_t start_time = clock();
-  sampleInitialPoints(nLHSSamples, nDims, true);
-
-  if (mParameters.verbose_level > 0) 
-    mOutput << "DONE" << std::endl;
-
+  vectord xNext(mDims);
   for (size_t ii = 0; ii < mParameters.n_iterations; ii++)
     {      
       // Find what is the next point.
       nextPoint(xNext);
-
-      yNext = evaluateNormalizedSample(xNext);
+      double yNext = evaluateNormalizedSample(xNext);
       mGP->addNewPointToGP(xNext,yNext); 
-      
-      if(mParameters.verbose_level >0)
-	{ 
-	  vectord xScaled = mBB->unnormalizeVector(xNext);
-	  vectord xOpt = mBB->unnormalizeVector(mGP->getPointAtMinimum());
-	  mOutput << "Iteration: " << ii+1 << " of " << mParameters.n_iterations;
-	  mOutput << " | Total samples: " << ii+1+nLHSSamples << std::endl;
-	  mOutput << "Trying point at: " << xScaled << std::endl;
-	  mOutput << "Best found at: " << xOpt << std::endl; 
-	  mOutput << "Best outcome: " <<  mGP->getValueAtMinimum() <<  std::endl; 
-	}
-
-      if(mParameters.verbose_level>1)
-	{
-	  clock_t lap = clock();
-	  double t_lap = static_cast<double>(lap-start_time)/CLOCKS_PER_SEC;
-	  mOutput << t_lap << "|" << mGP->getValueAtMinimum() << "|";
-	  mOutput << yNext << "|" << mBB->unnormalizeVector(xNext) << std::endl;
-	}
-         
+      plotStepData(ii,xNext,yNext);
     }
 
   bestPoint = mBB->unnormalizeVector(mGP->getPointAtMinimum());
@@ -103,54 +73,70 @@ int BayesOptContinuous::optimize( vectord &bestPoint)
   return 1;
 } // optimize
 
-int BayesOptContinuous::sampleInitialPoints( size_t nSamples, size_t nDims,
-			      bool useLatinBox)
+int BayesOptContinuous::plotStepData(size_t iteration, const vectord& xNext,
+				     double yNext)
 {
-  /** \brief Sample a set of points to initialize GP fit
-   * Use pure random sampling or uniform Latin Hypercube sampling
-   * as appeared in Jones EGO
-   */
-   
+  if(mParameters.verbose_level >0)
+    { 
+      vectord xScaled = mBB->unnormalizeVector(xNext);
+      vectord xOpt = mBB->unnormalizeVector(mGP->getPointAtMinimum());
+      mOutput << "Iteration: " << iteration+1 << " of " 
+	      << mParameters.n_iterations << " | Total samples: " 
+	      << iteration+1+mParameters.n_init_samples << std::endl;
+      mOutput << "Trying point at: " << xScaled << std::endl;
+      mOutput << "Current outcome: " << yNext << std::endl;
+      mOutput << "Best found at: " << xOpt << std::endl; 
+      mOutput << "Best outcome: " <<  mGP->getValueAtMinimum() <<  std::endl; 
+    }
 
-  matrixd xPoints(nSamples,nDims);
+  return 1;
+}
+
+int BayesOptContinuous::sampleInitialPoints()
+{
+   
+  size_t nSamples = mParameters.n_init_samples;
+  bool useLatinBox = true;
+
+  matrixd xPoints(nSamples,mDims);
   vectord yPoints(nSamples);
-  vectord sample(nDims);
+  vectord sample(mDims);
   randEngine mtRandom;
-  clock_t start_time = clock();
- 
+
   if (useLatinBox)
       lhs(xPoints, mtRandom);
   else
       uniformSampling(xPoints, mtRandom);
 
-  double ymin = std::numeric_limits<double>::max();
-
   for(size_t i = 0; i < nSamples; i++)
     {
       sample = row(xPoints,i);
       yPoints(i) = evaluateNormalizedSample(sample);
-
-      if(mParameters.verbose_level > 0)
-	{
-	  mOutput << sample << std::endl;
-
-	  if (mParameters.verbose_level > 1)
-	    { 
-	      if(yPoints(i)<ymin) 
-		ymin = yPoints(i);
-
-	      clock_t lap = clock();
-	      double t_lap = static_cast<double>(lap-start_time)/CLOCKS_PER_SEC;
-	      mOutput << t_lap << "|" << ymin << "|";
-	      mOutput << yPoints(i) << "|" 
-		       << mBB->unnormalizeVector(sample) << std::endl;
-	    }
-	}
     }
 
   mGP->setSamples(xPoints,yPoints);
   mGP->fitGP();
 
+  // For logging purpose
+  if(mParameters.verbose_level > 0)
+    {
+      mOutput << "Initial points:" << std::endl;
+      double ymin = std::numeric_limits<double>::max();
+      for(size_t i = 0; i < nSamples; i++)
+	{
+	  sample = row(xPoints,i);
+	  mOutput << sample << std::endl;
+	  
+	  if (mParameters.verbose_level > 1)
+	    { 
+	      if(yPoints(i)<ymin) 
+		ymin = yPoints(i);
+	      
+	      mOutput << ymin << "|" << yPoints(i) << "|" 
+		      << mBB->unnormalizeVector(sample) << std::endl;
+	    }
+	}  
+    }
   return 1;
 } // sampleInitialPoints
 

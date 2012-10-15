@@ -39,38 +39,16 @@ int BayesOptDiscrete::optimize( vectord &bestPoint )
 {
 
   crit.resetHedgeValues();
+  mDims = mInputSet[0].size();
+  sampleInitialPoints();
 
-  size_t nDims = mInputSet[0].size();
-
-  vectord xNext(nDims);
-  double yNext;
-
-  size_t nRandomSamples = setInitSet();
-
-  if (mParameters.verbose_level > 0) 
-    mOutput << "Sampling initial points..." << std::endl;
-
-  sampleRandomPoints(nRandomSamples);
-
-  if (mParameters.verbose_level > 0) 
-    mOutput << "DONE" << std::endl;
-
+  vectord xNext(mDims);
   for (size_t ii = 0; ii < mParameters.n_iterations; ++ii)
     {      
-      // FIXME: Find what is the next point.
       nextPoint(xNext);
-    
-      if(mParameters.verbose_level >0)
-	{ 
-	  mOutput << "Iteration: " << ii+1 << " of " << mParameters.n_iterations;
-	  mOutput << " | Total samples: " << ii+1+nRandomSamples << std::endl;
-	  mOutput << "Trying point at: " << xNext << std::endl;
-	  mOutput << "Best found at: " << mGP->getPointAtMinimum() << std::endl; 
-	  mOutput << "Best outcome: " <<  mGP->getValueAtMinimum() <<  std::endl; 
-	}
-     
-      yNext = evaluateSample(xNext);
-      mGP->addNewPointToGP(xNext,yNext);     
+      double yNext = evaluateSample(xNext);
+      mGP->addNewPointToGP(xNext,yNext);   
+      plotStepData(ii,xNext,yNext);
     }
 
   bestPoint = mGP->getPointAtMinimum();
@@ -78,10 +56,28 @@ int BayesOptDiscrete::optimize( vectord &bestPoint )
   return 1;
 } // optimize
 
-int BayesOptDiscrete::sampleRandomPoints( size_t nSamples )
+
+int BayesOptDiscrete::plotStepData(size_t iteration, const vectord& xNext,
+				   double yNext)
 {
-  /** \brief Sample a set of points to initialize GP fit
-   */
+  if(mParameters.verbose_level >0)
+    { 
+      mOutput << "Iteration: " << iteration+1 << " of " 
+	      << mParameters.n_iterations << " | Total samples: " 
+	      << iteration+1+mParameters.n_init_samples << std::endl;
+      mOutput << "Trying point at: " << xNext << std::endl;
+      mOutput << "Current outcome: " << yNext << std::endl;
+      mOutput << "Best found at: " << mGP->getPointAtMinimum() << std::endl; 
+      mOutput << "Best outcome: " <<  mGP->getValueAtMinimum() <<  std::endl;    
+    }
+
+  return 1;
+}
+
+
+int BayesOptDiscrete::sampleInitialPoints()
+{
+  size_t nSamples = mParameters.n_init_samples;
   double yPoint;
   randEngine rng;
   vecOfvec perms = mInputSet;
@@ -89,29 +85,37 @@ int BayesOptDiscrete::sampleRandomPoints( size_t nSamples )
   // By using random permutations, we guarantee that 
   // the same point is not selected twice
   randomPerms(perms,rng);
-  
-  for(size_t i = 0; i < nSamples; i++)
-    {
-      vectord xPoint = perms[i];
-      if(mParameters.verbose_level >0)
-	mOutput << xPoint << std::endl;
-      yPoint = evaluateSample(xPoint);
-      mGP->addSample(xPoint,yPoint);
-    }
-  /*randInt sample(mtRandom, intUniformDist(0,mInputSet.size()-1));
 
+  vectord xPoint(mInputSet[0].size());
   for(size_t i = 0; i < nSamples; i++)
     {
-      size_t index = sample();
-      vectord xPoint = mInputSet[index];
-      if(mParameters.verbose_level >0)
-	mOutput << xPoint << std::endl;
+      xPoint = perms[i];
       yPoint = evaluateSample(xPoint);
       mGP->addSample(xPoint,yPoint);
     }
-  */
+
   mGP->fitGP();
 
+
+  // For logging purpose
+  if(mParameters.verbose_level > 0)
+    {
+      mOutput << "Initial points:" << std::endl;
+      double ymin = std::numeric_limits<double>::max();
+      for(size_t i = 0; i < nSamples; i++)
+	{
+	  yPoint = mGP->getSample(i,xPoint);
+	  mOutput << xPoint << std::endl;
+	  
+	  if (mParameters.verbose_level > 1)
+	    { 
+	      if(yPoint<ymin) 
+		ymin = yPoint;
+	      
+	      mOutput << ymin << "|" << yPoint << std::endl;
+	    }
+	}  
+    }
   return 1;
 } // sampleInitialPoints
 

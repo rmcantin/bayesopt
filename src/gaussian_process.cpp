@@ -42,20 +42,35 @@ int GaussianProcess::prediction( const vectord &query,
   double kn = (*mKernel)(query, query);
   vectord kStar = computeCrossCorrelation(query);
 
+  return predictionChol(kn,kStar,yPred,sPred);
+}
+
+int GaussianProcess::predictionChol(double kn, const vectord& kStar,
+				    double& yPred, double& sPred)
+{
   yPred = inner_prod(kStar,mAlphaV);
 
   vectord vd(kStar);
   inplace_solve(mL,vd,lower_tag());
   sPred = sqrt(kn - inner_prod(vd,vd));
-  /*
+  
+  return 1;
+}
+
+int GaussianProcess::predictionInv(double kn, const vectord& kStar,
+				    double& yPred, double& sPred)
+{
   vectord rInvR = prod(kStar,mInvR);
   yPred = inner_prod(rInvR,mGPY);
   sPred = sqrt(kn - inner_prod(rInvR,kStar));
-  */
+
   return 1;
 }
 
 int GaussianProcess::precomputePrediction()
+{ return precomputeChol(); }
+
+int GaussianProcess::precomputeChol()
 {
   size_t n = mGPY.size();
   
@@ -63,8 +78,11 @@ int GaussianProcess::precomputePrediction()
   mAlphaV = mGPY;
   cholesky_solve(mL,mAlphaV,lower());
 
-  return 1;
+  return 1; 
 }
+
+int GaussianProcess::precomputeInv()
+{ return 1;}
 	
 double GaussianProcess::negativeExpectedImprovement(double yPred, 
 						    double sPred,
@@ -105,10 +123,11 @@ double GaussianProcess::negativeExpectedImprovement(double yPred,
 }  // negativeExpectedImprovement
 
 double GaussianProcess::lowerConfidenceBound(double yPred, double sPred,
-						  double beta)
+					     double beta)
 {    
   return yPred - beta*sPred;;
 }  // lowerConfidenceBound
+
 
 double GaussianProcess::negativeProbabilityOfImprovement(double yPred, 
 							 double sPred,

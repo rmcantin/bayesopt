@@ -75,7 +75,25 @@ class BayesOptDiscrete : public BayesOptBase
 protected:
 
 
-  int sampleRandomPoints( size_t nSamples );
+  /** 
+   * Print data for every step according to the verbose level
+   * 
+   * @param iteration 
+   * @param xNext 
+   * @param yNext 
+   * 
+   * @return error code
+   */
+  int plotStepData(size_t iteration, const vectord& xNext,
+		   double yNext);
+
+  /** Sample a set of points to initialize GP fit
+   * Use pure random sampling or uniform Latin Hypercube sampling
+   * as appeared in Jones 
+   * @return error code
+   */
+  int sampleInitialPoints();
+
   int findOptimal(vectord &xOpt);
 
 protected:

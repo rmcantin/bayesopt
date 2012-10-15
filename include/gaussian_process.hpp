@@ -50,6 +50,12 @@ public:
   int prediction(const vectord &query,
   		 double& yPred, double& sPred);
 
+  int predictionChol(double kn, const vectord &kStar,
+		     double& yPred, double& sPred);
+
+  int predictionInv(double kn, const vectord &kStar,
+		    double& yPred, double& sPred);
+
 
   /** 
    * Computes the negative log likelihood and its gradient of the data.
@@ -115,6 +121,8 @@ public:
 protected:
 
   int precomputePrediction();
+  int precomputeChol();
+  int precomputeInv();
 
 
 };

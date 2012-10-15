@@ -65,7 +65,7 @@ int InnerOptimization::innerOptimize(vectord &Xnext)
     // std::copy(x, x+n, Xnext.begin());
     
     return error;
-} // nextPoint (uBlas)
+} // innerOptimize (uBlas)
 
 int InnerOptimization::innerOptimize(double* x, int n, void* objPointer)
 {
@@ -132,6 +132,6 @@ int InnerOptimization::innerOptimize(double* x, int n, void* objPointer)
 
     return ierror;
 
-} // nextPoint (C array)
+} // innerOptimize (C array)
 
 

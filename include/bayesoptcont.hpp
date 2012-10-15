@@ -51,8 +51,8 @@ class BayesOptContinuous: public InnerOptimization, BayesOptBase
    * @param gp        Pointer to the surrogate model
    */
   BayesOptContinuous( bopt_params parameters,
-       bool uselogfile = false,
-       const char* logfilename = "bayesopt.log"); 
+		      bool uselogfile = false,
+		      const char* logfilename = "bayesopt.log"); 
 
   /** 
    * Default destructor

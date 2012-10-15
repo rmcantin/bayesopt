@@ -30,8 +30,8 @@
 #include "logger.hpp"
 
 #include "nonparametricprocess.hpp"
-#include "criteria.hpp"
-
+//#include "criteria.hpp"
+#include "criteria_functors.hpp"
 
 /** \addtogroup BayesOptimization */
 /*@{*/
@@ -121,6 +121,11 @@ protected:
   int setSurrogateFunction();
 
   /** 
+   * Set the criterium function based on the current parameters
+   * @return 0 if terminate successfully
+   */
+  int setCriteriumFunction();
+  /** 
    * Sets the number of iterations
    */
   inline void setNumberIterations()
@@ -152,7 +157,8 @@ protected:
   {
     bool reachable = checkReachability(query);
     if (!reachable)  return 0.0;
-    return crit.evaluate(mGP,query);       
+    return (*mCrit)(query);
+    //    return crit.evaluate(mGP,query);       
   };
 
   virtual int findOptimal(vectord &xOpt) = 0;
@@ -163,7 +169,8 @@ protected:
 protected:
 
   NonParametricProcess* mGP;        ///< Pointer to surrogate model
-  Criteria crit;                    ///< Criteria model
+  //Criteria crit;                    ///< Criteria model
+  MetaCriteria* mCrit;
   bopt_params mParameters;          ///< Configuration parameters
   size_t mDims;                     ///< Number of dimensions
 };

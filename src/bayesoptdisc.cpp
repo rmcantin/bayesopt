@@ -38,7 +38,7 @@ BayesOptDiscrete::~BayesOptDiscrete()
 int BayesOptDiscrete::optimize( vectord &bestPoint )
 {
 
-  crit.resetHedgeValues();
+  mCrit->reset();
   mDims = mInputSet[0].size();
   sampleInitialPoints();
 

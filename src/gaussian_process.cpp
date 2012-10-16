@@ -84,11 +84,12 @@ int GaussianProcess::precomputeChol()
 int GaussianProcess::precomputeInv()
 { return 1;}
 	
-double GaussianProcess::negativeExpectedImprovement(double yPred, 
-						    double sPred,
-						    double yMin, 
+double GaussianProcess::negativeExpectedImprovement(const vectord& query,
 						    size_t g)
 {
+  double yPred,sPred;
+  double yMin = getValueAtMinimum();
+  prediction(query,yPred,sPred);
   
   using boost::math::factorial;
 
@@ -122,18 +123,21 @@ double GaussianProcess::negativeExpectedImprovement(double yPred,
   
 }  // negativeExpectedImprovement
 
-double GaussianProcess::lowerConfidenceBound(double yPred, double sPred,
+double GaussianProcess::lowerConfidenceBound(const vectord& query,
 					     double beta)
 {    
+  double yPred,sPred;
+  prediction(query,yPred,sPred);
   return yPred - beta*sPred;;
 }  // lowerConfidenceBound
 
 
-double GaussianProcess::negativeProbabilityOfImprovement(double yPred, 
-							 double sPred,
-							 double yMin, 
+double GaussianProcess::negativeProbabilityOfImprovement(const vectord& query,
 							 double epsilon)
 {
   boost::math::normal d;
+  double yMin = getValueAtMinimum();
+  double yPred,sPred;
+  prediction(query,yPred,sPred);
   return -cdf(d,(yMin - yPred + epsilon)/sPred);
 }  // negativeProbabilityOfImprovement

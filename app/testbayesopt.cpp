@@ -49,7 +49,8 @@ int main(int nargs, char *args[])
   // the we can optionally change only few of them 
   bopt_params par = initialize_parameters_to_default();
 
-  par.theta = KERNEL_THETA;
+  par.theta[0] = KERNEL_THETA;
+  par.n_theta = 1;
   par.alpha = PRIOR_ALPHA;
   par.beta = PRIOR_BETA;
   par.delta = PRIOR_DELTA_SQ;

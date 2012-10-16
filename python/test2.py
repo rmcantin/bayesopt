@@ -21,10 +21,10 @@ params = bayesopt.initialize_params()
 # We decided to change some of them
 params['n_init_samples'] = 300
 params['noise'] = 1
-params['k_name'] = "MATERN_ISO1"
+params['k_name'] = "MATERN_ISO3"
 params['s_name'] = "GAUSSIAN_PROCESS_INV_GAMMA_NORMAL"
 
-dim = 10
+dim = 20
 lb = ones((dim,))*0
 ub = ones((dim,))*20
 

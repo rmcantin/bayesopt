@@ -1,7 +1,24 @@
+## \file bayesopt.pyx \brief Cython wrapper for the BayesOpt Python API
 
+# ----------------------------------------------------------------------------
+#    This file is part of BayesOptimization, an efficient C++ library for 
+#    Bayesian optimization.
 #
-#   Pyrex wrapper for the bayesian optimization API
+#    Copyright (C) 2011-2012 Ruben Martinez-Cantin <rmcantin@unizar.es>
 #
+#    BayesOptimization is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    BayesOptimization is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with BayesOptimization. If not, see <http://www.gnu.org/licenses/>.
+# ----------------------------------------------------------------------------
 
 import numpy as np
 cimport numpy as np
@@ -51,7 +68,8 @@ cdef extern from "parameters.h":
  
     ctypedef struct bopt_params:
         unsigned int n_iterations, n_init_samples, verbose_level
-        double theta
+        double* theta
+        unsigned int n_theta
         double alpha, beta, delta
         double noise
         surrogate_name s_name
@@ -91,12 +109,16 @@ cdef bopt_params dict2structparams(dict dparams):
     params.n_init_samples = dparams.get('n_init_samples',params.n_init_samples)
     params.verbose_level = dparams.get('verbose_level',params.verbose_level)
 
-    params.theta = dparams.get('theta',params.theta)
+    params.n_theta = dparams.get('n_theta',params.n_theta)
     params.alpha = dparams.get('alpha',params.alpha)
     params.beta = dparams.get('beta',params.beta)
     params.delta = dparams.get('delta',params.delta)
     params.noise = dparams.get('noise',params.noise)
     
+    theta = dparams.get('theta',None)
+    if theta is not None:
+        for i in range(0,params.n_theta):
+            params.theta[i] = theta[i]
 
     criteria = dparams.get('c_name',None)
     if criteria is not None:
@@ -127,7 +149,8 @@ cdef double callback(unsigned int n, const_double_ptr x,
 
 def initialize_params():
     params = {
-        "theta"  : 1.0,
+        "theta"  : [1.0],
+        "n_theta": 1,
         "alpha"  : 1.0,
         "beta"   : 1.0,
         "delta"  : 1000.0,

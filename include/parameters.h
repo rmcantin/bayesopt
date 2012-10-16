@@ -72,10 +72,12 @@ extern "C" {
 
   /** SKO Parameters */
   typedef struct {
-    size_t n_iterations;   /**< Maximum SKO evaluations (budget) */
+    size_t n_iterations;      /**< Maximum BayesOpt evaluations (budget) */
+    size_t n_inner_iterations;   /**< Maximum inner optimizer evaluations */
     size_t n_init_samples; /**< Number of samples before optimization */
-    size_t verbose_level;  /**< Verbose level */
-    double theta;                /**< Kernel hyperparameters */
+    size_t verbose_level;        /**< Verbose level */
+    double theta[128];           /**< Kernel hyperparameters */
+    size_t n_theta;              /**< Number of kernel hyperparameters */
     double alpha, beta, delta;   /**< Inv-Gamma-Normal hyperparameters */
     double noise;                /**< Observation noise */
     surrogate_name s_name;       /**< Name of the surrogate function */
@@ -105,7 +107,7 @@ extern "C" {
   const size_t MAX_DIM         = 40;         /* Not used */
 
   /* INNER Optimizer default values */
-  const size_t MAX_INNER_EVALUATIONS = 5000;
+  const size_t MAX_INNER_EVALUATIONS = 500;
   const size_t MAX_INNER_ITERATIONS  = 3000; /* Not used */
 
   /* Latin Hypercube Sampling (LHS) default values */

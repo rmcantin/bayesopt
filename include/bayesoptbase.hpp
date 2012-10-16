@@ -4,7 +4,7 @@
    This file is part of BayesOptimization, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2012 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOptimization is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -51,8 +51,8 @@ class BayesOptBase : public Logger
    * @param gp        Pointer to the surrogate model
    */
   BayesOptBase( bopt_params params,
-		 bool uselogfile = false,
-		 const char* logfilename = "bayesopt.log");
+		bool uselogfile = false,
+		const char* logfilename = "bayesopt.log");
 
   /** 
    * Default destructor
@@ -125,6 +125,7 @@ protected:
    * @return 0 if terminate successfully
    */
   int setCriteriumFunction();
+
   /** 
    * Sets the number of iterations
    */
@@ -158,7 +159,6 @@ protected:
     bool reachable = checkReachability(query);
     if (!reachable)  return 0.0;
     return (*mCrit)(query);
-    //    return crit.evaluate(mGP,query);       
   };
 
   virtual int findOptimal(vectord &xOpt) = 0;
@@ -169,14 +169,12 @@ protected:
 protected:
 
   NonParametricProcess* mGP;        ///< Pointer to surrogate model
-  //Criteria crit;                    ///< Criteria model
-  MetaCriteria* mCrit;
+  MetaCriteria* mCrit;              ///< Metacriteria model
   bopt_params mParameters;          ///< Configuration parameters
   size_t mDims;                     ///< Number of dimensions
 };
 
 /**@}*/
-// end namespaces
 
 
 #endif

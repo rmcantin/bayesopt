@@ -48,7 +48,12 @@ public:
   void setScale( double theta ) {mTheta = theta;};
   double getScale(int index) {return mTheta;};
   vectord getScale() {return svectord(1,mTheta);};
+
   virtual ~ISOkernel(){};
+
+protected:
+  double computeScaledNorm2(const vectord &x1, const vectord &x2)
+  { return norm_2(x1-x2)/mTheta; };
 
 protected:
   double mTheta;
@@ -62,7 +67,18 @@ public:
   void setScale( const vectord &theta ){mTheta=theta;};
   double getScale(size_t index) {return mTheta(index);};
   vectord getScale() { return mTheta; };
+
   virtual ~ARDkernel(){};
+
+protected:
+  vectord computeScaledDiff(const vectord &x1, const vectord &x2)
+  {
+    assert(x1.size() = x2.size());
+    assert(x1.size() = mTheta.size());
+
+    vectord xd = x1-x2;
+    return ublas_elementwise_div(xd, mTheta); 
+  };
 
 protected:
   vectord mTheta;
@@ -77,7 +93,7 @@ public:
   double operator()( const vectord &x1, const vectord &x2,
 		     int grad_index = -1)
   {
-    double r = norm_2(x1-x2)/mTheta;
+    double r = computeScaledNorm2(x1,x2);
     double er = exp(-r);
 
     if (grad_index < 0) 
@@ -95,7 +111,7 @@ public:
   double operator()( const vectord &x1, const vectord &x2,
 		     int grad_index = -1 )
   {
-    double r = sqrt(3) * norm_2(x1-x2)/mTheta;
+    double r = sqrt(3) * computeScaledNorm2(x1,x2);
     double er = exp(-r);
 
     if (grad_index < 0) 
@@ -113,7 +129,7 @@ public:
   double operator()( const vectord &x1, const vectord &x2,
 		     int grad_index = -1 )
   {
-    double r = sqrt(5) * norm_2(x1-x2)/mTheta;
+    double r = sqrt(5) * computeScaledNorm2(x1,x2);
     double er = exp(-r);
 
     if (grad_index < 0) 
@@ -132,7 +148,7 @@ public:
   double operator()( const vectord &x1, const vectord &x2,
 		     int grad_index = -1 )
   {
-    double rl = norm_2(x1-x2)/mTheta;
+    double rl = computeScaledNorm2(x1,x2);
     double k = rl*rl;
 
     if (grad_index < 0)
@@ -150,8 +166,7 @@ public:
   double operator()( const vectord &x1, const vectord &x2,
 		     int grad_index = -1 )
   {
-    vectord xd = x1-x2;
-    vectord ri = ublas_elementwise_div(xd, mTheta);
+    vectord ri = computeScaledDiff(x1,x2);
 
     double rl = norm_2(ri);
     double k = rl*rl;

@@ -102,11 +102,15 @@ int StudentTProcess::precomputePrediction()
 
 
 	
-double StudentTProcess::negativeExpectedImprovement(double yPred, double sPred,
-						    double yMin, size_t g)
+double StudentTProcess::negativeExpectedImprovement(const vectord& query,
+						    size_t g)
 {
   size_t dof = mGPXX.size() - 1;
   boost::math::students_t d(dof);
+
+  double yPred,sPred;
+  double yMin = getValueAtMinimum();
+  prediction(query,yPred,sPred);
 
   double yDiff = yMin - yPred; 
   double yNorm = yDiff / sPred;
@@ -124,19 +128,23 @@ double StudentTProcess::negativeExpectedImprovement(double yPred, double sPred,
   
 }  // negativeExpectedImprovement
 
-double StudentTProcess::lowerConfidenceBound(double yPred, double sPred,
+double StudentTProcess::lowerConfidenceBound(const vectord& query,
 					     double beta)
 {    
   size_t n = mGPXX.size();
+  double yPred,sPred;
+  prediction(query,yPred,sPred);
   return yPred - beta*sPred/sqrt(n);
 }  // lowerConfidenceBound
 
-double StudentTProcess::negativeProbabilityOfImprovement(double yPred, 
-							 double sPred,
-							 double yMin, 
+double StudentTProcess::negativeProbabilityOfImprovement(const vectord& query,
 							 double epsilon)
 {  
   size_t dof = mGPXX.size() - 1;
   boost::math::students_t d(dof);
+  double yPred,sPred;
+  double yMin = getValueAtMinimum();
+  prediction(query,yPred,sPred);
+
   return -cdf(d,(yMin - yPred + epsilon)/sPred);
 }  // negativeProbabilityOfImprovement

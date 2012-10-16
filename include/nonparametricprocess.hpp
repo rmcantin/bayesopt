@@ -93,8 +93,8 @@ public:
    * 
    * @return negative value of the expected improvement
    */
-  virtual double negativeExpectedImprovement(double yPred, double sPred,
-					     double yMin, size_t g = 1)
+  virtual double negativeExpectedImprovement(const vectord &query,
+					     size_t g = 1)
   {return 0.0;};
 
   /** 
@@ -107,8 +107,8 @@ public:
    * 
    * @return value of the lower confidence bound
    */
-  virtual double lowerConfidenceBound(double yPred, double sPred,
-				     double beta = 1)
+  virtual double lowerConfidenceBound(const vectord &query,
+				      double beta = 1)
   {return 0.0;};
 
   /** 
@@ -121,8 +121,7 @@ public:
    * 
    * @return negative value of the probability of improvement
    */
-  virtual double negativeProbabilityOfImprovement(double yPred, double sPred,
-						  double yMin, 
+  virtual double negativeProbabilityOfImprovement(const vectord &query,
 						  double epsilon = 0.1)
   {return 0.0;};
 		 		 
@@ -191,10 +190,12 @@ public:
    * @param theta kernel parameter
    * @param k_name kernel name
    */
-  int setKernel (double theta,
+  int setKernel (const double *theta, size_t n_theta,
 		 kernel_name k_name)
   {
-    return setKernel(svectord(1,theta), k_name);
+    vectord th(n_theta);
+    std::copy(theta, theta+n_theta, th.begin());
+    return setKernel(th, k_name);
   };
 
   int setKernel (const vectord &thetav,

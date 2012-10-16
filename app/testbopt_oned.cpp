@@ -30,7 +30,8 @@ int main(int nargs, char *args[])
 {
   bopt_params parameters = initialize_parameters_to_default();
   parameters.n_iterations = 300;
-  parameters.theta = 1.0;
+  parameters.theta[0] = 1.0;
+  parameters.n_theta = 1;
   parameters.c_name = C_GP_HEDGE;
   TestOneD opt(parameters);
   vectord result(1);

@@ -71,7 +71,7 @@ int InnerOptimization::innerOptimize(double* x, int n, void* objPointer)
 {
     double u[128], l[128];
     double fmin = 1;
-    int maxf = MAX_INNER_EVALUATIONS;    
+    int maxf = MAX_INNER_EVALUATIONS*n;    
     int ierror;
 
     for (int i = 0; i < n; ++i) {

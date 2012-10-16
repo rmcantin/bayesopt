@@ -78,8 +78,8 @@ public:
    * 
    * @return negative value of the expected improvement
    */
-  double negativeExpectedImprovement(double yPred, double sPred,
-				     double yMin, size_t g = 1);
+  double negativeExpectedImprovement(const vectord &query,
+				     size_t g = 1);
   
 
   /** 
@@ -92,7 +92,7 @@ public:
    * 
    * @return value of the lower confidence bound
    */
-  double lowerConfidenceBound(double yPred, double sPred,
+  double lowerConfidenceBound(const vectord &query,
 			      double beta = 1);
 
   /** 
@@ -105,8 +105,8 @@ public:
    * 
    * @return negative value of the probability of improvement
    */
-  double negativeProbabilityOfImprovement(double yPred, double sPred,
-					  double yMin, double epsilon = 0.1);
+  double negativeProbabilityOfImprovement(const vectord &query,
+					  double epsilon = 0.1);
 
 			 
   double sample_query(const vectord& query, 

@@ -33,7 +33,8 @@ int main(int nargs, char *args[])
   bopt_params par = initialize_parameters_to_default();
   par.n_iterations = 200;
   par.n_init_samples = 50;
-  par.theta = 1.0;
+  par.theta[0] = 1.0;
+  par.n_theta = 1;
   par.c_name = C_GP_HEDGE;
   TestOneD opt(par);
   vectord result(2);

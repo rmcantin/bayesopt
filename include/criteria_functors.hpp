@@ -30,21 +30,16 @@
 class Criteria
 {
 public:
-  Criteria(NonParametricProcess *proc)
-  { 
-    mProc = proc; 
-    mYMin = 0.0;
-  };
+  Criteria(NonParametricProcess *proc):
+    mProc(proc) {};
 
   virtual ~Criteria(){};
 
-  inline void updateMinimum() { mYMin = mProc->getValueAtMinimum();};
   virtual double operator()( const vectord &x) = 0;
   virtual void resetAnneal() {};  //dummy function
 
 protected:
   NonParametricProcess *mProc;
-  double mYMin;
 };
 
 
@@ -58,10 +53,7 @@ public:
   virtual ~ExpectedImprovement(){};
   double operator()( const vectord &x)
   {
-    double yPred, sPred;
-    mProc->prediction(x,yPred,sPred);
-    updateMinimum();
-    double result = mProc->negativeExpectedImprovement(yPred,sPred,mYMin);
+    double result = mProc->negativeExpectedImprovement(x);
     return result;
   };
 };
@@ -78,9 +70,7 @@ public:
 
   double operator()( const vectord &x)
   {
-    double yPred, sPred;
-    mProc->prediction(x,yPred,sPred);
-    return mProc->lowerConfidenceBound(yPred,sPred,mBeta);
+    return mProc->lowerConfidenceBound(x,mBeta);
   };
 protected:
   double mBeta;
@@ -96,11 +86,7 @@ public:
 
   double operator()( const vectord &x)
   {
-    double yPred, sPred;
-    mProc->prediction(x,yPred,sPred);
-    updateMinimum();
-    return mProc->negativeProbabilityOfImprovement(yPred,sPred,mYMin,
-						mEpsilon);
+    return mProc->negativeProbabilityOfImprovement(x,mEpsilon);
   };
 protected:
   double mEpsilon;
@@ -190,10 +176,7 @@ public:
     if (nCalls % 10)
       mExp = std::min(1,static_cast<int>(round(mExp/2.0)));
 
-    double yPred, sPred;
-    mProc->prediction(x,yPred,sPred);
-    updateMinimum();
-    return mProc->negativeExpectedImprovement(yPred,sPred,mYMin,mExp);
+    return mProc->negativeExpectedImprovement(x,mExp);
   };
 
 protected:
@@ -219,9 +202,7 @@ public:
     double beta = sqrt(2*log(static_cast<double>(nCalls*nCalls))*(nDims+1) 
 		       + log(static_cast<double>(nDims))*nDims*mCoef);
 
-    double yPred, sPred;
-    mProc->prediction(x,yPred,sPred);
-    return mProc->lowerConfidenceBound(yPred,sPred,beta);
+    return mProc->lowerConfidenceBound(x,beta);
   };
 protected:
   double mCoef;
@@ -250,11 +231,8 @@ public:
     if (mCurrentCriterium != NULL)
       delete mCurrentCriterium;
 
-    std::cout << "Hasta aqui" << std::endl;
     int error;
     mCurrentCriterium = yieldCriteria(name,error);
-    bool test = (mCurrentCriterium == NULL);
-    std::cout << "Criterium set properly " << test << std::endl;
     return error;
   }
   

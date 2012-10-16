@@ -21,10 +21,13 @@
 #ifndef __UBLAS_EXTRA_HPP__
 #define __UBLAS_EXTRA_HPP__
 
+#include <typeinfo>
+
 template<class V, class D>
 int append(V& vector, D element)
 {
-  assert(typeid(v::value_type) == typeid(D));
+  typename V::value_type VD;
+  assert(typeid(VD) == typeid(D));
 
   // This method is super inefficient but there seems to be the uBlas style.
   size_t size = vector.size();

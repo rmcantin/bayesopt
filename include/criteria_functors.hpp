@@ -38,7 +38,7 @@ public:
 
   virtual ~Criteria(){};
 
-  inline void setMinimum(double mYMin) { mYMin = mProc->getValueAtMinimum();};
+  inline void updateMinimum() { mYMin = mProc->getValueAtMinimum();};
   virtual double operator()( const vectord &x) = 0;
   virtual void resetAnneal() {};  //dummy function
 
@@ -60,7 +60,9 @@ public:
   {
     double yPred, sPred;
     mProc->prediction(x,yPred,sPred);
-    return mProc->negativeExpectedImprovement(yPred,sPred,mYMin);
+    updateMinimum();
+    double result = mProc->negativeExpectedImprovement(yPred,sPred,mYMin);
+    return result;
   };
 };
 
@@ -96,6 +98,7 @@ public:
   {
     double yPred, sPred;
     mProc->prediction(x,yPred,sPred);
+    updateMinimum();
     return mProc->negativeProbabilityOfImprovement(yPred,sPred,mYMin,
 						mEpsilon);
   };
@@ -189,6 +192,7 @@ public:
 
     double yPred, sPred;
     mProc->prediction(x,yPred,sPred);
+    updateMinimum();
     return mProc->negativeExpectedImprovement(yPred,sPred,mYMin,mExp);
   };
 
@@ -282,7 +286,8 @@ public:
 
   inline double operator()( const vectord &x)
   {
-    return (*mCurrentCriterium)(x);
+    double result = (*mCurrentCriterium)(x);
+    return result;
   }  
 
   virtual void reset(){};

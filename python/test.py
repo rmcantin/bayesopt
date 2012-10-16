@@ -28,6 +28,7 @@ class BayesOptTest(bopt.BayesOptModule):
 params = kp.initialize_params()
 params['n_iterations'] = 100
 params['s_name'] = "GAUSSIAN_PROCESS_INV_GAMMA_NORMAL"
+params['c_name'] = "GP_HEDGE"
 
 n = 5                     # n dimensions
 lb = np.zeros((n,))

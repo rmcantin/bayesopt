@@ -26,7 +26,7 @@
 #include <math.h>
 #include <mex.h>
 
-#include "ctypes.h"
+#include "parameters.h"
 #include "bayesoptwpr.h"
 
 #define CHECK0(cond, msg) if (!(cond)) mexErrMsgTxt(msg);
@@ -48,6 +48,25 @@ static void struct_value(const mxArray *s, const char *name, double *result)
     }
   return;
 }
+
+static void struct_array(const mxArray *s, const char *name, size_t *n, double *result)
+{
+  mxArray *val = mxGetField(s, 0, name);
+  if (val) 
+    {
+      if(!(mxIsNumeric(val) && !mxIsComplex(val)))
+	{
+	  mexErrMsgTxt("Param fields must be vector");
+	}
+      else
+	{	   
+	  *n = mxGetM(val) * mxGetN(val);
+	  memcpy(result, mxGetPr(val), *n * sizeof(double));
+	}
+    }
+  return;
+}
+
 
 static void struct_size(const mxArray *s, const char *name, size_t *result)
 {
@@ -152,7 +171,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
   const mxArray *func_name, *params;
   user_function_data udata;
   size_t nDim;
-  sko_params parameters = initialize_parameters_to_default();
+  bopt_params parameters = initialize_parameters_to_default();
      
      
   /* Check correct number of parameters */
@@ -210,13 +229,17 @@ void mexFunction(int nlhs, mxArray *plhs[],
     }
 
   struct_size(params,"iterations", &parameters.n_iterations);
+  struct_size(params,"inner_iterations", &parameters.n_inner_iterations);
   struct_size(params, "init_iterations", &parameters.n_init_samples);
+  struct_size(params, "verbose_level", &parameters.verbose_level);
 
-  struct_value(params, "theta", &parameters.theta);
   struct_value(params, "alpha", &parameters.alpha);
   struct_value(params, "beta",  &parameters.beta);
   struct_value(params, "delta", &parameters.delta);
   struct_value(params, "noise", &parameters.noise);
+
+  struct_array(params, "theta", &parameters.n_theta, 
+	       &parameters.theta[0]);
 
   /* Extra configuration
   /  See ctypes.h for the available options */
@@ -227,16 +250,16 @@ void mexFunction(int nlhs, mxArray *plhs[],
   strcpy( k_str, kernel2str(parameters.k_name));
   strcpy( m_str, mean2str(parameters.m_name));
 
-  struct_string(params, "criteria", c_str);
+  struct_string(params, "c_name", c_str);
   parameters.c_name = str2crit(c_str);
 
-  struct_string(params, "surrogate", s_str);
+  struct_string(params, "s_name", s_str);
   parameters.s_name = str2surrogate(s_str);
   
-  struct_string(params, "kernel", k_str);
+  struct_string(params, "k_name", k_str);
   parameters.k_name = str2kernel(k_str);
 
-  struct_string(params, "mean", m_str);
+  struct_string(params, "m_name", m_str);
   parameters.m_name = str2mean(m_str);
 
 

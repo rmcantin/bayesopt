@@ -13,11 +13,17 @@
 % nDimensions is the number of dimensions of the query vector.
 %
 % Params is a struct which may have the fields 
-%    theta : kernel parameters
-%    alpha, beta : std hyperprior
-%    delta : mean hyperprior
-%    noise : likelihood std
-%    iterations : maximum number of iterations
+%      n_iterations           Maximum BayesOpt evaluations (budget) 
+%      n_inner_iterations     Maximum inner optimizer evaluations 
+%      n_init_samples         Number of samples before optimization 
+%      verbose_level          Verbose level 
+%      theta                  Vector with kernel hyperparameters 
+%      alpha, beta, delta     Inv-Gamma-Normal hyperparameters 
+%      noise                  Observation noise 
+%      s_name            Name of the surrogate function 
+%      k_name            Name of the kernel function 
+%      c_name            Name of the criterion 
+%      m_name            Name of the mean function 
 %
 % lowerBound and upperBound should be a nDim x 1 or 1 x nDim vectors with
 %      the lower and upper bound for each component. (optional, default 0-1)

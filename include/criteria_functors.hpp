@@ -262,7 +262,6 @@ public:
 			  int& error_code)
   {
     Criteria* crit;
-    std::cout << "FIJANDO EL criterium" << std::endl;
     switch(name)
       {
       case C_EI:     crit = new ExpectedImprovement(mProc);             break;
@@ -322,6 +321,7 @@ public:
   GP_Hedge(NonParametricProcess *proc):
     MetaCriteria(proc), mtRandom(100u),
     sampleUniform( mtRandom, realUniformDist(0,1)),
+    loss(zvectord(N_ALGORITHMS_IN_GP_HEDGE)), 
     gain(zvectord(N_ALGORITHMS_IN_GP_HEDGE)), 
     prob(zvectord(N_ALGORITHMS_IN_GP_HEDGE)),
     cumprob(zvectord(N_ALGORITHMS_IN_GP_HEDGE))
@@ -353,30 +353,25 @@ public:
     double max_l = *std::max_element(loss.begin(),loss.end());
 
     // We just care about the differences
-    // std::transform(loss.begin(), loss.end(), loss.begin(),
-    // 		   std::bind2nd(std::plus<double>(), max_l));       
     loss += svectord(loss.size(),max_l);
 
-    // Optimal eta according to Shapire
-    double eta = sqrt(2*log(3)/max_g);
-
     // To avoid overflow
-    // std::transform(gain.begin(), gain.end(), gain.begin(),
-    //		   std::bind2nd(std::minus<double>(), min_g));       
-    gain -= svectord(gain.size(),min_g);
+    if (std::abs(max_g) > std::abs(min_g))
+	  gain -= svectord(gain.size(),max_g);
+    else
+	  gain -= svectord(gain.size(),min_g);
 
+    // Optimal eta according to Shapire
+    max_g = *std::max_element(gain.begin(),gain.end());
+    double eta = std::min(10.0,sqrt(2*log(3)/max_g));
     std::transform(gain.begin(), gain.end(), prob.begin(),
 		   boost::bind(softmax,_1,eta));       
-
+    
     //Normalize
     double sum_p =std::accumulate(prob.begin(),prob.end(),0);
-    //    std::transform(prob.begin(), prob.end(), prob.begin(),
-    //		   std::bind2nd(std::divides<double>(), sum_p));       
     prob /= sum_p;
 
     //Update bandits gain
-    //    std::transform(gain.begin(), gain.end(), loss.begin(), gain.begin(),
-    //		   std::minus<double>());       
     gain -= loss;
 
     std::partial_sum(prob.begin(), prob.end(), cumprob.begin(), 
@@ -400,32 +395,22 @@ public:
     return 1;
   }
 
+
   bool checkIfBest(vectord& best,
 		   int& error_code)
   { 
     if (mIndex < N_ALGORITHMS_IN_GP_HEDGE)
       {
-	double foo;
-	mProc->prediction(best,loss(mIndex),foo);
+	loss(mIndex) = computeLoss(best);
 	mBestLists.push_back(best);
 	error_code = 0;
+	++mIndex;
+	if (mIndex < N_ALGORITHMS_IN_GP_HEDGE)
+	  mCurrentCriterium = mCriteriaList[mIndex];
 	return false;
       }
     else
       {
-    // double foo;
-
-    // for(size_t i = 0; i<N_ALGORITHMS_IN_GP_HEDGE; ++i)
-    //   {
-    // 	mCurrentCriterium = mCriteriaList[i];
-    // 	mOpt->findOptimal(bestList(i));
-
-    // 	// The reward of the bandit problem is the estimated outcome mean 
-    // 	// at each optimal point.
-    // 	NonParametricProcess* gp = mOpt->getSurrogateFunctionPointer();
-    // 	gp->prediction(bestList(i),loss(i),foo);
-    //   }
-
 	int optIndex = update_hedge();
 	plotResult(optIndex);
 	
@@ -441,6 +426,13 @@ public:
 
   };
 
+protected:
+  double computeLoss(const vectord& query)
+  {	
+    double mean, std;
+    mProc->prediction(query,mean,std);
+    return mean;
+  }
 
   int plotResult(int optIndex)
   {
@@ -466,6 +458,21 @@ protected:
   std::vector<Criteria*> mCriteriaList;
   std::vector<vectord> mBestLists;
   size_t mIndex;
+};
+
+class GP_Hedge_Random: public GP_Hedge
+{
+public:
+  GP_Hedge_Random(NonParametricProcess *proc):
+    GP_Hedge(proc) {};
+
+  virtual ~GP_Hedge_Random() {};
+
+protected:  
+  double computeLoss(const vectord& query)
+  {	
+    return mProc->sample_query(query,mtRandom);
+  }
 };
 
 #endif

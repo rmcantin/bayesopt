@@ -54,7 +54,7 @@ int main(int nargs, char *args[])
   par.beta = PRIOR_BETA;
   par.delta = PRIOR_DELTA_SQ;
   par.noise = DEFAULT_NOISE;
-  par.c_name = C_EI;
+  par.c_name = C_GP_HEDGE_RANDOM;
   par.s_name = S_GAUSSIAN_PROCESS_INV_GAMMA_NORMAL;
   par.k_name = K_MATERN_ISO3;
   par.n_iterations = 300;       // Number of iterations

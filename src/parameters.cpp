@@ -45,14 +45,16 @@ criterium_name str2crit(const char* name)
     return C_LCB_A;
   else if (!strcmp(name,  "POI"))
     return C_POI;
-  else if (!strcmp(name,  "GP_HEDGE"))
-    return C_GP_HEDGE;
   else if (!strcmp(name,  "GREEDY_A_OPTIMALITY"))
     return C_GREEDY_A_OPTIMALITY;
   else if (!strcmp(name,  "EXPECTED_RETURN"))
     return C_EXPECTED_RETURN;
   else if (!strcmp(name,  "OPTIMISTIC_SAMPLING"))
     return C_OPTIMISTIC_SAMPLING;
+  else if (!strcmp(name,  "GP_HEDGE"))
+    return C_GP_HEDGE;
+  else if (!strcmp(name,  "GP_HEDGE_RANDOM"))
+    return C_GP_HEDGE_RANDOM;
   else return C_ERROR;
 }
 
@@ -66,10 +68,11 @@ const char* crit2str(criterium_name name)
     case C_EI_A: return "EI_A"; 
     case C_LCB_A: return "LBC_A"; 
     case C_POI: return "POI"; 
-    case C_GP_HEDGE: return "GP_HEDGE"; 
     case C_GREEDY_A_OPTIMALITY: return "GREEDY_A_OPTIMALITY";
     case C_EXPECTED_RETURN: return "EXPECTED_RETURN";
     case C_OPTIMISTIC_SAMPLING: return "OPTIMISTIC_SAMPLING";
+    case C_GP_HEDGE: return "GP_HEDGE"; 
+    case C_GP_HEDGE_RANDOM: return "GP_HEDGE_RANDOM"; 
     case C_ERROR:
     default: return "ERROR!";
     }

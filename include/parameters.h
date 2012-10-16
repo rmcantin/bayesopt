@@ -55,10 +55,11 @@ extern "C" {
     C_LCB,
     C_LCB_A,
     C_POI,
-    C_GP_HEDGE,
     C_GREEDY_A_OPTIMALITY,
     C_EXPECTED_RETURN,
     C_OPTIMISTIC_SAMPLING,
+    C_GP_HEDGE,
+    C_GP_HEDGE_RANDOM,
     C_ERROR = -1
   } criterium_name;
 

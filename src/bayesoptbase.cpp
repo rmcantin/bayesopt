@@ -57,7 +57,8 @@ int BayesOptBase::setCriteriumFunction()
 
   switch(mParameters.c_name)
     {
-    case C_GP_HEDGE: mCrit = new GP_Hedge(mGP); break;
+    case C_GP_HEDGE:        mCrit = new GP_Hedge(mGP); break;
+    case C_GP_HEDGE_RANDOM: mCrit = new GP_Hedge_Random(mGP); break;
     case C_EI:
     case C_EI_A:
     case C_LCB: 

@@ -93,15 +93,16 @@ cdef bopt_params dict2structparams(dict dparams):
     params.delta = dparams.get('delta',params.delta)
     params.noise = dparams.get('noise',params.noise)
     
-    params.n_theta = dparams.get('n_theta',params.n_theta)
+    
     theta = dparams.get('theta',None)
     if theta is not None:
+        params.n_theta = len(theta)
         for i in range(0,params.n_theta):
             params.theta[i] = theta[i]
 
-    params.n_mu = dparams.get('n_mu',params.n_mu)
     mu = dparams.get('mu',None)
     if mu is not None:
+        params.n_mu = len(mu)
         for i in range(0,params.n_mu):
             params.mu[i] = mu[i]
 

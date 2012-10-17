@@ -25,7 +25,8 @@
 #include "lhs.hpp"
 
 
-BayesOptDiscrete::BayesOptDiscrete( vecOfvec &validSet, bopt_params parameters,
+BayesOptDiscrete::BayesOptDiscrete( const vecOfvec &validSet, 
+				    bopt_params parameters,
 				    bool uselogfile, const char* logfilename):
   BayesOptBase(parameters,uselogfile,logfilename), mInputSet(validSet)
 {} // Constructor

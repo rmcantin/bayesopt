@@ -25,8 +25,10 @@
 #include "specialtypes.hpp"
 #include "elementwise_ublas.hpp"
 
+///\addtogroup KernelFunctions
+//@{
 
-////////////////////////////////////////////////////////////////////////////////
+/** \brief Interface for kernel functors */
 class Kernel
 {
 public:
@@ -40,7 +42,8 @@ public:
 };
 
 
-////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+/** \brief Abstract class for isotropic kernel functors */
 class ISOkernel : public Kernel
 {
 public:
@@ -61,6 +64,9 @@ protected:
 
 
 ////////////////////////////////////////////////////////////////////////////////
+/** \brief Abstract class for anisotropic kernel functors. 
+ * Typically ARD (Automatic Relevance Determination)
+ */
 class ARDkernel : public Kernel
 {
 public:
@@ -87,6 +93,7 @@ protected:
 
 
 ////////////////////////////////////////////////////////////////////////////////
+/** \brief Matern kernel of 1st order */
 class MaternIso1: public ISOkernel
 {
 public:
@@ -105,6 +112,7 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////
+/** \brief Matern kernel of 3rd order */
 class MaternIso3: public ISOkernel
 {
 public:
@@ -123,6 +131,7 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////
+/** \brief Matern kernel of 5th order */
 class MaternIso5: public ISOkernel
 {
 public:
@@ -142,6 +151,7 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////
+/** \brief Square exponential (Gaussian) kernel. Isotropic version. */
 class SEIso: public ISOkernel
 {
 public:
@@ -160,6 +170,7 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////
+/** \brief Square exponential (Gaussian) kernel. ARD version. */
 class SEArd: public ARDkernel
 {
 public:
@@ -177,5 +188,7 @@ public:
       return exp(-k/2)*sqrt(ri(grad_index));
   };
 };
+
+//@}
 
 #endif

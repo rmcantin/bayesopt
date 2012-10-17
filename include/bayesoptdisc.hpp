@@ -44,10 +44,10 @@ class BayesOptDiscrete : public BayesOptBase
    * @param validSet  Set of potential inputs
    * @param gp        Pointer to the surrogate model
    */
-  BayesOptDiscrete( vecOfvec &validSet,
-	    bopt_params params,
-	    bool uselogfile = false,
-	    const char* logfilename = "bayesopt.log");
+  BayesOptDiscrete( const vecOfvec &validSet,
+		    bopt_params params,
+		    bool uselogfile = false,
+		    const char* logfilename = "bayesopt.log");
 
   /** 
    * Default destructor

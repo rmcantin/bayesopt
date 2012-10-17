@@ -28,7 +28,21 @@ class ParametricFunction
 public:
   virtual void setParameters(const vectord& params)
   { mParameters = params; };
-  virtual double operator() (const vectord& x) = 0;
+  virtual double getMean(const vectord& x) = 0;
+  
+  virtual vectord operator()(const vecOfvec& x)
+  {
+    vectord result(x.size());
+    std::vector<vectord>::const_iterator x_it = x.begin();
+    std::vector<vectord>::const_iterator x_end = x.end();
+    vectord::iterator res_it = result.begin();
+    while(x_it != x_end)
+      {
+	*res_it++ = getMean(*x_it++);
+      }
+    return result;
+  };
+  
   virtual ~ParametricFunction(){};
 
 protected:
@@ -40,7 +54,7 @@ protected:
 class ZeroFunction: public ParametricFunction
 {
 public:
-  double operator() (const vectord& x)
+  double getMean (const vectord& x)
   { return 0.0; };
 };
 
@@ -49,7 +63,7 @@ public:
 class OneFunction: public ParametricFunction
 {
 public:
-  double operator() (const vectord& x)
+  double getMean (const vectord& x)
   { return 1.0; };
 };
 
@@ -59,7 +73,7 @@ public:
 class ConstantFunction: public ParametricFunction
 {
 public:
-  double operator() (const vectord& x)
+  double getMean (const vectord& x)
   { return mParameters(0); };
 };
 
@@ -68,7 +82,7 @@ public:
 class LinearFunction: public ParametricFunction
 {
 public:
-  double operator() (const vectord& x)
+  double getMean (const vectord& x)
   { return boost::numeric::ublas::inner_prod(x,mParameters);  };
 };
 
@@ -84,7 +98,7 @@ public:
 			boost::numeric::ublas::range(1, params.size())); 
   };
   
-  double operator() (const vectord& x)
+  double getMean (const vectord& x)
   { return boost::numeric::ublas::inner_prod(x,mParameters) + mConstParam;  };
 
 protected:

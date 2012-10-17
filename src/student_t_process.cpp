@@ -25,11 +25,11 @@ double StudentTProcess::negativeLogLikelihood(size_t index)
   matrixd L(n,n);
   cholesky_decompose(K,L);
 
-  vectord colU(n);
+  vectord colU = (*mMean)(mGPXX);;
 
   //TODO: Replace by transform
-  for (size_t ii=0; ii< n; ii++) 
-    colU(ii) = (*mMean)(mGPXX[ii]);
+  //  for (size_t ii=0; ii< n; ii++) 
+  //  colU(ii) = 
 
   vectord alphU(colU);
   boost::numeric::ublas::inplace_solve(L,alphU,boost::numeric::ublas::lower_tag());
@@ -55,7 +55,7 @@ int StudentTProcess::prediction( const vectord &query,
   vectord rInvR(n);
   double kn;
   double uInvRr, rInvRr;
-  double meanf = (*mMean)(query);
+  double meanf = mMean->getMean(query);
   
   vectord colR = computeCrossCorrelation(query);
   kn = (*mKernel)(query, query);
@@ -78,11 +78,11 @@ int StudentTProcess::prediction( const vectord &query,
 int StudentTProcess::precomputePrediction()
 {
   size_t nSamples = mGPXX.size();
-  vectord colU(nSamples);
+  vectord colU = (*mMean)(mGPXX);
 
   //TODO: Replace by transform
-  for (size_t ii=0; ii< nSamples; ii++) 
-    colU(ii) = (*mMean)(mGPXX[ii]);
+  //  for (size_t ii=0; ii< nSamples; ii++) 
+  //  colU(ii) = (*mMean)(mGPXX[ii]);
 
   mUInvR = prod(colU,mInvR);
   mUInvRUDelta = inner_prod(mUInvR,colU);

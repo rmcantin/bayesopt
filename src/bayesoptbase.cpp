@@ -52,6 +52,7 @@ int BayesOptBase::setCriteriumFunction()
   if (mCrit != NULL)
     delete mCrit;
 
+  // We need a valid surrogate function pointer for the criteria
   if(mGP == NULL)
     setSurrogateFunction();
 
@@ -120,52 +121,6 @@ int BayesOptBase::nextPoint(vectord &Xnext)
 
   return error;
 
-  // crit.resetAnnealValues();
-  // if (mParameters.c_name == C_GP_HEDGE)
-  //   {
-  //     vectord best_ei(Xnext);
-  //     vectord best_lcb(Xnext);
-  //     vectord best_poi(Xnext);
-  //     double l_ei,l_lcb,l_poi,foo;
-
-  //     crit.setCriterium(C_EI);
-  //     findOptimal(best_ei);
-  //     mGP->prediction(best_ei,l_ei,foo);
-      
-  //     crit.setCriterium(C_LCB);
-  //     findOptimal(best_lcb);
-  //     mGP->prediction(best_lcb,l_lcb,foo);
-
-  //     crit.setCriterium(C_POI);
-  //     findOptimal(best_poi);
-  //     mGP->prediction(best_poi,l_poi,foo);
-
-  //     // Since we want to find the minimum, the predicted value 
-  //     // is loss value, not a reward value.
-  //     criterium_name better = crit.update_hedge(l_ei,l_lcb,l_poi);
-  //     switch(better)
-  // 	{
-  // 	case C_EI: 
-  // 	  Xnext = best_ei;
-  // 	  if (mParameters.verbose_level > 0) mOutput << "EI used." << std::endl;
-  // 	  break;
-  // 	case C_LCB: 
-  // 	  Xnext = best_lcb; 
-  // 	  if (mParameters.verbose_level > 0) mOutput << "LCB used." << std::endl;
-  // 	  break;
-  // 	case C_POI: 
-  // 	  Xnext = best_poi; 
-  // 	  if (mParameters.verbose_level > 0) mOutput << "POI used." << std::endl;
-  // 	  break;
-  // 	default: return -1;
-  // 	}
-  //     return 1;
-  //   }
-  // else
-  //   {
-  //     crit.setCriterium(mParameters.c_name);
-  //     return findOptimal(Xnext);
-  //   }
 }
 
 

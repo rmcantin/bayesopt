@@ -30,7 +30,6 @@
 #include "logger.hpp"
 
 #include "nonparametricprocess.hpp"
-//#include "criteria.hpp"
 #include "criteria_functors.hpp"
 
 /** \addtogroup BayesOptimization */

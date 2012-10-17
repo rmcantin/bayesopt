@@ -133,6 +133,12 @@ ADD_EXECUTABLE(bayesopttest ./app/testbayesopt.cpp)
 add_dependencies(bayesopttest bayesopt)
 TARGET_LINK_LIBRARIES(bayesopttest bayesopt)
 
+#Discrete test
+ADD_EXECUTABLE(discretetest ./app/testdiscrete.cpp)
+add_dependencies(discretetest bayesopt)
+TARGET_LINK_LIBRARIES(discretetest bayesopt)
+
+
 #1D test
 ADD_EXECUTABLE(bayesoptonedtest ./app/testbopt_oned.cpp)
 add_dependencies(bayesoptonedtest bayesopt)

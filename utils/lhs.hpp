@@ -20,6 +20,7 @@ void randomPerms(D& arr,
     iter_swap(arr.begin()+sample(),it);
 } // randomPerms 
 
+
 /** \brief Latin hypercube sampling
  * It is used to generate a uniform Latin hypercube
  */

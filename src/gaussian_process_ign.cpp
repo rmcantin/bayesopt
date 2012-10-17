@@ -28,11 +28,11 @@ double GaussianProcessIGN::negativeLogLikelihood(size_t index)
   matrixd L(n,n);
   cholesky_decompose(K,L);
 
-  vectord colU(n);
+  vectord colU = (*mMean)(mGPXX);
 
   //TODO: Replace by transform
-  for (size_t ii=0; ii< n; ii++) 
-    colU(ii) = (*mMean)(mGPXX[ii]);
+  //for (size_t ii=0; ii< n; ii++) 
+  //  colU(ii) = (*mMean)(mGPXX[ii]);
 
   vectord alphU(colU);
   inplace_solve(L,alphU,lower_tag());
@@ -68,7 +68,7 @@ int GaussianProcessIGN::prediction( const vectord &query,
   //vectord rInvR(n);
   double kn;
   double uInvRr, rInvRr, rInvRy;
-  double meanf = (*mMean)(query);
+  double meanf = mMean->getMean(query);
 
   vectord colR = computeCrossCorrelation(query);
   kn = (*mKernel)(query, query);
@@ -110,9 +110,11 @@ int GaussianProcessIGN::precomputePrediction()
   //mMeanV(nSamples);
   //std::transform(mGPXX.begin(),mGPXX.end(),mMeanV.begin(),NonParametricProcess::meanFunction);
 
+  mMeanV = (*mMean)(mGPXX);
+
   //TODO: It can be done incrementally
-  for (size_t ii=0; ii< nSamples; ++ii) 
-    mMeanV(ii) = (*mMean)(mGPXX[ii]);
+  //for (size_t ii=0; ii< nSamples; ++ii) 
+  //  mMeanV(ii) = (*mMean)(mGPXX[ii]);
 
 #if 0
   mAlphaV.resize(nSamples,false);

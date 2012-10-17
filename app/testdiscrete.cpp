@@ -1,6 +1,6 @@
-#include <ctime>
-#include "bayesoptwpr.h"             // For the C-AP
-#include "bayesoptcont.hpp"              // For the C++-API
+#include "lhs.hpp"
+#include "bayesoptdisc.hpp"
+
 
 
 /* Function to be used for C-API testing */
@@ -17,12 +17,12 @@ double testFunction(unsigned int n, const double *x,
 }
 
 /* Class to be used for C++-API testing */
-class TestEGO: public BayesOptContinuous
+class TestDisc: public BayesOptDiscrete
 {
  public:
 
-  TestEGO(bopt_params param):
-    BayesOptContinuous(param) {}
+  TestDisc(const vecOfvec & validSet, bopt_params param):
+    BayesOptDiscrete(validSet,param) {}
 
   double evaluateSample( const vectord &Xi ) 
   {
@@ -58,53 +58,45 @@ int main(int nargs, char *args[])
   par.c_name = C_EI;
   par.s_name = S_GAUSSIAN_PROCESS_INV_GAMMA_NORMAL;
   par.k_name = K_MATERN_ISO3;
-  par.n_iterations = 300;       // Number of iterations
-  par.n_init_samples = 50;
+  par.n_iterations = 20;       // Number of iterations
+  par.n_init_samples = 20;
   /*******************************************/
+  
+  size_t nPoints = 1000;
 
-  clock_t start, end;
-  double diff,diff2;
+  randEngine mtRandom;
+  matrixd xPoints(nPoints,n);
+  vecOfvec xP;
+
+  lhs(xPoints,mtRandom);
+
+  for(size_t i = 0; i<nPoints; ++i)
+    {
+      vectord point = row(xPoints,i);  
+      xP.push_back(point);
+    }
+    
 
   std::cout << "Running C++ interface" << std::endl;
   // Configure C++ interface
 
-  TestEGO gp_opt(par);
+  TestDisc gp_opt(xP,par);
   vectord result(n);
 
+  size_t min = 0;
+  double minvalue = gp_opt.evaluateSample(row(xPoints,min));
+  for(size_t i = 1; i<nPoints; ++i)
+    {
+      vectord point = row(xPoints,i);  
+      if (gp_opt.evaluateSample(point) < minvalue)
+	{
+	  min = i;
+	  minvalue = gp_opt.evaluateSample(row(xPoints,min));
+	}
+    }
+
   // Run C++ interface
-  start = clock();
   gp_opt.optimize(result);
-  end = clock();
-  diff = (double)(end-start) / (double)CLOCKS_PER_SEC;
-  /*******************************************/
-
-
-  std::cout << "Running C inferface" << std::endl;
-  
-  // Configure C interface
-  double u[128], x[128], l[128], fmin[128];
-
-  for (int i = 0; i < n; ++i) {
-    l[i] = 0.;    u[i] = 1.;
-  }
-
-  // Run C interface
-  start = clock();
-  bayes_optimization(n,&testFunction,NULL,l,u,x,fmin,par);
-  end = clock();
-  diff2 = (double)(end-start) / (double)CLOCKS_PER_SEC;
-  /*******************************************/
-
-
-  // Results
   std::cout << "Final result C++: " << result << std::endl;
-  std::cout << "Final result C: (";
-  for (int i = 0; i < n; i++ )
-    std::cout << x[i] << ", ";
-  
-  std::cout << ")" << std::endl;
-
-  std::cout << "Elapsed time in C++: " << diff << " seconds" << std::endl;
-  std::cout << "Elapsed time in C: " << diff2 << " seconds" << std::endl;
+  std::cout << "Optimal: " << row(xPoints,min) << std::endl;
 }
-

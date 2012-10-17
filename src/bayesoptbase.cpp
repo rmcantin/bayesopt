@@ -103,6 +103,7 @@ int BayesOptBase::setSurrogateFunction()
     }
   
   mGP->setKernel(mParameters.theta,mParameters.n_theta,mParameters.k_name);
+  mGP->setMean(mParameters.mu,mParameters.n_mu,mParameters.m_name);
   return 0;
 }
 

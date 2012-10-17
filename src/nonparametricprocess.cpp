@@ -24,7 +24,7 @@
 #include "ublas_extra.hpp"
 
 NonParametricProcess::NonParametricProcess(double noise):
-  InnerOptimization(),  mKernel(NULL), mRegularizer(noise)
+  InnerOptimization(),  mKernel(NULL), mMean(NULL), mRegularizer(noise)
 { 
   mMinIndex = 0; 
   mMaxIndex = 0;   
@@ -37,6 +37,9 @@ NonParametricProcess::~NonParametricProcess()
 {
   if (mKernel != NULL)
     delete mKernel;
+
+  if (mMean != NULL)
+    delete mMean;
 }
 
 int NonParametricProcess::setKernel (const vectord &thetav,
@@ -61,6 +64,31 @@ int NonParametricProcess::setKernel (const vectord &thetav,
 
   return 0;
 }
+
+
+int NonParametricProcess::setMean (const vectord &muv,
+				   mean_name m_name)
+{
+  if (mMean != NULL)
+    delete mMean;
+
+  switch(m_name)
+    {    
+    case M_ZERO: mMean = new ZeroFunction(); break;
+    case M_ONE: mMean = new OneFunction(); break;
+    case M_CONSTANT: mMean = new ConstantFunction(); break;
+    case M_LINEAR: mMean = new LinearFunction(); break;
+    case M_LINEAR_CONSTANT: mMean = new LinearPlusConstantFunction(); break;
+    default:
+      std::cout << "Error: mean function not supported." << std::endl;
+      return -1;
+    }
+
+  mMean->setParameters(muv);
+
+  return 0;
+}
+
 
 int NonParametricProcess::fitGP()
 {

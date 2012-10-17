@@ -241,6 +241,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
   struct_array(params, "theta", &parameters.n_theta, 
 	       &parameters.theta[0]);
 
+  struct_array(params, "mu", &parameters.n_mu, 
+	       &parameters.mu[0]);
+
   /* Extra configuration
   /  See ctypes.h for the available options */
   char c_str[100], s_str[100], k_str[100], m_str[100];

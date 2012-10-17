@@ -73,8 +73,8 @@ public:
 protected:
   vectord computeScaledDiff(const vectord &x1, const vectord &x2)
   {
-    assert(x1.size() = x2.size());
-    assert(x1.size() = mTheta.size());
+    assert(x1.size() == x2.size());
+    assert(x1.size() == mTheta.size());
 
     vectord xd = x1-x2;
     return ublas_elementwise_div(xd, mTheta); 

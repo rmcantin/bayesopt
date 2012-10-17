@@ -27,7 +27,7 @@
 
 #include "parameters.h"
 #include "kernel_functors.hpp"
-#include "meanfuncs.hpp"
+#include "mean_functors.hpp"
 #include "randgen.hpp"
 #include "specialtypes.hpp"
 #include "inneroptimization.hpp"	
@@ -62,7 +62,6 @@ public:
   /** 
    * Computes the negative log likelihood of the data.
    * 
-   * @param grad gradient of the negative Log Likelihood
    * @param param value of the param to be optimized
    * 
    * @return value negative log likelihood
@@ -94,8 +93,7 @@ public:
    * @return negative value of the expected improvement
    */
   virtual double negativeExpectedImprovement(const vectord &query,
-					     size_t g = 1)
-  {return 0.0;};
+					     size_t g = 1) = 0;
 
   /** 
    * Lower confindence bound. Can be seen as the inverse of the Upper 
@@ -108,8 +106,7 @@ public:
    * @return value of the lower confidence bound
    */
   virtual double lowerConfidenceBound(const vectord &query,
-				      double beta = 1)
-  {return 0.0;};
+				      double beta = 1) = 0;
 
   /** 
    * Probability of improvement algorithm for minimization
@@ -122,8 +119,18 @@ public:
    * @return negative value of the probability of improvement
    */
   virtual double negativeProbabilityOfImprovement(const vectord &query,
-						  double epsilon = 0.1)
-  {return 0.0;};
+						  double epsilon = 0.1) = 0;
+
+  /** 
+   * Sample outcome acording to the marginal distribution at the query point.
+   * 
+   * @param query query point
+   * @param eng boost.random engine
+   * 
+   * @return outcome
+   */
+  virtual double sample_query(const vectord& query, randEngine& eng) = 0;
+
 		 		 
   /** 
    *  Computes the GP based on mGPXX
@@ -176,19 +183,18 @@ public:
   inline double getValueAtMinimum()
   { return mGPY(mMinIndex); };
 
-  /*
-  inline vectord getTheta()
-  { return mTheta; };
-  
-  inline void setTheta( const vectord& theta )
-  { mTheta = theta; };
-  */
+  /** 
+   * Select kernel (covariance function) for the surrogate process.
+   * 
+   * @param thetav kernel parameters
+   * @param k_name kernel name
+   * @return error_code
+   */
+  int setKernel (const vectord &thetav,
+		 kernel_name k_name);
 
   /** 
-   * Chooses which kernel to use in the surrogate process.
-   * 
-   * @param theta kernel parameter
-   * @param k_name kernel name
+   * Wrapper of setKernel for c arrays
    */
   int setKernel (const double *theta, size_t n_theta,
 		 kernel_name k_name)
@@ -198,12 +204,27 @@ public:
     return setKernel(th, k_name);
   };
 
-  int setKernel (const vectord &thetav,
-		 kernel_name k_name);
+  /** 
+   * Select the parametric part of the surrogate process.
+   * 
+   * @param muv mean function parameters
+   * @param m_name mean function name
+   * @return error_code
+   */
+  int setMean (const vectord &muv,
+	       mean_name m_name);
 
-  virtual double sample_query(const vectord& query, 
-			      randEngine& eng)
-  { return 0.0; }
+  /** 
+   * Wrapper of setMean for c arrays
+   */
+  int setMean (const double *mu, size_t n_mu,
+	       mean_name m_name)
+  {
+    vectord vmu(n_mu);
+    std::copy(mu, mu+n_mu, vmu.begin());
+    return setMean(vmu, m_name);
+  };
+
 
 protected:
 
@@ -213,9 +234,8 @@ protected:
     return negativeLogLikelihood(1);
   };
 
-  inline double meanFunction( const vectord &x, size_t param_index = 0 )  
-  { //TODO: Parametrize this
-    return means::One(x); };
+  //inline double meanFunction( const vectord &x, size_t param_index = 0 )  
+  //{ return (*mMean)(x); };
 
   /** 
    * Precompute some values of the prediction that do not depends on the query
@@ -260,6 +280,7 @@ protected:
   size_t mMinIndex, mMaxIndex;
 
   Kernel* mKernel;                   ///< Pointer to kernel function
+  ParametricFunction* mMean;           ///< Pointer to mean function
   //  vectord mTheta;                             ///< Kernel parameters
   const double mRegularizer;  ///< GP likelihood parameters (Normal)
 

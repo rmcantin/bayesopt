@@ -32,7 +32,7 @@ double GaussianProcessIGN::negativeLogLikelihood(size_t index)
 
   //TODO: Replace by transform
   for (size_t ii=0; ii< n; ii++) 
-    colU(ii) = meanFunction(mGPXX[ii]);
+    colU(ii) = (*mMean)(mGPXX[ii]);
 
   vectord alphU(colU);
   inplace_solve(L,alphU,lower_tag());
@@ -68,7 +68,7 @@ int GaussianProcessIGN::prediction( const vectord &query,
   //vectord rInvR(n);
   double kn;
   double uInvRr, rInvRr, rInvRy;
-  double meanf = meanFunction(query);
+  double meanf = (*mMean)(query);
 
   vectord colR = computeCrossCorrelation(query);
   kn = (*mKernel)(query, query);
@@ -112,7 +112,7 @@ int GaussianProcessIGN::precomputePrediction()
 
   //TODO: It can be done incrementally
   for (size_t ii=0; ii< nSamples; ++ii) 
-    mMeanV(ii) = meanFunction(mGPXX[ii]);
+    mMeanV(ii) = (*mMean)(mGPXX[ii]);
 
 #if 0
   mAlphaV.resize(nSamples,false);

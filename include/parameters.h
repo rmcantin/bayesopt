@@ -44,8 +44,10 @@ extern "C" {
   
   typedef enum {
     M_ZERO,
+    M_ONE,
     M_CONSTANT,
     M_LINEAR,
+    M_LINEAR_CONSTANT,
     M_ERROR = -1
   } mean_name;
 
@@ -78,6 +80,8 @@ extern "C" {
     size_t verbose_level;        /**< Verbose level */
     double theta[128];           /**< Kernel hyperparameters */
     size_t n_theta;              /**< Number of kernel hyperparameters */
+    double mu[128];           /**< Mean function hyperparameters */
+    size_t n_mu;              /**< Number of mean function hyperparameters */
     double alpha, beta, delta;   /**< Inv-Gamma-Normal hyperparameters */
     double noise;                /**< Observation noise */
     surrogate_name s_name;       /**< Name of the surrogate function */
@@ -92,6 +96,7 @@ extern "C" {
 
   /* Nonparametric process "parameters" */
   const double KERNEL_THETA    = 1.0;
+  const double MEAN_MU         = 1.0;
   const double PRIOR_ALPHA     = 1.0;
   const double PRIOR_BETA      = 1.0;
   const double PRIOR_DELTA_SQ  = 1000.0;
@@ -107,7 +112,7 @@ extern "C" {
   const size_t MAX_DIM         = 40;         /* Not used */
 
   /* INNER Optimizer default values */
-  const size_t MAX_INNER_EVALUATIONS = 500;
+  const size_t MAX_INNER_EVALUATIONS = 500;   /*Used per dimmension */
   const size_t MAX_INNER_ITERATIONS  = 3000; /* Not used */
 
   /* Latin Hypercube Sampling (LHS) default values */

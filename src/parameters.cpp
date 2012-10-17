@@ -109,10 +109,14 @@ mean_name str2mean(const char* name)
 {
   if      (strcmp(name, "ZERO")   == 0)
     return M_ZERO;
+  else if (strcmp(name, "ONE")    == 0)
+    return M_CONSTANT;
   else if (strcmp(name, "CONSTANT")    == 0)
     return M_CONSTANT;
   else if (strcmp(name, "LINEAR") == 0)
     return M_LINEAR;
+  else if (strcmp(name, "LINEAR_CONSTANT")    == 0)
+    return M_CONSTANT;
   else return M_ERROR;
 }
 
@@ -121,8 +125,10 @@ const char* mean2str(mean_name name)
   switch(name)
     {
     case M_ZERO: return "ZERO"; 
+    case M_ONE: return "ONE"; 
     case M_CONSTANT: return "CONSTANT"; 
     case M_LINEAR: return "LINEAR"; 
+    case M_LINEAR_CONSTANT: return "LINEAR_CONSTANT"; 
     case M_ERROR:
     default: return "ERROR!";
     }
@@ -134,6 +140,7 @@ const bopt_params DEFAULT_PARAMS = {
   DEFAULT_ITERATIONS, MAX_INNER_EVALUATIONS, DEFAULT_SAMPLES, 
   DEFAULT_VERBOSE,
   {KERNEL_THETA}, 1, 
+  {MEAN_MU}, 1, 
   PRIOR_ALPHA, PRIOR_BETA, PRIOR_DELTA_SQ,
   DEFAULT_NOISE,
   S_GAUSSIAN_PROCESS,

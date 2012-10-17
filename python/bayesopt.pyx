@@ -32,44 +32,23 @@ cdef extern from *:
 cdef extern from "parameters.h":
 
     ctypedef enum kernel_name:
-        K_MATERN_ISO1,
-        K_MATERN_ISO3,
-        K_MATERN_ISO5,
-        K_SE_ISO,
-        K_SE_ARD,
-        K_ERROR = -1
-
+        pass
 
     ctypedef enum mean_name:
-        M_ZERO,
-        M_CONSTANT,
-        M_LINEAR,
-        M_ERROR = -1
-        
+        pass
         
     ctypedef enum criterium_name:
-        C_EI,
-        C_LCB,
-        C_POI,
-        C_GP_HEDGE,
-        C_GREEDY_A_OPTIMALITY,
-        C_EXPECTED_RETURN,
-        C_OPTIMISTIC_SAMPLING,
-        C_ERROR = -1
+        pass
     
-
     ctypedef enum surrogate_name:
-        S_GAUSSIAN_PROCESS,
-        S_GAUSSIAN_PROCESS_INV_GAMMA_NORMAL,
-        S_STUDENT_T_PROCESS_JEFFREYS,
-        S_ERROR = -1
+        pass
 
-
- 
     ctypedef struct bopt_params:
         unsigned int n_iterations, n_init_samples, verbose_level
         double* theta
         unsigned int n_theta
+        double* mu
+        unsigned int n_mu
         double alpha, beta, delta
         double noise
         surrogate_name s_name
@@ -109,16 +88,22 @@ cdef bopt_params dict2structparams(dict dparams):
     params.n_init_samples = dparams.get('n_init_samples',params.n_init_samples)
     params.verbose_level = dparams.get('verbose_level',params.verbose_level)
 
-    params.n_theta = dparams.get('n_theta',params.n_theta)
     params.alpha = dparams.get('alpha',params.alpha)
     params.beta = dparams.get('beta',params.beta)
     params.delta = dparams.get('delta',params.delta)
     params.noise = dparams.get('noise',params.noise)
     
+    params.n_theta = dparams.get('n_theta',params.n_theta)
     theta = dparams.get('theta',None)
     if theta is not None:
         for i in range(0,params.n_theta):
             params.theta[i] = theta[i]
+
+    params.n_mu = dparams.get('n_mu',params.n_mu)
+    mu = dparams.get('mu',None)
+    if mu is not None:
+        for i in range(0,params.n_mu):
+            params.mu[i] = mu[i]
 
     criteria = dparams.get('c_name',None)
     if criteria is not None:
@@ -151,6 +136,8 @@ def initialize_params():
     params = {
         "theta"  : [1.0],
         "n_theta": 1,
+        "mu"     : [1.0],
+        "n_mu"   : 1,
         "alpha"  : 1.0,
         "beta"   : 1.0,
         "delta"  : 1000.0,

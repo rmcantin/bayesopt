@@ -29,7 +29,7 @@ double StudentTProcess::negativeLogLikelihood(size_t index)
 
   //TODO: Replace by transform
   for (size_t ii=0; ii< n; ii++) 
-    colU(ii) = meanFunction(mGPXX[ii]);
+    colU(ii) = (*mMean)(mGPXX[ii]);
 
   vectord alphU(colU);
   boost::numeric::ublas::inplace_solve(L,alphU,boost::numeric::ublas::lower_tag());
@@ -55,7 +55,7 @@ int StudentTProcess::prediction( const vectord &query,
   vectord rInvR(n);
   double kn;
   double uInvRr, rInvRr;
-  double meanf = meanFunction(query);
+  double meanf = (*mMean)(query);
   
   vectord colR = computeCrossCorrelation(query);
   kn = (*mKernel)(query, query);
@@ -82,7 +82,7 @@ int StudentTProcess::precomputePrediction()
 
   //TODO: Replace by transform
   for (size_t ii=0; ii< nSamples; ii++) 
-    colU(ii) = meanFunction(mGPXX[ii]);
+    colU(ii) = (*mMean)(mGPXX[ii]);
 
   mUInvR = prod(colU,mInvR);
   mUInvRUDelta = inner_prod(mUInvR,colU);

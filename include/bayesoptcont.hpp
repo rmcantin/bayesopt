@@ -41,7 +41,8 @@
  * \brief Sequential Kriging Optimization using different non-parametric 
  * processes as surrogate (kriging) functions. 
  */
-class BayesOptContinuous: public InnerOptimization, BayesOptBase
+class BayesOptContinuous: public InnerOptimization, 
+			  public BayesOptBase
 {
  public:
   

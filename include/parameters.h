@@ -21,8 +21,8 @@
 */
 
 
-#ifndef __C_TYPES_H__
-#define __C_TYPES_H__
+#ifndef __BOPT_PARAMETERS_H__
+#define __BOPT_PARAMETERS_H__
 
 #include <string.h>
 

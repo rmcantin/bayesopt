@@ -45,6 +45,16 @@ extern "C" {
  * Basically, it uses the active learning strategy to optimize an "arbitrary" 
  * funtion using few iterations.
  * 
+ * @param nDim number of input dimensions
+ * @param f pointer to the function to optimize
+ * @param f_data pointer to extra data to be used by f
+ * @param lb array of lower bounds
+ * @param ub array of upper bounds
+ * @param x input: initial query, output: result (minimum)
+ * @param minf value of the function at the minimum
+ * @param parameters parameters for the Bayesian optimization.
+ * 
+ * @return error code
  */
   int bayes_optimization(int nDim, eval_func f, void* f_data,
 			 const double *lb, const double *ub, /* bounds */

@@ -245,7 +245,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
 	       &parameters.mu[0]);
 
   /* Extra configuration
-  /  See ctypes.h for the available options */
+  /  See parameters.h for the available options */
   char c_str[100], s_str[100], k_str[100], m_str[100];
   
   strcpy( c_str, crit2str(parameters.c_name));

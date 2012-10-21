@@ -1,34 +1,29 @@
 /** -*- c++ -*- \file bayesoptcont.hpp \brief Continuous Bayesian optimization */
 /*
------------------------------------------------------------------------------
-   This file is part of BayesOptimization, an efficient C++ library for 
+-------------------------------------------------------------------------
+   This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2012 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
-   BayesOptimization is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
+   BayesOpt is free software: you can redistribute it and/or modify it 
+   under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
 
-   BayesOptimization is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   BayesOpt is distributed in the hope that it will be useful, but 
+   WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with BayesOptimization.  If not, see <http://www.gnu.org/licenses/>.
------------------------------------------------------------------------------
+   along with BayesOpt.  If not, see <http://www.gnu.org/licenses/>.
+------------------------------------------------------------------------
 */
-
 
 #ifndef  _BAYESOPTCONT_HPP_
 #define  _BAYESOPTCONT_HPP_
 
-//#include <iostream>
-//#include <fstream>
-
-//TODO: Check if everything is needed
 #include "boundingbox.hpp"
 #include "inneroptimization.hpp"
 #include "bayesoptbase.hpp"

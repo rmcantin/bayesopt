@@ -1,26 +1,27 @@
 /*
------------------------------------------------------------------------------
-   Copyright (C) 2011 Ruben Martinez-Cantin <rmcantin@unizar.es>
+-------------------------------------------------------------------------
+   This file is part of BayesOpt, an efficient C++ library for 
+   Bayesian optimization.
+
+   Copyright (C) 2011-2012 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
-   This program is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
+   BayesOpt is free software: you can redistribute it and/or modify it 
+   under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   BayesOpt is distributed in the hope that it will be useful, but 
+   WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.
------------------------------------------------------------------------------
+   along with BayesOpt.  If not, see <http://www.gnu.org/licenses/>.
+------------------------------------------------------------------------
 */
 #include <cmath>
-
 #include <nlopt.h>
 #include "nloptwpr.h"
-
 #include "parameters.h"
 #include "inneroptimization.hpp"
 
@@ -44,26 +45,13 @@ void checkNLOPTerror(nlopt_result errortype)
 
 int InnerOptimization::innerOptimize(vectord &Xnext)
 {   
-  // double x[128];
     void *objPointer = static_cast<void *>(this);
     int n = static_cast<int>(Xnext.size());
     int error;
 
-    if (objPointer == 0)
-      {
-	std::cout << "Error casting the current object!" << std::endl;
-	return -6;
-      }
-
+    assert(objPointer != NULL)
     error = innerOptimize(&Xnext(0), n, objPointer);
 
-    // for (int i = 0; i < n; ++i) 
-    // 	x[i] = Xnext(i);
- 
-    // error = innerOptimize(x, n, objPointer);
-
-    // std::copy(x, x+n, Xnext.begin());
-    
     return error;
 } // innerOptimize (uBlas)
 
@@ -129,7 +117,6 @@ int InnerOptimization::innerOptimize(double* x, int n, void* objPointer)
     nlopt_destroy(opt);  // Destroy opt
     
     ierror = static_cast<int>(errortype);
-
     return ierror;
 
 } // innerOptimize (C array)

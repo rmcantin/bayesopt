@@ -1,6 +1,26 @@
-#include <boost/math/special_functions/factorials.hpp>
-#include <boost/math/distributions/normal.hpp> // for normal_distribution
+/*
+-------------------------------------------------------------------------
+   This file is part of BayesOpt, an efficient C++ library for 
+   Bayesian optimization.
 
+   Copyright (C) 2011-2012 Ruben Martinez-Cantin <rmcantin@unizar.es>
+ 
+   BayesOpt is free software: you can redistribute it and/or modify it 
+   under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   BayesOpt is distributed in the hope that it will be useful, but 
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with BayesOpt.  If not, see <http://www.gnu.org/licenses/>.
+------------------------------------------------------------------------
+*/
+#include <boost/math/special_functions/factorials.hpp>
+#include <boost/math/distributions/normal.hpp> 
 #include "gaussian_process.hpp"
 #include "cholesky.hpp"
 #include "trace_ublas.hpp"
@@ -30,7 +50,8 @@ double GaussianProcess::negativeLogLikelihood(size_t index)
   // Compute the likelihood
   vectord alpha(mGPY);
   cholesky_solve(L,alpha,lower());
-  double loglik = .5*inner_prod(mGPY,alpha) + trace(L) + n*0.91893853320467; //log(2*pi)/2
+  double loglik = .5*inner_prod(mGPY,alpha) + trace(L) + n*0.91893853320467; 
+  // 0.9183... = log(2*pi)/2
 
   return loglik;
 }

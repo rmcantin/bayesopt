@@ -1,23 +1,24 @@
+/** -*- c++ -*- \file criteria_functors.hpp \brief Criteria functions */
 /*
------------------------------------------------------------------------------
-   This file is part of BayesOptimization, an efficient C++ library for 
+-------------------------------------------------------------------------
+   This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2012 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
-   BayesOptimization is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
+   BayesOpt is free software: you can redistribute it and/or modify it 
+   under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
 
-   BayesOptimization is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   BayesOpt is distributed in the hope that it will be useful, but 
+   WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with BayesOptimization.  If not, see <http://www.gnu.org/licenses/>.
------------------------------------------------------------------------------
+   along with BayesOpt.  If not, see <http://www.gnu.org/licenses/>.
+------------------------------------------------------------------------
 */
 
 #ifndef  _CRITERIA_FUNCTORS_HPP_
@@ -27,6 +28,13 @@
 #include <algorithm>
 #include "boost/bind.hpp"
 
+
+///\addtogroup CriteriaFunctions
+//@{
+
+/**
+ * \brief Abstract interface for criteria functors.
+ */
 class Criteria
 {
 public:
@@ -43,8 +51,9 @@ protected:
 };
 
 
-
-////////////////////////////////////////////////////////////////////////////////
+/**
+ * \brief Expected improvement criterion by Mockus.
+ */
 class ExpectedImprovement: public Criteria
 {
 public:
@@ -59,7 +68,9 @@ public:
 };
 
 
-////////////////////////////////////////////////////////////////////////////////
+/**
+ * \brief Lower (upper) confidence bound criterion.
+ */
 class LowerConfidenceBound: public Criteria
 {
 public:
@@ -76,7 +87,10 @@ protected:
   double mBeta;
 };
 
-////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * \brief Probability of improvement criterion based on (Kushner).
+ */
 class ProbabilityOfImprovement: public Criteria
 {
 public:
@@ -92,7 +106,10 @@ protected:
   double mEpsilon;
 };
 
-////////////////////////////////////////////////////////////////////////////////
+/**
+ * \brief Greedy A-Optimality criterion. 
+ * Used for learning the function, not to minimize.
+ */
 class GreedyAOptimality: public Criteria
 {
 public:
@@ -107,7 +124,9 @@ public:
   };
 };
 
-////////////////////////////////////////////////////////////////////////////////
+/**
+ * \brief Expected return criterion.
+ */
 class ExpectedReturn: public Criteria
 {
 public:
@@ -123,7 +142,9 @@ public:
   };
 };
 
-////////////////////////////////////////////////////////////////////////////////
+/**
+ * \brief Optimistic sampling, also called, Thomson sampling.
+ */
 class OptimisticSampling: public Criteria
 {
 public:
@@ -143,7 +164,10 @@ protected:
   randEngine mtRandom;
 };
 
-////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * \brief Abstract class for annealed criteria.
+ */
 class AnnealedCriteria: public Criteria
 {
 public:
@@ -157,7 +181,9 @@ protected:
 };
 
 
-////////////////////////////////////////////////////////////////////////////////
+/**
+ * \brief Expected improvement criterion using Schonlau annealing.
+ */
 class AnnealedExpectedImprovement: public AnnealedCriteria
 {
 public:
@@ -183,7 +209,10 @@ protected:
   double mExp;
 };
 
-////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * \brief Lower (upper) confidence bound using Srinivas annealing
+ */
 class AnnealedLowerConfindenceBound: public AnnealedCriteria
 {
 public:
@@ -208,8 +237,11 @@ protected:
   double mCoef;
 };
 
-////////////////////////////////////////////////////////////////////////////////
-
+////////////////////////////////////////////////////////////////////////////
+/**
+ * \brief Abstract class for Metacriteria interface.
+ * The Metacriteria can be used to combine different criteria.
+ */
 class MetaCriteria
 {
 public:
@@ -291,8 +323,24 @@ protected:
   Criteria* mCurrentCriterium;
 };
 
+
+/** 
+ * \brief Softmax function
+ * 
+ * @param g gain function
+ * @param eta smoothness coefficient
+ * @return 
+ */
 inline double softmax(double g, double eta) {return exp(eta*g);};
 
+
+/**
+ * \brief GP_Hedge model as describen in Hoffman et al.
+ *
+ * The coefficients of the bandit algorithm has been carefully selected
+ * according to Shapire et al. Also, the implementation has been made to
+ * avoid over or underflow.
+ */
 class GP_Hedge: public MetaCriteria
 {
 public:
@@ -438,6 +486,10 @@ protected:
   size_t mIndex;
 };
 
+/**
+ * \brief Modification of the GP_Hedge algorithm where the bandit gains are
+ * random outcomes.
+ */
 class GP_Hedge_Random: public GP_Hedge
 {
 public:
@@ -452,5 +504,7 @@ protected:
     return mProc->sample_query(query,mtRandom);
   }
 };
+
+//@}
 
 #endif

@@ -1,3 +1,24 @@
+/*
+-------------------------------------------------------------------------
+   This file is part of BayesOpt, an efficient C++ library for 
+   Bayesian optimization.
+
+   Copyright (C) 2011-2012 Ruben Martinez-Cantin <rmcantin@unizar.es>
+ 
+   BayesOpt is free software: you can redistribute it and/or modify it 
+   under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   BayesOpt is distributed in the hope that it will be useful, but 
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with BayesOpt.  If not, see <http://www.gnu.org/licenses/>.
+------------------------------------------------------------------------
+*/
 
 #ifndef  _RANDGEN_HPP_
 #define  _RANDGEN_HPP_
@@ -6,8 +27,6 @@
 #include <boost/random.hpp>
 
 // Types for pseudorandom number generators.
-// According to documentation, the uniform floating point distribution is buggy.
-// I've read lots of webpages complaining, but everyone uses it.
 
 typedef boost::mt19937                                              randEngine;
 
@@ -15,9 +34,6 @@ typedef boost::uniform_real<>				       realUniformDist;
 typedef boost::uniform_int<> 					intUniformDist;
 typedef boost::normal_distribution<>                                normalDist;
 typedef boost::gamma_distribution<>                                  gammaDist;
-
-// #if BOOST_VERSION >= 104700
-//    typedef boost::student_t_distribution<>                           studTDist;
 
 typedef boost::variate_generator<randEngine&, intUniformDist>          randInt;
 typedef boost::variate_generator<randEngine&, normalDist>           randNFloat;

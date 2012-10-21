@@ -1,24 +1,27 @@
 /*
------------------------------------------------------------------------------
-   Copyright (C) 2011 Ruben Martinez-Cantin <rmcantin@unizar.es>
+-------------------------------------------------------------------------
+   This file is part of BayesOpt, an efficient C++ library for 
+   Bayesian optimization.
+
+   Copyright (C) 2011-2012 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
-   This program is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
+   BayesOpt is free software: you can redistribute it and/or modify it 
+   under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   BayesOpt is distributed in the hope that it will be useful, but 
+   WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.
------------------------------------------------------------------------------
+   along with BayesOpt.  If not, see <http://www.gnu.org/licenses/>.
+------------------------------------------------------------------------
 */
 
-#include <cstdio>
 
+#include <cstdio>
 #include "nonparametricprocess.hpp"
 #include "cholesky.hpp"
 #include "ublas_extra.hpp"
@@ -125,30 +128,6 @@ int NonParametricProcess::addNewPointToGP( const vectord &Xnew,
   //TODO: Choose one!
   addNewPointToCholesky(newK,selfCorrelation);
   addNewPointToInverse(newK,selfCorrelation);
-
-  // USED FOR TESTING
-  // using boost::numeric::ublas::identity_matrix;
-  // using boost::numeric::ublas::lower;
-  // matrixd testInv(identity_matrix<double>(mInvR.size1()));
-  // cholesky_solve(mL,testInv,lower());
-  // matrixd newR = mInvR;
-  // matrixd newL = mL;
-
-  // computeCholeskyCorrelation();
-
-  // matrixd testInv2(identity_matrix<double>(mInvR.size1()));
-  // cholesky_solve(mL,testInv2,lower());
-
-  // computeInverseCorrelation();
-
-  // for(size_t i=0; i<mInvR.size1(); ++i)
-  //   for(size_t j=0; j<mInvR.size2(); ++j)
-  //     if (std::abs(mL(i,j)-newL(i,j)) > 0.01)
-  // 	{
-  // 	  std::cout << "ERROR! " << i << "," << j << " | "
-  // 		    << mL(i,j) << "," << newL(i,j) << std::endl;
-  // 	  std::getchar();
-  // 	}
   
   return precomputePrediction();
 } // addNewPointToGP

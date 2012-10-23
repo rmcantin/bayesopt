@@ -7,6 +7,7 @@ using boost::numeric::ublas::inplace_solve;
 using boost::numeric::ublas::lower_tag;
 using boost::numeric::ublas::lower;
   
+
 GaussianProcessIGN::GaussianProcessIGN( double noise, double alpha, 
 					double beta, double delta):
   GaussianProcess(noise),
@@ -72,23 +73,19 @@ int GaussianProcessIGN::prediction( const vectord &query,
 
   vectord colR = computeCrossCorrelation(query);
   kn = (*mKernel)(query, query);
-  
-  svectord colMean(n, meanf * mMu);
-#if 0
-  vectord invRy = mGPY - colMean;
-  cholesky_solve(mL,invRy,lower());
+
+#if USE_CHOL
 
   vectord invRr(colR);
-  cholesky_solve(mL,invRr,lower());
-  rInvRr = inner_prod(colR,invRr);
-  uInvRr = inner_prod(mMeanV,invRr);  
-  rInvRy = inner_prod( colR, invRy );
+  inplace_solve(mL,invRr,lower_tag());
+  rInvRr = inner_prod(invRr,invRr);
+  uInvRr = inner_prod(mUInvR, invRr);  
+  rInvRy = inner_prod(invRr, mInvRy );
 #else
 
-  vectord ymu = mGPY - colMean;
-  vectord rInvR(n);
-
-  noalias(rInvR) = prod(colR,mInvR);	
+  vectord ymu = mGPY - mMeanV*mMu;
+  vectord rInvR = prod(colR,mInvR);
+	
   rInvRr = inner_prod(rInvR,colR);
   uInvRr = inner_prod(mUInvR,colR);
   rInvRy = inner_prod( rInvR,ymu );
@@ -106,33 +103,30 @@ int GaussianProcessIGN::prediction( const vectord &query,
 int GaussianProcessIGN::precomputePrediction()
 {
   size_t nSamples = mGPXX.size();
-  mMeanV.resize(nSamples,false);
-  //mMeanV(nSamples);
-  //std::transform(mGPXX.begin(),mGPXX.end(),mMeanV.begin(),NonParametricProcess::meanFunction);
 
-  mMeanV = (*mMean)(mGPXX);
+  mUInvR.resize(nSamples,false);
 
-  //TODO: It can be done incrementally
-  //for (size_t ii=0; ii< nSamples; ++ii) 
-  //  mMeanV(ii) = (*mMean)(mGPXX[ii]);
-
-#if 0
+#if USE_CHOL
   mAlphaV.resize(nSamples,false);
   mAlphaV = mGPY;
   cholesky_solve(mL,mAlphaV,lower());
 
-  vectord alphaMean(mMeanV);
-  inplace_solve(mL,alphaMean,lower_tag());
-  mUInvRUDelta = inner_prod(alphaMean,alphaMean) + 1/mDelta2;
+  //  vectord alphaMean(mMeanV);
+  mUInvR = mMeanV;
+  inplace_solve(mL,mUInvR,lower_tag());
+  mUInvRUDelta = inner_prod(mUInvR,mUInvR) + 1/mDelta2;
 
   mMu = inner_prod(mMeanV,mAlphaV) / mUInvRUDelta;
   double YInvRY = inner_prod(mGPY,mAlphaV);
+
+  mInvRy.resize(nSamples,false);
+  mInvRy = mGPY - mMeanV*mMu;
+  inplace_solve(mL,mInvRy,lower_tag());
+
 #else
   // mInvR.resize(nSamples,nSamples);
   // mInvR.assign(boost::numeric::ublas::identity_matrix<double>(nSamples));
   // cholesky_solve(mL,mInvR,lower());
-
-  mUInvR.resize(nSamples,false);
   mUInvR = prod(mMeanV,mInvR);
   mUInvRUDelta = inner_prod(mUInvR,mMeanV) + 1/mDelta2;
   

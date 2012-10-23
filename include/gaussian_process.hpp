@@ -1,4 +1,4 @@
-/** \file basicgaussianprocess.hpp 
+/** \file gaussian_process.hpp 
     \brief Standard zero mean gaussian process with noisy observations */
 /*
 -------------------------------------------------------------------------
@@ -22,8 +22,8 @@
 ------------------------------------------------------------------------
 */
 
-#ifndef  _BASICGAUSSPROCESS_HPP_
-#define  _BASICGAUSSPROCESS_HPP_
+#ifndef  _GAUSSIAN_PROCESS_HPP_
+#define  _GAUSSIAN_PROCESS_HPP_
 
 #include "nonparametricprocess.hpp"
 

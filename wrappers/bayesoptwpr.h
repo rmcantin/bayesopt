@@ -43,7 +43,7 @@ extern "C" {
  * @brief C functional wrapper for the Bayesian optimization algorithm. 
  * This is an efficient, C/C++ implementation of the Bayesian optimization.
  * Basically, it uses the active learning strategy to optimize an "arbitrary" 
- * funtion using few iterations.
+ * funtion using few iterations. This assumes continuous optimization.
  * 
  * @param nDim number of input dimensions
  * @param f pointer to the function to optimize
@@ -57,10 +57,33 @@ extern "C" {
  * @return error code
  */
   int bayes_optimization(int nDim, eval_func f, void* f_data,
-			 const double *lb, const double *ub, /* bounds */
-			 double *x, /* out: minimizer */
-			 double *minf, /* out: minimum */
+			 const double *lb, const double *ub,
+			 double *x, double *minf,
 			 bopt_params parameters);
+
+
+/** 
+ * @brief C functional wrapper for the Bayesian optimization algorithm. 
+ * This is an efficient, C/C++ implementation of the Bayesian optimization.
+ * Basically, it uses the active learning strategy to optimize an "arbitrary" 
+ * funtion using few iterations. This assumes the discrete optimization.
+ * 
+ * @param nDim number of input dimensions
+ * @param f pointer to the function to optimize
+ * @param f_data pointer to extra data to be used by f
+ * @param valid_x set of possible discrete points
+ * @param n_points number of possible discrete points
+ * @param x input: initial query, output: result (minimum)
+ * @param minf value of the function at the minimum
+ * @param parameters parameters for the Bayesian optimization.
+ * 
+ * @return error code
+ */
+  int bayes_optimization_disc(int nDim, eval_func f, void* f_data,
+			      double *valid_x, size_t n_points,
+			      double *x, double *minf,
+			      bopt_params parameters);
+
   
 #ifdef __cplusplus
 }

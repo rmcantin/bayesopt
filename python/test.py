@@ -26,9 +26,11 @@ class BayesOptTest(bopt.BayesOptModule):
 # If a parameter is not define, it will be automatically set
 # to a default value.
 params = kp.initialize_params()
-params['n_iterations'] = 100
+params['n_iterations'] = 10
 params['s_name'] = "GAUSSIAN_PROCESS_INV_GAMMA_NORMAL"
-params['c_name'] = "GP_HEDGE"
+params['c_name'] = "EI"
+
+print "Callback implementation"
 
 n = 5                     # n dimensions
 lb = np.zeros((n,))
@@ -38,11 +40,11 @@ start = tm.clock()
 
 mvalue, x_out, error = kp.optimize(testfunc, n, lb, ub, params)
 
-print "Callback implementation"
 print "Result", x_out
 print "Seconds", tm.clock() - start
 
 
+print "OO implementation"
 bo = BayesOptTest()
 bo.params = params
 bo.n = n
@@ -52,7 +54,18 @@ bo.ub = ub
 start = tm.clock()
 mvalue, x_out, error = bo.optimize()
 
-print "OO implementation"
 print "Result", x_out
 print "Seconds", tm.clock() - start
 
+
+print "Callback discrete implementation"
+x_set = np.random.rand(100,n)
+start = tm.clock()
+
+mvalue, x_out, error = kp.optimize_discrete(testfunc, n, x_set, params)
+
+print "Result", x_out
+print "Seconds", tm.clock() - start
+
+value = np.array([testfunc(i) for i in x_set])
+print "Optimun", x_set[value.argmin()]

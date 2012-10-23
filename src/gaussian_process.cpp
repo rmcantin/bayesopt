@@ -62,8 +62,11 @@ int GaussianProcess::prediction( const vectord &query,
 {
   double kn = (*mKernel)(query, query);
   vectord kStar = computeCrossCorrelation(query);
-
+#if USE_CHOL
   return predictionChol(kn,kStar,yPred,sPred);
+#else
+  return predictionInv(kn,kStar,yPred,sPred);
+#endif
 }
 
 int GaussianProcess::predictionChol(double kn, const vectord& kStar,
@@ -89,7 +92,13 @@ int GaussianProcess::predictionInv(double kn, const vectord& kStar,
 }
 
 int GaussianProcess::precomputePrediction()
-{ return precomputeChol(); }
+{ 
+#if USE_CHOL
+  return precomputeChol(); 
+#else
+  return 1;
+#endif
+}
 
 int GaussianProcess::precomputeChol()
 {

@@ -78,6 +78,10 @@ cdef extern from "bayesoptwpr.h":
                            double *minf,
                            bopt_params params)
 
+    int bayes_optimization_disc(int nDim, eval_func f, void* f_data,
+                                double *valid_x, size_t n_points,
+                                double *x, double *minf,
+                                bopt_params parameters)
     
 ###########################################################################
 cdef bopt_params dict2structparams(dict dparams):
@@ -158,13 +162,48 @@ def optimize(f, int nDim, np.ndarray[np.double_t] np_lb,
 
     cdef bopt_params params = dict2structparams(dparams)    
     cdef double minf[1000]
-    cdef np.ndarray np_x = np.zeros([nDim, 1], dtype=np.double)
+    cdef np.ndarray np_x = np.zeros([nDim], dtype=np.double)
+
+    cdef np.ndarray[np.double_t, ndim=1, mode="c"] lb
+    cdef np.ndarray[np.double_t, ndim=1, mode="c"] ub
+    cdef np.ndarray[np.double_t, ndim=1, mode="c"] x
+    
+    lb = np.ascontiguousarray(np_lb,dtype=np.double)
+    ub = np.ascontiguousarray(np_ub,dtype=np.double)
+    x  = np.ascontiguousarray(np_x,dtype=np.double)
     
     Py_INCREF(f)
     
     error_code = bayes_optimization(nDim, callback, <void *> f,
-                                    <double *>np_lb.data, <double *>np_ub.data,
-                                    <double *>np_x.data, minf, params)
+                                    &lb[0], &ub[0], &x[0], minf, params)
+    Py_DECREF(f)
+    min_value = minf[0]
+    return min_value,np_x,error_code
+
+
+def optimize_discrete(f, int nDim, np.ndarray[np.double_t,ndim=2] np_valid_x,
+                      dict dparams):
+
+    cdef bopt_params params = dict2structparams(dparams)    
+    cdef double minf[1000]
+    cdef np.ndarray np_x = np.zeros([nDim], dtype=np.double)
+
+    if (np_valid_x.shape[1] != nDim):
+        print "Error in discrete set."
+        return 0, 0, -6
+
+    cdef np.ndarray[np.double_t, ndim=1, mode="c"] x
+    cdef np.ndarray[np.double_t, ndim=2, mode="c"] valid_x
+    
+    x  = np.ascontiguousarray(np_x,dtype=np.double)
+    valid_x = np.ascontiguousarray(np_valid_x,dtype=np.double)
+    
+    Py_INCREF(f)
+    
+    error_code = bayes_optimization_disc(nDim, callback, <void *> f,
+                                         &valid_x[0,0], np_valid_x.shape[0],
+                                         &x[0], minf, params)
+    
     Py_DECREF(f)
     min_value = minf[0]
     return min_value,np_x,error_code

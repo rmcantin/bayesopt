@@ -1,4 +1,4 @@
-/** \file gaussprocess.hpp 
+/** \file gaussian_process_ign.hpp 
     \brief Gaussian process with normal-inverse-gamma hyperprior 
            on mean and signal variance parameters. */
 /*
@@ -20,8 +20,8 @@
 -----------------------------------------------------------------------------
 */
 
-#ifndef  _GAUSSPROCESS_HPP_
-#define  _GAUSSPROCESS_HPP_
+#ifndef  _GAUSSIAN_PROCESS_IGN_HPP_
+#define  _GAUSSIAN_PROCESS_IGN_HPP_
 
 #include "gaussian_process.hpp"
  
@@ -79,14 +79,11 @@ protected:
   double mMu, mSig;                   // GP posterior parameters
 
   // Precomputed GP prediction operations
-  vectord mMeanV;              
   vectord mUInvR;
+  vectord mInvRy;
   double mUInvRUDelta;
   
 };
-
-
 /**@}*/
-// end namespaces
 
 #endif

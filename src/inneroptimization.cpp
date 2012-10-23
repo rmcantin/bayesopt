@@ -49,7 +49,7 @@ int InnerOptimization::innerOptimize(vectord &Xnext)
     int n = static_cast<int>(Xnext.size());
     int error;
 
-    assert(objPointer != NULL)
+    assert(objPointer != NULL);
     error = innerOptimize(&Xnext(0), n, objPointer);
 
     return error;

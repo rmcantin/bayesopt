@@ -133,7 +133,8 @@ protected:
   double mMu, mSig;                   // GP posterior parameters
 
   // Precomputed GP prediction operations
-  vectord mUInvR;              
+  vectord mUInvR;     
+  vectord mInvRy;         
   double mUInvRUDelta;
 };
 

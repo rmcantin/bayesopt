@@ -41,7 +41,7 @@ class TestEGO: public BayesOptContinuous
 
 int main(int nargs, char *args[])
 {    
-  int n = 6;                   // Number of dimensions
+  int n = 10;                   // Number of dimensions
 
   // Common configuration
   // See parameters.h for the available options
@@ -56,7 +56,7 @@ int main(int nargs, char *args[])
   par.delta = PRIOR_DELTA_SQ;
   par.noise = DEFAULT_NOISE;
   par.c_name = C_EI;
-  par.s_name = S_GAUSSIAN_PROCESS_INV_GAMMA_NORMAL;
+  par.s_name = S_STUDENT_T_PROCESS_JEFFREYS;//S_GAUSSIAN_PROCESS_INV_GAMMA_NORMAL;
   par.k_name = K_MATERN_ISO3;
   par.n_iterations = 300;       // Number of iterations
   par.n_init_samples = 50;

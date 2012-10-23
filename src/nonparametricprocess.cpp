@@ -126,8 +126,11 @@ int NonParametricProcess::addNewPointToGP( const vectord &Xnew,
   addSample(Xnew,Ynew);
 
   //TODO: Choose one!
+#if USE_CHOL
   addNewPointToCholesky(newK,selfCorrelation);
+#else
   addNewPointToInverse(newK,selfCorrelation);
+#endif
   
   return precomputePrediction();
 } // addNewPointToGP

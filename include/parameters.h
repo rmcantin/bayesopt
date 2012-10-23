@@ -1,3 +1,4 @@
+/** -*- c -*- \file parameters.h \brief Parameter definitions. */
 /*
 -------------------------------------------------------------------------
    This file is part of BayesOpt, an efficient C++ library for 

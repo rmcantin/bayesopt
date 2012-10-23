@@ -33,6 +33,8 @@
 #include "specialtypes.hpp"
 #include "inneroptimization.hpp"	
 
+#define USE_CHOL 1
+
 
 /** \addtogroup NonParametricProcesses */
 /**@{*/
@@ -162,7 +164,7 @@ public:
 	mGPXX.push_back(row(x,i));
 	checkBoundsY(i);
       } 
-
+    mMeanV = (*mMean)(mGPXX);
   };
 
   inline void addSample(const vectord &x, double y)
@@ -170,6 +172,8 @@ public:
     mGPXX.push_back(x);
     mGPY.resize(mGPY.size()+1);  mGPY(mGPY.size()-1) = y;
     checkBoundsY(mGPY.size()-1);
+    mMeanV.resize(mMeanV.size()+1);  
+    mMeanV(mMeanV.size()-1) = mMean->getMean(x);
   };
 
   inline double getSample(size_t index, vectord &x)
@@ -287,6 +291,7 @@ protected:
 
   matrixd mL;
   vectord mAlphaV;
+  vectord mMeanV;              
 
 };
 

@@ -1,5 +1,6 @@
 #include "lhs.hpp"
 #include "bayesoptdisc.hpp"
+#include "bayesoptwpr.h"
 
 
 
@@ -62,11 +63,13 @@ int main(int nargs, char *args[])
   par.n_init_samples = 20;
   /*******************************************/
   
-  size_t nPoints = 1000;
+  size_t nPoints = 50;
 
   randEngine mtRandom;
   matrixd xPoints(nPoints,n);
   vecOfvec xP;
+
+  double xPointsArray[n*nPoints];
 
   lhs(xPoints,mtRandom);
 
@@ -74,15 +77,30 @@ int main(int nargs, char *args[])
     {
       vectord point = row(xPoints,i);  
       xP.push_back(point);
+      for(size_t j=0; j<n; ++j)
+	{
+	  xPointsArray[i*n+j] = point(j);	  
+	}
     }
     
 
   std::cout << "Running C++ interface" << std::endl;
-  // Configure C++ interface
-
+  // Run C++ interface
   TestDisc gp_opt(xP,par);
   vectord result(n);
+  gp_opt.optimize(result);
 
+  for(size_t i = 0; i<nPoints; ++i)
+    std::cout<< "Probando:" << xP[i] << std::endl;
+
+  std::cout << "Running C interface" << std::endl;
+  // Run C interface
+
+  double x[128], fmin[128];
+  bayes_optimization_disc(n, &testFunction, NULL, xPointsArray, nPoints,
+			  x, fmin, par);
+
+  // Find the optimal value
   size_t min = 0;
   double minvalue = gp_opt.evaluateSample(row(xPoints,min));
   for(size_t i = 1; i<nPoints; ++i)
@@ -95,8 +113,10 @@ int main(int nargs, char *args[])
 	}
     }
 
-  // Run C++ interface
-  gp_opt.optimize(result);
   std::cout << "Final result C++: " << result << std::endl;
+  std::cout << "Final result C: (";
+  for (int i = 0; i < n; i++ )
+    std::cout << x[i] << ", ";
+  std::cout << ")" << std::endl;
   std::cout << "Optimal: " << row(xPoints,min) << std::endl;
 }

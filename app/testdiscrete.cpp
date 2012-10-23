@@ -90,9 +90,6 @@ int main(int nargs, char *args[])
   vectord result(n);
   gp_opt.optimize(result);
 
-  for(size_t i = 0; i<nPoints; ++i)
-    std::cout<< "Probando:" << xP[i] << std::endl;
-
   std::cout << "Running C interface" << std::endl;
   // Run C interface
 

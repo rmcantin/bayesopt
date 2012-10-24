@@ -2,7 +2,7 @@
 import sys
 import numpy as np
 import time as tm
-import bayesopt as kp
+import bayesopt as bo
 import bayesoptmodule as bopt
 
 # Function for testing.
@@ -14,7 +14,7 @@ def testfunc(Xin):
     return total
 
 # Class for OO testing.
-class BayesOptTest(bopt.BayesOptModule):
+class BayesOptTest(bopt.BayesOptContinuous):
     def evalfunc(self,Xin):
         return testfunc(Xin)
 
@@ -25,7 +25,7 @@ class BayesOptTest(bopt.BayesOptModule):
 # For different options: see parameters.h and cpp
 # If a parameter is not define, it will be automatically set
 # to a default value.
-params = kp.initialize_params()
+params = bo.initialize_params()
 params['n_iterations'] = 10
 params['s_name'] = "GAUSSIAN_PROCESS_INV_GAMMA_NORMAL"
 params['c_name'] = "EI"
@@ -38,21 +38,21 @@ ub = np.ones((n,))
 
 start = tm.clock()
 
-mvalue, x_out, error = kp.optimize(testfunc, n, lb, ub, params)
+mvalue, x_out, error = bo.optimize(testfunc, n, lb, ub, params)
 
 print "Result", x_out
 print "Seconds", tm.clock() - start
 
 
 print "OO implementation"
-bo = BayesOptTest()
-bo.params = params
-bo.n = n
-bo.lb = lb
-bo.ub = ub
+bo_test = BayesOptTest()
+bo_test.params = params
+bo_test.n = n
+bo_test.lb = lb
+bo_test.ub = ub
 
 start = tm.clock()
-mvalue, x_out, error = bo.optimize()
+mvalue, x_out, error = bo_test.optimize()
 
 print "Result", x_out
 print "Seconds", tm.clock() - start
@@ -62,7 +62,7 @@ print "Callback discrete implementation"
 x_set = np.random.rand(100,n)
 start = tm.clock()
 
-mvalue, x_out, error = kp.optimize_discrete(testfunc, n, x_set, params)
+mvalue, x_out, error = bo.optimize_discrete(testfunc, x_set, params)
 
 print "Result", x_out
 print "Seconds", tm.clock() - start

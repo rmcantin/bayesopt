@@ -58,7 +58,8 @@ int main(int nargs, char *args[])
   par.c_name = C_EI;
   par.s_name = S_STUDENT_T_PROCESS_JEFFREYS;//S_GAUSSIAN_PROCESS_INV_GAMMA_NORMAL;
   par.k_name = K_MATERN_ISO3;
-  par.n_iterations = 300;       // Number of iterations
+  par.m_name = M_ONE;
+  par.n_iterations = 100;       // Number of iterations
   par.n_init_samples = 50;
   /*******************************************/
 

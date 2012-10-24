@@ -16,8 +16,8 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -----------------------------------------------------------------------------
 */
-#include <boost/math/distributions/students_t.hpp> // for student t distribution
 
+#include <boost/math/distributions/students_t.hpp> // for student t distribution
 #include "student_t_process.hpp"
 #include "cholesky.hpp"
 #include "trace_ublas.hpp"
@@ -49,10 +49,6 @@ double StudentTProcess::negativeLogLikelihood(size_t index)
 
   vectord colU = (*mMean)(mGPXX);;
 
-  //TODO: Replace by transform
-  //  for (size_t ii=0; ii< n; ii++) 
-  //  colU(ii) = 
-
   vectord alphU(colU);
   inplace_solve(L,alphU,lower_tag());
   double eta = inner_prod(colU,alphU);
@@ -74,7 +70,7 @@ int StudentTProcess::prediction( const vectord &query,
 				 double& yPred, double& sPred)
 {
   size_t n = mGPXX.size();
-  double uInvRr, rInvRr, rInvRy;
+  double rInvRu, rInvRr, rInvRy;
   double meanf = mMean->getMean(query);
   
   vectord colR = computeCrossCorrelation(query);
@@ -84,20 +80,18 @@ int StudentTProcess::prediction( const vectord &query,
   vectord invRr(colR);
   inplace_solve(mL,invRr,lower_tag());
   rInvRr = inner_prod(invRr,invRr);
-  uInvRr = inner_prod(mUInvR, invRr);  
+  rInvRu = inner_prod(invRr,mUInvR);  
   rInvRy = inner_prod(invRr, mInvRy );
 #else
   vectord rInvR(n);
   noalias(rInvR) = prod(colR,mInvR);	
   rInvRr = inner_prod(rInvR,colR);
-  uInvRr = inner_prod(mUInvR,colR);
-  
-  vectord yumu = mGPY - mMeanV*mMu;
-  rInvRy = inner_prod( rInvR, yumu );
+  rInvRu = inner_prod(rInvR,mMeanV);
+  rInvRy = inner_prod(colR,mInvRy);
 #endif
 
   yPred = meanf*mMu + rInvRy;
-  sPred = sqrt( mSig * (kn - rInvRr + (meanf - uInvRr) * (meanf - uInvRr) 
+  sPred = sqrt( mSig * (kn - rInvRr + (meanf - rInvRu) * (meanf - rInvRu) 
 			/ mUInvRUDelta ) );
 
   return n-1;
@@ -120,12 +114,18 @@ int StudentTProcess::precomputePrediction()
   inplace_solve(mL,mInvRy,lower_tag());
   mMu =  inner_prod(mUInvR,mInvRy) / mUInvRUDelta;
   YInvRY = inner_prod(mInvRy,mInvRy);
+
+  mInvRy = mGPY - mMeanV*mMu;
+  inplace_solve(mL,mInvRy,lower_tag()); 
 #else
   mUInvR = prod(mMeanV,mInvR);
   mUInvRUDelta = inner_prod(mUInvR,mMeanV);
   mMu =  inner_prod(mUInvR,mGPY) / mUInvRUDelta;
   noalias(mInvRy) = prod(mInvR,mGPY); 
   YInvRY = inner_prod(mGPY,mInvRy);
+
+  vectord yumu = mGPY - mMeanV*mMu;
+  mInvRy = prod(mInvR,yumu);
 #endif
   
   mSig = (YInvRY - mMu*mMu*mUInvRUDelta) / (nSamples-1);
@@ -148,7 +148,7 @@ double StudentTProcess::negativeExpectedImprovement(const vectord& query,
   double yDiff = yMin - yPred; 
   double yNorm = yDiff / sPred;
   
-  assert((g != 1) && "Students t EI with exponent not yet supported.");
+  assert((g == 1) && "Students t EI with exponent not yet supported.");
   return -( yDiff * cdf(d,yNorm) + 
 	    (dof*sPred+yNorm*yDiff)/(dof-1) * pdf(d,yNorm) );
 

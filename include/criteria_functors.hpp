@@ -57,14 +57,18 @@ protected:
 class ExpectedImprovement: public Criteria
 {
 public:
-  ExpectedImprovement(NonParametricProcess *proc): Criteria(proc){};
+  ExpectedImprovement(NonParametricProcess *proc): 
+    Criteria(proc), mExp(1) {};
 
   virtual ~ExpectedImprovement(){};
+  inline void setExponent(size_t exp) {mExp = exp;};
   double operator()( const vectord &x)
   {
     double result = mProc->negativeExpectedImprovement(x);
     return result;
   };
+private:
+  size_t mExp;
 };
 
 
@@ -192,7 +196,7 @@ public:
 
   virtual ~AnnealedExpectedImprovement(){};
 
-  inline void setExponent(double exp) {mExp = exp;};
+  inline void setExponent(size_t exp) {mExp = exp;};
   void resetAnneal() { nCalls = 0; mExp = 10;};
 
   double operator()( const vectord &x)
@@ -200,13 +204,13 @@ public:
     ++nCalls;
 
     if (nCalls % 10)
-      mExp = std::min(1,static_cast<int>(round(mExp/2.0)));
+      mExp = ceil(mExp/2.0);
 
     return mProc->negativeExpectedImprovement(x,mExp);
   };
 
 protected:
-  double mExp;
+  size_t mExp;
 };
 
 

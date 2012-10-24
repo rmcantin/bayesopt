@@ -82,13 +82,11 @@ int GaussianProcessIGN::prediction( const vectord &query,
   uInvRr = inner_prod(mUInvR, invRr);  
   rInvRy = inner_prod(invRr, mInvRy );
 #else
-
-  vectord ymu = mGPY - mMeanV*mMu;
   vectord rInvR = prod(colR,mInvR);
 	
   rInvRr = inner_prod(rInvR,colR);
   uInvRr = inner_prod(mUInvR,colR);
-  rInvRy = inner_prod( rInvR,ymu );
+  rInvRy = inner_prod(colR,mInvRy);
 #endif
 
   
@@ -105,6 +103,7 @@ int GaussianProcessIGN::precomputePrediction()
   size_t nSamples = mGPXX.size();
 
   mUInvR.resize(nSamples,false);
+  mInvRy.resize(nSamples,false);
 
 #if USE_CHOL
   mAlphaV.resize(nSamples,false);
@@ -119,10 +118,8 @@ int GaussianProcessIGN::precomputePrediction()
   mMu = inner_prod(mMeanV,mAlphaV) / mUInvRUDelta;
   double YInvRY = inner_prod(mGPY,mAlphaV);
 
-  mInvRy.resize(nSamples,false);
   mInvRy = mGPY - mMeanV*mMu;
   inplace_solve(mL,mInvRy,lower_tag());
-
 #else
   // mInvR.resize(nSamples,nSamples);
   // mInvR.assign(boost::numeric::ublas::identity_matrix<double>(nSamples));
@@ -137,6 +134,8 @@ int GaussianProcessIGN::precomputePrediction()
   
   noalias(YInvR) = prod(mGPY,mInvR);
   YInvRY = inner_prod(YInvR,mGPY);
+  vectord ymu = mGPY - mMeanV*mMu;
+  mInvRy = prod(mInvR,ymu);
 #endif  
 
   mSig = (mBeta + YInvRY - mMu*mMu*mUInvRUDelta) / (mAlpha + (nSamples+1) + 2);

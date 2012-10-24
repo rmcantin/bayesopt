@@ -26,7 +26,7 @@
 template<class V, class D>
 int append(V& vector, D element)
 {
-  typename V::value_type VD;
+  typedef typename V::value_type VD;
   assert(typeid(VD) == typeid(D));
 
   // This method is super inefficient but there seems to be the uBlas style.

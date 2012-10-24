@@ -22,7 +22,7 @@
 clear all, close all
 addpath('testfunctions')
 
-params.iterations = 200;
+params.iterations = 50;
 params.init_iterations = 50;
 params.c_name = 'EI';
 params.s_name = 'GAUSSIAN_PROCESS';
@@ -38,3 +38,8 @@ ub = ones(n,1)*pi;
 tic;
 bayesopt('michalewicz',n,params,lb,ub)
 toc;
+
+
+xset = rand(100,n);
+
+bayesoptdisc('quadratic',xset, params);

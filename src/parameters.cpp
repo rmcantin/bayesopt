@@ -166,7 +166,7 @@ const bopt_params DEFAULT_PARAMS = {
   DEFAULT_NOISE,
   S_GAUSSIAN_PROCESS,
   K_MATERN_ISO3,
-  C_EI, M_ZERO
+  C_EI, M_ONE
 };
 
 

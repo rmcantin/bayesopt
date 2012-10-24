@@ -96,6 +96,12 @@ int BayesOptBase::setSurrogateFunction()
 				   mParameters.beta,mParameters.delta);  break;
 
     case S_STUDENT_T_PROCESS_JEFFREYS:
+      if (mParameters.m_name == M_ZERO)
+	{
+	  std::cout << "Zero mean incompatible with Student's t process,"
+		    << "using one-mean instead." << std::endl;
+	  mParameters.m_name = M_ONE;
+	}
       mGP = new StudentTProcess(mParameters.noise); break;
 
     default:

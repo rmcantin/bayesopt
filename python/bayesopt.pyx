@@ -181,16 +181,14 @@ def optimize(f, int nDim, np.ndarray[np.double_t] np_lb,
     return min_value,np_x,error_code
 
 
-def optimize_discrete(f, int nDim, np.ndarray[np.double_t,ndim=2] np_valid_x,
+def optimize_discrete(f, np.ndarray[np.double_t,ndim=2] np_valid_x,
                       dict dparams):
+    
+    nDim = np_valid_x.shape[1]
 
     cdef bopt_params params = dict2structparams(dparams)    
     cdef double minf[1000]
     cdef np.ndarray np_x = np.zeros([nDim], dtype=np.double)
-
-    if (np_valid_x.shape[1] != nDim):
-        print "Error in discrete set."
-        return 0, 0, -6
 
     cdef np.ndarray[np.double_t, ndim=1, mode="c"] x
     cdef np.ndarray[np.double_t, ndim=2, mode="c"] valid_x

@@ -105,6 +105,12 @@ int bayes_optimization_disc(int nDim, eval_func f, void* f_data,
       xSet.push_back(input);
     }
 
+  if(parameters.n_init_samples > n_points)
+    {
+      parameters.n_init_samples = n_points;
+      parameters.n_iterations = 0;
+    }
+
   CBayesOptDiscrete optimizer(xSet,parameters);
 
   optimizer.set_eval_funct(f);

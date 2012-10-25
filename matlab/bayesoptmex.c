@@ -30,7 +30,6 @@ void mexFunction(int nlhs, mxArray *plhs[],
   const mxArray *func_name, *params;
   user_function_data udata;
   size_t nDim;
-  bopt_params parameters = initialize_parameters_to_default();
      
      
   /* Check correct number of parameters */
@@ -87,43 +86,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
       params = mxCreateStructMatrix(1,1,0,NULL);
     }
 
-  struct_size(params,"iterations", &parameters.n_iterations);
-  struct_size(params,"inner_iterations", &parameters.n_inner_iterations);
-  struct_size(params, "init_iterations", &parameters.n_init_samples);
-  struct_size(params, "verbose_level", &parameters.verbose_level);
-
-  struct_value(params, "alpha", &parameters.alpha);
-  struct_value(params, "beta",  &parameters.beta);
-  struct_value(params, "delta", &parameters.delta);
-  struct_value(params, "noise", &parameters.noise);
-
-  struct_array(params, "theta", &parameters.n_theta, 
-	       &parameters.theta[0]);
-
-  struct_array(params, "mu", &parameters.n_mu, 
-	       &parameters.mu[0]);
-
-  /* Extra configuration
-  /  See parameters.h for the available options */
-  char c_str[100], s_str[100], k_str[100], m_str[100];
-  
-  strcpy( c_str, crit2str(parameters.c_name));
-  strcpy( s_str, surrogate2str(parameters.s_name));
-  strcpy( k_str, kernel2str(parameters.k_name));
-  strcpy( m_str, mean2str(parameters.m_name));
-
-  struct_string(params, "c_name", c_str);
-  parameters.c_name = str2crit(c_str);
-
-  struct_string(params, "s_name", s_str);
-  parameters.s_name = str2surrogate(s_str);
-  
-  struct_string(params, "k_name", k_str);
-  parameters.k_name = str2kernel(k_str);
-
-  struct_string(params, "m_name", m_str);
-  parameters.m_name = str2mean(m_str);
-
+  bopt_params parameters = load_parameters(params);
 
   double *ub, *lb;    /* Upper and lower bound */
   double fmin;

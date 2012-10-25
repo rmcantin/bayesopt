@@ -22,8 +22,8 @@
 clear all, close all
 addpath('testfunctions')
 
-params.iterations = 50;
-params.init_iterations = 50;
+params.n_iterations = 50;
+params.n_init_iterations = 50;
 params.c_name = 'EI';
 params.s_name = 'GAUSSIAN_PROCESS';
 params.noise = 0.005;
@@ -39,7 +39,9 @@ tic;
 bayesopt('michalewicz',n,params,lb,ub)
 toc;
 
+% The set of points must be nDim x nPoints.
+xset = rand(n,100);
 
-xset = rand(100,n);
-
+tic;
 bayesoptdisc('quadratic',xset, params);
+toc;

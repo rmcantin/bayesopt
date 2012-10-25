@@ -97,7 +97,6 @@ int BayesOptDiscrete::sampleInitialPoints()
 
   mGP->fitGP();
 
-
   // For logging purpose
   if(mParameters.verbose_level > 0)
     {

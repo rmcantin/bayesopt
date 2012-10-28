@@ -276,18 +276,23 @@ protected:
 
 
 protected:
+  const double mRegularizer;  ///< GP likelihood parameters (Normal)
   vecOfvec mGPXX;                                   ///< Data inputs
   vectord mGPY;                                     ///< Data values
-	
-  // Precomputed GP prediction operations
-  covMatrix mInvR;                   ///< Inverse Correlation matrix
-
-  size_t mMinIndex, mMaxIndex;
 
   Kernel* mKernel;                   ///< Pointer to kernel function
   ParametricFunction* mMean;           ///< Pointer to mean function
+  bool kernelSet, meanSet;
+
+  size_t mMinIndex, mMaxIndex;	
+
+  // Precomputed GP prediction operations
+  covMatrix mInvR;                   ///< Inverse Correlation matrix
+
+
+
   //  vectord mTheta;                             ///< Kernel parameters
-  const double mRegularizer;  ///< GP likelihood parameters (Normal)
+
 
   matrixd mL;
   vectord mAlphaV;

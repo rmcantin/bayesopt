@@ -27,10 +27,11 @@
 #include "ublas_extra.hpp"
 
 NonParametricProcess::NonParametricProcess(double noise):
-  InnerOptimization(),  mKernel(NULL), mMean(NULL), mRegularizer(noise)
+  InnerOptimization(), mRegularizer(noise)
 { 
-  mMinIndex = 0; 
-  mMaxIndex = 0;   
+  kernelSet = false; meanSet = false;
+  mMinIndex = 0;     mMaxIndex = 0;   
+
   setAlgorithm(BOBYQA);
   setLimits(0.,100.);
 }
@@ -38,17 +39,21 @@ NonParametricProcess::NonParametricProcess(double noise):
 
 NonParametricProcess::~NonParametricProcess()
 {
-  if (mKernel != NULL) delete mKernel;
-  if (mMean != NULL) delete mMean;
+  if (kernelSet) delete mKernel;
+  if (meanSet) delete mMean;
 }
 
 int NonParametricProcess::setKernel (const vectord &thetav,
 				     kernel_name k_name)
 {
-  if (mKernel != NULL)   delete mKernel;
+  if (kernelSet)   delete mKernel;
+
+  kernelSet = false;
+
   mKernel = Kernel::create(k_name, thetav);
   if (mKernel == NULL)   return -1;
 
+  kernelSet = true;
   return 0;
 }
 
@@ -56,23 +61,13 @@ int NonParametricProcess::setKernel (const vectord &thetav,
 int NonParametricProcess::setMean (const vectord &muv,
 				   mean_name m_name)
 {
-  if (mMean != NULL)
-    delete mMean;
+  if (meanSet)  delete mMean;
+  meanSet = false;
 
-  switch(m_name)
-    {    
-    case M_ZERO: mMean = new ZeroFunction(); break;
-    case M_ONE: mMean = new OneFunction(); break;
-    case M_CONSTANT: mMean = new ConstantFunction(); break;
-    case M_LINEAR: mMean = new LinearFunction(); break;
-    case M_LINEAR_CONSTANT: mMean = new LinearPlusConstantFunction(); break;
-    default:
-      std::cout << "Error: mean function not supported." << std::endl;
-      return -1;
-    }
+  mMean = ParametricFunction::create(m_name,muv);
+  if (mMean == NULL) return -1;
 
-  mMean->setParameters(muv);
-
+  meanSet = true;
   return 0;
 }
 

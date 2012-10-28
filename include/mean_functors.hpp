@@ -25,6 +25,7 @@
 #define  _MEAN_FUNCTORS_HPP_
 
 #include <boost/numeric/ublas/vector_proxy.hpp>
+#include "parameters.h"
 #include "specialtypes.hpp"
 
 ///\addtogroup ParametricFunctions
@@ -34,8 +35,8 @@
 class ParametricFunction
 {
 public:
-  virtual void setParameters(const vectord& params)
-  { mParameters = params; };
+  static ParametricFunction* create(mean_name name, const vectord& params);
+  virtual void setParameters(const vectord& params){ mParameters = params; };
   virtual double getMean(const vectord& x) = 0;
   
   virtual vectord operator()(const vecOfvec& x)

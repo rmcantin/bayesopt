@@ -75,6 +75,8 @@ SET( BAYESOPT_SRCS
   ./src/student_t_process.cpp
   ./src/nonparametricprocess.cpp
   ./src/parameters.cpp
+  ./src/kernel_functors.cpp
+  ./src/criteria_functors.cpp
   )
 
 SET(WRAPPPERS_SRC 

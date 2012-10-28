@@ -29,19 +29,13 @@ double GaussianProcessIGN::negativeLogLikelihood(size_t index)
   matrixd L(n,n);
   cholesky_decompose(K,L);
 
-  vectord colU = (*mMean)(mGPXX);
-
-  //TODO: Replace by transform
-  //for (size_t ii=0; ii< n; ii++) 
-  //  colU(ii) = (*mMean)(mGPXX[ii]);
-
-  vectord alphU(colU);
+  vectord alphU(mMeanV);
   inplace_solve(L,alphU,lower_tag());
-  double eta = inner_prod(colU,alphU) + 1/mDelta2;
+  double eta = inner_prod(alphU,alphU) + 1/mDelta2;
   
   vectord alphY(mGPY);
   inplace_solve(L,alphY,lower_tag());
-  double mu     = inner_prod(colU,alphY) / eta;
+  double mu     = inner_prod(mMeanV,alphY) / eta;
   double YInvRY = inner_prod(mGPY,alphY);
     
   double sigma = (mBeta + YInvRY - mu*mu*eta) / (mAlpha + (n+1) + 2);
@@ -75,7 +69,6 @@ int GaussianProcessIGN::prediction( const vectord &query,
   kn = (*mKernel)(query, query);
 
 #if USE_CHOL
-
   vectord invRr(colR);
   inplace_solve(mL,invRr,lower_tag());
   rInvRr = inner_prod(invRr,invRr);
@@ -88,7 +81,6 @@ int GaussianProcessIGN::prediction( const vectord &query,
   uInvRr = inner_prod(mUInvR,colR);
   rInvRy = inner_prod(colR,mInvRy);
 #endif
-
   
   yPred = meanf*mMu + rInvRy;
   sPred = sqrt( mSig * (kn - rInvRr + (meanf - uInvRr) * (meanf - uInvRr) 

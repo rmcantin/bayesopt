@@ -24,10 +24,8 @@
 #ifndef  _CRITERIA_FUNCTORS_HPP_
 #define  _CRITERIA_FUNCTORS_HPP_
 
-#include <numeric>
-#include <algorithm>
-#include "boost/bind.hpp"
-
+#include "parameters.h"
+#include "nonparametricprocess.hpp"
 
 ///\addtogroup CriteriaFunctions
 //@{
@@ -42,10 +40,11 @@ public:
     mProc(proc) {};
 
   virtual ~Criteria(){};
-
   virtual double operator()( const vectord &x) = 0;
   virtual void resetAnneal() {};  //dummy function
 
+  static Criteria* create(criterium_name name,
+			  NonParametricProcess* proc);
 protected:
   NonParametricProcess *mProc;
 };
@@ -62,7 +61,7 @@ public:
 
   virtual ~ExpectedImprovement(){};
   inline void setExponent(size_t exp) {mExp = exp;};
-  double operator()( const vectord &x)
+  double operator()(const vectord &x)
   {
     double result = mProc->negativeExpectedImprovement(x);
     return result;
@@ -250,61 +249,23 @@ class MetaCriteria
 {
 public:
   MetaCriteria(NonParametricProcess* proc) 
-  {
-    mProc = proc;
-    mCurrentCriterium = NULL;
-  };
+  { mProc = proc;   mCurrentCriterium = NULL; };
 
   virtual ~MetaCriteria()
-  {
-    if (mCurrentCriterium != NULL)
-      delete mCurrentCriterium;
-  }
+  { if (mCurrentCriterium != NULL) delete mCurrentCriterium; };
 
   int setCriterium(criterium_name name)
-  {
+  { if (mCurrentCriterium != NULL) delete mCurrentCriterium;
 
-    if (mCurrentCriterium != NULL)
-      delete mCurrentCriterium;
-
-    int error;
-    mCurrentCriterium = yieldCriteria(name,error);
-    return error;
-  }
-  
-  Criteria* yieldCriteria(criterium_name name,
-			  int& error_code)
-  {
-    Criteria* crit;
-    switch(name)
-      {
-      case C_EI:     crit = new ExpectedImprovement(mProc);             break;
-      case C_EI_A:   crit = new AnnealedExpectedImprovement(mProc);     break;
-      case C_LCB:    crit = new LowerConfidenceBound(mProc);            break;
-      case C_LCB_A:  crit = new AnnealedLowerConfindenceBound(mProc);   break;
-      case C_POI:    crit = new ProbabilityOfImprovement(mProc);        break;
-      case C_GREEDY_A_OPTIMALITY: crit = new GreedyAOptimality(mProc);  break;
-      case C_EXPECTED_RETURN:     crit = new ExpectedReturn(mProc);     break;
-      case C_OPTIMISTIC_SAMPLING: crit = new OptimisticSampling(mProc); break;
-      case C_GP_HEDGE:
-      case C_ERROR:
-      default:
-	std::cout << "Error in criterium" << std::endl; 
-	error_code = -1;
-	return NULL;
-      }
-    error_code = 0;
-    return crit;
+    mCurrentCriterium = Criteria::create(name,mProc);
+    if (mCurrentCriterium == NULL) return -1;
+    else                           return 0;
   };
-
+  
   inline double operator()( const vectord &x)
-  {
-    double result = (*mCurrentCriterium)(x);
-    return result;
-  }  
+  { return (*mCurrentCriterium)(x); };
 
   virtual void reset(){};
-
   virtual int initializeSearch()
   {
     if (mCurrentCriterium == NULL)
@@ -313,14 +274,12 @@ public:
 	return -1;
       }
     return 0;
-  }
+  };
 
   virtual bool checkIfBest(vectord& xNext,
+			   criterium_name& name,
 			   int& error_code)
-  { 
-    error_code = 0;
-    return true;
-  }
+  { error_code = 0;  return true; };
 
 protected:
   NonParametricProcess* mProc;
@@ -348,138 +307,30 @@ inline double softmax(double g, double eta) {return exp(eta*g);};
 class GP_Hedge: public MetaCriteria
 {
 public:
-  GP_Hedge(NonParametricProcess *proc):
-    MetaCriteria(proc), mtRandom(100u),
-    sampleUniform( mtRandom, realUniformDist(0,1)),
-    loss(zvectord(N_ALGORITHMS_IN_GP_HEDGE)), 
-    gain(zvectord(N_ALGORITHMS_IN_GP_HEDGE)), 
-    prob(zvectord(N_ALGORITHMS_IN_GP_HEDGE)),
-    cumprob(zvectord(N_ALGORITHMS_IN_GP_HEDGE))
-  {
-    for(size_t i = 0; i<N_ALGORITHMS_IN_GP_HEDGE; ++i)
-      {
-	int error;
-	Criteria *newC = yieldCriteria(ALGORITHMS_IN_GP_HEDGE[i],error);
-	mCriteriaList.push_back(newC);
-      }
-  };
-
-  virtual ~GP_Hedge()
-  {
-    for(size_t i = 0; i<N_ALGORITHMS_IN_GP_HEDGE; ++i)
-      {
-	delete mCriteriaList[i];
-      }
-  };
+  GP_Hedge(NonParametricProcess *proc);
+  virtual ~GP_Hedge();
 
   inline void reset()
   { gain = zvectord(N_ALGORITHMS_IN_GP_HEDGE); };
 
-  int update_hedge()
-  {
-    double max_g = *std::max_element(gain.begin(),gain.end());
-    double min_g = *std::min_element(gain.begin(),gain.end());
-
-    double max_l = *std::max_element(loss.begin(),loss.end());
-
-    // We just care about the differences
-    loss += svectord(loss.size(),max_l);
-
-    // To avoid overflow
-    if (std::abs(max_g) > std::abs(min_g))
-	  gain -= svectord(gain.size(),max_g);
-    else
-	  gain -= svectord(gain.size(),min_g);
-
-    // Optimal eta according to Shapire
-    max_g = *std::max_element(gain.begin(),gain.end());
-    double eta = std::min(10.0,sqrt(2*log(3)/max_g));
-    std::transform(gain.begin(), gain.end(), prob.begin(),
-		   boost::bind(softmax,_1,eta));       
-    
-    //Normalize
-    double sum_p =std::accumulate(prob.begin(),prob.end(),0);
-    prob /= sum_p;
-
-    //Update bandits gain
-    gain -= loss;
-
-    std::partial_sum(prob.begin(), prob.end(), cumprob.begin(), 
-		     std::plus<double>());
-
-    double u = sampleUniform();
-
-    for (size_t i=0; i < cumprob.size(); ++i)
-      {
-	if (u < cumprob(i))
-	  return i;
-      }
-    return -1;
-  };
-
+  int update_hedge();
   int initializeSearch()
   {
     mIndex = 0;
     mCurrentCriterium = mCriteriaList[mIndex];
     mBestLists.clear();
     return 1;
-  }
-
-
-  bool checkIfBest(vectord& best,
-		   int& error_code)
-  { 
-    if (mIndex < N_ALGORITHMS_IN_GP_HEDGE)
-      {
-	loss(mIndex) = computeLoss(best);
-	mBestLists.push_back(best);
-	error_code = 0;
-	++mIndex;
-	if (mIndex < N_ALGORITHMS_IN_GP_HEDGE)
-	  mCurrentCriterium = mCriteriaList[mIndex];
-	return false;
-      }
-    else
-      {
-	int optIndex = update_hedge();
-	plotResult(optIndex);
-	
-	if (optIndex < 0)
-	  error_code = optIndex;
-	else
-	  {
-	    best = mBestLists[optIndex];
-	    error_code = 0;
-	  }
-	return true;	
-      }
-
   };
 
+  bool checkIfBest(vectord& best,criterium_name& name,int& error_code);
+ 
 protected:
-  double computeLoss(const vectord& query)
+  virtual double computeLoss(const vectord& query)
   {	
     double mean, std;
     mProc->prediction(query,mean,std);
     return mean;
   }
-
-  int plotResult(int optIndex)
-  {
-    if(1)//mParameters.verbose_level > 0)
-      {
-	criterium_name name;
-	if (optIndex < 0)
-	  name = C_ERROR;
-	else
-	  name = ALGORITHMS_IN_GP_HEDGE[optIndex];
-	
-	//mOutput << crit2str(name) << " was selected." << std::endl;
-	std::cout << crit2str(name) << " was selected." << std::endl;
-      }
-    return 1;
-  };
-
 
 protected:
   randEngine mtRandom;
@@ -503,10 +354,8 @@ public:
   virtual ~GP_Hedge_Random() {};
 
 protected:  
-  double computeLoss(const vectord& query)
-  {	
-    return mProc->sample_query(query,mtRandom);
-  }
+  virtual double computeLoss(const vectord& query)
+  { return mProc->sample_query(query,mtRandom); }
 };
 
 //@}

@@ -38,32 +38,16 @@ NonParametricProcess::NonParametricProcess(double noise):
 
 NonParametricProcess::~NonParametricProcess()
 {
-  if (mKernel != NULL)
-    delete mKernel;
-
-  if (mMean != NULL)
-    delete mMean;
+  if (mKernel != NULL) delete mKernel;
+  if (mMean != NULL) delete mMean;
 }
 
 int NonParametricProcess::setKernel (const vectord &thetav,
 				     kernel_name k_name)
 {
-  if (mKernel != NULL)
-    delete mKernel;
-
-  switch(k_name)
-    {
-    case K_MATERN_ISO1: mKernel = new MaternIso1(); break;
-    case K_MATERN_ISO3: mKernel = new MaternIso3(); break;
-    case K_MATERN_ISO5: mKernel = new MaternIso5(); break;
-    case K_SE_ISO: mKernel = new SEIso(); break;
-    case K_SE_ARD: mKernel = new SEArd(); break;
-    default:
-      std::cout << "Error: kernel function not supported." << std::endl;
-      return -1;
-    }
-
-  mKernel->setScale(thetav);
+  if (mKernel != NULL)   delete mKernel;
+  mKernel = Kernel::create(k_name, thetav);
+  if (mKernel == NULL)   return -1;
 
   return 0;
 }

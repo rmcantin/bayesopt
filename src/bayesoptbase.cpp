@@ -117,16 +117,19 @@ int BayesOptBase::setSurrogateFunction()
 int BayesOptBase::nextPoint(vectord &Xnext)
 {
   bool check = false;
+  criterium_name name;
   int error = 0;
   mCrit->initializeSearch();
   while (!check)
     {
       findOptimal(Xnext);
-      check = mCrit->checkIfBest(Xnext,error);
+      check = mCrit->checkIfBest(Xnext,name,error);
     }
 
-  return error;
+  if (mParameters.verbose_level > 0)
+    std::cout << crit2str(name) << " was selected." << std::endl;
 
+  return error;
 }
 
 

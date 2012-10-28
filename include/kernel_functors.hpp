@@ -24,6 +24,7 @@
 #ifndef  _KERNEL_FUNCTORS_HPP_
 #define  _KERNEL_FUNCTORS_HPP_
 
+#include "parameters.h"
 #include "specialtypes.hpp"
 #include "elementwise_ublas.hpp"
 
@@ -34,10 +35,10 @@
 class Kernel
 {
 public:
-  virtual void setScale( const vectord & theta ) {};
-  virtual void setScale( double theta ) {};
-  virtual double getScale(int index) {return 0.0;};
-  virtual vectord getScale() {return zvectord(1);};
+  static Kernel* create(kernel_name name, const vectord &theta);
+  virtual void setScale( const vectord &theta ) = 0;
+  virtual double getScale(int index) = 0;
+  virtual vectord getScale() = 0;
   virtual double operator()( const vectord &x1, const vectord &x2,
 			     int grad_index = -1) = 0;
   virtual ~Kernel(){};
@@ -50,15 +51,17 @@ class ISOkernel : public Kernel
 {
 public:
   void setScale( const vectord &theta ) {mTheta = theta(0);};
-  void setScale( double theta ) {mTheta = theta;};
   double getScale(int index) {return mTheta;};
   vectord getScale() {return svectord(1,mTheta);};
 
   virtual ~ISOkernel(){};
 
 protected:
-  double computeScaledNorm2(const vectord &x1, const vectord &x2)
-  { return norm_2(x1-x2)/mTheta; };
+  inline double computeScaledNorm2(const vectord &x1, const vectord &x2)
+  {  
+    assert(x1.size() == x2.size());
+    return norm_2(x1-x2)/mTheta; 
+  };
 
 protected:
   double mTheta;
@@ -73,13 +76,13 @@ class ARDkernel : public Kernel
 {
 public:
   void setScale( const vectord &theta ){mTheta=theta;};
-  double getScale(size_t index) {return mTheta(index);};
+  double getScale(int index) {return mTheta(index);};
   vectord getScale() { return mTheta; };
 
   virtual ~ARDkernel(){};
 
 protected:
-  vectord computeScaledDiff(const vectord &x1, const vectord &x2)
+  inline vectord computeScaledDiff(const vectord &x1, const vectord &x2)
   {
     assert(x1.size() == x2.size());
     assert(x1.size() == mTheta.size());
@@ -190,6 +193,7 @@ public:
       return exp(-k/2)*sqrt(ri(grad_index));
   };
 };
+
 
 //@}
 

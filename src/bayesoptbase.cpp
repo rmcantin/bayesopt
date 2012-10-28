@@ -69,7 +69,7 @@ int BayesOptBase::setCriteriumFunction()
     case C_GREEDY_A_OPTIMALITY: 
     case C_EXPECTED_RETURN:   
     case C_OPTIMISTIC_SAMPLING:
-      mCrit = new MetaCriteria(mGP);
+      mCrit = new SingleCriteria(mGP);
       mCrit->setCriterium(mParameters.c_name);
       break;
     case C_ERROR:

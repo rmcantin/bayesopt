@@ -24,6 +24,7 @@
 #ifndef  _CRITERIA_FUNCTORS_HPP_
 #define  _CRITERIA_FUNCTORS_HPP_
 
+#include <boost/scoped_ptr.hpp>
 #include "parameters.h"
 #include "nonparametricprocess.hpp"
 
@@ -249,33 +250,48 @@ class MetaCriteria
 {
 public:
   MetaCriteria(NonParametricProcess* proc):
-    mProc(proc), mCurrentCriterium(NULL)  
-  {
-    criteriumSet = false;
-  };
+    mProc(proc) {};
 
-  virtual ~MetaCriteria()
-  { if (criteriumSet) delete mCurrentCriterium; }
+  virtual ~MetaCriteria() {};
+  virtual void reset() {};
+  virtual int setCriterium(criterium_name name) {return 0;};
+  virtual int initializeSearch() = 0;
+  virtual double operator()( const vectord &x) = 0;
+  virtual bool checkIfBest(vectord& xNext,
+			   criterium_name& name,
+			   int& error_code) = 0;
+
+protected:
+  NonParametricProcess* mProc;
+};
+
+
+////////////////////////////////////////////////////////////////////////////
+/**
+ * \brief Abstract class for Metacriteria interface.
+ * The Metacriteria can be used to combine different criteria.
+ */
+class SingleCriteria: public MetaCriteria
+{
+public:
+  SingleCriteria(NonParametricProcess* proc):
+    MetaCriteria(proc)  {};
+
+  virtual ~SingleCriteria() {};
 
   int setCriterium(criterium_name name)
   { 
-    if (criteriumSet) delete mCurrentCriterium;
-    criteriumSet = false;
-
-    mCurrentCriterium = Criteria::create(name,mProc);
-    if (mCurrentCriterium == NULL) return -1;
-    
-    criteriumSet = true;
-    return 0;  
+    mCriterium.reset(Criteria::create(name,mProc));
+    if (mCriterium == NULL) return -1;
+    else    return 0;  
   };
   
-  inline double operator()( const vectord &x)
-  { return (*mCurrentCriterium)(x); };
+  double operator()( const vectord &x)
+  { return (*mCriterium)(x); };
 
-  virtual void reset(){};
   virtual int initializeSearch()
   {
-    if ((mCurrentCriterium == NULL) || !criteriumSet)
+    if (mCriterium == NULL)
       {
 	std::cout << "Criterium not set properly" << std::endl;
 	return -1;
@@ -287,11 +303,8 @@ public:
 			   criterium_name& name,
 			   int& error_code)
   { error_code = 0;  return true; };
-
 protected:
-  NonParametricProcess* mProc;
-  Criteria* mCurrentCriterium;
-  bool criteriumSet;
+  boost::scoped_ptr<Criteria> mCriterium;
 };
 
 
@@ -321,6 +334,9 @@ public:
   inline void reset()
   { gain = zvectord(N_ALGORITHMS_IN_GP_HEDGE); };
 
+  double operator()( const vectord &x)
+  { return (*mCurrentCriterium)(x); };
+
   int update_hedge();
   int initializeSearch()
   {
@@ -345,6 +361,7 @@ protected:
   randFloat sampleUniform;
   vectord loss, gain, prob, cumprob;
   std::vector<Criteria*> mCriteriaList;
+  Criteria* mCurrentCriterium;
   std::vector<vectord> mBestLists;
   size_t mIndex;
 };

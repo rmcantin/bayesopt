@@ -29,46 +29,27 @@
 NonParametricProcess::NonParametricProcess(double noise):
   InnerOptimization(), mRegularizer(noise)
 { 
-  kernelSet = false; meanSet = false;
   mMinIndex = 0;     mMaxIndex = 0;   
 
   setAlgorithm(BOBYQA);
   setLimits(0.,100.);
 }
 
-
-NonParametricProcess::~NonParametricProcess()
-{
-  if (kernelSet) delete mKernel;
-  if (meanSet) delete mMean;
-}
-
 int NonParametricProcess::setKernel (const vectord &thetav,
 				     kernel_name k_name)
 {
-  if (kernelSet)   delete mKernel;
-
-  kernelSet = false;
-
-  mKernel = Kernel::create(k_name, thetav);
+  mKernel.reset(Kernel::create(k_name, thetav));
   if (mKernel == NULL)   return -1;
-
-  kernelSet = true;
-  return 0;
+  else  return 0;
 }
 
 
 int NonParametricProcess::setMean (const vectord &muv,
 				   mean_name m_name)
 {
-  if (meanSet)  delete mMean;
-  meanSet = false;
-
-  mMean = ParametricFunction::create(m_name,muv);
+  mMean.reset(ParametricFunction::create(m_name,muv));
   if (mMean == NULL) return -1;
-
-  meanSet = true;
-  return 0;
+  else  return 0;
 }
 
 

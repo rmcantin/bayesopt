@@ -26,6 +26,7 @@
 #ifndef __NONPARAMETRICPROCESS_HPP__
 #define __NONPARAMETRICPROCESS_HPP__
 
+#include <boost/scoped_ptr.hpp>
 #include "parameters.h"
 #include "kernel_functors.hpp"
 #include "mean_functors.hpp"
@@ -47,7 +48,7 @@ class NonParametricProcess: public InnerOptimization
 public:
   NonParametricProcess(double noise = DEFAULT_NOISE);
   
-  virtual ~NonParametricProcess();
+  virtual ~NonParametricProcess(){};
 
   /** 
    * Function that returns the prediction of the GP for a query point
@@ -280,9 +281,8 @@ protected:
   vecOfvec mGPXX;                                   ///< Data inputs
   vectord mGPY;                                     ///< Data values
 
-  Kernel* mKernel;                   ///< Pointer to kernel function
-  ParametricFunction* mMean;           ///< Pointer to mean function
-  bool kernelSet, meanSet;
+  boost::scoped_ptr<Kernel> mKernel;                   ///< Pointer to kernel function
+  boost::scoped_ptr<ParametricFunction> mMean;           ///< Pointer to mean function
 
   size_t mMinIndex, mMaxIndex;	
 

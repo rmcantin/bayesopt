@@ -45,6 +45,7 @@ BayesOptBase::~BayesOptBase()
 
   if (mCrit != NULL)
     delete mCrit;
+
 } // Default destructor
 
 int BayesOptBase::setCriteriumFunction()
@@ -126,7 +127,9 @@ int BayesOptBase::nextPoint(vectord &Xnext)
       check = mCrit->checkIfBest(Xnext,name,error);
     }
 
-  if (mParameters.verbose_level > 0)
+  if ((mParameters.verbose_level > 0) && 
+    ((mParameters.c_name == C_GP_HEDGE) || 
+     (mParameters.c_name == C_GP_HEDGE_RANDOM)))
     std::cout << crit2str(name) << " was selected." << std::endl;
 
   return error;

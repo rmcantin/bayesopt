@@ -248,10 +248,14 @@ protected:
 class MetaCriteria
 {
 public:
-  MetaCriteria(NonParametricProcess* proc) 
-  { mProc = proc;   mCurrentCriterium = NULL; };
+  MetaCriteria(NonParametricProcess* proc):
+    mProc(proc), mCurrentCriterium(NULL)  
+  {};
 
   virtual ~MetaCriteria()
+  { cleanup(); }
+
+  virtual void cleanup()
   { if (mCurrentCriterium != NULL) delete mCurrentCriterium; };
 
   int setCriterium(criterium_name name)
@@ -259,8 +263,7 @@ public:
 
     mCurrentCriterium = Criteria::create(name,mProc);
     if (mCurrentCriterium == NULL) return -1;
-    else                           return 0;
-  };
+    else                           return 0;  };
   
   inline double operator()( const vectord &x)
   { return (*mCurrentCriterium)(x); };
@@ -308,7 +311,9 @@ class GP_Hedge: public MetaCriteria
 {
 public:
   GP_Hedge(NonParametricProcess *proc);
-  virtual ~GP_Hedge();
+  virtual ~GP_Hedge() {};
+
+  virtual void cleanup();
 
   inline void reset()
   { gain = zvectord(N_ALGORITHMS_IN_GP_HEDGE); };

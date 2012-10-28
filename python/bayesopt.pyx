@@ -176,6 +176,9 @@ def optimize(f, int nDim, np.ndarray[np.double_t] np_lb,
     
     error_code = bayes_optimization(nDim, callback, <void *> f,
                                     &lb[0], &ub[0], &x[0], minf, params)
+
+    print "Exit"
+
     Py_DECREF(f)
     min_value = minf[0]
     return min_value,np_x,error_code

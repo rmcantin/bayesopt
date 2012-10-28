@@ -39,6 +39,7 @@ BayesOptContinuous::~BayesOptContinuous()
 {
   if (mBB != NULL)
     delete mBB;
+
 } // Default destructor
 
 

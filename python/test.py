@@ -26,9 +26,10 @@ class BayesOptTest(bopt.BayesOptContinuous):
 # If a parameter is not define, it will be automatically set
 # to a default value.
 params = bo.initialize_params()
-params['n_iterations'] = 100
+params['n_iterations'] = 5
+params['n_init_samples'] = 5
 params['s_name'] = "GAUSSIAN_PROCESS_INV_GAMMA_NORMAL"
-params['c_name'] = "GP_HEDGE_RANDOM"
+params['c_name'] = "GP_HEDGE"
 
 print "Callback implementation"
 

@@ -115,7 +115,6 @@ ENDIF()
 
 IF(BUILD_SHARED_LIBS AND NOT MSYS)
   SET_TARGET_PROPERTIES(bayesopt PROPERTIES PREFIX "" SUFFIX ".so")
-#    COMPILE_FLAGS "-fPIC -fwrapv -fno-strict-aliasing")
 ENDIF()
 
 IF(BUILD_NLOPT)
@@ -126,9 +125,7 @@ ELSE(BUILD_NLOPT)
 ENDIF(BUILD_NLOPT)
 
 TARGET_LINK_LIBRARIES(bayesopt
-  ${EXT_LIBS}
-  ${PYTHON_LIB}
-  )
+  ${EXT_LIBS} ${PYTHON_LIB} )
 
 #Naive test
 ADD_EXECUTABLE(bayesopttest ./app/testbayesopt.cpp)
@@ -139,7 +136,6 @@ TARGET_LINK_LIBRARIES(bayesopttest bayesopt)
 ADD_EXECUTABLE(discretetest ./app/testdiscrete.cpp)
 add_dependencies(discretetest bayesopt)
 TARGET_LINK_LIBRARIES(discretetest bayesopt)
-
 
 #1D test
 ADD_EXECUTABLE(bayesoptonedtest ./app/testbopt_oned.cpp)

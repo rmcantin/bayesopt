@@ -55,12 +55,12 @@ int main(int nargs, char *args[])
   par.beta = PRIOR_BETA;
   par.delta = PRIOR_DELTA_SQ;
   par.noise = DEFAULT_NOISE;
-  par.c_name = C_EI;
-  par.s_name = S_STUDENT_T_PROCESS_JEFFREYS;//S_GAUSSIAN_PROCESS_INV_GAMMA_NORMAL;
+  par.c_name = C_GP_HEDGE;
+  par.s_name = S_GAUSSIAN_PROCESS_INV_GAMMA_NORMAL;
   par.k_name = K_MATERN_ISO3;
   par.m_name = M_ONE;
-  par.n_iterations = 100;       // Number of iterations
-  par.n_init_samples = 50;
+  par.n_iterations = 20;       // Number of iterations
+  par.n_init_samples = 20;
   /*******************************************/
 
   clock_t start, end;

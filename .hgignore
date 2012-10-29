@@ -9,6 +9,10 @@ Doxyfile
 install_manifest.txt
 syntax:glob
 *.a
+*.o
+*.pyc
+*.mex
+*.mexa64
 *.log
 *.out
 *.so

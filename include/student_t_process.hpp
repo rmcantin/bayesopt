@@ -65,7 +65,7 @@ public:
    * 
    * @return value negative log likelihood
    */
-  double negativeLogLikelihood(size_t index = 1);			 
+  double negativeLogLikelihood();			 
 
   
   /** 

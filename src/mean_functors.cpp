@@ -1,3 +1,4 @@
+#include "log.hpp"
 #include "mean_functors.hpp"
 
 ParametricFunction* ParametricFunction::create(mean_name name, const vectord& params)
@@ -12,7 +13,7 @@ ParametricFunction* ParametricFunction::create(mean_name name, const vectord& pa
     case M_LINEAR: m_ptr = new LinearFunction(); break;
     case M_LINEAR_CONSTANT: m_ptr = new LinearPlusConstantFunction(); break;
     default:
-      std::cout << "Error: mean function not supported." << std::endl;
+      FILE_LOG(logERROR) << "Error: mean function not supported.";
       return NULL;
     }
 

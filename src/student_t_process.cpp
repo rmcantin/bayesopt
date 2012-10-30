@@ -39,7 +39,7 @@ StudentTProcess::~StudentTProcess()
 
 
 
-double StudentTProcess::negativeLogLikelihood(size_t index)
+double StudentTProcess::negativeLogLikelihood()
 {
   matrixd K = computeCorrMatrix();
   size_t n = K.size1();

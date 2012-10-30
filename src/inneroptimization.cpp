@@ -23,6 +23,7 @@
 #include <nlopt.h>
 #include "nloptwpr.h"
 #include "parameters.h"
+#include "log.hpp"
 #include "inneroptimization.hpp"
 
 void checkNLOPTerror(nlopt_result errortype)
@@ -30,14 +31,12 @@ void checkNLOPTerror(nlopt_result errortype)
   //TODO: Raise exceptions.
   switch(errortype)
       {
-      case -1: std::cout << "NLOPT: General failure" << std::endl; break;
-      case -2: std::cout << "NLOPT: Invalid arguments. Check bounds." 
-			 << std::endl; break;
-      case -3: std::cout << "NLOPT: Out of memory" << std::endl; break;
-      case -4: std::cout << "NLOPT Warning: Potential roundoff error. " 
-			 << "In general, this can be ignored." 
-			 << std::endl; break;
-      case -5: std::cout << "NLOPT: Force stop." << std::endl; break;
+      case -1: FILE_LOG(logERROR) << "NLOPT: General failure"; break;
+      case -2: FILE_LOG(logERROR) << "NLOPT: Invalid arguments. Check bounds."; break;
+      case -3: FILE_LOG(logERROR) << "NLOPT: Out of memory"; break;
+      case -4: FILE_LOG(logERROR) << "NLOPT Warning: Potential roundoff error. " 
+				  << "In general, this can be ignored."; break;
+      case -5: FILE_LOG(logERROR) << "NLOPT: Force stop."; break;
       default: ;
       }
 }
@@ -87,7 +86,7 @@ int InnerOptimization::innerOptimize(double* x, int n, void* objPointer)
       case COMBINED: 	opt = nlopt_create(NLOPT_GN_DIRECT_L, n); break;
       case BOBYQA: 	opt = nlopt_create(NLOPT_LN_BOBYQA, n); break;
       case LBFGS:       opt = nlopt_create(NLOPT_LD_LBFGS, n); break;
-      default: std::cout << "Algorithm not supported" << std::endl; return -1;
+      default: FILE_LOG(logERROR) << "Algorithm not supported"; return -1;
       }
 
     nlopt_set_lower_bounds(opt, l);

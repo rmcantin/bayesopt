@@ -65,7 +65,7 @@ int BayesOptContinuous::optimize(vectord &bestPoint)
       // Find what is the next point.
       nextPoint(xNext);
       double yNext = evaluateNormalizedSample(xNext);
-      mGP->addNewPointToGP(xNext,yNext); 
+      mGP->updateSurrogateModel(xNext,yNext); 
       plotStepData(ii,xNext,yNext);
     }
 
@@ -77,18 +77,15 @@ int BayesOptContinuous::optimize(vectord &bestPoint)
 int BayesOptContinuous::plotStepData(size_t iteration, const vectord& xNext,
 				     double yNext)
 {
-  if(mParameters.verbose_level >0)
-    { 
-      vectord xScaled = mBB->unnormalizeVector(xNext);
-      vectord xOpt = mBB->unnormalizeVector(mGP->getPointAtMinimum());
-      mOutput << "Iteration: " << iteration+1 << " of " 
-	      << mParameters.n_iterations << " | Total samples: " 
-	      << iteration+1+mParameters.n_init_samples << std::endl;
-      mOutput << "Trying point at: " << xScaled << std::endl;
-      mOutput << "Current outcome: " << yNext << std::endl;
-      mOutput << "Best found at: " << xOpt << std::endl; 
-      mOutput << "Best outcome: " <<  mGP->getValueAtMinimum() <<  std::endl; 
-    }
+  vectord xScaled = mBB->unnormalizeVector(xNext);
+  vectord xOpt = mBB->unnormalizeVector(mGP->getPointAtMinimum());
+  FILE_LOG(logINFO) << "Iteration: " << iteration+1 << " of " 
+		       << mParameters.n_iterations << " | Total samples: " 
+		       << iteration+1+mParameters.n_init_samples ;
+  FILE_LOG(logINFO) << "Trying point at: " << xScaled ;
+  FILE_LOG(logINFO) << "Current outcome: " << yNext ;
+  FILE_LOG(logINFO) << "Best found at: " << xOpt ; 
+  FILE_LOG(logINFO) << "Best outcome: " <<  mGP->getValueAtMinimum();
 
   return 1;
 }
@@ -116,25 +113,25 @@ int BayesOptContinuous::sampleInitialPoints()
     }
 
   mGP->setSamples(xPoints,yPoints);
-  mGP->fitGP();
+  mGP->fitInitialSurrogate();
 
   // For logging purpose
   if(mParameters.verbose_level > 0)
     {
-      mOutput << "Initial points:" << std::endl;
+      FILE_LOG(logDEBUG) << "Initial points:" ;
       double ymin = std::numeric_limits<double>::max();
       for(size_t i = 0; i < nSamples; i++)
 	{
 	  sample = row(xPoints,i);
-	  mOutput << sample << std::endl;
+	  FILE_LOG(logDEBUG) << sample ;
 	  
 	  if (mParameters.verbose_level > 1)
 	    { 
 	      if(yPoints(i)<ymin) 
 		ymin = yPoints(i);
 	      
-	      mOutput << ymin << "|" << yPoints(i) << "|" 
-		      << mBB->unnormalizeVector(sample) << std::endl;
+	      FILE_LOG(logDEBUG) << ymin << "|" << yPoints(i) << "|" 
+				 << mBB->unnormalizeVector(sample) ;
 	    }
 	}  
     }

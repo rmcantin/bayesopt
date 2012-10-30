@@ -90,12 +90,10 @@ class BayesOptContinuous: public InnerOptimization,
 
     mBB = new BoundingBox<vectord>(lowerBound,upperBound);
 
-    if (mParameters.verbose_level > 1)
-      {
-	mOutput << "Bounds: "<< std::endl;
-	mOutput << lowerBound << std::endl;
-	mOutput << upperBound << std::endl;
-      }
+    FILE_LOG(logINFO) << "Bounds: ";
+    FILE_LOG(logINFO) << lowerBound;
+    FILE_LOG(logINFO) << upperBound;
+
     return 0;
   };
 

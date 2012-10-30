@@ -47,8 +47,14 @@ class NonParametricProcess: public InnerOptimization
 {
 public:
   NonParametricProcess(double noise = DEFAULT_NOISE);
-  
-  virtual ~NonParametricProcess(){};
+  virtual ~NonParametricProcess();
+
+  /** 
+   * Factory model generator for surrogate models
+   * @param parameters (process name, noise, priors, etc.)
+   * @return pointer to the corresponding derivate class (surrogate model)
+   */
+  static NonParametricProcess* create(bopt_params parameters);
 
   /** 
    * Function that returns the prediction of the GP for a query point
@@ -70,7 +76,7 @@ public:
    * 
    * @return value negative log likelihood
    */
-  virtual double negativeLogLikelihood(size_t index = 1) = 0;
+  virtual double negativeLogLikelihood() = 0;
 
   /** 
    * CURRENTLY NOT USED:
@@ -81,9 +87,9 @@ public:
    * 
    * @return value negative log likelihood
    */
-  virtual double negativeLogLikelihood(double& grad,
-				       size_t index = 1)
-  {return 0.0;};
+  // virtual double negativeLogLikelihood(double& grad,
+  // 				       size_t index = 1)
+  // {return 0.0;};
 
  
   /** 
@@ -137,57 +143,34 @@ public:
 
 		 		 
   /** 
-   *  Computes the GP based on mGPXX
-   *  This function is hightly inefficient O(N^3). Use it only at 
-   *  the begining
+   *  \brief Computes the initial surrogate model.
+   *  It also estimates the kernel parameters.
+   *  This function is hightly inefficient. Use it only at 
+   *  the begining.
    * 
    * @return error code
    */
-  int fitGP();
+  int fitInitialSurrogate();
   
   /** 
-   *  Add new point efficiently using Matrix Decomposition Lemma
-   *  for the inversion of the correlation matrix. Maybe it is faster
-   *  to just construct and invert a new matrix each time.
-   * 
+   * \brief Updates the surrogate model by adding a new point.
+   *
+   *  Add new point efficiently using Matrix Decomposition Lemma 
+   *  for the inversion of the correlation matrix or adding new 
+   *  rows to the Cholesky decomposition.
+   *
    * @return error code
    */   
-  int addNewPointToGP( const vectord &Xnew,
-		       double Ynew);
+  int updateSurrogateModel( const vectord &Xnew,
+			    double Ynew);
 
 
   // Getters and setters
-  inline void setSamples(const matrixd &x, const vectord &y)
-  {
-    mGPY = y;
-    for (size_t i=0; i<x.size1(); ++i)
-      {
-	mGPXX.push_back(row(x,i));
-	checkBoundsY(i);
-      } 
-    mMeanV = (*mMean)(mGPXX);
-  };
-
-  inline void addSample(const vectord &x, double y)
-  {
-    mGPXX.push_back(x);
-    mGPY.resize(mGPY.size()+1);  mGPY(mGPY.size()-1) = y;
-    checkBoundsY(mGPY.size()-1);
-    mMeanV.resize(mMeanV.size()+1);  
-    mMeanV(mMeanV.size()-1) = mMean->getMean(x);
-  };
-
-  inline double getSample(size_t index, vectord &x)
-  {
-    x = mGPXX[index];
-    return mGPY(index);
-  }
-
-  inline vectord getPointAtMinimum()
-  { return mGPXX[mMinIndex]; };
-
-  inline double getValueAtMinimum()
-  { return mGPY(mMinIndex); };
+  void setSamples(const matrixd &x, const vectord &y);
+  void addSample(const vectord &x, double y);
+  double getSample(size_t index, vectord &x);
+  vectord getPointAtMinimum();
+  double getValueAtMinimum();
 
   /** 
    * Select kernel (covariance function) for the surrogate process.
@@ -196,14 +179,12 @@ public:
    * @param k_name kernel name
    * @return error_code
    */
-  int setKernel (const vectord &thetav,
-		 kernel_name k_name);
+  int setKernel (const vectord &thetav, kernel_name k_name);
 
   /** 
    * Wrapper of setKernel for c arrays
    */
-  int setKernel (const double *theta, size_t n_theta,
-		 kernel_name k_name)
+  inline int setKernel (const double *theta, size_t n_theta, kernel_name k_name)
   {
     vectord th(n_theta);
     std::copy(theta, theta+n_theta, th.begin());
@@ -217,14 +198,12 @@ public:
    * @param m_name mean function name
    * @return error_code
    */
-  int setMean (const vectord &muv,
-	       mean_name m_name);
+  int setMean (const vectord &muv, mean_name m_name);
 
   /** 
    * Wrapper of setMean for c arrays
    */
-  int setMean (const double *mu, size_t n_mu,
-	       mean_name m_name)
+  inline int setMean (const double *mu, size_t n_mu, mean_name m_name)
   {
     vectord vmu(n_mu);
     std::copy(mu, mu+n_mu, vmu.begin());
@@ -237,15 +216,11 @@ protected:
   double innerEvaluate(const vectord& query)
   { 
     mKernel->setScale(query);
-    return negativeLogLikelihood(1);
+    return negativeLogLikelihood();
   };
-
-  //inline double meanFunction( const vectord &x, size_t param_index = 0 )  
-  //{ return (*mMean)(x); };
 
   /** 
    * Precompute some values of the prediction that do not depends on the query
-   * 
    * @return error code
    */
   virtual int precomputePrediction()
@@ -265,7 +240,8 @@ protected:
   int addNewPointToCholesky(const vectord& correlation,
 			    double selfcorrelation);
 
-  matrixd computeCorrMatrix(int dth_index = -1);
+  matrixd computeCorrMatrix();
+  matrixd computeDerivativeCorrMatrix(int dth_index);
   vectord computeCrossCorrelation(const vectord &query);
 
 
@@ -277,9 +253,10 @@ protected:
 
 
 protected:
-  const double mRegularizer;  ///< GP likelihood parameters (Normal)
-  vecOfvec mGPXX;                                   ///< Data inputs
-  vectord mGPY;                                     ///< Data values
+  const double mRegularizer;   ///< Std of the observation model (also used as nugget)
+  vecOfvec mGPXX;                                                     ///< Data inputs
+  vectord mGPY;                                                       ///< Data values
+  vectord mMeanV;                                  ///< Mean value at the input points
 
   boost::scoped_ptr<Kernel> mKernel;                   ///< Pointer to kernel function
   boost::scoped_ptr<ParametricFunction> mMean;           ///< Pointer to mean function
@@ -287,16 +264,8 @@ protected:
   size_t mMinIndex, mMaxIndex;	
 
   // Precomputed GP prediction operations
-  covMatrix mInvR;                   ///< Inverse Correlation matrix
-
-
-
-  //  vectord mTheta;                             ///< Kernel parameters
-
-
   matrixd mL;
-  vectord mAlphaV;
-  vectord mMeanV;              
+  covMatrix mInvR;                   ///< Inverse Correlation matrix
 
 };
 

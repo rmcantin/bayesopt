@@ -22,7 +22,7 @@ GaussianProcessIGN::~GaussianProcessIGN()
 
 
 
-double GaussianProcessIGN::negativeLogLikelihood(size_t index)
+double GaussianProcessIGN::negativeLogLikelihood()
 {
   matrixd K = computeCorrMatrix();
   size_t n = K.size1();
@@ -48,7 +48,9 @@ double GaussianProcessIGN::negativeLogLikelihood(size_t index)
 
   double lik1 = inner_prod(yumu,alphY) / (2*sigma); 
   double lik2 = trace(L) + 0.5*n*log(sigma) + n*0.91893853320467; //log(2*pi)/2
-
+  
+  //TODO: This must be wrong
+  size_t index = 1;
   double th = mKernel->getScale(index);
 
   return lik1 + lik2 + mBeta/2 * th -
@@ -59,8 +61,6 @@ double GaussianProcessIGN::negativeLogLikelihood(size_t index)
 int GaussianProcessIGN::prediction( const vectord &query,
 				    double& yPred, double& sPred)
 {
-  size_t n = mGPXX.size();
-  //vectord rInvR(n);
   double kn;
   double uInvRr, rInvRr, rInvRy;
   double meanf = mMean->getMean(query);

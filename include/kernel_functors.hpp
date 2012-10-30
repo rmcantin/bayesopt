@@ -39,8 +39,9 @@ public:
   virtual void setScale( const vectord &theta ) = 0;
   virtual double getScale(int index) = 0;
   virtual vectord getScale() = 0;
-  virtual double operator()( const vectord &x1, const vectord &x2,
-			     int grad_index = -1) = 0;
+  virtual double operator()( const vectord &x1, const vectord &x2 ) = 0;
+  virtual double getGradient( const vectord &x1, const vectord &x2,
+			      int grad_index ) = 0;
   virtual ~Kernel(){};
 };
 
@@ -102,16 +103,17 @@ protected:
 class MaternIso1: public ISOkernel
 {
 public:
-  double operator()( const vectord &x1, const vectord &x2,
-		     int grad_index = -1)
+  double operator()( const vectord &x1, const vectord &x2)
   {
     double r = computeScaledNorm2(x1,x2);
-    double er = exp(-r);
+    return exp(-r);
+  };
 
-    if (grad_index < 0) 
-      return er;
-    else 
-      return r*er;
+  double getGradient( const vectord &x1, const vectord &x2,
+		      int grad_index)
+  {
+    double r = computeScaledNorm2(x1,x2);
+    return r*exp(-r);
   };
 };
 
@@ -121,16 +123,19 @@ public:
 class MaternIso3: public ISOkernel
 {
 public:
-  double operator()( const vectord &x1, const vectord &x2,
-		     int grad_index = -1 )
+  double operator()( const vectord &x1, const vectord &x2)
   {
     double r = sqrt(3) * computeScaledNorm2(x1,x2);
     double er = exp(-r);
+    return (1+r)*er;
+  };
 
-    if (grad_index < 0) 
-      return (1+r)*er;
-    else 
-      return r*r*er; 
+  double getGradient( const vectord &x1, const vectord &x2,
+		      int grad_index)
+  {
+    double r = sqrt(3) * computeScaledNorm2(x1,x2);
+    double er = exp(-r);
+    return r*r*er; 
   };
 };
 
@@ -140,16 +145,18 @@ public:
 class MaternIso5: public ISOkernel
 {
 public:
-  double operator()( const vectord &x1, const vectord &x2,
-		     int grad_index = -1 )
+  double operator()( const vectord &x1, const vectord &x2)
   {
     double r = sqrt(5) * computeScaledNorm2(x1,x2);
     double er = exp(-r);
-
-    if (grad_index < 0) 
-      return (1+r*(1+r/3))*er;
-    else 
-      return r*(1+r)/3*r*er; 
+    return (1+r*(1+r/3))*er;
+  };
+  double getGradient( const vectord &x1, const vectord &x2,
+		      int grad_index)
+  {    
+    double r = sqrt(5) * computeScaledNorm2(x1,x2);
+    double er = exp(-r);
+    return r*(1+r)/3*r*er; 
   };
 };
 
@@ -160,16 +167,18 @@ public:
 class SEIso: public ISOkernel
 {
 public:
-  double operator()( const vectord &x1, const vectord &x2,
-		     int grad_index = -1 )
+  double operator()( const vectord &x1, const vectord &x2)
   {
     double rl = computeScaledNorm2(x1,x2);
     double k = rl*rl;
-
-    if (grad_index < 0)
-      return exp(-k/2);
-    else 
-      return exp(-k/2)*k;
+    return exp(-k/2);
+  };
+  double getGradient(const vectord &x1, const vectord &x2,
+		     int grad_index)
+  {
+    double rl = computeScaledNorm2(x1,x2);
+    double k = rl*rl;
+    return exp(-k/2)*k;
   };
 };
 
@@ -179,18 +188,22 @@ public:
 class SEArd: public ARDkernel
 {
 public:
-  double operator()( const vectord &x1, const vectord &x2,
-		     int grad_index = -1 )
+  double operator()( const vectord &x1, const vectord &x2 )
   {
     vectord ri = computeScaledDiff(x1,x2);
-
     double rl = norm_2(ri);
     double k = rl*rl;
-
-    if (grad_index < 0)
-      return exp(-k/2);
-    else 
-      return exp(-k/2)*sqrt(ri(grad_index));
+    return exp(-k/2);
+  };
+  
+  double getGradient(const vectord &x1, const vectord &x2,
+		     int grad_index)
+  {
+  
+    vectord ri = computeScaledDiff(x1,x2);
+    double rl = norm_2(ri);
+    double k = rl*rl;
+    return exp(-k/2)*sqrt(ri(grad_index));
   };
 };
 

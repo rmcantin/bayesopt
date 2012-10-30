@@ -55,11 +55,11 @@ int main(int nargs, char *args[])
   par.beta = PRIOR_BETA;
   par.delta = PRIOR_DELTA_SQ;
   par.noise = DEFAULT_NOISE;
-  par.c_name = C_GP_HEDGE;
+  par.c_name = C_EI;
   par.s_name = S_GAUSSIAN_PROCESS_INV_GAMMA_NORMAL;
   par.k_name = K_MATERN_ISO3;
-  par.m_name = M_ONE;
-  par.n_iterations = 20;       // Number of iterations
+  par.m_name = M_ZERO;
+  par.n_iterations = 200;       // Number of iterations
   par.n_init_samples = 20;
   /*******************************************/
 
@@ -99,13 +99,15 @@ int main(int nargs, char *args[])
 
   // Results
   std::cout << "Final result C++: " << result << std::endl;
-  std::cout << "Final result C: (";
-  for (int i = 0; i < n; i++ )
-    std::cout << x[i] << ", ";
+  std::cout << "Elapsed time in C++: " << diff << " seconds" << std::endl;
+
+  std::cout << "Final result C: [" << n <<"](" << x[0];
+  for (int i = 1; i < n; ++i )
+    std::cout << "," << x[i];
   
   std::cout << ")" << std::endl;
-
-  std::cout << "Elapsed time in C++: " << diff << " seconds" << std::endl;
   std::cout << "Elapsed time in C: " << diff2 << " seconds" << std::endl;
+
+  std::cout << kernel2str(par.k_name)<< std::endl;
 }
 

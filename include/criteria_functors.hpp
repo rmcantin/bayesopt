@@ -26,6 +26,7 @@
 
 #include <boost/scoped_ptr.hpp>
 #include "parameters.h"
+#include "log.hpp"
 #include "nonparametricprocess.hpp"
 
 ///\addtogroup CriteriaFunctions
@@ -293,7 +294,7 @@ public:
   {
     if (mCriterium == NULL)
       {
-	std::cout << "Criterium not set properly" << std::endl;
+	FILE_LOG(logERROR) << "Criterium not set properly";
 	return -1;
       }
     return 0;

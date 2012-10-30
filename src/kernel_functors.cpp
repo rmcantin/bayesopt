@@ -1,3 +1,4 @@
+#include "log.hpp"
 #include "kernel_functors.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -14,7 +15,7 @@ Kernel* Kernel::create(kernel_name name, const vectord &theta)
     case K_SE_ISO: k_ptr = new SEIso(); break;
     case K_SE_ARD: k_ptr = new SEArd(); break;
     default:
-      std::cout << "Error: kernel function not supported." << std::endl;
+      FILE_LOG(logERROR) << "Error: kernel function not supported.";
       return NULL;
     }
 

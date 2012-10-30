@@ -40,7 +40,7 @@ GaussianProcess::~GaussianProcess()
 
 
 
-double GaussianProcess::negativeLogLikelihood(size_t index)
+double GaussianProcess::negativeLogLikelihood()
 {
   matrixd K = computeCorrMatrix();
   size_t n = K.size1();

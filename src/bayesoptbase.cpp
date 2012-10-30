@@ -28,10 +28,16 @@
 BayesOptBase::BayesOptBase( bopt_params parameters,
 			    bool uselogfile,
 			    const char* logfilename):
-  Logger(uselogfile,logfilename),
-  mGP(NULL), mCrit(NULL)
+
+  mGP(NULL), mCrit(NULL),  mParameters(parameters)
 { 
-  mParameters = parameters;
+  FILELog::ReportingLevel() = logINFO; //mParameters.verbose_level;
+  if (uselogfile)
+    {
+      FILE* log_fd = fopen( logfilename , "w" );
+      Output2FILE::Stream() = log_fd; 
+    }
+
   setInitSet();
   setNumberIterations();
   setSurrogateFunction();
@@ -40,9 +46,6 @@ BayesOptBase::BayesOptBase( bopt_params parameters,
 
 BayesOptBase::~BayesOptBase()
 {
-  if (mGP != NULL)
-    delete mGP;
-
   if (mCrit != NULL)
     delete mCrit;
 
@@ -59,8 +62,8 @@ int BayesOptBase::setCriteriumFunction()
 
   switch(mParameters.c_name)
     {
-    case C_GP_HEDGE:        mCrit = new GP_Hedge(mGP); break;
-    case C_GP_HEDGE_RANDOM: mCrit = new GP_Hedge_Random(mGP); break;
+    case C_GP_HEDGE:        mCrit = new GP_Hedge(mGP.get()); break;
+    case C_GP_HEDGE_RANDOM: mCrit = new GP_Hedge_Random(mGP.get()); break;
     case C_EI:
     case C_EI_A:
     case C_LCB: 
@@ -69,50 +72,27 @@ int BayesOptBase::setCriteriumFunction()
     case C_GREEDY_A_OPTIMALITY: 
     case C_EXPECTED_RETURN:   
     case C_OPTIMISTIC_SAMPLING:
-      mCrit = new SingleCriteria(mGP);
+      mCrit = new SingleCriteria(mGP.get());
       mCrit->setCriterium(mParameters.c_name);
       break;
     case C_ERROR:
     default:
-      std::cout << "Error in criterium" << std::endl; return -1;
+      FILE_LOG(logERROR) << "Error in criterium"; return -1;
     }
-  if (mCrit == NULL)
-      std::cout << "Error in criterium" << std::endl; return -1;
+
+  if (mCrit == NULL)       
+    {
+      FILE_LOG(logERROR) << "Error in criterium"; return -1;
+    }
 
   return 1;
 }
 
 int BayesOptBase::setSurrogateFunction()
 {
-  if (mGP != NULL)
-    delete mGP;
- 
-  switch(mParameters.s_name)
-    {
-    case S_GAUSSIAN_PROCESS: 
-      mGP = new GaussianProcess(mParameters.noise); break;
-
-    case S_GAUSSIAN_PROCESS_INV_GAMMA_NORMAL:
-      mGP = new GaussianProcessIGN(mParameters.noise, mParameters.alpha,
-				   mParameters.beta,mParameters.delta);  break;
-
-    case S_STUDENT_T_PROCESS_JEFFREYS:
-      if (mParameters.m_name == M_ZERO)
-	{
-	  std::cout << "Zero mean incompatible with Student's t process,"
-		    << "using one-mean instead." << std::endl;
-	  mParameters.m_name = M_ONE;
-	}
-      mGP = new StudentTProcess(mParameters.noise); break;
-
-    default:
-      std::cout << "Error: surrogate function not supported." << std::endl;
-      return -1;
-    }
-  
-  mGP->setKernel(mParameters.theta,mParameters.n_theta,mParameters.k_name);
-  mGP->setMean(mParameters.mu,mParameters.n_mu,mParameters.m_name);
-  return 0;
+  mGP.reset(NonParametricProcess::create(mParameters));
+  if (mGP == NULL)  return -1;
+  else              return 0;
 }
 
 int BayesOptBase::nextPoint(vectord &Xnext)
@@ -127,10 +107,11 @@ int BayesOptBase::nextPoint(vectord &Xnext)
       check = mCrit->checkIfBest(Xnext,name,error);
     }
 
-  if ((mParameters.verbose_level > 0) && 
-    ((mParameters.c_name == C_GP_HEDGE) || 
-     (mParameters.c_name == C_GP_HEDGE_RANDOM)))
-    std::cout << crit2str(name) << " was selected." << std::endl;
+  if ((mParameters.c_name == C_GP_HEDGE) || 
+      (mParameters.c_name == C_GP_HEDGE_RANDOM))
+    {
+      FILE_LOG(logINFO) << crit2str(name) << " was selected.";
+    }
 
   return error;
 }

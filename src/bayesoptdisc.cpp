@@ -48,7 +48,7 @@ int BayesOptDiscrete::optimize( vectord &bestPoint )
     {      
       nextPoint(xNext);
       double yNext = evaluateSample(xNext);
-      mGP->addNewPointToGP(xNext,yNext);   
+      mGP->updateSurrogateModel(xNext,yNext);   
       plotStepData(ii,xNext,yNext);
     }
 
@@ -63,13 +63,13 @@ int BayesOptDiscrete::plotStepData(size_t iteration, const vectord& xNext,
 {
   if(mParameters.verbose_level >0)
     { 
-      mOutput << "Iteration: " << iteration+1 << " of " 
-	      << mParameters.n_iterations << " | Total samples: " 
-	      << iteration+1+mParameters.n_init_samples << std::endl;
-      mOutput << "Trying point at: " << xNext << std::endl;
-      mOutput << "Current outcome: " << yNext << std::endl;
-      mOutput << "Best found at: " << mGP->getPointAtMinimum() << std::endl; 
-      mOutput << "Best outcome: " <<  mGP->getValueAtMinimum() <<  std::endl;    
+      FILE_LOG(logINFO) << "Iteration: " << iteration+1 << " of " 
+			<< mParameters.n_iterations << " | Total samples: " 
+			<< iteration+1+mParameters.n_init_samples ;
+      FILE_LOG(logINFO) << "Trying point at: " << xNext ;
+      FILE_LOG(logINFO) << "Current outcome: " << yNext ;
+      FILE_LOG(logINFO) << "Best found at: " << mGP->getPointAtMinimum() ; 
+      FILE_LOG(logINFO) << "Best outcome: " <<  mGP->getValueAtMinimum() ;    
     }
 
   return 1;
@@ -95,24 +95,24 @@ int BayesOptDiscrete::sampleInitialPoints()
       mGP->addSample(xPoint,yPoint);
     }
 
-  mGP->fitGP();
+  mGP->fitInitialSurrogate();
 
   // For logging purpose
   if(mParameters.verbose_level > 0)
     {
-      mOutput << "Initial points:" << std::endl;
+      FILE_LOG(logDEBUG) << "Initial points:" ;
       double ymin = std::numeric_limits<double>::max();
       for(size_t i = 0; i < nSamples; i++)
 	{
 	  yPoint = mGP->getSample(i,xPoint);
-	  mOutput << xPoint << std::endl;
+	  FILE_LOG(logDEBUG) << xPoint ;
 	  
 	  if (mParameters.verbose_level > 1)
 	    { 
 	      if(yPoint<ymin) 
 		ymin = yPoint;
 	      
-	      mOutput << ymin << "|" << yPoint << std::endl;
+	      FILE_LOG(logDEBUG) << ymin << "|" << yPoint ;
 	    }
 	}  
     }

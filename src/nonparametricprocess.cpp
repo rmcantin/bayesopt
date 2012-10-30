@@ -23,17 +23,158 @@
 
 #include <cstdio>
 #include "nonparametricprocess.hpp"
+#include "log.hpp"
 #include "cholesky.hpp"
 #include "ublas_extra.hpp"
+
+#include "gaussian_process.hpp"
+#include "gaussian_process_ign.hpp"
+#include "student_t_process.hpp"
+
 
 NonParametricProcess::NonParametricProcess(double noise):
   InnerOptimization(), mRegularizer(noise)
 { 
   mMinIndex = 0;     mMaxIndex = 0;   
-
   setAlgorithm(BOBYQA);
   setLimits(0.,100.);
 }
+
+NonParametricProcess::~NonParametricProcess(){}
+
+
+NonParametricProcess* NonParametricProcess::create(bopt_params parameters)
+{
+  NonParametricProcess* s_ptr;
+
+  switch(parameters.s_name)
+    {
+    case S_GAUSSIAN_PROCESS: 
+      s_ptr = new GaussianProcess(parameters.noise); 
+      break;
+
+    case S_GAUSSIAN_PROCESS_INV_GAMMA_NORMAL:
+      s_ptr = new GaussianProcessIGN(parameters.noise, parameters.alpha,
+				     parameters.beta,parameters.delta);  
+      break;
+
+    case S_STUDENT_T_PROCESS_JEFFREYS: 
+      if (parameters.m_name == M_ZERO)
+	{
+	  FILE_LOG(logWARNING) << "Zero mean incompatible with Student's t process,"
+			       << "using one-mean instead.";
+	  parameters.m_name = M_ONE;
+	}
+      s_ptr = new StudentTProcess(parameters.noise); 
+      break;
+
+    default:
+      FILE_LOG(logERROR) << "Error: surrogate function not supported.";
+      return NULL;
+    }
+  
+  s_ptr->setKernel(parameters.theta,parameters.n_theta,parameters.k_name);
+  s_ptr->setMean(parameters.mu,parameters.n_mu,parameters.m_name);
+  return s_ptr;
+};
+
+
+int NonParametricProcess::fitInitialSurrogate()
+{
+  vectord optimalTheta = mKernel->getScale();
+  int error = -1;
+
+  FILE_LOG(logDEBUG) << "Initial theta: " << optimalTheta;
+  innerOptimize(optimalTheta);
+  mKernel->setScale(optimalTheta);
+  FILE_LOG(logDEBUG) << "Final theta: " << optimalTheta;
+
+  //TODO: Choose one!
+#if USE_CHOL
+  error = computeCholeskyCorrelation();
+#else
+  error = computeInverseCorrelation();
+#endif
+
+  if (error < 0)
+    {
+      FILE_LOG(logERROR) << "Error computing the correlation matrix";
+      return error;
+    }   
+
+  error = precomputePrediction(); 
+
+  if (error < 0)
+    {
+      FILE_LOG(logERROR) << "Error pre-computing the prediction distribution";
+      return error;
+    }   
+
+  return 0; 
+} // fitInitialSurrogate
+
+
+int NonParametricProcess::updateSurrogateModel( const vectord &Xnew,
+						double Ynew)
+{
+  assert( mGPXX[1].size() == Xnew.size() );
+
+  vectord newK = computeCrossCorrelation(Xnew);
+  double selfCorrelation = (*mKernel)(Xnew, Xnew) + mRegularizer;
+  
+  addSample(Xnew,Ynew);
+
+  //TODO: Choose one!
+#if USE_CHOL
+  addNewPointToCholesky(newK,selfCorrelation);
+#else
+  addNewPointToInverse(newK,selfCorrelation);
+#endif
+
+  int error = precomputePrediction(); 
+  if (error < 0)
+    {
+      FILE_LOG(logERROR) << "Error pre-computing the prediction distribution";
+      return error;
+    }   
+
+  return 0; 
+} // updateSurrogateModel
+
+
+//////////////////////////////////////////////////////////////////////////////
+//// Getters and Setters
+void NonParametricProcess::setSamples(const matrixd &x, const vectord &y)
+{
+  mGPY = y;
+  for (size_t i=0; i<x.size1(); ++i)
+    {
+      mGPXX.push_back(row(x,i));
+      checkBoundsY(i);
+    } 
+  mMeanV = (*mMean)(mGPXX);
+}
+
+void NonParametricProcess::addSample(const vectord &x, double y)
+{
+  mGPXX.push_back(x);
+  mGPY.resize(mGPY.size()+1);  mGPY(mGPY.size()-1) = y;
+  checkBoundsY(mGPY.size()-1);
+  mMeanV.resize(mMeanV.size()+1);  
+  mMeanV(mMeanV.size()-1) = mMean->getMean(x);
+};
+
+double NonParametricProcess::getSample(size_t index, vectord &x)
+{
+  x = mGPXX[index];
+  return mGPY(index);
+}
+
+vectord NonParametricProcess::getPointAtMinimum()
+{ return mGPXX[mMinIndex]; };
+
+double NonParametricProcess::getValueAtMinimum()
+{ return mGPY(mMinIndex); };
 
 int NonParametricProcess::setKernel (const vectord &thetav,
 				     kernel_name k_name)
@@ -51,49 +192,6 @@ int NonParametricProcess::setMean (const vectord &muv,
   if (mMean == NULL) return -1;
   else  return 0;
 }
-
-
-int NonParametricProcess::fitGP()
-{
-  vectord optimalTheta = mKernel->getScale();
-  int error = -1;
-
-  std::cout << "Initial theta: " << optimalTheta << std::endl;
-  innerOptimize(optimalTheta);
-  mKernel->setScale(optimalTheta);
-  std::cout << "Final theta: " << optimalTheta << std::endl;
-
-  //#ifdef USE_CHOLESKY
-  error = computeCholeskyCorrelation();
-  //#else
-  error = computeInverseCorrelation();
-  //#end
-
-  if (error < 0)   
-    return error;
-
-  return precomputePrediction();
-} // fitGP
-
-int NonParametricProcess::addNewPointToGP( const vectord &Xnew,
-					   double Ynew)
-{
-  assert( mGPXX[1].size() == Xnew.size() );
-
-  vectord newK = computeCrossCorrelation(Xnew);
-  double selfCorrelation = (*mKernel)(Xnew, Xnew) + mRegularizer;
-  
-  addSample(Xnew,Ynew);
-
-  //TODO: Choose one!
-#if USE_CHOL
-  addNewPointToCholesky(newK,selfCorrelation);
-#else
-  addNewPointToInverse(newK,selfCorrelation);
-#endif
-  
-  return precomputePrediction();
-} // addNewPointToGP
 
 
 int NonParametricProcess::addNewPointToCholesky(const vectord& correlation,
@@ -164,7 +262,7 @@ int NonParametricProcess::computeInverseCorrelation()
 
 
 
-matrixd NonParametricProcess::computeCorrMatrix(int dth_index)
+matrixd NonParametricProcess::computeCorrMatrix()
 {
   size_t nSamples = mGPXX.size();
   matrixd corrMatrix(nSamples,nSamples);
@@ -173,13 +271,28 @@ matrixd NonParametricProcess::computeCorrMatrix(int dth_index)
     {
       for (size_t jj=0; jj < ii; ++jj)
 	{
-	  corrMatrix(ii,jj) = (*mKernel)(mGPXX[ii], mGPXX[jj], 
-						  dth_index);
+	  corrMatrix(ii,jj) = (*mKernel)(mGPXX[ii], mGPXX[jj]);
 	  corrMatrix(jj,ii) = corrMatrix(ii,jj);
 	}
-      corrMatrix(ii,ii) = (*mKernel)(mGPXX[ii],mGPXX[ii], dth_index);
-      if (dth_index < 0) 
-	corrMatrix(ii,ii) += mRegularizer;
+      corrMatrix(ii,ii) = (*mKernel)(mGPXX[ii],mGPXX[ii]) + mRegularizer;
+    }
+  return corrMatrix;
+}
+
+matrixd NonParametricProcess::computeDerivativeCorrMatrix(int dth_index)
+{
+  size_t nSamples = mGPXX.size();
+  matrixd corrMatrix(nSamples,nSamples);
+  
+  for (size_t ii=0; ii< nSamples; ++ii)
+    {
+      for (size_t jj=0; jj < ii; ++jj)
+	{
+	  corrMatrix(ii,jj) = mKernel->getGradient(mGPXX[ii],mGPXX[jj], 
+						   dth_index);
+	  corrMatrix(jj,ii) = corrMatrix(ii,jj);
+	}
+      corrMatrix(ii,ii) = mKernel->getGradient(mGPXX[ii],mGPXX[ii],dth_index);
     }
   return corrMatrix;
 }
@@ -196,3 +309,4 @@ vectord NonParametricProcess::computeCrossCorrelation(const vectord &query)
 
   return knx;
 }
+

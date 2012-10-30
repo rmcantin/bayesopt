@@ -19,7 +19,7 @@ Criteria* Criteria::create(criterium_name name,
     case C_GP_HEDGE:
     case C_ERROR:
     default:
-      std::cout << "Error in criterium" << std::endl; 
+      FILE_LOG(logERROR) << "Error in criterium";
       return NULL;
     }
 };

@@ -25,9 +25,10 @@
 #ifndef  _BAYESOPTBASE_HPP_
 #define  _BAYESOPTBASE_HPP_
 
+#include <boost/scoped_ptr.hpp>
 #include "parameters.h"
 #include "specialtypes.hpp"
-#include "logger.hpp"
+#include "log.hpp"
 
 #include "nonparametricprocess.hpp"
 #include "criteria_functors.hpp"
@@ -39,7 +40,7 @@
  * \brief Bayesian optimization using different non-parametric 
  * processes as surrogate functions (non-parametric processes). 
  */
-class BayesOptBase : public Logger
+class BayesOptBase
 {
  public:
   
@@ -108,8 +109,8 @@ class BayesOptBase : public Logger
    * 
    * @return Pointer to the surrogate function object.
    */  
-  NonParametricProcess* getSurrogateFunctionPointer()
-  { return mGP; };
+  // NonParametricProcess* getSurrogateFunctionPointer()
+  // { return mGP; };
 
 protected:
   
@@ -167,10 +168,10 @@ protected:
 
 protected:
 
-  NonParametricProcess* mGP;        ///< Pointer to surrogate model
-  MetaCriteria* mCrit;              ///< Metacriteria model
-  bopt_params mParameters;          ///< Configuration parameters
-  size_t mDims;                     ///< Number of dimensions
+  boost::scoped_ptr<NonParametricProcess> mGP;    ///< Pointer to surrogate model
+  MetaCriteria* mCrit;                                    ///< Metacriteria model
+  bopt_params mParameters;                          ///< Configuration parameters
+  size_t mDims;                                         ///< Number of dimensions
 };
 
 /**@}*/

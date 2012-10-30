@@ -22,36 +22,31 @@
 #include <iostream>
 #include "parameters.h"
 
+static const char* const BOPT_KERNEL_STRINGS[] = {
+  "MATERN_ISO1", "MATERN_ISO3", "MATERN_ISO5", "SE_ISO", "SE_ARD"
+};
+
+// static const char* const BOPT_CRITERIA_STRINGS[] = {
+// };
+
 
 // TODO: All !strcmp should be negated!!!
 kernel_name str2kernel(const char* name)
 {
-  if      (!strcmp(name,  "MATERN_ISO1"))
-      return K_MATERN_ISO1; 
-  else if (!strcmp(name,  "MATERN_ISO3"))
-      return K_MATERN_ISO3; 
-  else if (!strcmp(name,  "MATERN_ISO5"))
-      return K_MATERN_ISO5; 
-  else if (!strcmp(name,  "SE_ISO"))
-      return K_SE_ISO;
-  else if (!strcmp(name,  "SE_ARD"))
-    return K_SE_ARD;
-  else
-    return K_ERROR;
+  size_t nk = 5;
+  for(size_t i= 0;i<nk;++i)
+    if (strcmp(name,BOPT_KERNEL_STRINGS[i]) == 0) 
+      return static_cast<kernel_name>(i);
+
+  return K_ERROR;
 }
 
 const char* kernel2str(kernel_name name)
 {
-  switch(name)
-    {
-    case K_MATERN_ISO1: return "MATERN_ISO1"; 
-    case K_MATERN_ISO3: return "MATERN_ISO3"; 
-    case K_MATERN_ISO5: return "MATERN_ISO5"; 
-    case K_SE_ISO: return "SE_ISO"; 
-    case K_SE_ARD: return "SE_ARD"; 
-    case K_ERROR:
-    default: return "ERROR!";
-    }
+  if(name == K_ERROR)
+    return "ERROR!";
+  else
+    return BOPT_KERNEL_STRINGS[name];
 }
 
 criterium_name str2crit(const char* name)

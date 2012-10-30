@@ -84,11 +84,7 @@ int bayes_optimization(int nDim, eval_func f, void* f_data,
   optimizer.setBoundingBox(lowerBound,upperBound);
   optimizer.optimize(result);
 
-  std::cout << "Result" << result << std::endl;
-
   std::copy(result.begin(), result.end(), x);
-
-  std::cout << "Result2" << x[0] << ","<< x[nDim-1]<< std::endl;
 
   return 1; /* everything ok*/
 };

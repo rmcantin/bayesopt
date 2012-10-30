@@ -64,7 +64,7 @@ public:
    * 
    * @return value negative log likelihood
    */
-  double negativeLogLikelihood(size_t index = 1);			 
+  double negativeLogLikelihood();			 
 			 		 
 
 protected:
@@ -83,6 +83,8 @@ protected:
   vectord mInvRy;
   double mUInvRUDelta;
   
+  vectord mAlphaV;
+
 };
 /**@}*/
 

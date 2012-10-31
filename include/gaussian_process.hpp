@@ -53,13 +53,6 @@ public:
   int prediction(const vectord &query,
   		 double& yPred, double& sPred);
 
-  int predictionChol(double kn, const vectord &kStar,
-		     double& yPred, double& sPred);
-
-  int predictionInv(double kn, const vectord &kStar,
-		    double& yPred, double& sPred);
-
-
   /** 
    * Computes the negative log likelihood and its gradient of the data.
    * 
@@ -111,22 +104,18 @@ public:
   double negativeProbabilityOfImprovement(const vectord &query,
 					  double epsilon = 0.1);
 
-			 
-  double sample_query(const vectord& query, 
-		      randEngine& eng)
-  { 
-    double y,s;
-    prediction(query,y,s);
-    randNFloat sample(eng,normalDist(y,s));
-    return sample();
-  }
+  /** 
+   * Sample outcome acording to the marginal distribution at the query point.
+   * 
+   * @param query query point
+   * @param eng boost.random engine
+   * 
+   * @return outcome
+   */
+  double sample_query(const vectord& query, randEngine& eng);
 
-protected:
-
+private:
   int precomputePrediction();
-  int precomputeChol();
-  int precomputeInv();
-
   vectord mAlphaV;
 };
 

@@ -77,6 +77,7 @@ SET( BAYESOPT_SRCS
   ./src/parameters.cpp
   ./src/kernel_functors.cpp
   ./src/criteria_functors.cpp
+  ./src/metacriteria_functors.cpp
   ./src/mean_functors.cpp
   )
 

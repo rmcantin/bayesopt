@@ -26,7 +26,7 @@
 template<class E>
 typename E::value_type trace(const E &A)
 {
-  size_t n = std::min(A.size1(),A.size2());
+  const size_t n = std::min(A.size1(),A.size2());
   typename E::value_type sum = 0;
   for (size_t i=0; i<n; ++i)
     sum += A(i,i);
@@ -37,11 +37,12 @@ typename E::value_type trace(const E &A)
 template<class E1, class E2>
 typename E1::value_type trace_prod(const E1 & A, const E2 & B )
 {
-  size_t n = std::min(A.size1(),B.size2());
+  namespace ublas = boost::numeric::ublas;
+
+  const size_t n = std::min(A.size1(),B.size2());
   typename E1::value_type sum = 0;
   for (size_t i=0; i<n; ++i)
-    sum += boost::numeric::ublas::inner_prod(boost::numeric::ublas::row(A,i),
-					     boost::numeric::ublas::column(B,i));
+    sum += ublas::inner_prod(ublas::row(A,i),ublas::column(B,i));
 
   return sum; 
 }

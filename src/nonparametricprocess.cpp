@@ -119,7 +119,7 @@ int NonParametricProcess::updateSurrogateModel( const vectord &Xnew,
 {
   assert( mGPXX[1].size() == Xnew.size() );
 
-  vectord newK = computeCrossCorrelation(Xnew);
+  const vectord newK = computeCrossCorrelation(Xnew);
   double selfCorrelation = (*mKernel)(Xnew, Xnew) + mRegularizer;
   
   addSample(Xnew,Ynew);
@@ -197,11 +197,9 @@ int NonParametricProcess::setMean (const vectord &muv,
 int NonParametricProcess::addNewPointToCholesky(const vectord& correlation,
 						double selfcorrelation)
 {
-  //TODO: Optimize
-  vectord newK = correlation;
+  vectord newK(correlation);
   append(newK, selfcorrelation);
   cholesky_add_row(mL,newK);
-
   return 1;
 }
 
@@ -211,7 +209,9 @@ int NonParametricProcess::computeCholeskyCorrelation()
   size_t nSamples = mGPXX.size();
   mL.resize(nSamples,nSamples);
   
-  const matrixd K = computeCorrMatrix();
+  //  const matrixd K = computeCorrMatrix();
+  matrixd K(nSamples,nSamples);
+  computeCorrMatrix(K);
   return cholesky_decompose(K,mL);
 }
 
@@ -249,22 +249,38 @@ int NonParametricProcess::addNewPointToInverse(const vectord& correlation,
 
 int NonParametricProcess::computeInverseCorrelation()
 {
-  size_t nSamples = mGPXX.size();
+  const size_t nSamples = mGPXX.size();
   if ( (nSamples != mInvR.size1()) || (nSamples != mInvR.size2()) )
     mInvR.resize(nSamples,nSamples);
     
-  matrixd corrMatrix = computeCorrMatrix();
-
-  //return InvertMatrix(corrMatrix,mInvR);
+  const matrixd corrMatrix = computeCorrMatrix();
   return inverse_cholesky(corrMatrix,mInvR);
 }
 
+
+int NonParametricProcess::computeCorrMatrix(matrixd& corrMatrix)
+{
+  assert(corrMatrix.size1() == mGPXX.size());
+  assert(corrMatrix.size2() == mGPXX.size());
+  const size_t nSamples = mGPXX.size();
+  
+  for (size_t ii=0; ii< nSamples; ++ii)
+    {
+      for (size_t jj=0; jj < ii; ++jj)
+	{
+	  corrMatrix(ii,jj) = (*mKernel)(mGPXX[ii], mGPXX[jj]);
+	  corrMatrix(jj,ii) = corrMatrix(ii,jj);
+	}
+      corrMatrix(ii,ii) = (*mKernel)(mGPXX[ii],mGPXX[ii]) + mRegularizer;
+    }
+  return 1;
+}
 
 
 
 matrixd NonParametricProcess::computeCorrMatrix()
 {
-  size_t nSamples = mGPXX.size();
+  const size_t nSamples = mGPXX.size();
   matrixd corrMatrix(nSamples,nSamples);
   
   for (size_t ii=0; ii< nSamples; ++ii)
@@ -281,7 +297,7 @@ matrixd NonParametricProcess::computeCorrMatrix()
 
 matrixd NonParametricProcess::computeDerivativeCorrMatrix(int dth_index)
 {
-  size_t nSamples = mGPXX.size();
+  const size_t nSamples = mGPXX.size();
   matrixd corrMatrix(nSamples,nSamples);
   
   for (size_t ii=0; ii< nSamples; ++ii)
@@ -303,9 +319,17 @@ vectord NonParametricProcess::computeCrossCorrelation(const vectord &query)
 {
   vectord knx(mGPXX.size());
 
+  std::vector<vectord>::const_iterator x_it  = mGPXX.begin();
+  std::vector<vectord>::const_iterator x_end = mGPXX.end();
+  vectord::iterator k_it = knx.begin();
+  while(x_it != x_end)
+    {
+      *k_it++ = (*mKernel)(*x_it++, query);
+    }
+    
   //TODO: Replace by transform
-  for (size_t ii=0; ii<mGPXX.size(); ++ii)
-    knx(ii) = (*mKernel)(mGPXX[ii], query);
+  // for (size_t ii=0; ii<mGPXX.size(); ++ii)
+  //   knx(ii) = (*mKernel)(mGPXX[ii], query);
 
   return knx;
 }

@@ -25,11 +25,6 @@
 #include "cholesky.hpp"
 #include "trace_ublas.hpp"
 
-using boost::numeric::ublas::inplace_solve;
-using boost::numeric::ublas::lower_tag;
-using boost::numeric::ublas::lower;
-using boost::numeric::ublas::inner_prod;
-
 GaussianProcess::GaussianProcess( double noise ):
   NonParametricProcess(noise)
 {}  // Constructor
@@ -42,15 +37,14 @@ GaussianProcess::~GaussianProcess()
 
 double GaussianProcess::negativeLogLikelihood()
 {
-  matrixd K = computeCorrMatrix();
-  size_t n = K.size1();
+  const matrixd K = computeCorrMatrix();
+  const size_t n = K.size1();
   matrixd L(n,n);
   cholesky_decompose(K,L);
 
-  // Compute the likelihood
   vectord alpha(mGPY);
-  cholesky_solve(L,alpha,lower());
-  double loglik = .5*inner_prod(mGPY,alpha) + trace(L) + n*0.91893853320467; 
+  cholesky_solve(L,alpha,ublas::lower());
+  double loglik = .5*ublas::inner_prod(mGPY,alpha) + trace(L) + n*0.91893853320467; 
   // 0.9183... = log(2*pi)/2
 
   return loglik;
@@ -60,81 +54,50 @@ double GaussianProcess::negativeLogLikelihood()
 int GaussianProcess::prediction( const vectord &query,
 				 double& yPred, double& sPred)
 {
-  double kn = (*mKernel)(query, query);
-  vectord kStar = computeCrossCorrelation(query);
-#if USE_CHOL
-  return predictionChol(kn,kStar,yPred,sPred);
-#else
-  return predictionInv(kn,kStar,yPred,sPred);
-#endif
-}
-
-int GaussianProcess::predictionChol(double kn, const vectord& kStar,
-				    double& yPred, double& sPred)
-{
-  yPred = inner_prod(kStar,mAlphaV);
+  const double kn = (*mKernel)(query, query);
+  const vectord kStar = computeCrossCorrelation(query);
+  yPred = ublas::inner_prod(kStar,mAlphaV);
 
   vectord vd(kStar);
-  inplace_solve(mL,vd,lower_tag());
-  sPred = sqrt(kn - inner_prod(vd,vd));
+  ublas::inplace_solve(mL,vd,ublas::lower_tag());
+  sPred = sqrt(kn - ublas::inner_prod(vd,vd));
   
   return 1;
 }
 
-int GaussianProcess::predictionInv(double kn, const vectord& kStar,
-				    double& yPred, double& sPred)
-{
-  vectord rInvR = prod(kStar,mInvR);
-  yPred = inner_prod(rInvR,mGPY);
-  sPred = sqrt(kn - inner_prod(rInvR,kStar));
-
-  return 1;
-}
 
 int GaussianProcess::precomputePrediction()
-{ 
-#if USE_CHOL
-  return precomputeChol(); 
-#else
-  return 1;
-#endif
-}
-
-int GaussianProcess::precomputeChol()
 {
-  size_t n = mGPY.size();
+  const size_t n = mGPY.size();
   
   mAlphaV.resize(n,false);
   mAlphaV = mGPY;
-  cholesky_solve(mL,mAlphaV,lower());
+  cholesky_solve(mL,mAlphaV,ublas::lower());
 
   return 1; 
 }
-
-int GaussianProcess::precomputeInv()
-{ return 1;}
 	
 double GaussianProcess::negativeExpectedImprovement(const vectord& query,
 						    size_t g)
 {
+  const double yMin = getValueAtMinimum();
   double yPred,sPred;
-  double yMin = getValueAtMinimum();
   prediction(query,yPred,sPred);
   
   using boost::math::factorial;
 
   boost::math::normal d;
-  double yDiff = yMin - yPred; 
-  double yNorm = yDiff / sPred;
+  const double yDiff = yMin - yPred; 
+  const double yNorm = yDiff / sPred;
   
   if (g == 1)
     return -1.0 * ( yDiff * cdf(d,yNorm) + sPred * pdf(d,yNorm) );
   else
     {
-      double pdfD = pdf(d,yNorm);
+      const double pdfD = pdf(d,yNorm);
       double Tm2 = cdf(d,yNorm);
       double Tm1 = pdfD;
-      double fg = factorial<double>(g);
+      const double fg = factorial<double>(g);
       double Tact;
       double sumEI = pow(yNorm,g)*Tm2 - g*pow(yNorm,g-1)*Tm1;
 
@@ -166,8 +129,17 @@ double GaussianProcess::negativeProbabilityOfImprovement(const vectord& query,
 							 double epsilon)
 {
   boost::math::normal d;
-  double yMin = getValueAtMinimum();
+  const double yMin = getValueAtMinimum();
   double yPred,sPred;
   prediction(query,yPred,sPred);
   return -cdf(d,(yMin - yPred + epsilon)/sPred);
 }  // negativeProbabilityOfImprovement
+
+
+double GaussianProcess::sample_query(const vectord& query, randEngine& eng)
+{ 
+  double y,s;
+  prediction(query,y,s);
+  randNFloat sample(eng,normalDist(y,s));
+  return sample();
+} // sample_query

@@ -47,7 +47,6 @@ BayesOptContinuous::~BayesOptContinuous()
 
 int BayesOptContinuous::optimize(vectord &bestPoint)
 {
-  mCrit->reset();
   mDims = bestPoint.size();
 
   if (mBB == NULL)

@@ -31,7 +31,16 @@ BayesOptBase::BayesOptBase( bopt_params parameters,
 
   mGP(NULL), mCrit(NULL),  mParameters(parameters)
 { 
-  FILELog::ReportingLevel() = logINFO; //mParameters.verbose_level;
+  switch(mParameters.verbose_level)
+    {
+    case 0: FILELog::ReportingLevel() = logWARNING; break;
+    case 1: FILELog::ReportingLevel() = logINFO; break;
+    case 2: FILELog::ReportingLevel() = logDEBUG4; break;
+    default:
+      FILELog::ReportingLevel() = logERROR; break;
+    }
+
+  
   if (uselogfile)
     {
       FILE* log_fd = fopen( logfilename , "w" );
@@ -45,44 +54,19 @@ BayesOptBase::BayesOptBase( bopt_params parameters,
 } // Constructor
 
 BayesOptBase::~BayesOptBase()
-{
-  if (mCrit != NULL)
-    delete mCrit;
-
-} // Default destructor
+{} // Default destructor
 
 int BayesOptBase::setCriteriumFunction()
 {
-  if (mCrit != NULL)
-    delete mCrit;
-
   // We need a valid surrogate function pointer for the criteria
   if(mGP == NULL)
     setSurrogateFunction();
 
-  switch(mParameters.c_name)
-    {
-    case C_GP_HEDGE:        mCrit = new GP_Hedge(mGP.get()); break;
-    case C_GP_HEDGE_RANDOM: mCrit = new GP_Hedge_Random(mGP.get()); break;
-    case C_EI:
-    case C_EI_A:
-    case C_LCB: 
-    case C_LCB_A:
-    case C_POI:
-    case C_GREEDY_A_OPTIMALITY: 
-    case C_EXPECTED_RETURN:   
-    case C_OPTIMISTIC_SAMPLING:
-      mCrit = new SingleCriteria(mGP.get());
-      mCrit->setCriterium(mParameters.c_name);
-      break;
-    case C_ERROR:
-    default:
-      FILE_LOG(logERROR) << "Error in criterium"; return -1;
-    }
-
+  mCrit.reset(MetaCriteria::create(mParameters.c_name,mGP.get()));
   if (mCrit == NULL)       
     {
-      FILE_LOG(logERROR) << "Error in criterium"; return -1;
+      FILE_LOG(logERROR) << "Error in criterium"; 
+      return -1;
     }
 
   return 1;

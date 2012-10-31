@@ -56,11 +56,12 @@ int main(int nargs, char *args[])
   par.delta = PRIOR_DELTA_SQ;
   par.noise = DEFAULT_NOISE;
   par.c_name = C_EI;
-  par.s_name = S_GAUSSIAN_PROCESS_INV_GAMMA_NORMAL;
+  par.s_name = S_GAUSSIAN_PROCESS;
   par.k_name = K_MATERN_ISO3;
   par.m_name = M_ZERO;
-  par.n_iterations = 200;       // Number of iterations
+  par.n_iterations = 100;       // Number of iterations
   par.n_init_samples = 20;
+  par.verbose_level = 1;
   /*******************************************/
 
   clock_t start, end;

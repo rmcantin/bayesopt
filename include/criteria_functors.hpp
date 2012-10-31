@@ -24,9 +24,7 @@
 #ifndef  _CRITERIA_FUNCTORS_HPP_
 #define  _CRITERIA_FUNCTORS_HPP_
 
-#include <boost/scoped_ptr.hpp>
 #include "parameters.h"
-#include "log.hpp"
 #include "nonparametricprocess.hpp"
 
 ///\addtogroup CriteriaFunctions
@@ -38,9 +36,7 @@
 class Criteria
 {
 public:
-  Criteria(NonParametricProcess *proc):
-    mProc(proc) {};
-
+  Criteria(NonParametricProcess *proc):  mProc(proc) {};
   virtual ~Criteria(){};
   virtual double operator()( const vectord &x) = 0;
   virtual void resetAnneal() {};  //dummy function
@@ -58,16 +54,11 @@ protected:
 class ExpectedImprovement: public Criteria
 {
 public:
-  ExpectedImprovement(NonParametricProcess *proc): 
-    Criteria(proc), mExp(1) {};
-
+  ExpectedImprovement(NonParametricProcess *proc): Criteria(proc), mExp(1) {};
   virtual ~ExpectedImprovement(){};
   inline void setExponent(size_t exp) {mExp = exp;};
   double operator()(const vectord &x)
-  {
-    double result = mProc->negativeExpectedImprovement(x);
-    return result;
-  };
+  { return mProc->negativeExpectedImprovement(x,mExp); };
 private:
   size_t mExp;
 };
@@ -79,16 +70,12 @@ private:
 class LowerConfidenceBound: public Criteria
 {
 public:
-  LowerConfidenceBound(NonParametricProcess *proc): Criteria(proc) { mBeta = 1; };
-
+  LowerConfidenceBound(NonParametricProcess *proc):Criteria(proc),mBeta(1) {};
   virtual ~LowerConfidenceBound(){};
   inline void setBeta(double beta) { mBeta = beta; };
-
   double operator()( const vectord &x)
-  {
-    return mProc->lowerConfidenceBound(x,mBeta);
-  };
-protected:
+  { return mProc->lowerConfidenceBound(x,mBeta); };
+private:
   double mBeta;
 };
 
@@ -99,15 +86,13 @@ protected:
 class ProbabilityOfImprovement: public Criteria
 {
 public:
-  ProbabilityOfImprovement(NonParametricProcess *proc): Criteria(proc) {mEpsilon = 0.01;};
+  ProbabilityOfImprovement(NonParametricProcess *proc): 
+    Criteria(proc), mEpsilon(0.01) {};
   virtual ~ProbabilityOfImprovement(){};
   inline void setEpsilon(double eps) {mEpsilon = eps;};
-
   double operator()( const vectord &x)
-  {
-    return mProc->negativeProbabilityOfImprovement(x,mEpsilon);
-  };
-protected:
+  { return mProc->negativeProbabilityOfImprovement(x,mEpsilon); };
+private:
   double mEpsilon;
 };
 
@@ -120,7 +105,6 @@ class GreedyAOptimality: public Criteria
 public:
   GreedyAOptimality(NonParametricProcess *proc): Criteria(proc){};
   virtual ~GreedyAOptimality(){};
-
   double operator()( const vectord &x)
   {
     double yPred, sPred;
@@ -136,9 +120,7 @@ class ExpectedReturn: public Criteria
 {
 public:
   ExpectedReturn(NonParametricProcess *proc): Criteria(proc){};
-
   virtual ~ExpectedReturn(){};
-
   double operator()( const vectord &x)
   {
     double yPred, sPred;
@@ -154,80 +136,56 @@ class OptimisticSampling: public Criteria
 {
 public:
   OptimisticSampling(NonParametricProcess *proc): 
-    Criteria(proc), mtRandom(100u)
-  {};
-
+    Criteria(proc), mtRandom(100u) {};
   virtual ~OptimisticSampling(){};
-
   double operator()( const vectord &x)
   {
     double yPred, sPred, yStar = mProc->sample_query(x,mtRandom);
     mProc->prediction(x,yPred,sPred);
     return std::min(yPred,yStar);
   };
-protected:
+private:
   randEngine mtRandom;
-};
-
-
-/**
- * \brief Abstract class for annealed criteria.
- */
-class AnnealedCriteria: public Criteria
-{
-public:
-  AnnealedCriteria(NonParametricProcess *proc):
-    Criteria(proc), nCalls(0) {};
-  virtual ~AnnealedCriteria(){};
-  virtual void resetAnneal() { nCalls = 0; };
-
-protected:
-  unsigned int nCalls;
 };
 
 
 /**
  * \brief Expected improvement criterion using Schonlau annealing.
  */
-class AnnealedExpectedImprovement: public AnnealedCriteria
+class AnnealedExpectedImprovement: public Criteria
 {
 public:
   AnnealedExpectedImprovement(NonParametricProcess *proc):
-    AnnealedCriteria(proc), mExp(10) {};
-
+    Criteria(proc){ resetAnneal(); };
   virtual ~AnnealedExpectedImprovement(){};
-
   inline void setExponent(size_t exp) {mExp = exp;};
   void resetAnneal() { nCalls = 0; mExp = 10;};
-
   double operator()( const vectord &x)
   {
     ++nCalls;
-
     if (nCalls % 10)
       mExp = ceil(mExp/2.0);
 
     return mProc->negativeExpectedImprovement(x,mExp);
   };
 
-protected:
+private:
   size_t mExp;
+  unsigned int nCalls;
 };
 
 
 /**
  * \brief Lower (upper) confidence bound using Srinivas annealing
  */
-class AnnealedLowerConfindenceBound: public AnnealedCriteria
+class AnnealedLowerConfindenceBound: public Criteria
 {
 public:
   AnnealedLowerConfindenceBound(NonParametricProcess *proc):
-    AnnealedCriteria(proc), mCoef(5.0) {};
-
+    Criteria(proc){ resetAnneal(); };
   virtual ~AnnealedLowerConfindenceBound(){};
-
   inline void setBetaCoef(double betac) { mCoef = betac; };
-
+  void resetAnneal() { nCalls = 0; mCoef = 5.0;};
   double operator()( const vectord &x)
   {
     ++nCalls;
@@ -238,150 +196,9 @@ public:
 
     return mProc->lowerConfidenceBound(x,beta);
   };
-protected:
+private:
   double mCoef;
-};
-
-////////////////////////////////////////////////////////////////////////////
-/**
- * \brief Abstract class for Metacriteria interface.
- * The Metacriteria can be used to combine different criteria.
- */
-class MetaCriteria
-{
-public:
-  MetaCriteria(NonParametricProcess* proc):
-    mProc(proc) {};
-
-  virtual ~MetaCriteria() {};
-  virtual void reset() {};
-  virtual int setCriterium(criterium_name name) {return 0;};
-  virtual int initializeSearch() = 0;
-  virtual double operator()( const vectord &x) = 0;
-  virtual bool checkIfBest(vectord& xNext,
-			   criterium_name& name,
-			   int& error_code) = 0;
-
-protected:
-  NonParametricProcess* mProc;
-};
-
-
-////////////////////////////////////////////////////////////////////////////
-/**
- * \brief Abstract class for Metacriteria interface.
- * The Metacriteria can be used to combine different criteria.
- */
-class SingleCriteria: public MetaCriteria
-{
-public:
-  SingleCriteria(NonParametricProcess* proc):
-    MetaCriteria(proc)  {};
-
-  virtual ~SingleCriteria() {};
-
-  int setCriterium(criterium_name name)
-  { 
-    mCriterium.reset(Criteria::create(name,mProc));
-    if (mCriterium == NULL) return -1;
-    else    return 0;  
-  };
-  
-  double operator()( const vectord &x)
-  { return (*mCriterium)(x); };
-
-  virtual int initializeSearch()
-  {
-    if (mCriterium == NULL)
-      {
-	FILE_LOG(logERROR) << "Criterium not set properly";
-	return -1;
-      }
-    return 0;
-  };
-
-  virtual bool checkIfBest(vectord& xNext,
-			   criterium_name& name,
-			   int& error_code)
-  { error_code = 0;  return true; };
-protected:
-  boost::scoped_ptr<Criteria> mCriterium;
-};
-
-
-/** 
- * \brief Softmax function
- * 
- * @param g gain function
- * @param eta smoothness coefficient
- * @return 
- */
-inline double softmax(double g, double eta) {return exp(eta*g);};
-
-
-/**
- * \brief GP_Hedge model as describen in Hoffman et al.
- *
- * The coefficients of the bandit algorithm has been carefully selected
- * according to Shapire et al. Also, the implementation has been made to
- * avoid over or underflow.
- */
-class GP_Hedge: public MetaCriteria
-{
-public:
-  GP_Hedge(NonParametricProcess *proc);
-  virtual ~GP_Hedge();
-
-  inline void reset()
-  { gain = zvectord(N_ALGORITHMS_IN_GP_HEDGE); };
-
-  double operator()( const vectord &x)
-  { return (*mCurrentCriterium)(x); };
-
-  int update_hedge();
-  int initializeSearch()
-  {
-    mIndex = 0;
-    mCurrentCriterium = mCriteriaList[mIndex];
-    mBestLists.clear();
-    return 1;
-  };
-
-  bool checkIfBest(vectord& best,criterium_name& name,int& error_code);
- 
-protected:
-  virtual double computeLoss(const vectord& query)
-  {	
-    double mean, std;
-    mProc->prediction(query,mean,std);
-    return mean;
-  }
-
-protected:
-  randEngine mtRandom;
-  randFloat sampleUniform;
-  vectord loss, gain, prob, cumprob;
-  std::vector<Criteria*> mCriteriaList;
-  Criteria* mCurrentCriterium;
-  std::vector<vectord> mBestLists;
-  size_t mIndex;
-};
-
-/**
- * \brief Modification of the GP_Hedge algorithm where the bandit gains are
- * random outcomes.
- */
-class GP_Hedge_Random: public GP_Hedge
-{
-public:
-  GP_Hedge_Random(NonParametricProcess *proc):
-    GP_Hedge(proc) {};
-
-  virtual ~GP_Hedge_Random() {};
-
-protected:  
-  virtual double computeLoss(const vectord& query)
-  { return mProc->sample_query(query,mtRandom); }
+  unsigned int nCalls;
 };
 
 //@}

@@ -28,7 +28,6 @@
 
 void checkNLOPTerror(nlopt_result errortype)
 {
-  //TODO: Raise exceptions.
   switch(errortype)
       {
       case -1: FILE_LOG(logERROR) << "NLOPT: General failure"; break;

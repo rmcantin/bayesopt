@@ -223,8 +223,7 @@ protected:
    * Precompute some values of the prediction that do not depends on the query
    * @return error code
    */
-  virtual int precomputePrediction()
-  {return 1;}
+  virtual int precomputePrediction() = 0;
 
 
   /** 
@@ -240,6 +239,7 @@ protected:
   int addNewPointToCholesky(const vectord& correlation,
 			    double selfcorrelation);
 
+  int computeCorrMatrix(matrixd& corrMatrix);
   matrixd computeCorrMatrix();
   matrixd computeDerivativeCorrMatrix(int dth_index);
   vectord computeCrossCorrelation(const vectord &query);
@@ -263,7 +263,7 @@ protected:
 
   size_t mMinIndex, mMaxIndex;	
 
-  // Precomputed GP prediction operations
+  // TODO: Choose one
   matrixd mL;
   covMatrix mInvR;                   ///< Inverse Correlation matrix
 

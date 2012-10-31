@@ -24,15 +24,15 @@
 #include <typeinfo>
 
 template<class V, class D>
-int append(V& vector, D element)
+int append(V& vect, D element)
 {
   typedef typename V::value_type VD;
   assert(typeid(VD) == typeid(D));
 
   // This method is super inefficient but there seems to be the uBlas style.
-  size_t size = vector.size();
-  vector.resize(size+1,true);
-  vector(size) = element;
+  const size_t size = vect.size();
+  vect.resize(size+1,true);
+  vect(size) = element;
   return 0;
 };
 

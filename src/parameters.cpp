@@ -30,7 +30,6 @@ static const char* const BOPT_KERNEL_STRINGS[] = {
 // };
 
 
-// TODO: All !strcmp should be negated!!!
 kernel_name str2kernel(const char* name)
 {
   size_t nk = 5;

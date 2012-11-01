@@ -142,7 +142,12 @@ public:
 
 private:
   double computeLoss(const vectord& query)
-  { return mProc->sample_query(query,mtRandom); }
+  { 
+    ProbabilityDistribution* pd = mProc->prediction(query);
+    double sample = pd->sample_query(mtRandom);
+    delete pd;
+    return sample;
+  }
 };
 
 //@}

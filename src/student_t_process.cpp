@@ -17,10 +17,10 @@
 -----------------------------------------------------------------------------
 */
 
-#include <boost/math/distributions/students_t.hpp> // for student t distribution
 #include "student_t_process.hpp"
 #include "cholesky.hpp"
 #include "trace_ublas.hpp"
+#include "student_t_distribution.hpp"
 
 using boost::numeric::ublas::inplace_solve;
 using boost::numeric::ublas::lower_tag;
@@ -98,6 +98,14 @@ int StudentTProcess::prediction( const vectord &query,
 }
 	
 
+ProbabilityDistribution* StudentTProcess::prediction(const vectord &query)
+{
+  double y, s;
+  size_t n = prediction(query,y,s);
+  return new StudentTDistribution(y,s,n);
+}
+
+
 int StudentTProcess::precomputePrediction()
 {
   size_t nSamples = mGPXX.size();
@@ -135,43 +143,3 @@ int StudentTProcess::precomputePrediction()
 
 
 	
-double StudentTProcess::negativeExpectedImprovement(const vectord& query,
-						    size_t g)
-{
-  size_t dof = mGPXX.size() - 1;
-  boost::math::students_t d(dof);
-
-  double yPred,sPred;
-  double yMin = getValueAtMinimum();
-  prediction(query,yPred,sPred);
-
-  double yDiff = yMin - yPred; 
-  double yNorm = yDiff / sPred;
-  
-  assert((g == 1) && "Students t EI with exponent not yet supported.");
-  return -( yDiff * cdf(d,yNorm) + 
-	    (dof*sPred+yNorm*yDiff)/(dof-1) * pdf(d,yNorm) );
-
-  
-}  // negativeExpectedImprovement
-
-double StudentTProcess::lowerConfidenceBound(const vectord& query,
-					     double beta)
-{    
-  size_t n = mGPXX.size();
-  double yPred,sPred;
-  prediction(query,yPred,sPred);
-  return yPred - beta*sPred/sqrt(n);
-}  // lowerConfidenceBound
-
-double StudentTProcess::negativeProbabilityOfImprovement(const vectord& query,
-							 double epsilon)
-{  
-  size_t dof = mGPXX.size() - 1;
-  boost::math::students_t d(dof);
-  double yPred,sPred;
-  double yMin = getValueAtMinimum();
-  prediction(query,yPred,sPred);
-
-  return -cdf(d,(yMin - yPred + epsilon)/sPred);
-}  // negativeProbabilityOfImprovement

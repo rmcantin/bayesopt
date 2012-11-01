@@ -58,6 +58,16 @@ public:
 
 
   /** 
+   * \brief Function that returns the prediction of the GP for a query point
+   * in the hypercube [0,1].
+   * 
+   * @param query in the hypercube [0,1] to evaluate the Gaussian process
+   * @return pointer to the probability distribution.
+   */	
+  ProbabilityDistribution* prediction(const vectord &query);
+
+
+  /** 
    * Computes the negative log likelihood and its gradient of the data.
    * 
    * @param grad gradient of the negative Log Likelihood
@@ -68,59 +78,6 @@ public:
   double negativeLogLikelihood();			 
 
   
-  /** 
-   * Expected Improvement algorithm for minimization
-   * 
-   * @param yPred mean of the prediction
-   * @param sPred std of the prediction
-   * @param yMin  minimum value found
-   * @param g exponent (used for annealing)
-   * 
-   * @return negative value of the expected improvement
-   */
-  double negativeExpectedImprovement(const vectord& query,
-				     size_t g = 1);
-
-
-  /** 
-   * Lower confindence bound. Can be seen as the inverse of the Upper 
-   * confidence bound
-   *
-   * @param yPred mean of the prediction
-   * @param sPred std of the prediction
-   * @param beta std coefficient (used for annealing)
-   * 
-   * @return value of the lower confidence bound
-   */
-  double lowerConfidenceBound(const vectord& query,
-			      double beta = 1);
-
-  /** 
-   * Probability of improvement algorithm for minimization
-   * 
-   * @param yPred mean of the prediction
-   * @param sPred std of the prediction
-   * @param yMin  minimum value found
-   * @param epsilon minimum improvement margin
-   * 
-   * @return negative value of the probability of improvement
-   */
-  double negativeProbabilityOfImprovement(const vectord& query,
-					  double epsilon = 0.1);
-
-  /** Function to sample from the generalized Student's t distribution that appears
-   *  in Pattern Recognition and Machine Learning from C.M. Bishop
-   */
-  double sample_query(const vectord& query, 
-		      randEngine& eng)
-  { 
-    double y,s;
-    size_t n = mGPXX.size() - 1;
-    prediction(query,y,s);
-    randNFloat normal(eng,normalDist(y,s));
-    randGFloat gamma(eng,gammaDist(n/2));
-    return normal() / sqrt(2*gamma()/n);
-  }
 
 
 protected:

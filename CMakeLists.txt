@@ -79,6 +79,8 @@ SET( BAYESOPT_SRCS
   ./src/criteria_functors.cpp
   ./src/metacriteria_functors.cpp
   ./src/mean_functors.cpp
+  ./src/gauss_distribution.cpp
+  ./src/student_t_distribution.cpp
   )
 
 SET(WRAPPPERS_SRC 

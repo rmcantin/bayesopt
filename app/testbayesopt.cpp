@@ -59,8 +59,8 @@ int main(int nargs, char *args[])
   par.s_name = S_GAUSSIAN_PROCESS;
   par.k_name = K_MATERN_ISO3;
   par.m_name = M_ZERO;
-  par.n_iterations = 100;       // Number of iterations
-  par.n_init_samples = 20;
+  par.n_iterations = 200;       // Number of iterations
+  par.n_init_samples = 50;
   par.verbose_level = 1;
   /*******************************************/
 

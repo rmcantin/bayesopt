@@ -19,11 +19,10 @@
    along with BayesOpt.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------
 */
-#include <boost/math/special_functions/factorials.hpp>
-#include <boost/math/distributions/normal.hpp> 
 #include "gaussian_process.hpp"
 #include "cholesky.hpp"
 #include "trace_ublas.hpp"
+#include "gauss_distribution.hpp"
 
 GaussianProcess::GaussianProcess( double noise ):
   NonParametricProcess(noise)
@@ -44,7 +43,8 @@ double GaussianProcess::negativeLogLikelihood()
 
   vectord alpha(mGPY);
   cholesky_solve(L,alpha,ublas::lower());
-  double loglik = .5*ublas::inner_prod(mGPY,alpha) + trace(L) + n*0.91893853320467; 
+  double loglik = .5*ublas::inner_prod(mGPY,alpha) + trace(L) 
+    + n*0.91893853320467; 
   // 0.9183... = log(2*pi)/2
 
   return loglik;
@@ -65,6 +65,13 @@ int GaussianProcess::prediction( const vectord &query,
   return 1;
 }
 
+ProbabilityDistribution* GaussianProcess::prediction(const vectord &query)
+{
+  double y, s;
+  prediction(query,y,s);
+  return new GaussianDistribution(y,s);
+}
+
 
 int GaussianProcess::precomputePrediction()
 {
@@ -77,69 +84,3 @@ int GaussianProcess::precomputePrediction()
   return 1; 
 }
 	
-double GaussianProcess::negativeExpectedImprovement(const vectord& query,
-						    size_t g)
-{
-  const double yMin = getValueAtMinimum();
-  double yPred,sPred;
-  prediction(query,yPred,sPred);
-  
-  using boost::math::factorial;
-
-  boost::math::normal d;
-  const double yDiff = yMin - yPred; 
-  const double yNorm = yDiff / sPred;
-  
-  if (g == 1)
-    return -1.0 * ( yDiff * cdf(d,yNorm) + sPred * pdf(d,yNorm) );
-  else
-    {
-      const double pdfD = pdf(d,yNorm);
-      double Tm2 = cdf(d,yNorm);
-      double Tm1 = pdfD;
-      const double fg = factorial<double>(g);
-      double Tact;
-      double sumEI = pow(yNorm,g)*Tm2 - g*pow(yNorm,g-1)*Tm1;
-
-      for (unsigned int ii = 2; ii < g; ii++) 
-	{
-	  Tact = (ii-1)*Tm2 - pdfD*pow(yNorm,ii-1);
-	  sumEI += pow(-1.0,ii)* 
-	    (fg / ( factorial<double>(ii)*factorial<double>(g-ii) ) )*
-	    pow(yNorm,g-ii)*Tact;
-	  
-	  //roll-up
-	  Tm2 = Tm1;   Tm1 = Tact;
-	}
-      return -1.0 * pow(sPred,g) * sumEI;
-    }
-  
-}  // negativeExpectedImprovement
-
-double GaussianProcess::lowerConfidenceBound(const vectord& query,
-					     double beta)
-{    
-  double yPred,sPred;
-  prediction(query,yPred,sPred);
-  return yPred - beta*sPred;;
-}  // lowerConfidenceBound
-
-
-double GaussianProcess::negativeProbabilityOfImprovement(const vectord& query,
-							 double epsilon)
-{
-  boost::math::normal d;
-  const double yMin = getValueAtMinimum();
-  double yPred,sPred;
-  prediction(query,yPred,sPred);
-  return -cdf(d,(yMin - yPred + epsilon)/sPred);
-}  // negativeProbabilityOfImprovement
-
-
-double GaussianProcess::sample_query(const vectord& query, randEngine& eng)
-{ 
-  double y,s;
-  prediction(query,y,s);
-  randNFloat sample(eng,normalDist(y,s));
-  return sample();
-} // sample_query

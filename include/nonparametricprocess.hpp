@@ -30,9 +30,9 @@
 #include "parameters.h"
 #include "kernel_functors.hpp"
 #include "mean_functors.hpp"
-#include "randgen.hpp"
 #include "specialtypes.hpp"
 #include "inneroptimization.hpp"	
+#include "prob_distribution.hpp"
 
 #define USE_CHOL 1
 
@@ -50,17 +50,17 @@ public:
   virtual ~NonParametricProcess();
 
   /** 
-   * Factory model generator for surrogate models
+   * \brief Factory model generator for surrogate models
    * @param parameters (process name, noise, priors, etc.)
    * @return pointer to the corresponding derivate class (surrogate model)
    */
   static NonParametricProcess* create(bopt_params parameters);
 
   /** 
-   * Function that returns the prediction of the GP for a query point
+   * \brief Function that returns the prediction of the GP for a query point
    * in the hypercube [0,1].
    * 
-   * @param query point in the hypercube [0,1] to evaluate the Gaussian process
+   * @param query in the hypercube [0,1] to evaluate the Gaussian process
    * @param yPred mean of the predicted Gaussian distribution
    * @param sPred std of the predicted Gaussian distribution
    * 
@@ -69,8 +69,18 @@ public:
   virtual int prediction(const vectord &query,
 			 double& yPred, double& sPred) = 0;
 
+
   /** 
-   * Computes the negative log likelihood of the data.
+   * \brief Function that returns the prediction of the GP for a query point
+   * in the hypercube [0,1].
+   * 
+   * @param query in the hypercube [0,1] to evaluate the Gaussian process
+   * @return pointer to the probability distribution.
+   */	
+  virtual ProbabilityDistribution* prediction(const vectord &query) = 0;
+
+  /** 
+   * \brief Computes the negative log likelihood of the data.
    * 
    * @param param value of the param to be optimized
    * 
@@ -90,57 +100,6 @@ public:
   // virtual double negativeLogLikelihood(double& grad,
   // 				       size_t index = 1)
   // {return 0.0;};
-
- 
-  /** 
-   * Expected Improvement algorithm for minimization
-   * 
-   * @param yPred mean of the prediction
-   * @param sPred std of the prediction
-   * @param yMin  minimum value found
-   * @param g exponent (used for annealing)
-   * 
-   * @return negative value of the expected improvement
-   */
-  virtual double negativeExpectedImprovement(const vectord &query,
-					     size_t g = 1) = 0;
-
-  /** 
-   * Lower confindence bound. Can be seen as the inverse of the Upper 
-   * confidence bound
-   *
-   * @param yPred mean of the prediction
-   * @param sPred std of the prediction
-   * @param beta std coefficient (used for annealing)
-   * 
-   * @return value of the lower confidence bound
-   */
-  virtual double lowerConfidenceBound(const vectord &query,
-				      double beta = 1) = 0;
-
-  /** 
-   * Probability of improvement algorithm for minimization
-   * 
-   * @param yPred mean of the prediction
-   * @param sPred std of the prediction
-   * @param yMin  minimum value found
-   * @param epsilon minimum improvement margin
-   * 
-   * @return negative value of the probability of improvement
-   */
-  virtual double negativeProbabilityOfImprovement(const vectord &query,
-						  double epsilon = 0.1) = 0;
-
-  /** 
-   * Sample outcome acording to the marginal distribution at the query point.
-   * 
-   * @param query query point
-   * @param eng boost.random engine
-   * 
-   * @return outcome
-   */
-  virtual double sample_query(const vectord& query, randEngine& eng) = 0;
-
 		 		 
   /** 
    *  \brief Computes the initial surrogate model.
@@ -253,13 +212,13 @@ protected:
 
 
 protected:
-  const double mRegularizer;   ///< Std of the observation model (also used as nugget)
-  vecOfvec mGPXX;                                                     ///< Data inputs
-  vectord mGPY;                                                       ///< Data values
-  vectord mMeanV;                                  ///< Mean value at the input points
+  const double mRegularizer;   ///< Std of the obs. model (also used as nugget)
+  vecOfvec mGPXX;                                              ///< Data inputs
+  vectord mGPY;                                                ///< Data values
+  vectord mMeanV;                           ///< Mean value at the input points
 
-  boost::scoped_ptr<Kernel> mKernel;                   ///< Pointer to kernel function
-  boost::scoped_ptr<ParametricFunction> mMean;           ///< Pointer to mean function
+  boost::scoped_ptr<Kernel> mKernel;            ///< Pointer to kernel function
+  boost::scoped_ptr<ParametricFunction> mMean;    ///< Pointer to mean function
 
   size_t mMinIndex, mMaxIndex;	
 

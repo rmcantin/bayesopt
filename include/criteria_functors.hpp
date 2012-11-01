@@ -24,8 +24,10 @@
 #ifndef  _CRITERIA_FUNCTORS_HPP_
 #define  _CRITERIA_FUNCTORS_HPP_
 
+#include <boost/scoped_ptr.hpp>
 #include "parameters.h"
 #include "nonparametricprocess.hpp"
+#include "prob_distribution.hpp"
 
 ///\addtogroup CriteriaFunctions
 //@{
@@ -45,6 +47,7 @@ public:
 			  NonParametricProcess* proc);
 protected:
   NonParametricProcess *mProc;
+  boost::scoped_ptr<ProbabilityDistribution> d_;
 };
 
 
@@ -58,7 +61,11 @@ public:
   virtual ~ExpectedImprovement(){};
   inline void setExponent(size_t exp) {mExp = exp;};
   double operator()(const vectord &x)
-  { return mProc->negativeExpectedImprovement(x,mExp); };
+  { 
+    d_.reset(mProc->prediction(x));
+    const double min = mProc->getValueAtMinimum();
+    return d_->negativeExpectedImprovement(min,mExp); 
+  };
 private:
   size_t mExp;
 };
@@ -74,7 +81,10 @@ public:
   virtual ~LowerConfidenceBound(){};
   inline void setBeta(double beta) { mBeta = beta; };
   double operator()( const vectord &x)
-  { return mProc->lowerConfidenceBound(x,mBeta); };
+  { 
+    d_.reset(mProc->prediction(x));
+    return d_->lowerConfidenceBound(mBeta); 
+  };
 private:
   double mBeta;
 };
@@ -91,7 +101,11 @@ public:
   virtual ~ProbabilityOfImprovement(){};
   inline void setEpsilon(double eps) {mEpsilon = eps;};
   double operator()( const vectord &x)
-  { return mProc->negativeProbabilityOfImprovement(x,mEpsilon); };
+  { 
+    d_.reset(mProc->prediction(x));
+    const double min = mProc->getValueAtMinimum();
+    return d_->negativeProbabilityOfImprovement(min,mEpsilon); 
+  };
 private:
   double mEpsilon;
 };
@@ -140,8 +154,9 @@ public:
   virtual ~OptimisticSampling(){};
   double operator()( const vectord &x)
   {
-    double yPred, sPred, yStar = mProc->sample_query(x,mtRandom);
-    mProc->prediction(x,yPred,sPred);
+    d_.reset(mProc->prediction(x));
+    const double yStar = d_->sample_query(mtRandom);
+    const double yPred = d_->getMean();
     return std::min(yPred,yStar);
   };
 private:
@@ -166,7 +181,9 @@ public:
     if (nCalls % 10)
       mExp = ceil(mExp/2.0);
 
-    return mProc->negativeExpectedImprovement(x,mExp);
+    d_.reset(mProc->prediction(x));
+    const double min = mProc->getValueAtMinimum();
+    return d_->negativeExpectedImprovement(min,mExp); 
   };
 
 private:
@@ -194,7 +211,8 @@ public:
     double beta = sqrt(2*log(static_cast<double>(nCalls*nCalls))*(nDims+1) 
 		       + log(static_cast<double>(nDims))*nDims*mCoef);
 
-    return mProc->lowerConfidenceBound(x,beta);
+    d_.reset(mProc->prediction(x));
+    return d_->lowerConfidenceBound(beta); 
   };
 private:
   double mCoef;

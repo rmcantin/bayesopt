@@ -40,15 +40,17 @@ class BayesOptContinuous: public InnerOptimization,
 			  public BayesOptBase
 {
  public:
-  
+   
+  /** 
+   * Default constructor
+   */
+  BayesOptContinuous();
+
   /** 
    * Constructor
-   * 
-   * @param gp        Pointer to the surrogate model
+   * @param params set of parameters (see parameters.h)
    */
-  BayesOptContinuous( bopt_params parameters,
-		      bool uselogfile = false,
-		      const char* logfilename = "bayesopt.log"); 
+  BayesOptContinuous( bopt_params params);
 
   /** 
    * Default destructor

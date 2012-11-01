@@ -29,6 +29,8 @@ params.s_name = 'GAUSSIAN_PROCESS';
 params.noise = 0.005;
 params.kernel = 'MATERN_ISO3';
 params.theta = [0.5];
+params.verbose_level = 4;
+params.log_filename = 'matbopt.log';
 
 n = 5;
 

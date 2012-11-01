@@ -45,6 +45,7 @@ cdef extern from "parameters.h":
 
     ctypedef struct bopt_params:
         unsigned int n_iterations, n_init_samples, verbose_level
+        char* log_filename
         double* theta
         unsigned int n_theta
         double* mu
@@ -92,11 +93,13 @@ cdef bopt_params dict2structparams(dict dparams):
     params.n_init_samples = dparams.get('n_init_samples',params.n_init_samples)
     params.verbose_level = dparams.get('verbose_level',params.verbose_level)
 
+    logname = dparams.get('log_filename',params.log_filename)
+    params.log_filename = logname
+
     params.alpha = dparams.get('alpha',params.alpha)
     params.beta = dparams.get('beta',params.beta)
     params.delta = dparams.get('delta',params.delta)
     params.noise = dparams.get('noise',params.noise)
-    
     
     theta = dparams.get('theta',None)
     if theta is not None:
@@ -154,6 +157,7 @@ def initialize_params():
         "n_iterations"   : 300,
         "n_init_samples" : 30,
         "verbose_level"  : 1,
+        "log_filename"   : "bayesopt.log"
         }
     return params
 
@@ -176,8 +180,6 @@ def optimize(f, int nDim, np.ndarray[np.double_t] np_lb,
     
     error_code = bayes_optimization(nDim, callback, <void *> f,
                                     &lb[0], &ub[0], &x[0], minf, params)
-
-    print "Exit"
 
     Py_DECREF(f)
     min_value = minf[0]

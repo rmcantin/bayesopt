@@ -153,7 +153,7 @@ const char* mean2str(mean_name name)
 
 const bopt_params DEFAULT_PARAMS = {
   DEFAULT_ITERATIONS, MAX_INNER_EVALUATIONS, DEFAULT_SAMPLES, 
-  DEFAULT_VERBOSE,
+  DEFAULT_VERBOSE, "bayesopt.log",
   {KERNEL_THETA}, 1, 
   {MEAN_MU}, 1, 
   PRIOR_ALPHA, PRIOR_BETA, PRIOR_DELTA_SQ,

@@ -25,13 +25,32 @@
 #include "student_t_process.hpp"
 
 
-BayesOptBase::BayesOptBase( bopt_params parameters,
-			    bool uselogfile,
-			    const char* logfilename):
+BayesOptBase::BayesOptBase():
+  mGP(NULL), mCrit(NULL)
+{
+  mParameters = initialize_parameters_to_default();
+  __init__();
+}
 
+
+BayesOptBase::BayesOptBase( bopt_params parameters ):
   mGP(NULL), mCrit(NULL),  mParameters(parameters)
+{
+  __init__();
+}
+
+int BayesOptBase::__init__()
 { 
-  switch(mParameters.verbose_level)
+  // Configure logging
+  size_t verbose = mParameters.verbose_level;
+  if (verbose>=3)
+    {
+      FILE* log_fd = fopen( mParameters.log_filename , "w" );
+      Output2FILE::Stream() = log_fd; 
+      verbose -= 3;
+    }
+
+  switch(verbose)
     {
     case 0: FILELog::ReportingLevel() = logWARNING; break;
     case 1: FILELog::ReportingLevel() = logINFO; break;
@@ -40,27 +59,22 @@ BayesOptBase::BayesOptBase( bopt_params parameters,
       FILELog::ReportingLevel() = logERROR; break;
     }
 
-  
-  if (uselogfile)
+  // Configure iteration parameters
+  if ((mParameters.n_iterations <= 0) || 
+      (mParameters.n_iterations > MAX_ITERATIONS))
+    mParameters.n_iterations = MAX_ITERATIONS;
+
+  if (mParameters.n_init_samples <= 0)
+    mParameters.n_init_samples = 
+      static_cast<size_t>(ceil(0.1*mParameters.n_iterations));
+
+  // Configure Surrogate and Criteria Functions
+  mGP.reset(NonParametricProcess::create(mParameters));
+  if (mGP == NULL) 
     {
-      FILE* log_fd = fopen( logfilename , "w" );
-      Output2FILE::Stream() = log_fd; 
-    }
-
-  setInitSet();
-  setNumberIterations();
-  setSurrogateFunction();
-  setCriteriumFunction();
-} // Constructor
-
-BayesOptBase::~BayesOptBase()
-{} // Default destructor
-
-int BayesOptBase::setCriteriumFunction()
-{
-  // We need a valid surrogate function pointer for the criteria
-  if(mGP == NULL)
-    setSurrogateFunction();
+      FILE_LOG(logERROR) << "Error setting the surrogate function"; 
+      return -1;
+    } 
 
   mCrit.reset(MetaCriteria::create(mParameters.c_name,mGP.get()));
   if (mCrit == NULL)       
@@ -69,15 +83,11 @@ int BayesOptBase::setCriteriumFunction()
       return -1;
     }
 
-  return 1;
-}
+  return 0;
+} // __init__
 
-int BayesOptBase::setSurrogateFunction()
-{
-  mGP.reset(NonParametricProcess::create(mParameters));
-  if (mGP == NULL)  return -1;
-  else              return 0;
-}
+BayesOptBase::~BayesOptBase()
+{} // Default destructor
 
 int BayesOptBase::nextPoint(vectord &Xnext)
 {

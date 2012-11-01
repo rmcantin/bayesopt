@@ -25,12 +25,14 @@
 #include "bayesoptcont.hpp"
 
 
+BayesOptContinuous::BayesOptContinuous():
+  BayesOptBase(), mBB(NULL)
+{ 
+  setAlgorithm(DIRECT);
+} // Def Constructor
 
-BayesOptContinuous::BayesOptContinuous( bopt_params parameters,
-       bool uselogfile,
-       const char* logfilename):
-  BayesOptBase(parameters,uselogfile,logfilename), 
-  mBB(NULL)
+BayesOptContinuous::BayesOptContinuous( bopt_params parameters ):
+  BayesOptBase(parameters), mBB(NULL)
 { 
   setAlgorithm(DIRECT);
 } // Constructor
@@ -76,14 +78,12 @@ int BayesOptContinuous::optimize(vectord &bestPoint)
 int BayesOptContinuous::plotStepData(size_t iteration, const vectord& xNext,
 				     double yNext)
 {
-  vectord xScaled = mBB->unnormalizeVector(xNext);
-  vectord xOpt = mBB->unnormalizeVector(mGP->getPointAtMinimum());
   FILE_LOG(logINFO) << "Iteration: " << iteration+1 << " of " 
 		       << mParameters.n_iterations << " | Total samples: " 
 		       << iteration+1+mParameters.n_init_samples ;
-  FILE_LOG(logINFO) << "Trying point at: " << xScaled ;
-  FILE_LOG(logINFO) << "Current outcome: " << yNext ;
-  FILE_LOG(logINFO) << "Best found at: " << xOpt ; 
+  FILE_LOG(logINFO) << "Query: " << mBB->unnormalizeVector(xNext); ;
+  FILE_LOG(logINFO) << "Query outcome: " << yNext ;
+  FILE_LOG(logINFO) << "Best query: " << mBB->unnormalizeVector(mGP->getPointAtMinimum()); 
   FILE_LOG(logINFO) << "Best outcome: " <<  mGP->getValueAtMinimum();
 
   return 1;

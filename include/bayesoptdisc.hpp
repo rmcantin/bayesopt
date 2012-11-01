@@ -36,18 +36,21 @@
 class BayesOptDiscrete : public BayesOptBase
 {
  public:
-  
+
   /** 
    * Constructor
-   * 
    * @param validSet  Set of potential inputs
-   * @param gp        Pointer to the surrogate model
    */
-  BayesOptDiscrete( const vecOfvec &validSet,
-		    bopt_params params,
-		    bool uselogfile = false,
-		    const char* logfilename = "bayesopt.log");
+  BayesOptDiscrete(const vecOfvec &validSet );
 
+  /** 
+   * Constructor
+   * @param validSet  Set of potential inputs
+   * @param params set of parameters (see parameters.h)
+   */
+  BayesOptDiscrete( const vecOfvec &validSet, 
+		    bopt_params params);
+  
   /** 
    * Default destructor
    * 

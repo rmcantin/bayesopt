@@ -76,14 +76,15 @@ extern "C" {
 
   /** SKO Parameters */
   typedef struct {
-    size_t n_iterations;      /**< Maximum BayesOpt evaluations (budget) */
+    size_t n_iterations;         /**< Maximum BayesOpt evaluations (budget) */
     size_t n_inner_iterations;   /**< Maximum inner optimizer evaluations */
-    size_t n_init_samples; /**< Number of samples before optimization */
-    size_t verbose_level;        /**< Verbose level */
+    size_t n_init_samples;       /**< Number of samples before optimization */
+    size_t verbose_level;        /**< Verbose level if < 3 stderr, else log file*/
+    char* log_filename;          /**< Filename of the log file (if applicable) */
     double theta[128];           /**< Kernel hyperparameters */
     size_t n_theta;              /**< Number of kernel hyperparameters */
-    double mu[128];           /**< Mean function hyperparameters */
-    size_t n_mu;              /**< Number of mean function hyperparameters */
+    double mu[128];              /**< Mean function hyperparameters */
+    size_t n_mu;                 /**< Number of mean function hyperparameters */
     double alpha, beta, delta;   /**< Inv-Gamma-Normal hyperparameters */
     double noise;                /**< Observation noise */
     surrogate_name s_name;       /**< Name of the surrogate function */

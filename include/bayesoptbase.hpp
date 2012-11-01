@@ -45,14 +45,15 @@ class BayesOptBase
  public:
   
   /** 
-   * Constructor
-   * 
-   * @param validSet  Set of potential inputs
-   * @param gp        Pointer to the surrogate model
+   * Default constructor
    */
-  BayesOptBase( bopt_params params,
-		bool uselogfile = false,
-		const char* logfilename = "bayesopt.log");
+  BayesOptBase();
+
+  /** 
+   * Constructor
+   * @param params set of parameters (see parameters.h)
+   */
+  BayesOptBase( bopt_params params);
 
   /** 
    * Default destructor
@@ -92,7 +93,8 @@ class BayesOptBase
    * time consuming. If the constrain is very tricky, DIRECT will need
    * much more function evaluations.
    *
-   * Note: This function is experimental. 
+   * Note: This function is experimental. Thus it is not made pure virtual.
+   * Using it is completely optional.
    * 
    * @param query point to be evaluated.
    * 
@@ -113,41 +115,6 @@ class BayesOptBase
   // { return mGP; };
 
 protected:
-  
-  /** 
-   * Set the surrogate function based on the current parameters
-   * @return 0 if terminate successfully
-   */
-  int setSurrogateFunction();
-
-  /** 
-   * Set the criterium function based on the current parameters
-   * @return 0 if terminate successfully
-   */
-  int setCriteriumFunction();
-
-  /** 
-   * Sets the number of iterations
-   */
-  inline void setNumberIterations()
-  {
-    if ((mParameters.n_iterations <= 0) || 
-	(mParameters.n_iterations > MAX_ITERATIONS))
-      mParameters.n_iterations = MAX_ITERATIONS;
-  };
-
-  /** 
-   * Sets the number of initial samples.
-   * If the number is not set properly n<=0, then the number of initial samples
-   * is fixed 10% of the total budget
-   */
-  inline void setInitSet()
-  { 
-    if (mParameters.n_init_samples <= 0)
-      mParameters.n_init_samples = 
-	static_cast<size_t>(ceil(0.1*mParameters.n_iterations));
-  };
-
   /** 
    * Evaluate the criteria considering if the query is reachable or not.
    * This is a way to include non-linear restrictions.
@@ -172,6 +139,15 @@ protected:
   boost::scoped_ptr<MetaCriteria> mCrit;                  ///< Metacriteria model
   bopt_params mParameters;                          ///< Configuration parameters
   size_t mDims;                                         ///< Number of dimensions
+
+private:
+
+  /** 
+   * \brief Checks the parameters and setups the elements (criteria, 
+   * surrogate, etc.)
+   */
+  int __init__();
+
 };
 
 /**@}*/

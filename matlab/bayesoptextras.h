@@ -201,8 +201,13 @@ static bopt_params load_parameters(const mxArray* params)
 
   /* Extra configuration
   /  See parameters.h for the available options */
+  char log_str[100];
   char c_str[100], s_str[100], k_str[100], m_str[100];
   
+  strcpy( log_str, parameters.log_filename);
+  struct_string(params, "log_filename", log_str);
+  parameters.log_filename = log_str;
+
   strcpy( c_str, crit2str(parameters.c_name));
   strcpy( s_str, surrogate2str(parameters.s_name));
   strcpy( k_str, kernel2str(parameters.k_name));

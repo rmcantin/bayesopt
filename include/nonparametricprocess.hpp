@@ -61,20 +61,6 @@ public:
    * in the hypercube [0,1].
    * 
    * @param query in the hypercube [0,1] to evaluate the Gaussian process
-   * @param yPred mean of the predicted Gaussian distribution
-   * @param sPred std of the predicted Gaussian distribution
-   * 
-   * @return error code.
-   */	
-  virtual int prediction(const vectord &query,
-			 double& yPred, double& sPred) = 0;
-
-
-  /** 
-   * \brief Function that returns the prediction of the GP for a query point
-   * in the hypercube [0,1].
-   * 
-   * @param query in the hypercube [0,1] to evaluate the Gaussian process
    * @return pointer to the probability distribution.
    */	
   virtual ProbabilityDistribution* prediction(const vectord &query) = 0;
@@ -128,9 +114,10 @@ public:
   void setSamples(const matrixd &x, const vectord &y);
   void addSample(const vectord &x, double y);
   double getSample(size_t index, vectord &x);
-  vectord getPointAtMinimum();
-  double getValueAtMinimum();
 
+  inline vectord getPointAtMinimum() { return mGPXX[mMinIndex]; };
+  inline double getValueAtMinimum() { return mGPY(mMinIndex); };
+  
   /** 
    * Select kernel (covariance function) for the surrogate process.
    * 
@@ -219,6 +206,9 @@ protected:
 
   boost::scoped_ptr<Kernel> mKernel;            ///< Pointer to kernel function
   boost::scoped_ptr<ParametricFunction> mMean;    ///< Pointer to mean function
+
+  ///< Pointer to distribution function (Gaussian, Student's t, etc)
+  boost::scoped_ptr<ProbabilityDistribution> d_; 
 
   size_t mMinIndex, mMaxIndex;	
 

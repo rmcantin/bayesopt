@@ -170,12 +170,6 @@ double NonParametricProcess::getSample(size_t index, vectord &x)
   return mGPY(index);
 }
 
-vectord NonParametricProcess::getPointAtMinimum()
-{ return mGPXX[mMinIndex]; };
-
-double NonParametricProcess::getValueAtMinimum()
-{ return mGPY(mMinIndex); };
-
 int NonParametricProcess::setKernel (const vectord &thetav,
 				     kernel_name k_name)
 {

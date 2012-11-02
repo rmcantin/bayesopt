@@ -122,9 +122,7 @@ protected:
 private:
   double computeLoss(const vectord& query)
   {	
-    double mean, std;
-    mProc->prediction(query,mean,std);
-    return mean;
+    return mProc->prediction(query)->getMean();
   }
 };
 
@@ -143,10 +141,7 @@ public:
 private:
   double computeLoss(const vectord& query)
   { 
-    ProbabilityDistribution* pd = mProc->prediction(query);
-    double sample = pd->sample_query(mtRandom);
-    delete pd;
-    return sample;
+    return mProc->prediction(query)->sample_query(mtRandom);
   }
 };
 

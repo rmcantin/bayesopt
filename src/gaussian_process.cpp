@@ -26,7 +26,9 @@
 
 GaussianProcess::GaussianProcess( double noise ):
   NonParametricProcess(noise)
-{}  // Constructor
+{
+  d_.reset(new GaussianDistribution());
+}  // Constructor
 
 
 GaussianProcess::~GaussianProcess()
@@ -50,26 +52,18 @@ double GaussianProcess::negativeLogLikelihood()
   return loglik;
 }
 
-
-int GaussianProcess::prediction( const vectord &query,
-				 double& yPred, double& sPred)
+ProbabilityDistribution* GaussianProcess::prediction(const vectord &query)
 {
   const double kn = (*mKernel)(query, query);
   const vectord kStar = computeCrossCorrelation(query);
-  yPred = ublas::inner_prod(kStar,mAlphaV);
+  double yPred = ublas::inner_prod(kStar,mAlphaV);
 
   vectord vd(kStar);
   ublas::inplace_solve(mL,vd,ublas::lower_tag());
-  sPred = sqrt(kn - ublas::inner_prod(vd,vd));
-  
-  return 1;
-}
+  double sPred = sqrt(kn - ublas::inner_prod(vd,vd));
 
-ProbabilityDistribution* GaussianProcess::prediction(const vectord &query)
-{
-  double y, s;
-  prediction(query,y,s);
-  return new GaussianDistribution(y,s);
+  d_->setMeanAndStd(yPred,sPred);
+  return d_.get();
 }
 
 

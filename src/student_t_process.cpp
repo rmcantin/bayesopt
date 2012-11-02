@@ -66,11 +66,9 @@ double StudentTProcess::negativeLogLikelihood()
 }
 
 
-int StudentTProcess::prediction( const vectord &query,
-				 double& yPred, double& sPred)
+ProbabilityDistribution* StudentTProcess::prediction(const vectord &query)
 {
-  size_t n = mGPXX.size();
-  double rInvRu, rInvRr, rInvRy;
+  double yPred, sPred, rInvRu, rInvRr, rInvRy;
   double meanf = mMean->getMean(query);
   
   vectord colR = computeCrossCorrelation(query);
@@ -94,15 +92,8 @@ int StudentTProcess::prediction( const vectord &query,
   sPred = sqrt( mSig * (kn - rInvRr + (meanf - rInvRu) * (meanf - rInvRu) 
 			/ mUInvRUDelta ) );
 
-  return n-1;
-}
-	
-
-ProbabilityDistribution* StudentTProcess::prediction(const vectord &query)
-{
-  double y, s;
-  size_t n = prediction(query,y,s);
-  return new StudentTDistribution(y,s,n);
+  d_->setMeanAndStd(yPred,sPred);
+  return d_.get();
 }
 
 
@@ -110,6 +101,7 @@ int StudentTProcess::precomputePrediction()
 {
   size_t nSamples = mGPXX.size();
   double YInvRY;
+  d_.reset(new StudentTDistribution(nSamples-1));
 
   mInvRy.resize(nSamples,false);
 

@@ -44,20 +44,6 @@ public:
   virtual ~StudentTProcess();
 
   /** 
-   * Function that returns the prediction of the GP for a query point
-   * in the hypercube [0,1].
-   * 
-   * @param query point in the hypercube [0,1] to evaluate the Gaussian process
-   * @param yPred mean of the predicted Gaussian distribution
-   * @param sPred std of the predicted Gaussian distribution
-   * 
-   * @return if positive: degrees of freedom, if negative: error code.
-   */	
-  int prediction(const vectord &query,
-  		 double& yPred, double& sPred);
-
-
-  /** 
    * \brief Function that returns the prediction of the GP for a query point
    * in the hypercube [0,1].
    * 

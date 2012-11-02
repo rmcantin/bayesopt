@@ -2,6 +2,7 @@
 #include "gaussian_process_ign.hpp"
 #include "cholesky.hpp"
 #include "trace_ublas.hpp"
+#include "gauss_distribution.hpp"
 
 using boost::numeric::ublas::inplace_solve;
 using boost::numeric::ublas::lower_tag;
@@ -12,7 +13,9 @@ GaussianProcessIGN::GaussianProcessIGN( double noise, double alpha,
 					double beta, double delta):
   GaussianProcess(noise),
   mAlpha(alpha), mBeta (beta), mDelta2(delta)
-{}  // Constructor
+{
+  d_.reset(new GaussianDistribution());
+}  // Constructor
 
 
 
@@ -58,8 +61,7 @@ double GaussianProcessIGN::negativeLogLikelihood()
 }
 
 
-int GaussianProcessIGN::prediction( const vectord &query,
-				    double& yPred, double& sPred)
+ProbabilityDistribution* GaussianProcessIGN::prediction( const vectord &query )
 {
   double kn;
   double uInvRr, rInvRr, rInvRy;
@@ -82,13 +84,13 @@ int GaussianProcessIGN::prediction( const vectord &query,
   rInvRy = inner_prod(colR,mInvRy);
 #endif
   
-  yPred = meanf*mMu + rInvRy;
-  sPred = sqrt( mSig * (kn - rInvRr + (meanf - uInvRr) * (meanf - uInvRr) 
-			/ mUInvRUDelta ) );
+  double yPred = meanf*mMu + rInvRy;
+  double sPred = sqrt( mSig * (kn - rInvRr + (meanf - uInvRr) * (meanf - uInvRr) 
+			       / mUInvRUDelta ) );
 
-  return 1;
+  d_->setMeanAndStd(yPred,sPred);
+  return d_.get();
 }
-	
 
 int GaussianProcessIGN::precomputePrediction()
 {

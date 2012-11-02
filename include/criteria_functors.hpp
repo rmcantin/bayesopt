@@ -47,7 +47,6 @@ public:
 			  NonParametricProcess* proc);
 protected:
   NonParametricProcess *mProc;
-  boost::scoped_ptr<ProbabilityDistribution> d_;
 };
 
 
@@ -62,9 +61,8 @@ public:
   inline void setExponent(size_t exp) {mExp = exp;};
   double operator()(const vectord &x)
   { 
-    d_.reset(mProc->prediction(x));
     const double min = mProc->getValueAtMinimum();
-    return d_->negativeExpectedImprovement(min,mExp); 
+    return mProc->prediction(x)->negativeExpectedImprovement(min,mExp); 
   };
 private:
   size_t mExp;
@@ -82,8 +80,7 @@ public:
   inline void setBeta(double beta) { mBeta = beta; };
   double operator()( const vectord &x)
   { 
-    d_.reset(mProc->prediction(x));
-    return d_->lowerConfidenceBound(mBeta); 
+    return mProc->prediction(x)->lowerConfidenceBound(mBeta); 
   };
 private:
   double mBeta;
@@ -102,9 +99,8 @@ public:
   inline void setEpsilon(double eps) {mEpsilon = eps;};
   double operator()( const vectord &x)
   { 
-    d_.reset(mProc->prediction(x));
     const double min = mProc->getValueAtMinimum();
-    return d_->negativeProbabilityOfImprovement(min,mEpsilon); 
+    return mProc->prediction(x)->negativeProbabilityOfImprovement(min,mEpsilon); 
   };
 private:
   double mEpsilon;
@@ -121,9 +117,7 @@ public:
   virtual ~GreedyAOptimality(){};
   double operator()( const vectord &x)
   {
-    double yPred, sPred;
-    mProc->prediction(x,yPred,sPred);
-    return sPred;
+    return mProc->prediction(x)->getStd();
   };
 };
 
@@ -137,9 +131,7 @@ public:
   virtual ~ExpectedReturn(){};
   double operator()( const vectord &x)
   {
-    double yPred, sPred;
-    mProc->prediction(x,yPred,sPred);
-    return yPred;
+    return mProc->prediction(x)->getMean();
   };
 };
 
@@ -154,7 +146,7 @@ public:
   virtual ~OptimisticSampling(){};
   double operator()( const vectord &x)
   {
-    d_.reset(mProc->prediction(x));
+    ProbabilityDistribution* d_ = mProc->prediction(x);
     const double yStar = d_->sample_query(mtRandom);
     const double yPred = d_->getMean();
     return std::min(yPred,yStar);
@@ -181,7 +173,7 @@ public:
     if (nCalls % 10)
       mExp = ceil(mExp/2.0);
 
-    d_.reset(mProc->prediction(x));
+    ProbabilityDistribution* d_ = mProc->prediction(x);
     const double min = mProc->getValueAtMinimum();
     return d_->negativeExpectedImprovement(min,mExp); 
   };
@@ -211,7 +203,7 @@ public:
     double beta = sqrt(2*log(static_cast<double>(nCalls*nCalls))*(nDims+1) 
 		       + log(static_cast<double>(nDims))*nDims*mCoef);
 
-    d_.reset(mProc->prediction(x));
+    ProbabilityDistribution* d_ = mProc->prediction(x);
     return d_->lowerConfidenceBound(beta); 
   };
 private:

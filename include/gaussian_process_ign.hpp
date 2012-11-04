@@ -23,23 +23,20 @@
 #ifndef  _GAUSSIAN_PROCESS_IGN_HPP_
 #define  _GAUSSIAN_PROCESS_IGN_HPP_
 
-#include "gaussian_process.hpp"
+#include "nonparametricprocess.hpp"
  
 /** \addtogroup  NonParametricProcesses */
 /**@{*/
-
 
 /**
  * \brief Gaussian process with normal-inverse-gamma hyperprior 
  *        on mean and signal variance parameters.
  */
-class GaussianProcessIGN: public GaussianProcess 
+class GaussianProcessIGN: public NonParametricProcess 
 {
 public:
-  GaussianProcessIGN( double noise = DEFAULT_NOISE,
-		   double alpha = PRIOR_ALPHA, 
-		   double beta  = PRIOR_BETA, 
-		   double delta = PRIOR_DELTA_SQ );
+  GaussianProcessIGN( double noise, double alpha,
+		      double beta,  double delta );
 
   virtual ~GaussianProcessIGN();
 
@@ -52,33 +49,33 @@ public:
    */	
   ProbabilityDistribution* prediction(const vectord &query);
 
+protected:
+
   /** 
-   * Computes the negative log likelihood and its gradient of the data.
+   * \brief Computes the negative log likelihood and its gradient of the data.
    * 
-   * @param grad gradient of the negative Log Likelihood
-   * @param param value of the param to be optimized
-   * 
+   *
    * @return value negative log likelihood
    */
-  double negativeLogLikelihood();			 
-			 		 
+  double negativeLogLikelihood();
 
-protected:
-
+  /** 
+   * \brief Precompute some values of the prediction that do not depends on
+   * the query
+   * @return error code
+   */
   int precomputePrediction();
 
+private:
+  const double mAlpha, mBeta;         //!< GP prior parameters (Inv-Gamma)
+  const double mDelta2;               //!< GP prior parameters (Normal)
 
-protected:
-  const double mAlpha, mBeta;         // GP prior parameters (Inv-Gamma)
-  const double mDelta2;               // GP prior parameters (Normal)
+  double mMu, mSig;                   //!< GP posterior parameters
 
-  double mMu, mSig;                   // GP posterior parameters
-
-  // Precomputed GP prediction operations
+  //! Precomputed GP prediction operations
   vectord mUInvR;
   vectord mInvRy;
   double mUInvRUDelta;
-  
   vectord mAlphaV;
 
 };

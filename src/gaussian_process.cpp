@@ -45,10 +45,7 @@ double GaussianProcess::negativeLogLikelihood()
 
   vectord alpha(mGPY);
   inplace_solve(L,alpha,ublas::lower_tag());
-  double loglik = .5*ublas::inner_prod(alpha,alpha) + log_trace(L) 
-    + n*0.91893853320467; 
-  // 0.9183... = log(2*pi)/2
-
+  double loglik = .5*ublas::inner_prod(alpha,alpha) + log_trace(L);
   return loglik;
 }
 

@@ -214,17 +214,10 @@ int NonParametricProcess::addNewPointToInverse(const vectord& correlation,
 {
   size_t nSamples = correlation.size();
   
-  vectord Li(nSamples);
-  vectord wInvR(nSamples);
-  double wInvRw;
-  double Ni;
-
-  noalias(wInvR) = prod(correlation,mInvR);
-  wInvRw = inner_prod(wInvR,correlation);
-
-  Ni = 1/(selfcorrelation - wInvRw);
-
-  noalias(Li) = -Ni * wInvR;
+  vectord wInvR = prod(correlation,mInvR);
+  double wInvRw = inner_prod(wInvR,correlation);
+  double Ni = 1/(selfcorrelation - wInvRw);
+  vectord Li = -Ni * wInvR;
   mInvR += outer_prod(Li,Li) / Ni;
   
   //TODO: There must be a better way to do this.
@@ -321,10 +314,6 @@ vectord NonParametricProcess::computeCrossCorrelation(const vectord &query)
       *k_it++ = (*mKernel)(*x_it++, query);
     }
     
-  //TODO: Replace by transform
-  // for (size_t ii=0; ii<mGPXX.size(); ++ii)
-  //   knx(ii) = (*mKernel)(mGPXX[ii], query);
-
   return knx;
 }
 

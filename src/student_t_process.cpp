@@ -37,8 +37,6 @@ StudentTProcess::~StudentTProcess()
 {} // Default destructor
 
 
-
-
 double StudentTProcess::negativeLogLikelihood()
 {
   matrixd K = computeCorrMatrix();

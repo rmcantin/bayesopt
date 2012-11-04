@@ -46,7 +46,7 @@
 class NonParametricProcess: public InnerOptimization
 {
 public:
-  NonParametricProcess(double noise = DEFAULT_NOISE);
+  NonParametricProcess(double noise);
   virtual ~NonParametricProcess();
 
   /** 
@@ -64,35 +64,11 @@ public:
    * @return pointer to the probability distribution.
    */	
   virtual ProbabilityDistribution* prediction(const vectord &query) = 0;
-
-  /** 
-   * \brief Computes the negative log likelihood of the data.
-   * 
-   * @param param value of the param to be optimized
-   * 
-   * @return value negative log likelihood
-   */
-  virtual double negativeLogLikelihood() = 0;
-
-  /** 
-   * CURRENTLY NOT USED:
-   * Computes the negative log likelihood and its gradient of the data.
-   * 
-   * @param grad gradient of the negative Log Likelihood
-   * @param param value of the param to be optimized
-   * 
-   * @return value negative log likelihood
-   */
-  // virtual double negativeLogLikelihood(double& grad,
-  // 				       size_t index = 1)
-  // {return 0.0;};
 		 		 
   /** 
-   *  \brief Computes the initial surrogate model.
-   *  It also estimates the kernel parameters.
-   *  This function is hightly inefficient. Use it only at 
-   *  the begining.
-   * 
+   * \brief Computes the initial surrogate model. It also estimates the 
+   * kernel parameters by MAP or ML. This function is hightly inefficient. 
+   * Use it only at the begining.
    * @return error code
    */
   int fitInitialSurrogate();
@@ -110,17 +86,16 @@ public:
 			    double Ynew);
 
 
-  // Getters and setters
+  /// Getters and setters
   void setSamples(const matrixd &x, const vectord &y);
   void addSample(const vectord &x, double y);
   double getSample(size_t index, vectord &x);
-
   inline vectord getPointAtMinimum() { return mGPXX[mMinIndex]; };
   inline double getValueAtMinimum() { return mGPY(mMinIndex); };
   
+
   /** 
-   * Select kernel (covariance function) for the surrogate process.
-   * 
+   * \brief Select kernel (covariance function) for the surrogate process.
    * @param thetav kernel parameters
    * @param k_name kernel name
    * @return error_code
@@ -128,9 +103,10 @@ public:
   int setKernel (const vectord &thetav, kernel_name k_name);
 
   /** 
-   * Wrapper of setKernel for c arrays
+   * \brief Wrapper of setKernel for c arrays
    */
-  inline int setKernel (const double *theta, size_t n_theta, kernel_name k_name)
+  inline int setKernel (const double *theta, size_t n_theta, 
+			kernel_name k_name)
   {
     vectord th(n_theta);
     std::copy(theta, theta+n_theta, th.begin());
@@ -138,7 +114,7 @@ public:
   };
 
   /** 
-   * Select the parametric part of the surrogate process.
+   * \brief Select the parametric part of the surrogate process.
    * 
    * @param muv mean function parameters
    * @param m_name mean function name
@@ -147,7 +123,7 @@ public:
   int setMean (const vectord &muv, mean_name m_name);
 
   /** 
-   * Wrapper of setMean for c arrays
+   * \brief Wrapper of setMean for c arrays
    */
   inline int setMean (const double *mu, size_t n_mu, mean_name m_name)
   {
@@ -159,22 +135,28 @@ public:
 
 protected:
 
+  /** 
+   * \brief Computes the negative log likelihood of the data.
+   * @return value negative log likelihood
+   */
+  virtual double negativeLogLikelihood() = 0;
+
+  /** 
+   * \brief Precompute some values of the prediction that do not depends on
+   * the query
+   * @return error code
+   */
+  virtual int precomputePrediction() = 0;
+
   double innerEvaluate(const vectord& query)
   { 
     mKernel->setScale(query);
     return negativeLogLikelihood();
   };
 
-  /** 
-   * Precompute some values of the prediction that do not depends on the query
-   * @return error code
-   */
-  virtual int precomputePrediction() = 0;
-
 
   /** 
    * Computes the inverse of the Correlation (Kernel or Gram) matrix  
-   * 
    * @return error code
    */
   int computeInverseCorrelation();
@@ -185,11 +167,11 @@ protected:
   int addNewPointToCholesky(const vectord& correlation,
 			    double selfcorrelation);
 
+
   int computeCorrMatrix(matrixd& corrMatrix);
   matrixd computeCorrMatrix();
   matrixd computeDerivativeCorrMatrix(int dth_index);
   vectord computeCrossCorrelation(const vectord &query);
-
 
   inline void checkBoundsY( size_t i )
   {
@@ -210,12 +192,13 @@ protected:
   ///< Pointer to distribution function (Gaussian, Student's t, etc)
   boost::scoped_ptr<ProbabilityDistribution> d_; 
 
-  size_t mMinIndex, mMaxIndex;	
-
   // TODO: Choose one
-  matrixd mL;
-  covMatrix mInvR;                   ///< Inverse Correlation matrix
+  matrixd mL;             ///< Cholesky decomposition of the Correlation matrix
+  covMatrix mInvR;                              ///< Inverse Correlation matrix
 
+
+private:
+  size_t mMinIndex, mMaxIndex;	
 };
 
 /**@}*/

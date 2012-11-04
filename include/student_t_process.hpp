@@ -40,7 +40,7 @@
 class StudentTProcess: public NonParametricProcess
 {
 public:
-  StudentTProcess(double noise = DEFAULT_NOISE);
+  StudentTProcess(double noise);
   virtual ~StudentTProcess();
 
   /** 
@@ -53,29 +53,27 @@ public:
   ProbabilityDistribution* prediction(const vectord &query);
 
 
-  /** 
-   * Computes the negative log likelihood and its gradient of the data.
+private:
+
+ /** 
+   * \brief Computes the negative log likelihood and its gradient of the data.
    * 
-   * @param grad gradient of the negative Log Likelihood
-   * @param param value of the param to be optimized
-   * 
+   *
    * @return value negative log likelihood
    */
-  double negativeLogLikelihood();			 
+  double negativeLogLikelihood();
 
-  
-
-
-protected:
-
+  /** 
+   * \brief Precompute some values of the prediction that do not depends on
+   * the query
+   * @return error code
+   */
   int precomputePrediction();
 
+private:
+  double mMu, mSig;                   //!< GP posterior parameters
 
-protected:
-
-  double mMu, mSig;                   // GP posterior parameters
-
-  // Precomputed GP prediction operations
+  //! Precomputed GP prediction operations
   vectord mUInvR;     
   vectord mInvRy;         
   double mUInvRUDelta;

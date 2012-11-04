@@ -11,7 +11,7 @@ using boost::numeric::ublas::lower;
 
 GaussianProcessIGN::GaussianProcessIGN( double noise, double alpha, 
 					double beta, double delta):
-  GaussianProcess(noise),
+  NonParametricProcess(noise),
   mAlpha(alpha), mBeta (beta), mDelta2(delta)
 {
   d_.reset(new GaussianDistribution());

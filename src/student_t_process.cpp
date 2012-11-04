@@ -43,24 +43,25 @@ double StudentTProcess::negativeLogLikelihood()
 {
   matrixd K = computeCorrMatrix();
   size_t n = K.size1();
-  
   matrixd L(n,n);
   cholesky_decompose(K,L);
 
-  vectord colU = (*mMean)(mGPXX);;
-
-  vectord alphU(colU);
+  vectord alphU(mMeanV);
   inplace_solve(L,alphU,lower_tag());
-  double eta = inner_prod(colU,alphU);
+  double eta = inner_prod(alphU,alphU);
   
   vectord alphY(mGPY);
   inplace_solve(L,alphY,lower_tag());
-  double mu     = inner_prod(colU,alphY) / eta;
-  double YInvRY = inner_prod(mGPY,alphY);
+  double mu     = inner_prod(alphU,alphY) / eta;
+  double YInvRY = inner_prod(alphY,alphY);
     
   double sigma = (YInvRY - mu*mu*eta) / (n-1);
 
-  double negloglik = 0.5*( (n-1)*log(sigma) + trace(L) + log(eta) );
+  // TODO: Revise equation.
+  // Obtained from SEQUENTIAL DESIGN OF COMPUTER EXPERIMENTS
+  // TO MINIMIZE INTEGRATED RESPONSE FUNCTIONS
+  // http://www3.stat.sinica.edu.tw/statistica/oldpdf/A10n46.pdf
+  double negloglik = log_trace(L) + 0.5*( (n-1)*log(sigma) + log(eta) );
 
   return negloglik;
 }
@@ -81,7 +82,7 @@ ProbabilityDistribution* StudentTProcess::prediction(const vectord &query)
   rInvRu = inner_prod(invRr,mUInvR);  
   rInvRy = inner_prod(invRr, mInvRy );
 #else
-  vectord rInvR(n);
+  vectord rInvR(mGPXX.size());
   noalias(rInvR) = prod(colR,mInvR);	
   rInvRr = inner_prod(rInvR,colR);
   rInvRu = inner_prod(rInvR,mMeanV);

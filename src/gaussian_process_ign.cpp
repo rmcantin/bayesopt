@@ -38,21 +38,19 @@ double GaussianProcessIGN::negativeLogLikelihood()
   
   vectord alphY(mGPY);
   inplace_solve(L,alphY,lower_tag());
-  double mu     = inner_prod(mMeanV,alphY) / eta;
-  double YInvRY = inner_prod(mGPY,alphY);
+  double mu     = inner_prod(alphU,alphY) / eta;
+  double YInvRY = inner_prod(alphY,alphY);
     
   double sigma = (mBeta + YInvRY - mu*mu*eta) / (mAlpha + (n+1) + 2);
   
-  svectord colMu(n,mu);
-  vectord yumu = mGPY - colMu;
-  
+  vectord yumu = mGPY - mMeanV*mu;
   alphY = yumu;
   inplace_solve(L,alphY,lower_tag());
 
-  double lik1 = inner_prod(yumu,alphY) / (2*sigma); 
-  double lik2 = trace(L) + 0.5*n*log(sigma) + n*0.91893853320467; //log(2*pi)/2
+  double lik1 = inner_prod(alphY,alphY) / (2*sigma); 
+  double lik2 = log_trace(L) + 0.5*n*log(sigma) + n*0.91893853320467; //log(2*pi)/2
   
-  //TODO: This must be wrong
+  //TODO: This must be wrong.
   size_t index = 1;
   double th = mKernel->getScale(index);
 

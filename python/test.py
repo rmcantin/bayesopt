@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-import sys
 import numpy as np
-import time as tm
-import bayesopt as bo
-import bayesoptmodule as bopt
+import bayesopt
+import bayesoptmodule
+
+from time import clock
+
 
 # Function for testing.
 def testfunc(Xin):
@@ -14,7 +15,7 @@ def testfunc(Xin):
     return total
 
 # Class for OO testing.
-class BayesOptTest(bopt.BayesOptContinuous):
+class BayesOptTest(bayesoptmodule.BayesOptContinuous):
     def evalfunc(self,Xin):
         return testfunc(Xin)
 
@@ -25,9 +26,9 @@ class BayesOptTest(bopt.BayesOptContinuous):
 # For different options: see parameters.h and cpp
 # If a parameter is not define, it will be automatically set
 # to a default value.
-params = bo.initialize_params()
-params['n_iterations'] = 5
-params['n_init_samples'] = 5
+params = bayesopt.initialize_params()
+params['n_iterations'] = 50
+params['n_init_samples'] = 20
 params['s_name'] = "GAUSSIAN_PROCESS_INV_GAMMA_NORMAL"
 params['c_name'] = "GP_HEDGE"
 
@@ -37,12 +38,12 @@ n = 5                     # n dimensions
 lb = np.zeros((n,))
 ub = np.ones((n,))
 
-start = tm.clock()
+start = clock()
 
-mvalue, x_out, error = bo.optimize(testfunc, n, lb, ub, params)
+mvalue, x_out, error = bayesopt.optimize(testfunc, n, lb, ub, params)
 
 print "Result", x_out
-print "Seconds", tm.clock() - start
+print "Seconds", clock() - start
 
 
 print "OO implementation"
@@ -52,21 +53,21 @@ bo_test.n = n
 bo_test.lb = lb
 bo_test.ub = ub
 
-start = tm.clock()
+start = clock()
 mvalue, x_out, error = bo_test.optimize()
 
 print "Result", x_out
-print "Seconds", tm.clock() - start
+print "Seconds", clock() - start
 
 
 print "Callback discrete implementation"
 x_set = np.random.rand(100,n)
-start = tm.clock()
+start = clock()
 
-mvalue, x_out, error = bo.optimize_discrete(testfunc, x_set, params)
+mvalue, x_out, error = bayesopt.optimize_discrete(testfunc, x_set, params)
 
 print "Result", x_out
-print "Seconds", tm.clock() - start
+print "Seconds", clock() - start
 
 value = np.array([testfunc(i) for i in x_set])
 print "Optimun", x_set[value.argmin()]

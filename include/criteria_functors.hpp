@@ -24,6 +24,7 @@
 #ifndef  _CRITERIA_FUNCTORS_HPP_
 #define  _CRITERIA_FUNCTORS_HPP_
 
+#include <algorithm>
 #include <boost/scoped_ptr.hpp>
 #include "parameters.h"
 #include "nonparametricprocess.hpp"
@@ -149,7 +150,7 @@ public:
     ProbabilityDistribution* d_ = mProc->prediction(x);
     const double yStar = d_->sample_query(mtRandom);
     const double yPred = d_->getMean();
-    return std::min(yPred,yStar);
+    return (std::min)(yPred,yStar);
   };
 private:
   randEngine mtRandom;

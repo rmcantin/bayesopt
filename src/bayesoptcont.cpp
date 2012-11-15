@@ -20,6 +20,7 @@
 ------------------------------------------------------------------------
 */
 
+#include <limits>
 #include "lhs.hpp"
 #include "randgen.hpp"
 #include "bayesoptcont.hpp"
@@ -118,7 +119,7 @@ int BayesOptContinuous::sampleInitialPoints()
   if(mParameters.verbose_level > 0)
     {
       FILE_LOG(logDEBUG) << "Initial points:" ;
-      double ymin = std::numeric_limits<double>::max();
+      double ymin = (std::numeric_limits<double>::max)();
       for(size_t i = 0; i < nSamples; i++)
 	{
 	  sample = row(xPoints,i);

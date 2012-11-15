@@ -69,7 +69,8 @@ int main(int nargs, char *args[])
   matrixd xPoints(nPoints,n);
   vecOfvec xP;
 
-  double xPointsArray[n*nPoints];
+  //size_t nPinArr = n*nPoints;
+  double xPointsArray[1000];
 
   lhs(xPoints,mtRandom);
 

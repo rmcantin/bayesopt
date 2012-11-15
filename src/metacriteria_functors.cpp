@@ -90,7 +90,7 @@ int GP_Hedge::update_hedge()
 
   // Optimal eta according to Shapire
   max_g = *std::max_element(gain_.begin(),gain_.end());
-  double eta = std::min(10.0,sqrt(2*log(3)/max_g));
+  double eta = (std::min)(10.0,sqrt(2*log(3)/max_g));
   std::transform(gain_.begin(), gain_.end(), prob_.begin(),
 		 boost::bind(softmax,_1,eta));       
     

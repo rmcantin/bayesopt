@@ -103,7 +103,7 @@ int BayesOptDiscrete::sampleInitialPoints()
   if(mParameters.verbose_level > 0)
     {
       FILE_LOG(logDEBUG) << "Initial points:" ;
-      double ymin = std::numeric_limits<double>::max();
+      double ymin = (std::numeric_limits<double>::max)();
       for(size_t i = 0; i < nSamples; i++)
 	{
 	  yPoint = mGP->getSample(i,xPoint);

@@ -25,6 +25,17 @@
 #ifndef  _BAYESOPTBASE_HPP_
 #define  _BAYESOPTBASE_HPP_
 
+// WINDOWS DLLs stuff
+#if defined (_WIN32) 
+  #if defined(bayesopt_EXPORTS)
+    #define  BAYESOPT_API __declspec(dllexport)
+  #else
+    #define  BAYESOPT_API __declspec(dllimport)
+  #endif /* MyLibrary_EXPORTS */
+#else /* defined (_WIN32) */
+ #define BAYESOPT_API
+#endif
+
 #include <boost/scoped_ptr.hpp>
 #include "parameters.h"
 #include "specialtypes.hpp"
@@ -40,7 +51,7 @@
  * \brief Bayesian optimization using different non-parametric 
  * processes as distributions over surrogate functions. 
  */
-class BayesOptBase
+class BAYESOPT_API BayesOptBase
 {
  public:
   

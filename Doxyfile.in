@@ -33,6 +33,19 @@ PROJECT_NAME           = "@PROJECT_NAME@"
 
 PROJECT_NUMBER         = "@PROJECT_VERSION@"
 
+# Using the PROJECT_BRIEF tag one can provide an optional one line description
+# for a project that appears at the top of each page and should give viewer
+# a quick idea about the purpose of the project. Keep the description short.
+
+PROJECT_BRIEF          =
+
+# With the PROJECT_LOGO tag one can specify an logo or icon that is
+# included in the documentation. The maximum height of the logo should not
+# exceed 55 pixels and the maximum width should not exceed 200 pixels.
+# Doxygen will copy the logo to the output directory.
+
+PROJECT_LOGO           =
+
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute) 
 # base path where the generated documentation will be put. 
 # If a relative path is entered, it will be relative to the location 
@@ -218,6 +231,15 @@ OPTIMIZE_OUTPUT_VHDL   = NO
 
 EXTENSION_MAPPING      = 
 
+# If MARKDOWN_SUPPORT is enabled (the default) then doxygen pre-processes all
+# comments according to the Markdown format, which allows for more readable
+# documentation. See http://daringfireball.net/projects/markdown/ for details.
+# The output of markdown processing is further processed by doxygen, so you
+# can mix doxygen, HTML, and XML commands with Markdown formatting.
+# Disable only in case of backward compatibilities issues.
+
+MARKDOWN_SUPPORT       = YES
+
 # If you use STL classes (i.e. std::string, std::vector, etc.) but do not want 
 # to include (a tag file for) the STL sources as input, then you should 
 # set this tag to YES in order to let doxygen match functions declarations and 
@@ -261,6 +283,22 @@ DISTRIBUTE_GROUP_DOC   = NO
 # the \nosubgrouping command.
 
 SUBGROUPING            = YES
+
+# When the INLINE_GROUPED_CLASSES tag is set to YES, classes, structs and
+# unions are shown inside the group in which they are included (e.g. using
+# @ingroup) instead of on a separate page (for HTML and Man pages) or
+# section (for LaTeX and RTF).
+
+INLINE_GROUPED_CLASSES = NO
+
+# When the INLINE_SIMPLE_STRUCTS tag is set to YES, structs, classes, and
+# unions with only public data fields will be shown inline in the documentation
+# of the scope in which they are defined (i.e. file, namespace, or group
+# documentation), provided this scope is documented. If set to NO (the default),
+# structs, classes, and unions are shown on a separate page (for HTML and Man
+# pages) or section (for LaTeX and RTF).
+
+INLINE_SIMPLE_STRUCTS  = NO
 
 # When TYPEDEF_HIDES_STRUCT is enabled, a typedef of a struct, union, or enum 
 # is documented as struct, union, or enum with the name of the typedef. So 
@@ -372,7 +410,7 @@ INTERNAL_DOCS          = NO
 # in case and if your file system supports case sensitive file names. Windows 
 # and Mac users are advised to set this option to NO.
 
-CASE_SENSE_NAMES       = YES
+CASE_SENSE_NAMES       = NO
 
 # If the HIDE_SCOPE_NAMES tag is set to NO (the default) then Doxygen 
 # will show members with their full class and namespace scopes in the 
@@ -503,6 +541,16 @@ FILE_VERSION_FILTER    =
 # of the layout file.
 
 LAYOUT_FILE            = 
+
+# The CITE_BIB_FILES tag can be used to specify one or more bib files
+# containing the references data. This must be a list of .bib files. The
+# .bib extension is automatically appended if omitted. Using this command
+# requires the bibtex tool to be installed. See also
+# http://en.wikipedia.org/wiki/BibTeX for more info. For LaTeX the style
+# of the bibliography can be controlled using LATEX_BIB_STYLE. To use this
+# feature you need bibtex and perl available in the search path.
+
+CITE_BIB_FILES         = optimization.bib
 
 #---------------------------------------------------------------------------
 # configuration options related to warning and progress messages
@@ -776,7 +824,8 @@ HTML_FILE_EXTENSION    = .html
 # each generated HTML page. If it is left blank doxygen will generate a 
 # standard header.
 
-HTML_HEADER            = new_header.html
+HTML_HEADER            = 
+#new_header.html
 
 # The HTML_FOOTER tag can be used to specify a personal HTML footer for 
 # each generated HTML page. If it is left blank doxygen will generate a 
@@ -791,7 +840,8 @@ HTML_FOOTER            =
 # the style sheet file to the HTML output directory, so don't put your own 
 # stylesheet in the HTML output directory as well, or it will be erased!
 
-HTML_STYLESHEET        = new_stylesheet.css
+HTML_STYLESHEET        = 
+#new_stylesheet.css
 
 # If the HTML_ALIGN_MEMBERS tag is set to YES, the members of classes, 
 # files or namespaces will be aligned in HTML using tables. If set to 
@@ -975,7 +1025,8 @@ FORMULA_FONTSIZE       = 10
 # If the GENERATE_LATEX tag is set to YES (the default) Doxygen will 
 # generate Latex output.
 
-GENERATE_LATEX         = @DOXYFILE_LATEX@
+GENERATE_LATEX         = NO
+#@DOXYFILE_LATEX@
 
 # The LATEX_OUTPUT tag is used to specify where the LaTeX docs will be put. 
 # If a relative path is entered the value of OUTPUT_DIRECTORY will be 

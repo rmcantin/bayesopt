@@ -26,6 +26,7 @@
 #ifndef __INNEROPTIMIZATION_HPP__
 #define __INNEROPTIMIZATION_HPP__
 
+#include "dll_stuff.h"
 #include "specialtypes.hpp"
 
 // We plan to add more in the future since nlopt actually support many of them

@@ -26,6 +26,7 @@
 #define __BOPT_PARAMETERS_H__
 
 #include <string.h>
+#include "dll_stuff.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -136,12 +137,12 @@ extern "C" {
   surrogate_name str2surrogate (const char* name);
   mean_name      str2mean      (const char* name);
 
-  const char* kernel2str(kernel_name name);
-  const char* crit2str(criterium_name name);
-  const char* surrogate2str(surrogate_name name);
-  const char* mean2str(mean_name name);
+  BAYESOPT_API const char* kernel2str(kernel_name name);
+  BAYESOPT_API const char* crit2str(criterium_name name);
+  BAYESOPT_API const char* surrogate2str(surrogate_name name);
+  BAYESOPT_API const char* mean2str(mean_name name);
 
-  bopt_params initialize_parameters_to_default(void);
+  BAYESOPT_API bopt_params initialize_parameters_to_default(void);
 
 #ifdef __cplusplus
 }

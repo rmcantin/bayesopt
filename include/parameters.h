@@ -74,7 +74,7 @@ extern "C" {
     S_ERROR = -1
   } surrogate_name;
 
-  /** SKO Parameters */
+  /** \brief Configuration parameters */
   typedef struct {
     size_t n_iterations;         /**< Maximum BayesOpt evaluations (budget) */
     size_t n_inner_iterations;   /**< Maximum inner optimizer evaluations */

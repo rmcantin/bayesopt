@@ -52,7 +52,7 @@ protected:
 
 
 /**
- * \brief Expected improvement criterion by Mockus.
+ * \brief Expected improvement criterion by Mockus \cite Mockus78
  */
 class ExpectedImprovement: public Criteria
 {

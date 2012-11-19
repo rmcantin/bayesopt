@@ -25,6 +25,17 @@
 #ifndef  _BAYESOPTBASE_HPP_
 #define  _BAYESOPTBASE_HPP_
 
+// WINDOWS DLLs stuff
+#if defined (_WIN32) 
+  #if defined(bayesopt_EXPORTS)
+    #define  BAYESOPT_API __declspec(dllexport)
+  #else
+    #define  BAYESOPT_API __declspec(dllimport)
+  #endif /* MyLibrary_EXPORTS */
+#else /* defined (_WIN32) */
+ #define BAYESOPT_API
+#endif
+
 #include <boost/scoped_ptr.hpp>
 #include "parameters.h"
 #include "specialtypes.hpp"
@@ -38,9 +49,9 @@
 
 /**
  * \brief Bayesian optimization using different non-parametric 
- * processes as surrogate functions (non-parametric processes). 
+ * processes as distributions over surrogate functions. 
  */
-class BayesOptBase
+class BAYESOPT_API BayesOptBase
 {
  public:
   
@@ -53,7 +64,7 @@ class BayesOptBase
    * Constructor
    * @param params set of parameters (see parameters.h)
    */
-  BayesOptBase( bopt_params params);
+  BayesOptBase( bopt_params params );
 
   /** 
    * Default destructor
@@ -61,13 +72,13 @@ class BayesOptBase
   virtual ~BayesOptBase();
 
   /** 
-   * Execute the optimization process of the function defined in evaluateSample.
+   * \brief Execute the optimization process of the function defined
+   * in evaluateSample.
    * 
    * @see evaluateSample
    * @see checkReachability
    *
    * @param bestPoint returns point with the optimum value in a ublas::vector.
-   * 
    * @return 0 if terminate successfully, any other value otherwise
    */
   virtual int optimize(vectord &bestPoint) = 0;
@@ -75,23 +86,23 @@ class BayesOptBase
 
 
   /** 
-   * Function that defines the actual mathematical function to be optimized.
-   * Virtual function for polymorphism. This function must need to be modified 
-   * according to the specific problem.
+   * \brief Function that defines the actual function to be optimized.
+   * This function must be modified (overriden) according to the
+   * specific problem.
    *
    * @param query point to be evaluated. 
-   * 
    * @return value of the function at the point evaluated.
    */
   virtual double evaluateSample( const vectord &query ) = 0;
   
 
   /** 
-   * This function checks if the query is valid or not. It can be used 
-   * to introduce arbitrary constrains. Since the Gaussian process 
-   * assumes smoothness, constrains are managed by DIRECT, being highly
-   * time consuming. If the constrain is very tricky, DIRECT will need
-   * much more function evaluations.
+   * \brief This function checks if the query is valid or not. It can
+   * be used to introduce arbitrary constrains. Since the Gaussian
+   * process assumes smoothness, constrains are managed by the inner
+   * optimizer (e.g.:DIRECT), being highly time consuming. If the
+   * constrain is very tricky, DIRECT will need much more function
+   * evaluations.
    *
    * Note: This function is experimental. Thus it is not made pure virtual.
    * Using it is completely optional.
@@ -116,8 +127,12 @@ class BayesOptBase
 
 protected:
   /** 
-   * Evaluate the criteria considering if the query is reachable or not.
-   * This is a way to include non-linear restrictions.
+   * \brief Evaluate the criteria considering if the query is
+   * reachable or not.  This is a way to include non-linear
+   * restrictions.
+   *
+   * @see checkReachability
+   *
    * @param query query point
    * @return value of the criteria, 0 otherwise.
    */
@@ -128,9 +143,30 @@ protected:
     return (*mCrit)(query);
   };
 
+  /** 
+   * \brief Returns the optimal point acording to certain criteria
+   * @see evaluateCriteria
+   *
+   * @param xOpt optimal point
+   * @return error code
+   */
   virtual int findOptimal(vectord &xOpt) = 0;
+  
+
+  /** 
+   * \brief Selects the initial set of points to build the surrogate
+   * model.
+   * @return error code
+   */
   virtual int sampleInitialPoints() = 0;
 
+  /** 
+   * \brief Selects the next point to evaluate according to a certain
+   * criteria or metacriteria
+   * 
+   * @param Xnext next point to evaluate
+   * @return error code
+   */
   int nextPoint( vectord &Xnext );  
 
 protected:

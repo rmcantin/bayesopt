@@ -30,10 +30,10 @@
 
 // We plan to add more in the future since nlopt actually support many of them
 enum innerOptAlgorithms {
-  DIRECT, ///< Global optimization
-  LBFGS, ///< Local, derivative based
-  BOBYQA, ///< Local, derivative free
-  COMBINED ///< Global exploration, local refinement
+  DIRECT,    ///< Global optimization
+  LBFGS,     ///< Local, derivative based
+  BOBYQA,    ///< Local, derivative free
+  COMBINED   ///< Global exploration, local refinement
 };
 
 

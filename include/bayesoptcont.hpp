@@ -33,8 +33,9 @@
 /**@{*/
 
 /**
- * \brief Sequential Kriging Optimization using different non-parametric 
- * processes as surrogate (kriging) functions. 
+ * \brief Bayesian optimization using different non-parametric
+ * processes as distributions over surrogate functions. The
+ * exploration spaces is assumed to be continous and bounded.
  */
 class BayesOptContinuous: public InnerOptimization, 
 			  public BayesOptBase
@@ -60,16 +61,15 @@ class BayesOptContinuous: public InnerOptimization,
   virtual ~BayesOptContinuous();
 
   /** 
-   * Execute the optimization process of the function defined in evaluateSample.
-   * If no bounding box is defined, we assume that the function is defined in the 
-   * [0,1] hypercube, as a normalized representation of the bound constrains.
+   * \brief Execute the optimization process of the function defined in
+   * evaluateSample.  If no bounding box is defined, we assume that
+   * the function is defined in the [0,1] hypercube, as a normalized
+   * representation of the bound constrains.
    * 
    * @see scaleInput
    * @see evaluateSample
    *
-   * @param bestPoint returns the optimum value in a ublas::vector, it might also
-   * be used as an initial point
-   * 
+   * @param bestPoint returns the optimum value in a ublas::vector.
    * @return 0 if terminate successfully, nonzero otherwise
    */
   int optimize(vectord &bestPoint);
@@ -77,7 +77,7 @@ class BayesOptContinuous: public InnerOptimization,
 
 
   /** 
-   * Sets the bounding box. 
+   * \brief Sets the bounding box. 
    *
    * @param lowerBound vector with the lower bounds of the hypercube 
    * @param upperBound vector with the upper bounds of the hypercube 
@@ -104,13 +104,15 @@ protected:
 
 
   /** 
-   * Function that returns the corresponding criteria of a series 
-   * of queries in the hypercube [0,1] in order to choose the best point to try
+   * \brief Returns the corresponding criteria of a series of queries
+   * in the hypercube [0,1] in order to choose the best point to try
    * the next iteration.
    * 
-   * @param query point in the hypercube [0,1] to evaluate the Gaussian process
+   * @param query point in the hypercube [0,1] to evaluate the
+   * Gaussian process
    * 
-   * @return negative criteria (Expected Improvement, LCB, A-optimality, etc.).
+   * @return negative criteria (Expected Improvement, LCB,
+   * A-optimality, etc.).
    */	
   double innerEvaluate( const vectord &query )
   {
@@ -118,8 +120,13 @@ protected:
   };  // evaluateCriteria
 
     
-
-  inline double evaluateNormalizedSample( const vectord &query)
+  /** 
+   * \brief Wrapper for the target function normalize in the hypercube
+   * [0,1]
+   * @param query point to evaluate in [0,1] hypercube
+   * @return actual return value of the target function
+   */
+  inline double evaluateNormalizedSample( const vectord &query )
   { 
     vectord unnormalizedQuery = mBB->unnormalizeVector(query);
     return evaluateSample(unnormalizedQuery);
@@ -127,30 +134,36 @@ protected:
 
 
   /** 
-   * Print data for every step according to the verbose level
+   * \brief Print data for every step according to the verbose level
    * 
-   * @param iteration 
-   * @param xNext 
-   * @param yNext 
+   * @param iteration iteration number 
+   * @param xNext next point
+   * @param yNext function value at next point
    * 
    * @return error code
    */
   int plotStepData(size_t iteration, const vectord& xNext,
 		   double yNext);
 
-  /** Sample a set of points to initialize GP fit
-   * Use pure random sampling or uniform Latin Hypercube sampling
-   * as appeared in Jones 
+  /** \brief Sample a set of points to initialize the surrogate function.
+   * It uses pure random sampling or uniform Latin Hypercube sampling.
    * @return error code
    */
   int sampleInitialPoints();
 
+  /** 
+   * \brief Wrapper of the innerOptimization class to find the optimal
+   * point acording to the criteria.
+   * 
+   * @param xOpt optimal point
+   * @return error code
+   */
   inline int findOptimal(vectord &xOpt)
   { return innerOptimize(xOpt);};
 
 protected:
 
-  BoundingBox<vectord> *mBB;
+  BoundingBox<vectord> *mBB;      ///< Bounding Box (input space limits)
 
 };
 

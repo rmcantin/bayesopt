@@ -25,18 +25,8 @@
 #ifndef  _BAYESOPTBASE_HPP_
 #define  _BAYESOPTBASE_HPP_
 
-// WINDOWS DLLs stuff
-#if defined (_WIN32) 
-  #if defined(bayesopt_EXPORTS)
-    #define  BAYESOPT_API __declspec(dllexport)
-  #else
-    #define  BAYESOPT_API __declspec(dllimport)
-  #endif /* MyLibrary_EXPORTS */
-#else /* defined (_WIN32) */
- #define BAYESOPT_API
-#endif
-
 #include <boost/scoped_ptr.hpp>
+#include "dll_stuff.h"
 #include "parameters.h"
 #include "specialtypes.hpp"
 #include "log.hpp"

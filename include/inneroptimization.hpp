@@ -37,7 +37,7 @@ enum innerOptAlgorithms {
 };
 
 
-class InnerOptimization
+class BAYESOPT_API InnerOptimization
 {
 public:
   InnerOptimization()

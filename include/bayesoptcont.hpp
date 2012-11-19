@@ -37,8 +37,8 @@
  * processes as distributions over surrogate functions. The
  * exploration spaces is assumed to be continous and bounded.
  */
-class BayesOptContinuous: public InnerOptimization, 
-			  public BayesOptBase
+class BAYESOPT_API BayesOptContinuous: public InnerOptimization, 
+			public BayesOptBase
 {
  public:
    

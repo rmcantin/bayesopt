@@ -33,7 +33,7 @@
  * \brief Sequential Kriging Optimization using different non-parametric 
  * processes as surrogate (kriging) functions. 
  */
-class BayesOptDiscrete : public BayesOptBase
+class BAYESOPT_API BayesOptDiscrete : public BayesOptBase
 {
  public:
 

@@ -83,7 +83,7 @@ private:
 
 
 /**
- * \brief GP_Hedge model as describen in Hoffman et al.
+ * \brief GP_Hedge model as describen in Hoffman et al. \cite Hoffman2011
  *
  * The coefficients of the bandit algorithm has been carefully selected
  * according to Shapire et al. Also, the implementation has been made to

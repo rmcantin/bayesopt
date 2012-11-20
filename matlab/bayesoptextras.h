@@ -107,7 +107,7 @@ static void struct_size(const mxArray *s, const char *name, size_t *result)
 static void struct_string(const mxArray *s, const char *name, char* result)
 {
   mxArray *val = mxGetField(s, 0, name);
-  char *str;
+
   if (val)  
     {
       mwSize strlen = mxGetM(val) * mxGetN(val) + 1;
@@ -181,6 +181,9 @@ static double user_function(unsigned n, const double *x,
 
 static bopt_params load_parameters(const mxArray* params)
 {
+  char log_str[100];
+  char c_str[100], s_str[100], k_str[100], m_str[100];
+
   bopt_params parameters = initialize_parameters_to_default();
 
   struct_size(params,"n_iterations", &parameters.n_iterations);
@@ -200,10 +203,8 @@ static bopt_params load_parameters(const mxArray* params)
 	       &parameters.mu[0]);
 
   /* Extra configuration
-  /  See parameters.h for the available options */
-  char log_str[100];
-  char c_str[100], s_str[100], k_str[100], m_str[100];
-  
+  See parameters.h for the available options */
+
   strcpy( log_str, parameters.log_filename);
   struct_string(params, "log_filename", log_str);
   parameters.log_filename = log_str;

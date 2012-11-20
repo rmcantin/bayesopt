@@ -30,7 +30,10 @@ void mexFunction(int nlhs, mxArray *plhs[],
   const mxArray *func_name, *params;
   user_function_data udata;
   size_t nDim;
-     
+  unsigned int ii;
+  bopt_params parameters;
+  double *ub, *lb;    /* Upper and lower bound */
+  double fmin;
      
   /* Check correct number of parameters */
   CHECK0(nlhs != 2 || nrhs != 3 || nrhs != 5, 
@@ -86,10 +89,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
       params = mxCreateStructMatrix(1,1,0,NULL);
     }
 
-  bopt_params parameters = load_parameters(params);
-
-  double *ub, *lb;    /* Upper and lower bound */
-  double fmin;
+  parameters = load_parameters(params);
 
   if(nrhs == 5)
     {
@@ -114,7 +114,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
       lb = mxCalloc(nDim,sizeof(double));
       ub = mxCalloc(nDim,sizeof(double));
 	 
-      unsigned int ii;
+
       
       for (ii = 0; ii < nDim; ++ii) 
 	{

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-import numpy as np
 import bayesopt
 import bayesoptmodule
+import numpy as np
 
 from time import clock
 

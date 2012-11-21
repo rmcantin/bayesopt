@@ -125,7 +125,7 @@ class MaternIso3: public ISOkernel
 public:
   double operator()( const vectord &x1, const vectord &x2)
   {
-    double r = sqrt(3) * computeScaledNorm2(x1,x2);
+    double r = sqrt(3.0) * computeScaledNorm2(x1,x2);
     double er = exp(-r);
     return (1+r)*er;
   };
@@ -133,7 +133,7 @@ public:
   double getGradient( const vectord &x1, const vectord &x2,
 		      int grad_index)
   {
-    double r = sqrt(3) * computeScaledNorm2(x1,x2);
+    double r = sqrt(3.0) * computeScaledNorm2(x1,x2);
     double er = exp(-r);
     return r*r*er; 
   };
@@ -147,14 +147,14 @@ class MaternIso5: public ISOkernel
 public:
   double operator()( const vectord &x1, const vectord &x2)
   {
-    double r = sqrt(5) * computeScaledNorm2(x1,x2);
+    double r = sqrt(5.0) * computeScaledNorm2(x1,x2);
     double er = exp(-r);
     return (1+r*(1+r/3))*er;
   };
   double getGradient( const vectord &x1, const vectord &x2,
 		      int grad_index)
   {    
-    double r = sqrt(5) * computeScaledNorm2(x1,x2);
+    double r = sqrt(5.0) * computeScaledNorm2(x1,x2);
     double er = exp(-r);
     return r*(1+r)/3*r*er; 
   };

@@ -22,14 +22,14 @@
 clear all, close all
 addpath('testfunctions')
 
-params.n_iterations = 50;
+params.n_iterations = 100;
 params.n_init_iterations = 50;
 params.c_name = 'EI';
 params.s_name = 'GAUSSIAN_PROCESS';
 params.noise = 0.005;
 params.kernel = 'MATERN_ISO3';
 params.theta = [0.5];
-params.verbose_level = 4;
+params.verbose_level = 5;
 params.log_filename = 'matbopt.log';
 
 n = 5;

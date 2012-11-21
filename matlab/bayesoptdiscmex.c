@@ -30,7 +30,10 @@ void mexFunction(int nlhs, mxArray *plhs[],
   const mxArray *func_name, *params;
   user_function_data udata;
   size_t nDim,nPoints;
-     
+  double* xset;
+  bopt_params parameters;
+  double fmin = 0.0;
+    
   /* Check correct number of parameters */
   CHECK0(nlhs != 2 || nrhs != 3, "wrong number of arguments");
     
@@ -63,8 +66,6 @@ void mexFunction(int nlhs, mxArray *plhs[],
     }
 
   /* Second parameter. Set of values. */
-  double* xset;
-
   CHECK0(mxIsDouble(prhs[1]) && !mxIsComplex(prhs[1]) &&
 	 mxGetNumberOfDimensions(prhs[1]) == 2,
 	 "The set of values must be a 2D real matrix.");
@@ -91,9 +92,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
       params = mxCreateStructMatrix(1,1,0,NULL);
     }
 
-  bopt_params parameters = load_parameters(params);
-
-  double fmin = 0.0;
+  parameters = load_parameters(params);
   
   bayes_optimization_disc(nDim,user_function,&udata,xset,nPoints,
 			  xptr,&fmin,parameters);

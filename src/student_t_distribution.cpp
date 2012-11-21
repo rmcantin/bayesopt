@@ -22,7 +22,7 @@ double StudentTDistribution::negativeExpectedImprovement(double min,
 
 double StudentTDistribution::lowerConfidenceBound(double beta)
 {    
-  return mean_ - beta*std_/sqrt(dof_);
+  return mean_ - beta*std_/sqrt(static_cast<double>(dof_));
 }  // lowerConfidenceBound
 
 double StudentTDistribution::negativeProbabilityOfImprovement(double min,

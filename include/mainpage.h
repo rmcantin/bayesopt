@@ -24,10 +24,11 @@
  * matrix remains SPD and reduce computational cost.
  * - etc.
  *
- * Originally, it was developed for the papers referenced at the end,
- * where a Gaussian process with hyperpriors on the mean and signal
- * covariance parameters. Then, the metamodel was constructed using
- * the Maximum a Posteriory (MAP) of the parameters.
+ * Originally, it was developed for as part of a robotics research
+ * project \cite MartinezCantin09AR \cite MartinezCantin07RSS, where a
+ * Gaussian process with hyperpriors on the mean and signal covariance
+ * parameters. Then, the metamodel was constructed using the Maximum a
+ * Posteriory (MAP) of the parameters.
  *
  * However, the library now has grown to support many more surrogate
  * models, with different distributions (Gaussian processes,
@@ -37,23 +38,21 @@
  * bounded optimization, stochastic bandits, active learning for
  * regression, etc.
  *
- * See more details at the
+ * Start by reading the \ref install and the \ref reference
+ *
+ * You can also find more details at the
  * <a href="https://bitbucket.org/rmcantin/bayesian-optimization/wiki/Home">project
  * wiki</a>. 
  *
- * ----
+ * If you use BayesOpt in work that leads to a publication, we would
+ * appreciate it if you would kindly cite BayesOpt in your
+ * manuscript. Cite BayesOpt as something like:
  *
- * Ruben Martinez-Cantin, Nando de Freitas, Arnaud Doucet and Jose Castellanos.
- * Active Policy Learning for Robot Planning and Exploration under Uncertainty. 
- * Robotics: Science and Systems. 2007
- *
- * Ruben Martinez-Cantin, Nando de Freitas, Eric Brochu, Jose Castellanos and 
- * Arnaud Doucet (2009) A Bayesian Exploration-Exploitation Approach for Optimal
- * Online Sensing and Planning with a Visually Guided Mobile Robot. Autonomous 
- * Robots - Special Issue on Robot Learning, Part B, 27(3):93-103.
- *
- * ----
- * 
+ * <hr>
+ * Ruben Martinez-Cantin, <b>BayesOpt: a toolbox for nonlinear-optimization</b>,
+ * experimental design and stochastic bandits,
+ * http://bitbucket.org/rmcantin/bayesian-optimization
+ * <hr>
  * 
  * Copyright: See COPYING file that comes with this distribution
  */

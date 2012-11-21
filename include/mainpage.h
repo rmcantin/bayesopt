@@ -44,13 +44,19 @@
  * <a href="https://bitbucket.org/rmcantin/bayesian-optimization/wiki/Home">project
  * wiki</a>. 
  *
+ * \b Important: This code is free to use. However, if you are using,
+ * or plan to use, the library, specially if it is for research or
+ * academic purposes, please send me an email at rmcantin@unizar.es
+ * with your name, institution and a brief description of your
+ * interest for this code (one or two lines).
+ *
  * If you use BayesOpt in work that leads to a publication, we would
  * appreciate it if you would kindly cite BayesOpt in your
  * manuscript. Cite BayesOpt as something like:
  *
  * <hr>
- * Ruben Martinez-Cantin, <b>BayesOpt: a toolbox for nonlinear-optimization</b>,
- * experimental design and stochastic bandits,
+ * Ruben Martinez-Cantin, <b>BayesOpt: a toolbox for nonlinear-optimization,
+ * experimental design and stochastic bandits</b>,
  * http://bitbucket.org/rmcantin/bayesian-optimization
  * <hr>
  * 

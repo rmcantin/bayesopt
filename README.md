@@ -1,6 +1,6 @@
-----------------------------------------------------------------------
-                            BayesOpt
-----------------------------------------------------------------------
+BayesOpt
+========
+
 This is an efficient, C++ implementation of several Bayesian
 optimization algorithms. See References for some of the papers.
 

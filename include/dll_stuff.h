@@ -25,7 +25,7 @@
 #ifndef  _DLL_STUFF_HPP_
 #define  _DLL_STUFF_HPP_
 
-// WINDOWS DLLs stuff
+/* WINDOWS DLLs stuff */
 #if defined (_WIN32) && defined (COMPILE_DLL)
   #if defined(bayesopt_EXPORTS)
     #define  BAYESOPT_API __declspec(dllexport)

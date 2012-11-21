@@ -8,7 +8,7 @@ Sequential Kriging Optimization (SKO) or Efficient Global
 Optimization (EGO). 
 
 The online HTML version of these docs:
-http://rmcantin.bitbucket.org/html/
+<http://rmcantin.bitbucket.org/html/>
 
 Basically, it uses a distribution over functions to build a
 metamodel of the unknown function for we are looking the extrema,
@@ -21,11 +21,12 @@ also interesting for many types of functions.
 It is intended to be both fast and clear for development and
 research. At the same time, it does everything the "right way". For
 example:
+
 - latin hypercube sampling is use for the preliminary sampling step
 - kernel parameters are trained with the preliminary samples and
-fixed afterwards to avoid bias and divergence
+  fixed afterwards to avoid bias and divergence
 - matrix algebra tricks are used to guarantee that any covariance
-matrix remains SPD and reduce computational cost.
+  matrix remains SPD and reduce computational cost.
 - etc.
 
 Originally, it was developed for as part of a robotics research
@@ -45,11 +46,11 @@ regression, etc.
 Start by reading the \ref install and the \ref reference
 
 You can also find more details at:
-http://bitbucket.org/rmcantin/bayesian-optimization/wiki/Home
+<http://bitbucket.org/rmcantin/bayesian-optimization/wiki/Home>
 
-*Important:* This code is free to use. However, if you are using,
+**Important:** This code is free to use. However, if you are using,
 or plan to use, the library, specially if it is for research or
-academic purposes, please send me an email at rmcantin@unizar.es
+academic purposes, please send me an email at <rmcantin@unizar.es>
 with your name, institution and a brief description of your
 interest for this code (one or two lines).
 
@@ -57,11 +58,10 @@ If you use BayesOpt in work that leads to a publication, we would
 appreciate it if you would kindly cite BayesOpt in your
 manuscript. Cite BayesOpt as something like:
 
-{
-   Ruben Martinez-Cantin, BayesOpt: a toolbox for nonlinear-optimization,
-   experimental design and stochastic bandits,
-   http://bitbucket.org/rmcantin/bayesian-optimization
-}
+    Ruben Martinez-Cantin, BayesOpt: a toolbox for nonlinear-optimization,
+    experimental design and stochastic bandits,
+    http://bitbucket.org/rmcantin/bayesian-optimization
+
 
 ----------------------------------------------------------------------
 Copyright (C) 2011-2012 Ruben Martinez-Cantin <rmcantin@unizar.es>

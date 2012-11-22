@@ -28,7 +28,9 @@
 #include <boost/scoped_ptr.hpp>
 #include "criteria_functors.hpp"
 
-///\addtogroup MetaCriteriaFunctions
+/**\addtogroup MetaCriteriaFunctions
+ * \brief Functions that combine different criteria in a single step.
+ */
 //@{
 
 

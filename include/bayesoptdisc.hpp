@@ -26,7 +26,7 @@
 
 #include "bayesoptbase.hpp"
 
-/** \addtogroup BayesOptimization */
+/** \addtogroup BayesOpt */
 /*@{*/
 
 /**

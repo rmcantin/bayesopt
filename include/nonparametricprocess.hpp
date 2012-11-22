@@ -37,7 +37,10 @@
 #define USE_CHOL 1
 
 
-/** \addtogroup NonParametricProcesses */
+/** \addtogroup NonParametricProcesses 
+ *  \brief Set of nonparametric processes (Gaussian process, Student's
+ *  t process, etc.) for surrogate modelling
+ */
 /**@{*/
 
 /**

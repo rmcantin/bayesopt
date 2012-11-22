@@ -26,7 +26,7 @@
 
 #include "parameters.h"
 
-/** \addtogroup BayesOptimization */
+/** \addtogroup BayesOpt */
 /*@{*/
 
 #ifdef __cplusplus

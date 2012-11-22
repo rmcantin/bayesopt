@@ -1,4 +1,4 @@
-BayesOpt: A Bayesian optimization toolbox
+BayesOpt: A Bayesian optimization toolbox            {#mainpage}
 =========================================
 
 This is an efficient, C++ implementation of the Bayesian
@@ -58,12 +58,14 @@ If you use BayesOpt in work that leads to a publication, we would
 appreciate it if you would kindly cite BayesOpt in your
 manuscript. Cite BayesOpt as something like:
 
-    Ruben Martinez-Cantin, BayesOpt: a toolbox for nonlinear-optimization,
-    experimental design and stochastic bandits,
-    http://bitbucket.org/rmcantin/bayesian-optimization
+----------------------------------------------------------------------
 
+Ruben Martinez-Cantin, **BayesOpt: a toolbox for
+nonlinear-optimization, experimental design and stochastic bandits**,
+<http://bitbucket.org/rmcantin/bayesian-optimization>
 
 ----------------------------------------------------------------------
+
 Copyright (C) 2011-2012 Ruben Martinez-Cantin <rmcantin@unizar.es>
 
 BayesOpt is free software: you can redistribute it and/or modify it
@@ -78,4 +80,5 @@ General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with BayesOpt. If not, see <http:www.gnu.org/licenses/>.
+
 ----------------------------------------------------------------------

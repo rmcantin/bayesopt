@@ -28,7 +28,9 @@
 #include "specialtypes.hpp"
 #include "elementwise_ublas.hpp"
 
-///\addtogroup KernelFunctions
+/**\addtogroup KernelFunctions
+ * \brief Set of kernel or covariance functions for the nonparametric processes.
+ */
 //@{
 
 /** \brief Interface for kernel functors */

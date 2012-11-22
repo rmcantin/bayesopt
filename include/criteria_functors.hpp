@@ -30,7 +30,10 @@
 #include "nonparametricprocess.hpp"
 #include "prob_distribution.hpp"
 
-///\addtogroup CriteriaFunctions
+/**\addtogroup CriteriaFunctions
+ * \brief Set of criterium functions to select the next point during
+ * optimization/exploration
+ */
 //@{
 
 /**

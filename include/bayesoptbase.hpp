@@ -34,7 +34,9 @@
 #include "nonparametricprocess.hpp"
 #include "metacriteria_functors.hpp"
 
-/** \addtogroup BayesOptimization */
+/** \addtogroup BayesOpt
+ *  \brief Main module for Bayesian optimization
+ */
 /*@{*/
 
 /**

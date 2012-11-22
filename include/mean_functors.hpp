@@ -28,7 +28,9 @@
 #include "parameters.h"
 #include "specialtypes.hpp"
 
-///\addtogroup ParametricFunctions
+/**\addtogroup ParametricFunctions
+ *  \brief Set of parametric models for surrogate modelling
+ */
 //@{
 
 /** \brief Interface for mean functors */

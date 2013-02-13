@@ -3,7 +3,7 @@
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2012 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
    under the terms of the GNU General Public License as published by
@@ -64,6 +64,8 @@ criterium_name str2crit(const char* name)
     return C_GREEDY_A_OPTIMALITY;
   else if (!strcmp(name,  "EXPECTED_RETURN"))
     return C_EXPECTED_RETURN;
+  else if (!strcmp(name,  "THOMPSON_SAMPLING"))
+    return C_THOMPSON_SAMPLING;
   else if (!strcmp(name,  "OPTIMISTIC_SAMPLING"))
     return C_OPTIMISTIC_SAMPLING;
   else if (!strcmp(name,  "GP_HEDGE"))
@@ -85,6 +87,7 @@ const char* crit2str(criterium_name name)
     case C_POI: return "POI"; 
     case C_GREEDY_A_OPTIMALITY: return "GREEDY_A_OPTIMALITY";
     case C_EXPECTED_RETURN: return "EXPECTED_RETURN";
+    case C_THOMPSON_SAMPLING: return "THOMPSON_SAMPLING";
     case C_OPTIMISTIC_SAMPLING: return "OPTIMISTIC_SAMPLING";
     case C_GP_HEDGE: return "GP_HEDGE"; 
     case C_GP_HEDGE_RANDOM: return "GP_HEDGE_RANDOM"; 

@@ -4,7 +4,7 @@
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2012 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
    under the terms of the GNU General Public License as published by
@@ -25,8 +25,9 @@
 #define  _CRITERIA_FUNCTORS_HPP_
 
 #include <algorithm>
-#include <boost/scoped_ptr.hpp>
 #include "parameters.h"
+
+#include <boost/scoped_ptr.hpp>
 #include "nonparametricprocess.hpp"
 #include "prob_distribution.hpp"
 
@@ -43,9 +44,9 @@ class Criteria
 {
 public:
   Criteria(NonParametricProcess *proc):  mProc(proc) {};
-  virtual ~Criteria(){};
-  virtual double operator()( const vectord &x) = 0;
-  virtual void resetAnneal() {};  //dummy function
+  virtual ~Criteria() {};
+  virtual double operator()(const vectord &x) = 0;
+  virtual void resetAnneal() {};  // dummy function
 
   static Criteria* create(criterium_name name,
 			  NonParametricProcess* proc);
@@ -60,7 +61,7 @@ protected:
 class ExpectedImprovement: public Criteria
 {
 public:
-  ExpectedImprovement(NonParametricProcess *proc): Criteria(proc), mExp(1) {};
+  explicit ExpectedImprovement(NonParametricProcess *proc): Criteria(proc), mExp(1) {};
   virtual ~ExpectedImprovement(){};
   inline void setExponent(size_t exp) {mExp = exp;};
   double operator()(const vectord &x)
@@ -79,7 +80,7 @@ private:
 class LowerConfidenceBound: public Criteria
 {
 public:
-  LowerConfidenceBound(NonParametricProcess *proc):Criteria(proc),mBeta(1) {};
+  explicit LowerConfidenceBound(NonParametricProcess *proc):Criteria(proc),mBeta(1) {};
   virtual ~LowerConfidenceBound(){};
   inline void setBeta(double beta) { mBeta = beta; };
   double operator()( const vectord &x)
@@ -97,7 +98,7 @@ private:
 class ProbabilityOfImprovement: public Criteria
 {
 public:
-  ProbabilityOfImprovement(NonParametricProcess *proc): 
+  explicit ProbabilityOfImprovement(NonParametricProcess *proc): 
     Criteria(proc), mEpsilon(0.01) {};
   virtual ~ProbabilityOfImprovement(){};
   inline void setEpsilon(double eps) {mEpsilon = eps;};
@@ -117,7 +118,7 @@ private:
 class GreedyAOptimality: public Criteria
 {
 public:
-  GreedyAOptimality(NonParametricProcess *proc): Criteria(proc){};
+  explicit GreedyAOptimality(NonParametricProcess *proc): Criteria(proc){};
   virtual ~GreedyAOptimality(){};
   double operator()( const vectord &x)
   {
@@ -131,7 +132,7 @@ public:
 class ExpectedReturn: public Criteria
 {
 public:
-  ExpectedReturn(NonParametricProcess *proc): Criteria(proc){};
+  explicit ExpectedReturn(NonParametricProcess *proc): Criteria(proc){};
   virtual ~ExpectedReturn(){};
   double operator()( const vectord &x)
   {
@@ -140,12 +141,14 @@ public:
 };
 
 /**
- * \brief Optimistic sampling, also called, Thomson sampling.
+ * \brief Optimistic sampling. A simple variation of Thompson sampling
+ * that picks only samples that are better than the best outcome so
+ * far.
  */
 class OptimisticSampling: public Criteria
 {
 public:
-  OptimisticSampling(NonParametricProcess *proc): 
+  explicit OptimisticSampling(NonParametricProcess *proc): 
     Criteria(proc), mtRandom(100u) {};
   virtual ~OptimisticSampling(){};
   double operator()( const vectord &x)
@@ -159,6 +162,24 @@ private:
   randEngine mtRandom;
 };
 
+/**
+ * \brief Thompson sampling. It picks a random realization of the surrogate model.
+ */
+class ThompsonSampling: public Criteria
+{
+public:
+  explicit ThompsonSampling(NonParametricProcess *proc): 
+    Criteria(proc), mtRandom(100u) {};
+  virtual ~ThompsonSampling(){};
+  double operator()( const vectord &x)
+  {
+    ProbabilityDistribution* d_ = mProc->prediction(x);
+    return d_->sample_query(mtRandom);
+  };
+private:
+  randEngine mtRandom;
+};
+
 
 /**
  * \brief Expected improvement criterion using Schonlau annealing.
@@ -166,7 +187,7 @@ private:
 class AnnealedExpectedImprovement: public Criteria
 {
 public:
-  AnnealedExpectedImprovement(NonParametricProcess *proc):
+  explicit AnnealedExpectedImprovement(NonParametricProcess *proc):
     Criteria(proc){ resetAnneal(); };
   virtual ~AnnealedExpectedImprovement(){};
   inline void setExponent(size_t exp) {mExp = exp;};
@@ -194,7 +215,7 @@ private:
 class AnnealedLowerConfindenceBound: public Criteria
 {
 public:
-  AnnealedLowerConfindenceBound(NonParametricProcess *proc):
+  explicit AnnealedLowerConfindenceBound(NonParametricProcess *proc):
     Criteria(proc){ resetAnneal(); };
   virtual ~AnnealedLowerConfindenceBound(){};
   inline void setBetaCoef(double betac) { mCoef = betac; };

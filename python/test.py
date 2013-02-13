@@ -5,7 +5,6 @@ import numpy as np
 
 from time import clock
 
-
 # Function for testing.
 def testfunc(Xin):
     total = 5.0
@@ -18,8 +17,6 @@ def testfunc(Xin):
 class BayesOptTest(bayesoptmodule.BayesOptContinuous):
     def evalfunc(self,Xin):
         return testfunc(Xin)
-
-
 
 
 # Let's define the parameters

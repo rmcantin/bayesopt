@@ -46,26 +46,27 @@ class BayesOptContinuous:
         ## Library parameters 
         self.params = bo.initialize_params()
         ## n dimensions
-        self.n = 5
+        self.n_dim = 5
         ## Lower bounds
-        self.lb = np.zeros((self.n,))
+        self.lower_bound = np.zeros((self.n_dim,))
         ## Upper bounds
-        self.ub = np.ones((self.n,))
+        self.upper_bound = np.ones((self.n_dim,))
 
     ## Function for testing.
     # It should be overriden.
-    def evalfunc(self,Xin):
+    def evalfunc(self, x_in):
         total = 10.0
-        for value in Xin:
+        for value in x_in:
             total = total + (value -0.53)*(value-0.53)
         return total
 
     ## Main function. Starts the optimization process.
     def optimize(self):
-        mvalue, x_out, error = bo.optimize(self.evalfunc, self.n,
-                                           self.lb, self.ub,self.params)
+        min_val, x_out, error = bo.optimize(self.evalfunc, self.n_dim,
+                                            self.lower_bound, self.upper_bound,
+                                            self.params)
         
-        return mvalue, x_out, error
+        return min_val, x_out, error
 
 
 ## Python Module for BayesOptDiscrete
@@ -82,29 +83,29 @@ class BayesOptDiscrete:
     def __init__(self):
         ## Library parameters 
         self.params = bo.initialize_params()
-        n = 5    ## n dimensions
-        m = 100  ## m samples
+        n_dim = 5    ## n dimensions
+        n_sam = 100  ## n samples
         ## Set of discrete points
-        self.x_set = np.random.rand(m,n)
+        self.x_set = np.random.rand(n_sam, n_dim)
         
     ## Function for testing.
     # It should be overriden.
-    def evalfunc(self,Xin):
+    def evalfunc(self, x_in):
         total = 10.0
-        for value in Xin:
+        for value in x_in:
             total = total + (value -0.53)*(value-0.53)
         return total
 
     ## Main function. Starts the optimization process.
     def optimize(self):
-        mvalue, x_out, error = bo.optimize_discrete(self.evalfunc,
+        min_val, x_out, error = bo.optimize_discrete(self.evalfunc,
                                                     self.x_set,
                                                     self.params)
         
-        return mvalue, x_out, error
+        return min_val, x_out, error
 
 
 if __name__ == "__main__":
-    bopt = BayesOptContinuous()
-    mvalue, x_out, error = bopt.optimize()
-    print "Result", x_out
+    BO = BayesOptContinuous()
+    __value__, __x__, __err__ = BO.optimize()
+    print "Result", __x__

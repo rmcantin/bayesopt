@@ -4,7 +4,7 @@
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2012 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
    under the terms of the GNU General Public License as published by
@@ -40,6 +40,8 @@ public:
   static ParametricFunction* create(mean_name name, const vectord& params);
   virtual void setParameters(const vectord& params){ mParameters = params; };
   virtual double getMean(const vectord& x) = 0;
+  virtual vectord getFeatures(const vectord& x) = 0;  
+  virtual size_t getN(const vectord& x) = 0;  
   
   virtual vectord operator()(const vecOfvec& x)
   {
@@ -51,6 +53,19 @@ public:
       {
 	*res_it++ = getMean(*x_it++);
       }
+    return result;
+  };
+
+  virtual matrixd getAllFeatures(const vecOfvec& x)
+  {
+    size_t nf = getN(x[0]);
+    matrixd result(nf,x.size());
+
+    for(size_t ii=0; ii< x.size(); ++ii)
+      {
+	column(result,ii) = getFeatures(x[ii]);
+      }
+
     return result;
   };
   
@@ -65,8 +80,9 @@ protected:
 class ZeroFunction: public ParametricFunction
 {
 public:
-  double getMean (const vectord& x)
-  { return 0.0; };
+  double getMean (const vectord& x) { return 0.0; };
+  vectord getFeatures(const vectord& x) { return zvectord(1); };  
+  size_t getN(const vectord& x) {return 1;}  
 };
 
 
@@ -74,8 +90,9 @@ public:
 class OneFunction: public ParametricFunction
 {
 public:
-  double getMean (const vectord& x)
-  { return 1.0; };
+  double getMean (const vectord& x) { return 1.0; };
+  vectord getFeatures(const vectord& x) { return svectord(1,1.0); };  
+  size_t getN(const vectord& x) {return 1;}  
 };
 
 
@@ -84,8 +101,9 @@ public:
 class ConstantFunction: public ParametricFunction
 {
 public:
-  double getMean (const vectord& x)
-  { return mParameters(0); };
+  double getMean (const vectord& x) { return mParameters(0); };
+  vectord getFeatures(const vectord& x) { return svectord(1,1.0); };  
+  size_t getN(const vectord& x) {return 1;}  
 };
 
 
@@ -96,6 +114,8 @@ class LinearFunction: public ParametricFunction
 public:
   double getMean (const vectord& x)
   { return boost::numeric::ublas::inner_prod(x,mParameters);  };
+  vectord getFeatures(const vectord& x) { return x; };  
+  size_t getN(const vectord& x) {return x.size();}  
 };
 
 
@@ -113,6 +133,18 @@ public:
   
   double getMean (const vectord& x)
   { return boost::numeric::ublas::inner_prod(x,mParameters) + mConstParam;  };
+
+  vectord getFeatures(const vectord& x) 
+  {
+    using boost::numeric::ublas::range;
+    using boost::numeric::ublas::project;
+    vectord res(x.size()+1);
+    res(0) = 1;
+    project(res,range(1,res.size())) = x;
+    return res; 
+  };  
+
+  size_t getN(const vectord& x) {return 1+x.size();}  
 
 protected:
   double mConstParam;

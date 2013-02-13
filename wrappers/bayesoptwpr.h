@@ -1,10 +1,10 @@
-/** -*- c -*- \file bayesoptwpr.hpp \brief C-wrapper for Bayesian optimization */
+/** -*- c -*- \file bayesoptwpr.h \brief C-wrapper for Bayesian optimization */
 /*
 -----------------------------------------------------------------------------
    This file is part of BayesOptimization, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOptimization is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by

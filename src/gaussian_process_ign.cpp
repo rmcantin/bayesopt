@@ -30,9 +30,9 @@ using boost::numeric::ublas::lower_tag;
 using boost::numeric::ublas::lower;
   
 
-GaussianProcessIGN::GaussianProcessIGN(double noise, double alpha, 
+GaussianProcessIGN::GaussianProcessIGN(size_t dim, double noise, double alpha, 
 				       double beta, double delta):
-  NonParametricProcess(noise),
+  NonParametricProcess(dim,noise),
   mAlpha(alpha), mBeta (beta), mDelta2(delta)
 {
   d_.reset(new GaussianDistribution());
@@ -72,11 +72,11 @@ double GaussianProcessIGN::negativeLogLikelihood()
   double lik2 = log_trace(L) + 0.5*n*log(sigma) + n*0.91893853320467; //log(2*pi)/2
   
   //TODO: This must be wrong.
-  size_t index = 1;
-  double th = mKernel->getScale(index);
+  size_t index = 0;
+  vectord th = mKernel->getHyperParameters();
 
-  return lik1 + lik2 + mBeta/2 * th -
-    (mAlpha+1) * log(th);
+  return lik1 + lik2 + mBeta/2 * th(index) -
+    (mAlpha+1) * log(th(index));
 }
 
 

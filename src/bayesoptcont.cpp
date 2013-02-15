@@ -32,8 +32,8 @@ BayesOptContinuous::BayesOptContinuous():
   setAlgorithm(DIRECT);
 } // Def Constructor
 
-BayesOptContinuous::BayesOptContinuous( bopt_params parameters ):
-  BayesOptBase(parameters), mBB(NULL)
+BayesOptContinuous::BayesOptContinuous(size_t dim, bopt_params parameters):
+  BayesOptBase(dim,parameters), mBB(NULL)
 { 
   setAlgorithm(DIRECT);
 } // Constructor
@@ -50,7 +50,7 @@ BayesOptContinuous::~BayesOptContinuous()
 
 int BayesOptContinuous::optimize(vectord &bestPoint)
 {
-  mDims = bestPoint.size();
+  assert(mDims == bestPoint.size());
 
   if (mBB == NULL)
     {

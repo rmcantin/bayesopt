@@ -3,7 +3,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 /** \brief Factory method for kernels. */
-Kernel* Kernel::create(kernel_name name, const vectord &theta)
+Kernel* Kernel::create(kernel_name name, size_t input_dim)
 {
   Kernel* k_ptr;
   
@@ -19,6 +19,11 @@ Kernel* Kernel::create(kernel_name name, const vectord &theta)
       return NULL;
     }
 
-  k_ptr->setScale(theta);
+  k_ptr->init(input_dim);
   return k_ptr;
+};
+
+Kernel* create(std::string name, size_t imput_dim)
+{
+  
 };

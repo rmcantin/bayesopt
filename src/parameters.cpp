@@ -152,11 +152,11 @@ const char* mean2str(mean_name name)
     }
 }
 
-
+char DEF_LOG_FILE[] = "bayesopt.log";
 
 static const bopt_params DEFAULT_PARAMS = {
   DEFAULT_ITERATIONS, MAX_INNER_EVALUATIONS, DEFAULT_SAMPLES, 
-  DEFAULT_VERBOSE, "bayesopt.log",
+  DEFAULT_VERBOSE, DEF_LOG_FILE,
   {KERNEL_THETA}, 1, 
   {MEAN_MU}, 1, 
   PRIOR_ALPHA, PRIOR_BETA, PRIOR_DELTA_SQ,

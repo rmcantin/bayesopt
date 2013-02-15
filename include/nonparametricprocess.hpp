@@ -49,7 +49,7 @@
 class NonParametricProcess: public InnerOptimization
 {
 public:
-  NonParametricProcess(double noise);
+  NonParametricProcess(size_t dim, double noise);
   virtual ~NonParametricProcess();
 
   /** 
@@ -57,7 +57,7 @@ public:
    * @param parameters (process name, noise, priors, etc.)
    * @return pointer to the corresponding derivate class (surrogate model)
    */
-  static NonParametricProcess* create(bopt_params parameters);
+  static NonParametricProcess* create(size_t dim, bopt_params parameters);
 
   /** 
    * \brief Function that returns the prediction of the GP for a query point
@@ -103,17 +103,17 @@ public:
    * @param k_name kernel name
    * @return error_code
    */
-  int setKernel (const vectord &thetav, kernel_name k_name);
+  int setKernel (const vectord &thetav, kernel_name k_name, size_t dim);
 
   /** 
    * \brief Wrapper of setKernel for c arrays
    */
   inline int setKernel (const double *theta, size_t n_theta, 
-			kernel_name k_name)
+			kernel_name k_name, size_t dim)
   {
     vectord th(n_theta);
     std::copy(theta, theta+n_theta, th.begin());
-    return setKernel(th, k_name);
+    int error = setKernel(th, k_name, dim);
   };
 
   /** 
@@ -153,7 +153,7 @@ protected:
 
   double innerEvaluate(const vectord& query)
   { 
-    mKernel->setScale(query);
+    mKernel->setHyperParameters(query);
     return negativeLogLikelihood();
   };
 
@@ -198,7 +198,7 @@ protected:
   // TODO: Choose one
   matrixd mL;             ///< Cholesky decomposition of the Correlation matrix
   covMatrix mInvR;                              ///< Inverse Correlation matrix
-
+  size_t dim_;
 
 private:
   size_t mMinIndex, mMaxIndex;	

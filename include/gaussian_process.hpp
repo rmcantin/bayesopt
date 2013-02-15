@@ -37,7 +37,7 @@
 class GaussianProcess: public NonParametricProcess
 {
 public:
-  GaussianProcess( double noise );
+  GaussianProcess(size_t dim, double noise);
   virtual ~GaussianProcess();
 
   /** 

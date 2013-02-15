@@ -24,8 +24,8 @@
 #include "trace_ublas.hpp"
 #include "gauss_distribution.hpp"
 
-GaussianProcess::GaussianProcess( double noise ):
-  NonParametricProcess(noise)
+GaussianProcess::GaussianProcess(size_t dim, double noise):
+  NonParametricProcess(dim, noise)
 {
   d_.reset(new GaussianDistribution());
 }  // Constructor

@@ -1,3 +1,4 @@
+
 /** \file kernel_functors.hpp \brief Kernel (covariance) functions */
 /*
 -------------------------------------------------------------------------
@@ -24,6 +25,7 @@
 #ifndef  _KERNEL_FUNCTORS_HPP_
 #define  _KERNEL_FUNCTORS_HPP_
 
+#include <boost/numeric/ublas/vector_proxy.hpp>
 #include "parameters.h"
 #include "specialtypes.hpp"
 #include "elementwise_ublas.hpp"
@@ -37,37 +39,206 @@
 class Kernel
 {
 public:
-  static Kernel* create(kernel_name name, const vectord &theta);
-  virtual void setScale( const vectord &theta ) = 0;
-  virtual double getScale(int index) = 0;
-  virtual vectord getScale() = 0;
+  static Kernel* create(std::string name, size_t imput_dim);
+  static Kernel* create(kernel_name name, size_t imput_dim);
+
+  virtual int init(size_t input_dim) {return 0;};
+  virtual int init(size_t input_dim, Kernel* left, Kernel* right) {return 0;};
+
+  virtual void setHyperParameters(const vectord &theta) = 0;
+  virtual vectord getHyperParameters() = 0;
+  virtual size_t nHyperParameters() = 0;
+
   virtual double operator()( const vectord &x1, const vectord &x2 ) = 0;
-  virtual double getGradient( const vectord &x1, const vectord &x2,
-			      int grad_index ) = 0;
+  virtual double gradient( const vectord &x1, const vectord &x2,
+			   size_t component ) = 0;
   virtual ~Kernel(){};
+
+protected:
+  size_t n_inputs;
 };
+
+/////////////////////////////////////////////////////////////////////////////
+/** \brief Abstract class for an atomic kernel */
+class AtomicKernel : public Kernel
+{
+public:
+  virtual int init(size_t input_dim)
+  {
+    n_inputs = input_dim;
+    return 0;
+  };
+  void setHyperParameters(const vectord &theta) 
+  {
+    assert(params.size() == n_params);
+    params = theta;
+  };
+  vectord getHyperParameters() {return params;};
+  size_t nHyperParameters() {return n_params;};
+
+  virtual ~AtomicKernel(){};
+
+protected:
+  size_t n_params;
+  vectord params;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/** \brief Abstract class for combined kernel */
+class CombinedKernel : public Kernel
+{
+public:
+  virtual int init(size_t input_dim, Kernel* left, Kernel* right)
+  {
+    n_inputs = input_dim;
+    this->left = left;
+    this->right = right;
+    return 0;
+  };
+  void setHyperParameters(const vectord &theta) 
+  {
+    using boost::numeric::ublas::subrange;
+
+    size_t n_lhs = left->nHyperParameters();
+    size_t n_rhs = right->nHyperParameters();
+    assert(params.size() == n_lhs + n_rhs);
+    left->setHyperParameters(subrange(theta,0,n_lhs));
+    right->setHyperParameters(subrange(theta,n_lhs,n_lhs+n_rhs));
+  };
+
+  vectord getHyperParameters() 
+  {
+    using boost::numeric::ublas::subrange;
+
+    size_t n_lhs = left->nHyperParameters();
+    size_t n_rhs = right->nHyperParameters();
+    vectord par(n_lhs + n_rhs);
+    subrange(par,0,n_lhs) = left->getHyperParameters();
+    subrange(par,n_lhs,n_lhs+n_rhs) = right->getHyperParameters();
+    return par;
+  };
+
+  size_t nHyperParameters() 
+  {
+    size_t n_lhs = left->nHyperParameters();
+    size_t n_rhs = right->nHyperParameters();
+    return n_lhs + n_rhs;
+  };
+
+  virtual ~CombinedKernel()
+  {
+    delete left;
+    delete right;
+  };
+
+protected:
+  Kernel* left;
+  Kernel* right;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+/** \brief Sum of two kernels */
+class KernelSum: public CombinedKernel
+{
+public:
+  double operator()(const vectord &x1, const vectord &x2)
+  {
+    return (*left)(x1,x2) + (*right)(x1,x2);
+  };
+
+  double gradient(const vectord &x1, const vectord &x2,
+		  size_t component)
+  {
+    return left->gradient(x1,x2,component) + right->gradient(x1,x2,component);
+  };
+};
+
+////////////////////////////////////////////////////////////////////////////////
+/** \brief Product of two kernels */
+class KernelProd: public CombinedKernel
+{
+public:
+  double operator()(const vectord &x1, const vectord &x2)
+  {
+    return (*left)(x1,x2) * (*right)(x1,x2);
+  };
+
+  double gradient(const vectord &x1, const vectord &x2,
+		  size_t component)
+  {
+    return 0.0; //TODO: Not implemented
+  };
+};
+
+////////////////////////////////////////////////////////////////////////////////
+/** \brief Constant kernel.  
+ * Combined with sum and product kernel can be used to scale a kernel
+ * or add noise.
+ */
+
+class ConstKernel: public AtomicKernel
+{
+public:
+  int init(size_t input_dim)
+  {
+    n_params = 1;
+    n_inputs = input_dim;
+    return 0;
+  };
+
+  double operator()(const vectord &x1, const vectord &x2)
+  {
+    return params(0);
+  };
+
+  double gradient(const vectord &x1, const vectord &x2,
+		  size_t component)
+  {
+    return 0.0;
+  };
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/** \brief Linear kernel. */
+class LinKernel: public AtomicKernel
+{
+public:
+  int init(size_t input_dim)
+  {
+    n_params = 0;
+    n_inputs = input_dim;
+    return 0;
+  };
+
+  double operator()(const vectord &x1, const vectord &x2)
+  {
+    assert(x1.size() == x2.size());
+    return boost::numeric::ublas::inner_prod(x1,x2); 
+  };
+
+  double gradient(const vectord &x1, const vectord &x2,
+		  size_t component)
+  {
+    assert(false);
+  };
+};
+
 
 
 /////////////////////////////////////////////////////////////////////////////
 /** \brief Abstract class for isotropic kernel functors */
-class ISOkernel : public Kernel
+class ISOkernel : public AtomicKernel
 {
 public:
-  void setScale( const vectord &theta ) {mTheta = theta(0);};
-  double getScale(int index) {return mTheta;};
-  vectord getScale() {return svectord(1,mTheta);};
-
   virtual ~ISOkernel(){};
 
 protected:
   inline double computeScaledNorm2(const vectord &x1, const vectord &x2)
   {  
+    assert(n_inputs == x1.size());
     assert(x1.size() == x2.size());
-    return norm_2(x1-x2)/mTheta; 
+    return norm_2(x1-x2)/params(0); 
   };
-
-protected:
-  double mTheta;
 };
 
 
@@ -75,27 +246,21 @@ protected:
 /** \brief Abstract class for anisotropic kernel functors. 
  * Typically ARD (Automatic Relevance Determination)
  */
-class ARDkernel : public Kernel
+class ARDkernel : public AtomicKernel
 {
 public:
-  void setScale( const vectord &theta ){mTheta=theta;};
-  double getScale(int index) {return mTheta(index);};
-  vectord getScale() { return mTheta; };
-
   virtual ~ARDkernel(){};
 
 protected:
   inline vectord computeScaledDiff(const vectord &x1, const vectord &x2)
   {
+    assert(n_inputs == x1.size());
     assert(x1.size() == x2.size());
-    assert(x1.size() == mTheta.size());
+    assert(x1.size() == params.size());
 
     vectord xd = x1-x2;
-    return ublas_elementwise_div(xd, mTheta); 
+    return ublas_elementwise_div(xd, params); 
   };
-
-protected:
-  vectord mTheta;
 };
 
 
@@ -105,14 +270,21 @@ protected:
 class MaternIso1: public ISOkernel
 {
 public:
-  double operator()( const vectord &x1, const vectord &x2)
+  int init(size_t input_dim)
+  {
+    n_params = 1;
+    n_inputs = input_dim;
+    return 0;
+  };
+
+  double operator()(const vectord &x1, const vectord &x2)
   {
     double r = computeScaledNorm2(x1,x2);
     return exp(-r);
   };
 
-  double getGradient( const vectord &x1, const vectord &x2,
-		      int grad_index)
+  double gradient(const vectord &x1, const vectord &x2,
+		  size_t component)
   {
     double r = computeScaledNorm2(x1,x2);
     return r*exp(-r);
@@ -125,6 +297,13 @@ public:
 class MaternIso3: public ISOkernel
 {
 public:
+  int init(size_t input_dim)
+  {
+    n_params = 1;
+    n_inputs = input_dim;
+    return 0;
+  };
+
   double operator()( const vectord &x1, const vectord &x2)
   {
     double r = sqrt(3.0) * computeScaledNorm2(x1,x2);
@@ -132,8 +311,8 @@ public:
     return (1+r)*er;
   };
 
-  double getGradient( const vectord &x1, const vectord &x2,
-		      int grad_index)
+  double gradient( const vectord &x1, const vectord &x2,
+		   size_t component)
   {
     double r = sqrt(3.0) * computeScaledNorm2(x1,x2);
     double er = exp(-r);
@@ -147,14 +326,21 @@ public:
 class MaternIso5: public ISOkernel
 {
 public:
+  int init(size_t input_dim)
+  {
+    n_params = 1;
+    n_inputs = input_dim;
+    return 0;
+  };
+
   double operator()( const vectord &x1, const vectord &x2)
   {
     double r = sqrt(5.0) * computeScaledNorm2(x1,x2);
     double er = exp(-r);
     return (1+r*(1+r/3))*er;
   };
-  double getGradient( const vectord &x1, const vectord &x2,
-		      int grad_index)
+  double gradient( const vectord &x1, const vectord &x2,
+		   size_t component)
   {    
     double r = sqrt(5.0) * computeScaledNorm2(x1,x2);
     double er = exp(-r);
@@ -169,14 +355,21 @@ public:
 class SEIso: public ISOkernel
 {
 public:
+  int init(size_t input_dim)
+  {
+    n_params = 1;
+    n_inputs = input_dim;
+    return 0;
+  };
+
   double operator()( const vectord &x1, const vectord &x2)
   {
     double rl = computeScaledNorm2(x1,x2);
     double k = rl*rl;
     return exp(-k/2);
   };
-  double getGradient(const vectord &x1, const vectord &x2,
-		     int grad_index)
+  double gradient(const vectord &x1, const vectord &x2,
+		  size_t component)
   {
     double rl = computeScaledNorm2(x1,x2);
     double k = rl*rl;
@@ -190,6 +383,13 @@ public:
 class SEArd: public ARDkernel
 {
 public:
+  int init(size_t input_dim)
+  {
+    n_params = input_dim;
+    n_inputs = input_dim;
+    return 0;
+  };
+
   double operator()( const vectord &x1, const vectord &x2 )
   {
     vectord ri = computeScaledDiff(x1,x2);
@@ -198,14 +398,13 @@ public:
     return exp(-k/2);
   };
   
-  double getGradient(const vectord &x1, const vectord &x2,
-		     int grad_index)
+  double gradient(const vectord &x1, const vectord &x2,
+		  size_t component)
   {
-  
     vectord ri = computeScaledDiff(x1,x2);
     double rl = norm_2(ri);
     double k = rl*rl;
-    return exp(-k/2)*sqrt(ri(grad_index));
+    return exp(-k/2)*sqrt(ri(component));
   };
 };
 

@@ -56,7 +56,7 @@ class BAYESOPT_API BayesOptBase
    * Constructor
    * @param params set of parameters (see parameters.h)
    */
-  BayesOptBase( bopt_params params );
+  BayesOptBase(size_t dim, bopt_params params);
 
   /** 
    * Default destructor
@@ -167,7 +167,6 @@ protected:
   boost::scoped_ptr<MetaCriteria> mCrit;                  ///< Metacriteria model
   bopt_params mParameters;                          ///< Configuration parameters
   size_t mDims;                                         ///< Number of dimensions
-
 private:
 
   /** 
@@ -175,7 +174,6 @@ private:
    * surrogate, etc.)
    */
   int __init__();
-
 };
 
 /**@}*/

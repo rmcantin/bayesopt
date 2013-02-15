@@ -21,8 +21,8 @@ class TestEGO: public BayesOptContinuous
 {
  public:
 
-  TestEGO(bopt_params param):
-    BayesOptContinuous(param) {}
+  TestEGO(size_t dim,bopt_params param):
+    BayesOptContinuous(dim,param) {}
 
   double evaluateSample( const vectord &Xi ) 
   {
@@ -70,7 +70,7 @@ int main(int nargs, char *args[])
   std::cout << "Running C++ interface" << std::endl;
   // Configure C++ interface
 
-  TestEGO gp_opt(par);
+  TestEGO gp_opt(n,par);
   vectord result(n);
 
   // Run C++ interface

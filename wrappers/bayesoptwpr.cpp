@@ -9,8 +9,8 @@ class CBayesOptContinuous: public BayesOptContinuous
 {
  public:
 
-  CBayesOptContinuous( bopt_params params):
-    BayesOptContinuous(params)
+  CBayesOptContinuous(size_t dim, bopt_params params):
+    BayesOptContinuous(dim,params)
   {}; 
 
   virtual ~CBayesOptContinuous(){};
@@ -77,7 +77,7 @@ int bayes_optimization(int nDim, eval_func f, void* f_data,
   std::copy(lb, lb+nDim, lowerBound.begin());
   std::copy(ub, ub+nDim, upperBound.begin());
 
-  CBayesOptContinuous optimizer(parameters);
+  CBayesOptContinuous optimizer(nDim, parameters);
 
   optimizer.set_eval_funct(f);
   optimizer.save_other_data(f_data);

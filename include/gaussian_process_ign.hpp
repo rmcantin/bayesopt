@@ -35,8 +35,8 @@
 class GaussianProcessIGN: public NonParametricProcess 
 {
 public:
-  GaussianProcessIGN( double noise, double alpha,
-		      double beta,  double delta );
+  GaussianProcessIGN(size_t dim, double noise, double alpha,
+		     double beta, double delta);
 
   virtual ~GaussianProcessIGN();
 

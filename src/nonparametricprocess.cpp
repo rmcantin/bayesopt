@@ -32,8 +32,8 @@
 #include "student_t_process.hpp"
 
 
-NonParametricProcess::NonParametricProcess(double noise):
-  InnerOptimization(), mRegularizer(noise)
+NonParametricProcess::NonParametricProcess(size_t dim, double noise):
+  InnerOptimization(), mRegularizer(noise), dim_(dim)
 { 
   mMinIndex = 0;     mMaxIndex = 0;   
   setAlgorithm(BOBYQA);
@@ -43,18 +43,18 @@ NonParametricProcess::NonParametricProcess(double noise):
 NonParametricProcess::~NonParametricProcess(){}
 
 
-NonParametricProcess* NonParametricProcess::create(bopt_params parameters)
+NonParametricProcess* NonParametricProcess::create(size_t dim, bopt_params parameters)
 {
   NonParametricProcess* s_ptr;
 
   switch(parameters.s_name)
     {
     case S_GAUSSIAN_PROCESS: 
-      s_ptr = new GaussianProcess(parameters.noise); 
+      s_ptr = new GaussianProcess(dim,parameters.noise); 
       break;
 
     case S_GAUSSIAN_PROCESS_INV_GAMMA_NORMAL:
-      s_ptr = new GaussianProcessIGN(parameters.noise, parameters.alpha,
+      s_ptr = new GaussianProcessIGN(dim,parameters.noise, parameters.alpha,
 				     parameters.beta,parameters.delta);  
       break;
 
@@ -65,7 +65,7 @@ NonParametricProcess* NonParametricProcess::create(bopt_params parameters)
 			       << "using one-mean instead.";
 	  parameters.m_name = M_ONE;
 	}
-      s_ptr = new StudentTProcess(parameters.noise); 
+      s_ptr = new StudentTProcess(dim,parameters.noise); 
       break;
 
     default:
@@ -73,7 +73,7 @@ NonParametricProcess* NonParametricProcess::create(bopt_params parameters)
       return NULL;
     }
   
-  s_ptr->setKernel(parameters.theta,parameters.n_theta,parameters.k_name);
+  s_ptr->setKernel(parameters.theta,parameters.n_theta,parameters.k_name,dim);
   s_ptr->setMean(parameters.mu,parameters.n_mu,parameters.m_name);
   return s_ptr;
 };
@@ -81,12 +81,12 @@ NonParametricProcess* NonParametricProcess::create(bopt_params parameters)
 
 int NonParametricProcess::fitInitialSurrogate()
 {
-  vectord optimalTheta = mKernel->getScale();
+  vectord optimalTheta = mKernel->getHyperParameters();
   int error = -1;
 
   FILE_LOG(logDEBUG) << "Initial theta: " << optimalTheta;
   innerOptimize(optimalTheta);
-  mKernel->setScale(optimalTheta);
+  mKernel->setHyperParameters(optimalTheta);
   FILE_LOG(logDEBUG) << "Final theta: " << optimalTheta;
 
   //TODO: Choose one!
@@ -170,12 +170,19 @@ double NonParametricProcess::getSample(size_t index, vectord &x)
   return mGPY(index);
 }
 
-int NonParametricProcess::setKernel (const vectord &thetav,
-				     kernel_name k_name)
+int NonParametricProcess::setKernel (const vectord &thetav, kernel_name k_name, 
+				     size_t dim)
 {
-  mKernel.reset(Kernel::create(k_name, thetav));
-  if (mKernel == NULL)   return -1;
-  else  return 0;
+  mKernel.reset(Kernel::create(k_name, dim));
+  if (mKernel == NULL)   
+    {
+      return -1;
+    }
+  else
+    {
+      mKernel->setHyperParameters(thetav);
+      return 0;
+    }
 }
 
 
@@ -291,11 +298,11 @@ matrixd NonParametricProcess::computeDerivativeCorrMatrix(int dth_index)
     {
       for (size_t jj=0; jj < ii; ++jj)
 	{
-	  corrMatrix(ii,jj) = mKernel->getGradient(mGPXX[ii],mGPXX[jj], 
+	  corrMatrix(ii,jj) = mKernel->gradient(mGPXX[ii],mGPXX[jj], 
 						   dth_index);
 	  corrMatrix(jj,ii) = corrMatrix(ii,jj);
 	}
-      corrMatrix(ii,ii) = mKernel->getGradient(mGPXX[ii],mGPXX[ii],dth_index);
+      corrMatrix(ii,ii) = mKernel->gradient(mGPXX[ii],mGPXX[ii],dth_index);
     }
   return corrMatrix;
 }

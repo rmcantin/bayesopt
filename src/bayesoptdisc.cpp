@@ -32,7 +32,7 @@ BayesOptDiscrete::BayesOptDiscrete( const vecOfvec &validSet):
 
 BayesOptDiscrete::BayesOptDiscrete( const vecOfvec &validSet, 
 				    bopt_params parameters):
-  BayesOptBase(parameters), mInputSet(validSet)
+  BayesOptBase(validSet[0].size(),parameters), mInputSet(validSet)
 {} // Constructor
 
 

@@ -27,8 +27,8 @@ using boost::numeric::ublas::lower_tag;
 using boost::numeric::ublas::lower;
 
   
-StudentTProcess::StudentTProcess(double noise):
-  NonParametricProcess(noise)
+StudentTProcess::StudentTProcess(size_t dim, double noise):
+  NonParametricProcess(dim, noise)
 {}  // Constructor
 
 

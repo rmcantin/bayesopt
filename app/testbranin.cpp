@@ -10,8 +10,8 @@ inline double sqr( double x ){ return x*x; }
 class TestOneD: public BayesOptContinuous
 {
 public:
-  TestOneD(bopt_params par):
-  BayesOptContinuous(par) {}
+  TestOneD(size_t dim,bopt_params par):
+    BayesOptContinuous(dim,par) {}
 
   double evaluateSample( const vectord& xin)
   {
@@ -40,7 +40,7 @@ int main(int nargs, char *args[])
   par.theta[0] = 1.0;
   par.n_theta = 1;
   par.c_name = C_GP_HEDGE;
-  TestOneD opt(par);
+  TestOneD opt(2,par);
   vectord result(2);
 
   opt.optimize(result);

@@ -51,7 +51,7 @@ class BAYESOPT_API BayesOptContinuous: public InnerOptimization,
    * Constructor
    * @param params set of parameters (see parameters.h)
    */
-  BayesOptContinuous( bopt_params params);
+  BayesOptContinuous(size_t dim, bopt_params params);
 
   /** 
    * Default destructor

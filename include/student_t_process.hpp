@@ -40,7 +40,7 @@
 class StudentTProcess: public NonParametricProcess
 {
 public:
-  StudentTProcess(double noise);
+  StudentTProcess(size_t dim, double noise);
   virtual ~StudentTProcess();
 
   /** 

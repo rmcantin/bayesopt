@@ -33,8 +33,8 @@ BayesOptBase::BayesOptBase():
 }
 
 
-BayesOptBase::BayesOptBase( bopt_params parameters ):
-  mGP(NULL), mCrit(NULL),  mParameters(parameters)
+BayesOptBase::BayesOptBase(size_t dim, bopt_params parameters):
+  mGP(NULL), mCrit(NULL),  mParameters(parameters), mDims(dim)
 {
   __init__();
 }
@@ -69,7 +69,7 @@ int BayesOptBase::__init__()
       static_cast<size_t>(ceil(0.1*mParameters.n_iterations));
 
   // Configure Surrogate and Criteria Functions
-  mGP.reset(NonParametricProcess::create(mParameters));
+  mGP.reset(NonParametricProcess::create(mDims,mParameters));
   if (mGP == NULL) 
     {
       FILE_LOG(logERROR) << "Error setting the surrogate function"; 

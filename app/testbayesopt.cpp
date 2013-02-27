@@ -61,7 +61,7 @@ int main(int nargs, char *args[])
   par.m_name = M_ZERO;
   par.n_iterations = 200;       // Number of iterations
   par.n_init_samples = 50;
-  par.verbose_level = 0;
+  par.verbose_level = 1;
   /*******************************************/
 
   clock_t start, end;

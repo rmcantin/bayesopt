@@ -224,7 +224,6 @@ public:
 };
 
 
-
 /////////////////////////////////////////////////////////////////////////////
 /** \brief Abstract class for isotropic kernel functors */
 class ISOkernel : public AtomicKernel
@@ -233,7 +232,7 @@ public:
   virtual ~ISOkernel(){};
 
 protected:
-  inline double computeScaledNorm2(const vectord &x1, const vectord &x2)
+  inline double computeWeightedNorm2(const vectord &x1, const vectord &x2)
   {  
     assert(n_inputs == x1.size());
     assert(x1.size() == x2.size());
@@ -252,21 +251,22 @@ public:
   virtual ~ARDkernel(){};
 
 protected:
-  inline vectord computeScaledDiff(const vectord &x1, const vectord &x2)
+  inline double computeWeightedNorm2(const vectord &x1, const vectord &x2)
   {
     assert(n_inputs == x1.size());
     assert(x1.size() == x2.size());
     assert(x1.size() == params.size());
 
     vectord xd = x1-x2;
-    return ublas_elementwise_div(xd, params); 
+    vectord r = ublas_elementwise_div(xd, params);
+    return norm_2(r);
   };
 };
 
 
 
 ////////////////////////////////////////////////////////////////////////////////
-/** \brief Matern kernel of 1st order */
+/** \brief Matern isotropic kernel of 1st order */
 class MaternIso1: public ISOkernel
 {
 public:
@@ -279,15 +279,40 @@ public:
 
   double operator()(const vectord &x1, const vectord &x2)
   {
-    double r = computeScaledNorm2(x1,x2);
+    double r = computeWeightedNorm2(x1,x2);
     return exp(-r);
   };
 
   double gradient(const vectord &x1, const vectord &x2,
-		  size_t component)
+                  size_t component)
   {
-    double r = computeScaledNorm2(x1,x2);
+    double r = computeWeightedNorm2(x1,x2);
     return r*exp(-r);
+  };
+};
+
+////////////////////////////////////////////////////////////////////////////////
+/** \brief Matern ARD kernel of 1st order */
+class MaternARD1: public ARDkernel
+{
+public:
+  int init(size_t input_dim)
+  {
+    n_params = input_dim;
+    n_inputs = input_dim;
+    return 0;
+  };
+
+  double operator()(const vectord &x1, const vectord &x2)
+  {
+    double r = computeWeightedNorm2(x1,x2);
+    return exp(-r);
+  };
+
+  double gradient(const vectord &x1, const vectord &x2,
+                  size_t component)
+  {
+    assert(false); //TODO:
   };
 };
 
@@ -306,23 +331,49 @@ public:
 
   double operator()( const vectord &x1, const vectord &x2)
   {
-    double r = sqrt(3.0) * computeScaledNorm2(x1,x2);
+    double r = sqrt(3.0) * computeWeightedNorm2(x1,x2);
     double er = exp(-r);
     return (1+r)*er;
   };
 
   double gradient( const vectord &x1, const vectord &x2,
-		   size_t component)
+                   size_t component)
   {
-    double r = sqrt(3.0) * computeScaledNorm2(x1,x2);
+    double r = sqrt(3.0) * computeWeightedNorm2(x1,x2);
     double er = exp(-r);
     return r*r*er; 
   };
 };
 
+////////////////////////////////////////////////////////////////////////////////
+/** \brief Matern ARD kernel of 3rd order */
+class MaternARD3: public ARDkernel
+{
+public:
+  int init(size_t input_dim)
+  {
+    n_params = input_dim;
+    n_inputs = input_dim;
+    return 0;
+  };
+
+  double operator()( const vectord &x1, const vectord &x2)
+  {
+    double r = sqrt(3.0) * computeWeightedNorm2(x1,x2);
+    double er = exp(-r);
+    return (1+r)*er;
+  };
+
+  double gradient( const vectord &x1, const vectord &x2,
+                   size_t component)
+  {
+    assert(false);
+  };
+};
+
 
 ////////////////////////////////////////////////////////////////////////////////
-/** \brief Matern kernel of 5th order */
+/** \brief Matern isotropic kernel of 5th order */
 class MaternIso5: public ISOkernel
 {
 public:
@@ -335,16 +386,41 @@ public:
 
   double operator()( const vectord &x1, const vectord &x2)
   {
-    double r = sqrt(5.0) * computeScaledNorm2(x1,x2);
+    double r = sqrt(5.0) * computeWeightedNorm2(x1,x2);
     double er = exp(-r);
     return (1+r*(1+r/3))*er;
   };
   double gradient( const vectord &x1, const vectord &x2,
-		   size_t component)
+                   size_t component)
   {    
-    double r = sqrt(5.0) * computeScaledNorm2(x1,x2);
+    double r = sqrt(5.0) * computeWeightedNorm2(x1,x2);
     double er = exp(-r);
     return r*(1+r)/3*r*er; 
+  };
+};
+
+////////////////////////////////////////////////////////////////////////////////
+/** \brief Matern ARD kernel of 5th order */
+class MaternARD5: public ARDkernel
+{
+public:
+  int init(size_t input_dim)
+  {
+    n_params = input_dim;
+    n_inputs = input_dim;
+    return 0;
+  };
+
+  double operator()( const vectord &x1, const vectord &x2)
+  {
+    double r = sqrt(5.0) * computeWeightedNorm2(x1,x2);
+    double er = exp(-r);
+    return (1+r*(1+r/3))*er;
+  };
+  double gradient( const vectord &x1, const vectord &x2,
+                   size_t component)
+  {    
+    assert(false);
   };
 };
 
@@ -364,14 +440,14 @@ public:
 
   double operator()( const vectord &x1, const vectord &x2)
   {
-    double rl = computeScaledNorm2(x1,x2);
+    double rl = computeWeightedNorm2(x1,x2);
     double k = rl*rl;
     return exp(-k/2);
   };
   double gradient(const vectord &x1, const vectord &x2,
-		  size_t component)
+                  size_t component)
   {
-    double rl = computeScaledNorm2(x1,x2);
+    double rl = computeWeightedNorm2(x1,x2);
     double k = rl*rl;
     return exp(-k/2)*k;
   };
@@ -392,19 +468,18 @@ public:
 
   double operator()( const vectord &x1, const vectord &x2 )
   {
-    vectord ri = computeScaledDiff(x1,x2);
-    double rl = norm_2(ri);
+    double rl = computeWeightedNorm2(x1,x2);
     double k = rl*rl;
     return exp(-k/2);
   };
   
   double gradient(const vectord &x1, const vectord &x2,
-		  size_t component)
+                  size_t component)
   {
-    vectord ri = computeScaledDiff(x1,x2);
-    double rl = norm_2(ri);
+    double rl = computeWeightedNorm2(x1,x2);
     double k = rl*rl;
-    return exp(-k/2)*sqrt(ri(component));
+    double r = (x1(component) - x2(component))/params(component);
+    return exp(-k/2)*r*r;
   };
 };
 

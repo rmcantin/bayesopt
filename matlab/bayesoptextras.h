@@ -108,25 +108,15 @@ static void struct_string(const mxArray *s, const char *name, char* result)
 {
   mxArray *val = mxGetField(s, 0, name);
 
-  if (val)  
-    {
-      mwSize strlen = mxGetM(val) * mxGetN(val) + 1;
-      if( !mxIsChar(val) )
-	{
-	  mexErrMsgTxt("Method name must be a string");
-	  return;
-	}
-      if (mxGetString(val, result, strlen))
-	{
-	  mexErrMsgTxt("Error reading string");
-	  return;
-	}
+  if (val) {
+    if( mxIsChar(val) ) {
+      result = mxArrayToString(val);
+    } else {
+      mexErrMsgTxt("Method name must be a string");
     }
-  else
-    {
-      mexPrintf("Field %s not found. Default not modified.\n", name);
-    }
-
+  } else {
+    mexPrintf("Field %s not found. Default not modified.\n", name);
+  }
   return;
 }
 
@@ -181,7 +171,7 @@ static double user_function(unsigned n, const double *x,
 
 static bopt_params load_parameters(const mxArray* params)
 {
-  char log_str[100];
+  char log_str[100], k_s_str[100];
   char c_str[100], s_str[100], k_str[100], m_str[100];
 
   bopt_params parameters = initialize_parameters_to_default();
@@ -205,9 +195,8 @@ static bopt_params load_parameters(const mxArray* params)
   /* Extra configuration
   See parameters.h for the available options */
 
-  strcpy( log_str, parameters.log_filename);
-  struct_string(params, "log_filename", log_str);
-  parameters.log_filename = log_str;
+  struct_string(params, "log_filename", parameters.log_filename);
+  struct_string(params, "k_s_name", parameters.k_s_name);
 
   strcpy( c_str, crit2str(parameters.c_name));
   strcpy( s_str, surrogate2str(parameters.s_name));

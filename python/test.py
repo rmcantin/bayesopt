@@ -27,7 +27,8 @@ params = bayesopt.initialize_params()
 params['n_iterations'] = 50
 params['n_init_samples'] = 20
 params['s_name'] = "GAUSSIAN_PROCESS_INV_GAMMA_NORMAL"
-params['c_name'] = "GP_HEDGE"
+params['c_name'] = "EI"
+params['k_s_name'] = "kMaternISO3"
 
 print "Callback implementation"
 

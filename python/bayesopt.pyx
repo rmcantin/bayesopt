@@ -1,7 +1,7 @@
 ## \file bayesopt.pyx \brief Cython wrapper for the BayesOpt Python API
 
 # ----------------------------------------------------------------------------
-#    This file is part of BayesOptimization, an efficient C++ library for 
+#    This file is part of BayesOptimization, an efficient C++ library for
 #    Bayesian optimization.
 #
 #    Copyright (C) 2011-2012 Ruben Martinez-Cantin <rmcantin@unizar.es>
@@ -36,10 +36,10 @@ cdef extern from "parameters.h":
 
     ctypedef enum mean_name:
         pass
-        
+
     ctypedef enum criterium_name:
         pass
-    
+
     ctypedef enum surrogate_name:
         pass
 
@@ -53,6 +53,7 @@ cdef extern from "parameters.h":
         double alpha, beta, delta
         double noise
         surrogate_name s_name
+        char* k_s_name
         kernel_name k_name
         criterium_name c_name
         mean_name m_name
@@ -66,7 +67,7 @@ cdef extern from "parameters.h":
     char* crit2str(criterium_name name)
     char* surrogate2str(surrogate_name name)
     char* mean2str(mean_name name)
-    
+
     bopt_params initialize_parameters_to_default()
 
 ###########################################################################
@@ -83,7 +84,7 @@ cdef extern from "bayesoptwpr.h":
                                 double *valid_x, size_t n_points,
                                 double *x, double *minf,
                                 bopt_params parameters)
-    
+
 ###########################################################################
 cdef bopt_params dict2structparams(dict dparams):
 
@@ -100,7 +101,7 @@ cdef bopt_params dict2structparams(dict dparams):
     params.beta = dparams.get('beta',params.beta)
     params.delta = dparams.get('delta',params.delta)
     params.noise = dparams.get('noise',params.noise)
-    
+
     theta = dparams.get('theta',None)
     if theta is not None:
         params.n_theta = len(theta)
@@ -116,7 +117,7 @@ cdef bopt_params dict2structparams(dict dparams):
     criteria = dparams.get('c_name',None)
     if criteria is not None:
         params.c_name = str2crit(criteria)
-        
+
     surrogate = dparams.get('s_name', None)
     if criteria is not None:
         params.s_name = str2surrogate(surrogate)
@@ -125,10 +126,13 @@ cdef bopt_params dict2structparams(dict dparams):
     if kernel is not None:
         params.k_name = str2kernel(kernel)
 
+    k_string = dparams.get('k_s_name',params.log_filename)
+    params.k_s_name = k_string
+        
     mean = dparams.get('m_name',None)
     if mean is not None:
         params.m_name = str2mean(mean)
-    
+
     return params
 
 cdef double callback(unsigned int n, const_double_ptr x,
@@ -150,7 +154,7 @@ def initialize_params():
         "beta"   : 1.0,
         "delta"  : 1000.0,
         "noise"  : 0.001,
-        "c_name" : "EI",        
+        "c_name" : "EI",
         "s_name" : "GAUSSIAN_PROCESS" ,
         "k_name" : "MATERN_ISO3",
         "m_name" : "ZERO",
@@ -164,20 +168,20 @@ def initialize_params():
 def optimize(f, int nDim, np.ndarray[np.double_t] np_lb,
              np.ndarray[np.double_t] np_ub, dict dparams):
 
-    cdef bopt_params params = dict2structparams(dparams)    
+    cdef bopt_params params = dict2structparams(dparams)
     cdef double minf[1000]
     cdef np.ndarray np_x = np.zeros([nDim], dtype=np.double)
 
     cdef np.ndarray[np.double_t, ndim=1, mode="c"] lb
     cdef np.ndarray[np.double_t, ndim=1, mode="c"] ub
     cdef np.ndarray[np.double_t, ndim=1, mode="c"] x
-    
+
     lb = np.ascontiguousarray(np_lb,dtype=np.double)
     ub = np.ascontiguousarray(np_ub,dtype=np.double)
     x  = np.ascontiguousarray(np_x,dtype=np.double)
-    
+
     Py_INCREF(f)
-    
+
     error_code = bayes_optimization(nDim, callback, <void *> f,
                                     &lb[0], &ub[0], &x[0], minf, params)
 
@@ -188,25 +192,25 @@ def optimize(f, int nDim, np.ndarray[np.double_t] np_lb,
 
 def optimize_discrete(f, np.ndarray[np.double_t,ndim=2] np_valid_x,
                       dict dparams):
-    
+
     nDim = np_valid_x.shape[1]
 
-    cdef bopt_params params = dict2structparams(dparams)    
+    cdef bopt_params params = dict2structparams(dparams)
     cdef double minf[1000]
     cdef np.ndarray np_x = np.zeros([nDim], dtype=np.double)
 
     cdef np.ndarray[np.double_t, ndim=1, mode="c"] x
     cdef np.ndarray[np.double_t, ndim=2, mode="c"] valid_x
-    
+
     x  = np.ascontiguousarray(np_x,dtype=np.double)
     valid_x = np.ascontiguousarray(np_valid_x,dtype=np.double)
-    
+
     Py_INCREF(f)
-    
+
     error_code = bayes_optimization_disc(nDim, callback, <void *> f,
                                          &valid_x[0,0], np_valid_x.shape[0],
                                          &x[0], minf, params)
-    
+
     Py_DECREF(f)
     min_value = minf[0]
     return min_value,np_x,error_code

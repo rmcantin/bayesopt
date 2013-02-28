@@ -117,6 +117,26 @@ public:
   };
 
   /** 
+   * \brief Select kernel (covariance function) for the surrogate process.
+   * @param thetav kernel parameters
+   * @param k_name kernel name
+   * @return error_code
+   */
+  int setKernel (const vectord &thetav, std::string k_name, size_t dim);
+
+  /** 
+   * \brief Wrapper of setKernel for c arrays
+   */
+  inline int setKernel (const double *theta, size_t n_theta, 
+			std::string k_name, size_t dim)
+  {
+    vectord th(n_theta);
+    std::copy(theta, theta+n_theta, th.begin());
+    int error = setKernel(th, k_name, dim);
+  };
+
+
+  /** 
    * \brief Select the parametric part of the surrogate process.
    * 
    * @param muv mean function parameters
@@ -202,6 +222,7 @@ protected:
 
 private:
   size_t mMinIndex, mMaxIndex;	
+  KernelFactory mKFactory;
 };
 
 /**@}*/

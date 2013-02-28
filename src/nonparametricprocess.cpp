@@ -43,7 +43,8 @@ NonParametricProcess::NonParametricProcess(size_t dim, double noise):
 NonParametricProcess::~NonParametricProcess(){}
 
 
-NonParametricProcess* NonParametricProcess::create(size_t dim, bopt_params parameters)
+NonParametricProcess* NonParametricProcess::create(size_t dim, 
+						   bopt_params parameters)
 {
   NonParametricProcess* s_ptr;
 
@@ -61,8 +62,8 @@ NonParametricProcess* NonParametricProcess::create(size_t dim, bopt_params param
     case S_STUDENT_T_PROCESS_JEFFREYS: 
       if (parameters.m_name == M_ZERO)
 	{
-	  FILE_LOG(logWARNING) << "Zero mean incompatible with Student's t process,"
-			       << "using one-mean instead.";
+	  FILE_LOG(logWARNING) << "Zero mean incompatible with Student's t "
+			       << "process, using one-mean instead.";
 	  parameters.m_name = M_ONE;
 	}
       s_ptr = new StudentTProcess(dim,parameters.noise); 
@@ -73,7 +74,7 @@ NonParametricProcess* NonParametricProcess::create(size_t dim, bopt_params param
       return NULL;
     }
   
-  s_ptr->setKernel(parameters.theta,parameters.n_theta,parameters.k_name,dim);
+  s_ptr->setKernel(parameters.theta,parameters.n_theta,parameters.k_s_name,dim);
   s_ptr->setMean(parameters.mu,parameters.n_mu,parameters.m_name);
   return s_ptr;
 };
@@ -170,10 +171,28 @@ double NonParametricProcess::getSample(size_t index, vectord &x)
   return mGPY(index);
 }
 
-int NonParametricProcess::setKernel (const vectord &thetav, kernel_name k_name, 
+int NonParametricProcess::setKernel (const vectord &thetav, 
+				     kernel_name k_name, 
 				     size_t dim)
 {
-  mKernel.reset(Kernel::create(k_name, dim));
+  mKernel.reset(mKFactory.create(k_name, dim));
+  if (mKernel == NULL)   
+    {
+      return -1;
+    }
+  else
+    {
+      mKernel->setHyperParameters(thetav);
+      return 0;
+    }
+}
+
+
+int NonParametricProcess::setKernel (const vectord &thetav, 
+				     std::string k_name, 
+				     size_t dim)
+{
+  mKernel.reset(mKFactory.create(k_name, dim));
   if (mKernel == NULL)   
     {
       return -1;

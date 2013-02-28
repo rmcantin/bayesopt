@@ -31,6 +31,7 @@ params.kernel = 'MATERN_ISO3';
 params.theta = [0.5];
 params.verbose_level = 5;
 params.log_filename = 'matbopt.log';
+%params.k_s_name = 'kMaternISO1';
 
 n = 5;
 

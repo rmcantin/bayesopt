@@ -27,6 +27,7 @@
 #define __NONPARAMETRICPROCESS_HPP__
 
 #include <boost/scoped_ptr.hpp>
+#include <boost/math/distributions/normal.hpp> 
 #include "parameters.h"
 #include "kernel_functors.hpp"
 #include "mean_functors.hpp"
@@ -93,6 +94,12 @@ public:
   void setSamples(const matrixd &x, const vectord &y);
   void addSample(const vectord &x, double y);
   double getSample(size_t index, vectord &x);
+  double getLastSample(vectord &x)
+  {
+    size_t last = mGPY.size()-1;
+    x = mGPXX[last];
+    return mGPY[last];
+  };
   inline vectord getPointAtMinimum() { return mGPXX[mMinIndex]; };
   inline double getValueAtMinimum() { return mGPY(mMinIndex); };
   
@@ -115,6 +122,20 @@ public:
     std::copy(theta, theta+n_theta, th.begin());
     int error = setKernel(th, k_name, dim);
   };
+
+  /** 
+   * \brief Wrapper of setKernel for c arrays
+   */
+  inline int setKernelPrior (const double *theta, const double *s_theta,
+			     size_t n_theta)
+  {
+    for (size_t i = 0; i<n_theta; ++i)
+      {
+	boost::math::normal n(theta[i],s_theta[i]);
+	priorKernel.push_back(n);
+      }
+  };
+
 
   /** 
    * \brief Select kernel (covariance function) for the surrogate process.
@@ -174,7 +195,15 @@ protected:
   double innerEvaluate(const vectord& query)
   { 
     mKernel->setHyperParameters(query);
-    return negativeLogLikelihood();
+    double posterior = negativeLogLikelihood();
+    for(size_t i = 0; i<query.size();++i)
+      {
+	if (priorKernel[i].standard_deviation() > 0)
+	  {
+	    posterior *= pdf(priorKernel[i],query(i));
+	  }
+      }
+    return posterior;
   };
 
 
@@ -209,6 +238,7 @@ protected:
   vectord mGPY;                                                ///< Data values
   vectord mMeanV;                           ///< Mean value at the input points
 
+  std::vector<boost::math::normal> priorKernel;  ///< Prior of kernel function
   boost::scoped_ptr<Kernel> mKernel;            ///< Pointer to kernel function
   boost::scoped_ptr<ParametricFunction> mMean;    ///< Pointer to mean function
 

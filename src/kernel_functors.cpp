@@ -60,7 +60,7 @@ Kernel* KernelFactory::create(kernel_name name, size_t input_dim)
  */
 Kernel* KernelFactory::create(std::string name, size_t input_dim)
 {
-  Kernel *covf;
+  Kernel *kFunc;
   std::stringstream is(name);
   std::stringstream os(std::stringstream::out);
   std::stringstream os1(std::stringstream::out);
@@ -85,16 +85,16 @@ Kernel* KernelFactory::create(std::string name, size_t input_dim)
       FILE_LOG(logERROR) << "Error: Fatal error while parsing kernel function: " << os.str() << " not found" << std::endl;
       return NULL;
     } 
-  covf = registry.find(os.str())->second();
+  kFunc = registry.find(os.str())->second();
   if (os1.str().length() == 0 && os2.str().length() == 0) 
     {
-      covf->init(input_dim);
+      kFunc->init(input_dim);
     } 
   else 
     {
-      covf->init(input_dim, create(os1.str(),input_dim), create(os2.str(),input_dim));
+      kFunc->init(input_dim, create(os1.str(),input_dim), create(os2.str(),input_dim));
     }
-  return covf;
+  return kFunc;
 
 };
 

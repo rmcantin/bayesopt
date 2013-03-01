@@ -12,18 +12,12 @@
  * @return 
  */
 inline double softmax(double g, double eta) 
-{return exp(eta*g);};
-
-SingleCriteria::SingleCriteria(criterium_name name, NonParametricProcess* proc): 
-  MetaCriteria(proc)  
 {
-  mCriterium.reset(Criteria::create(name,mProc));
-  if (mCriterium == NULL) 
-    {
-      FILE_LOG(logERROR) << "ERROR setting the criteria";
-    }
+  return exp(eta*g);
 };
 
+
+//////////////////////////////////////////////////////////////////////
 MetaCriteria* MetaCriteria::create(criterium_name name,
 				   NonParametricProcess* proc)
 {
@@ -48,7 +42,51 @@ MetaCriteria* MetaCriteria::create(criterium_name name,
 };
 
 
+//////////////////////////////////////////////////////////////////////
+SingleCriteria::SingleCriteria(criterium_name name, 
+			       NonParametricProcess* proc): 
+  MetaCriteria(proc)  
+{
+  mCriterium.reset(Criteria::create(name,mProc));
+  if (mCriterium == NULL) 
+    {
+      FILE_LOG(logERROR) << "ERROR setting the criteria";
+    }
+};
 
+//////////////////////////////////////////////////////////////////////
+DistanceBasedCriteria::DistanceBasedCriteria(criterium_name name, 
+					     NonParametricProcess* proc): 
+  MetaCriteria(proc)  
+{
+  mCriterium.reset(Criteria::create(name,mProc));
+  if (mCriterium == NULL) 
+    {
+      FILE_LOG(logERROR) << "ERROR setting the criteria";
+    }
+};
+
+//////////////////////////////////////////////////////////////////////
+SumCriteria::SumCriteria(NonParametricProcess *proc):
+  MetaCriteria(proc)
+{
+  for(size_t i = 0; i < N_ALGORITHMS_IN_GP_HEDGE; ++i)
+    {
+      mCriteriaList.push_back(Criteria::create(ALGORITHMS_IN_GP_HEDGE[i],
+					       proc));
+    }
+};
+
+
+SumCriteria::~SumCriteria()
+{
+  for(size_t i = 0; i<N_ALGORITHMS_IN_GP_HEDGE; ++i)
+    {
+      delete mCriteriaList[i];
+    }
+};
+
+//////////////////////////////////////////////////////////////////////
 GP_Hedge::GP_Hedge(NonParametricProcess *proc):
   MetaCriteria(proc), mtRandom(100u),
   sampleUniform( mtRandom, realUniformDist(0,1)),
@@ -114,6 +152,14 @@ int GP_Hedge::update_hedge()
   return -1;
 };
 
+int GP_Hedge::initializeSearch()
+{
+  mIndex = 0;
+  mCurrentCriterium = mCriteriaList[mIndex];
+  mBestLists.clear();
+  return 1;
+};
+
 
 bool GP_Hedge::checkIfBest(vectord& best, 
 			   criterium_name& name,
@@ -130,18 +176,20 @@ bool GP_Hedge::checkIfBest(vectord& best,
       return false;
     }
   else
-      {
-	int optIndex = update_hedge();
-	name = ALGORITHMS_IN_GP_HEDGE[optIndex];
-	
-	if (optIndex < 0)
-	  error_code = optIndex;
-	else
-	  {
-	    best = mBestLists[optIndex];
-	    error_code = 0;
-	  }
-	return true;	
-      }
+    {
+      int optIndex = update_hedge();
+      name = ALGORITHMS_IN_GP_HEDGE[optIndex];
+      
+      if (optIndex >= 0)
+	{
+	  best = mBestLists[optIndex];
+	  error_code = 0;
+	}
+      else
+	{
+	  error_code = optIndex; 
+	}
+      return true;	
+    }
 
-  };
+};

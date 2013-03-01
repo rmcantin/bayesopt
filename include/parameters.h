@@ -83,7 +83,8 @@ extern "C" {
     size_t n_init_samples;       /**< Number of samples before optimization */
     size_t verbose_level;        /**< Verbose level if < 3 stderr, else log file*/
     char* log_filename;          /**< Filename of the log file (if applicable) */
-    double theta[128];           /**< Kernel hyperparameters */
+    double theta[128];           /**< Kernel hyperparameters (mean) */
+    double s_theta[128];         /**< Kernel hyperparameters (std) */
     size_t n_theta;              /**< Number of kernel hyperparameters */
     double mu[128];              /**< Mean function hyperparameters */
     size_t n_mu;                 /**< Number of mean function hyperparameters */
@@ -103,6 +104,7 @@ extern "C" {
 
   /* Nonparametric process "parameters" */
   const double KERNEL_THETA    = 1.0;
+  const double KERNEL_SIGMA    = 10.0;
   const double MEAN_MU         = 1.0;
   const double PRIOR_ALPHA     = 1.0;
   const double PRIOR_BETA      = 1.0;

@@ -75,6 +75,7 @@ NonParametricProcess* NonParametricProcess::create(size_t dim,
     }
   
   s_ptr->setKernel(parameters.theta,parameters.n_theta,parameters.k_s_name,dim);
+  s_ptr->setKernelPrior(parameters.theta,parameters.s_theta,parameters.n_theta);
   s_ptr->setMean(parameters.mu,parameters.n_mu,parameters.m_name);
   return s_ptr;
 };

@@ -24,7 +24,6 @@
 #ifndef  _MEAN_FUNCTORS_HPP_
 #define  _MEAN_FUNCTORS_HPP_
 
-#include <boost/numeric/ublas/vector_proxy.hpp>
 #include "parameters.h"
 #include "specialtypes.hpp"
 
@@ -37,12 +36,14 @@
 class ParametricFunction
 {
 public:
-  static ParametricFunction* create(mean_name name, const vectord& params);
-  virtual void setParameters(const vectord& params){ mParameters = params; };
+  virtual int init(size_t input_dim) {return 0;};
+  virtual int init(size_t input_dim, Kernel* left, Kernel* right) {return 0;};
+
+  virtual void setParameters(const vectord& params) = 0;
+  virtual vectord getParameters() = 0;
+  virtual size_t nParameters() = 0;
+
   virtual double getMean(const vectord& x) = 0;
-  virtual vectord getFeatures(const vectord& x) = 0;  
-  virtual size_t getN(const vectord& x) = 0;  
-  
   virtual vectord operator()(const vecOfvec& x)
   {
     vectord result(x.size());
@@ -56,9 +57,12 @@ public:
     return result;
   };
 
+
+  virtual size_t nFeatures() = 0;
+  virtual vectord getFeatures(const vectord& x) = 0;  
   virtual matrixd getAllFeatures(const vecOfvec& x)
   {
-    size_t nf = getN(x[0]);
+    size_t nf = nFeatures();
     matrixd result(nf,x.size());
 
     for(size_t ii=0; ii< x.size(); ++ii)
@@ -72,83 +76,37 @@ public:
   virtual ~ParametricFunction(){};
 
 protected:
-  vectord mParameters;
+  size_t n_input;
 };
 
 
-/** \brief Constant zero function */
-class ZeroFunction: public ParametricFunction
+template <typename ParametricType> ParametricFunction * create_func()
+{
+  return new ParametricType();
+}
+
+
+/** 
+ * \brief Factory model for parametric functions
+ * This factory is based on the libgp library by Manuel Blum
+ *      https://bitbucket.org/mblum/libgp
+ * which follows the squeme of GPML by Rasmussen and Nickisch
+ *     http://www.gaussianprocess.org/gpml/code/matlab/doc/
+ */
+class MeanFactory
 {
 public:
-  double getMean (const vectord& x) { return 0.0; };
-  vectord getFeatures(const vectord& x) { return zvectord(1); };  
-  size_t getN(const vectord& x) {return 1;}  
-};
-
-
-/** \brief Constant one function */
-class OneFunction: public ParametricFunction
-{
-public:
-  double getMean (const vectord& x) { return 1.0; };
-  vectord getFeatures(const vectord& x) { return svectord(1,1.0); };  
-  size_t getN(const vectord& x) {return 1;}  
-};
-
-
-/** \brief Constant function. 
-    The first parameter indicates the constant value. */
-class ConstantFunction: public ParametricFunction
-{
-public:
-  double getMean (const vectord& x) { return mParameters(0); };
-  vectord getFeatures(const vectord& x) { return svectord(1,1.0); };  
-  size_t getN(const vectord& x) {return 1;}  
-};
-
-
-/** \brief Linear combination function. 
-    Each parameter indicates the coefficient of each dimension. */
-class LinearFunction: public ParametricFunction
-{
-public:
-  double getMean (const vectord& x)
-  { return boost::numeric::ublas::inner_prod(x,mParameters);  };
-  vectord getFeatures(const vectord& x) { return x; };  
-  size_t getN(const vectord& x) {return x.size();}  
-};
-
-
-/** \brief Linear combination plus constant function. 
-    The first parameter indicates the constant value. */
-class LinearPlusConstantFunction: public ParametricFunction
-{
-public:
-  void setParameters(const vectord& params)
-  { 
-    mConstParam = params(0);
-    mParameters = boost::numeric::ublas::project(params, 
-			boost::numeric::ublas::range(1, params.size())); 
-  };
+  MeanFactory ();
+  virtual ~MeanFactory () {};
   
-  double getMean (const vectord& x)
-  { return boost::numeric::ublas::inner_prod(x,mParameters) + mConstParam;  };
-
-  vectord getFeatures(const vectord& x) 
-  {
-    using boost::numeric::ublas::range;
-    using boost::numeric::ublas::project;
-    vectord res(x.size()+1);
-    res(0) = 1;
-    project(res,range(1,res.size())) = x;
-    return res; 
-  };  
-
-  size_t getN(const vectord& x) {return 1+x.size();}  
-
-protected:
-  double mConstParam;
+  ParametricType* create(mean_name name, size_t input_dim);
+  ParametricType* create(std::string name, size_t input_dim);
+    
+private:
+  typedef ParametricType* (*create_func_definition)();
+  std::map<std::string , MeanFactory::create_func_definition> registry;
 };
+
 
 //@}
 

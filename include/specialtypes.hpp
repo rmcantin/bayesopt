@@ -27,15 +27,11 @@
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/io.hpp>
-#include <boost/numeric/ublas/symmetric.hpp>
 
 typedef boost::numeric::ublas::vector<double>                   vectord;
 typedef boost::numeric::ublas::zero_vector<double>             zvectord;
 typedef boost::numeric::ublas::scalar_vector<double>           svectord;
 typedef boost::numeric::ublas::matrix<double>                   matrixd;
-typedef boost::numeric::ublas::triangular_matrix<double,
-	      boost::numeric::ublas::lower>                   ltmatrixd;
-typedef boost::numeric::ublas::identity_matrix<double>             eyed;
 
 typedef std::vector<vectord>                                   vecOfvec;
 typedef std::vector<vectord>::iterator                 vecOfvecIterator;

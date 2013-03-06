@@ -42,7 +42,7 @@ public:
   };
   void setHyperParameters(const vectord &theta) 
   {
-    assert(params.size() == n_params);
+    assert(theta.size() == n_params);
     params = theta;
   };
   vectord getHyperParameters() {return params;};

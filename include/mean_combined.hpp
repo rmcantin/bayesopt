@@ -1,5 +1,5 @@
-/** \file kernel_combined.hpp 
-    \brief Kernel functions that combine other kernels */
+/** \file mean_combined.hpp 
+    \brief Parametric functions that combine other functions */
 /*
 -------------------------------------------------------------------------
    This file is part of BayesOpt, an efficient C++ library for 
@@ -22,56 +22,60 @@
 ------------------------------------------------------------------------
 */
 
-#ifndef  _KERNEL_COMBINED_HPP_
-#define  _KERNEL_COMBINED_HPP_
+#ifndef  _MEAN_COMBINED_HPP_
+#define  _MEAN_COMBINED_HPP_
 
 #include <boost/numeric/ublas/vector_proxy.hpp>
 #include "kernel_functors.hpp"
 
-/**\addtogroup KernelFunctions */
-//@{
-
-
-/** \brief Abstract class for combined kernel.
- *  It allows combinations of other kernels (addition, product, etc.)
+/**\addtogroup ParametricFunction
+ * @{
  */
-class CombinedKernel : public Kernel
+
+
+
+/** \brief Abstract class for combined functions.
+ *  It allows combinations of other functions (addition, product, etc.)
+ */
+class CombinedFunction : public ParametricFunction
 {
 public:
-  virtual int init(size_t input_dim, Kernel* left, Kernel* right)
+  virtual int init(size_t input_dim, 
+		   ParametricFunction* left, 
+		   ParametricFunction* right)
   {
     n_inputs = input_dim;
     this->left = left;
     this->right = right;
     return 0;
   };
-  void setHyperParameters(const vectord &theta) 
+  void setParameters(const vectord &theta) 
   {
     using boost::numeric::ublas::subrange;
 
-    size_t n_lhs = left->nHyperParameters();
-    size_t n_rhs = right->nHyperParameters();
+    size_t n_lhs = left->nParameters();
+    size_t n_rhs = right->nParameters();
     assert(theta.size() == n_lhs + n_rhs);
-    left->setHyperParameters(subrange(theta,0,n_lhs));
-    right->setHyperParameters(subrange(theta,n_lhs,n_lhs+n_rhs));
+    left->setParameters(subrange(theta,0,n_lhs));
+    right->setParameters(subrange(theta,n_lhs,n_lhs+n_rhs));
   };
 
-  vectord getHyperParameters() 
+  vectord getParameters() 
   {
     using boost::numeric::ublas::subrange;
 
-    size_t n_lhs = left->nHyperParameters();
-    size_t n_rhs = right->nHyperParameters();
+    size_t n_lhs = left->nParameters();
+    size_t n_rhs = right->nParameters();
     vectord par(n_lhs + n_rhs);
-    subrange(par,0,n_lhs) = left->getHyperParameters();
-    subrange(par,n_lhs,n_lhs+n_rhs) = right->getHyperParameters();
+    subrange(par,0,n_lhs) = left->getParameters();
+    subrange(par,n_lhs,n_lhs+n_rhs) = right->getParameters();
     return par;
   };
 
-  size_t nHyperParameters() 
+  size_t nParameters() 
   {
-    size_t n_lhs = left->nHyperParameters();
-    size_t n_rhs = right->nHyperParameters();
+    size_t n_lhs = left->nParameters();
+    size_t n_rhs = right->nParameters();
     return n_lhs + n_rhs;
   };
 
@@ -82,8 +86,8 @@ public:
   };
 
 protected:
-  Kernel* left;
-  Kernel* right;
+  ParametricFunction* left;
+  ParametricFunction* right;
 };
 
 

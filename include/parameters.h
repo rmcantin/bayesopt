@@ -81,7 +81,7 @@ extern "C" {
     size_t n_iterations;         /**< Maximum BayesOpt evaluations (budget) */
     size_t n_inner_iterations;   /**< Maximum inner optimizer evaluations */
     size_t n_init_samples;       /**< Number of samples before optimization */
-    size_t verbose_level;        /**< Verbose level if < 3 stderr, else log file*/
+    size_t verbose_level;        /**< Verbose level if <3 stderr, else log file*/
     char* log_filename;          /**< Filename of the log file (if applicable) */
     double theta[128];           /**< Kernel hyperparameters (mean) */
     double s_theta[128];         /**< Kernel hyperparameters (std) */
@@ -95,6 +95,7 @@ extern "C" {
     char* k_s_name;              /**< Name of the kernel function */
     criterium_name c_name;       /**< Name of the criterion */
     mean_name m_name;            /**< Name of the mean function */
+    char* m_s_name;              /**< Name of the mean function */
   } bopt_params;
 
 

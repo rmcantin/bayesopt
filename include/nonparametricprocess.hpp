@@ -124,20 +124,6 @@ public:
   };
 
   /** 
-   * \brief Wrapper of setKernel for c arrays
-   */
-  inline int setKernelPrior (const double *theta, const double *s_theta,
-			     size_t n_theta)
-  {
-    for (size_t i = 0; i<n_theta; ++i)
-      {
-	boost::math::normal n(theta[i],s_theta[i]);
-	priorKernel.push_back(n);
-      }
-  };
-
-
-  /** 
    * \brief Select kernel (covariance function) for the surrogate process.
    * @param thetav kernel parameters
    * @param k_name kernel name
@@ -156,6 +142,20 @@ public:
     int error = setKernel(th, k_name, dim);
   };
 
+  /** 
+   * \brief Wrapper of setKernel for c arrays
+   */
+  inline int setKernelPrior (const double *theta, const double *s_theta,
+			     size_t n_theta)
+  {
+    for (size_t i = 0; i<n_theta; ++i)
+      {
+	boost::math::normal n(theta[i],s_theta[i]);
+	priorKernel.push_back(n);
+      }
+  };
+
+
 
   /** 
    * \brief Select the parametric part of the surrogate process.
@@ -164,16 +164,38 @@ public:
    * @param m_name mean function name
    * @return error_code
    */
-  int setMean (const vectord &muv, mean_name m_name);
+  int setMean (const vectord &muv, mean_name m_name, size_t dim);
 
   /** 
    * \brief Wrapper of setMean for c arrays
    */
-  inline int setMean (const double *mu, size_t n_mu, mean_name m_name)
+  inline int setMean (const double *mu, size_t n_mu, 
+		      mean_name m_name, size_t dim)
   {
     vectord vmu(n_mu);
     std::copy(mu, mu+n_mu, vmu.begin());
-    return setMean(vmu, m_name);
+    return setMean(vmu, m_name, dim);
+  };
+
+
+  /** 
+   * \brief Select the parametric part of the surrogate process.
+   * 
+   * @param muv mean function parameters
+   * @param m_name mean function name
+   * @return error_code
+   */
+  int setMean (const vectord &muv, std::string m_name, size_t dim);
+
+  /** 
+   * \brief Wrapper of setMean for c arrays
+   */
+  inline int setMean (const double *mu, size_t n_mu, 
+		      std::string m_name, size_t dim)
+  {
+    vectord vmu(n_mu);
+    std::copy(mu, mu+n_mu, vmu.begin());
+    return setMean(vmu, m_name, dim);
   };
 
 
@@ -238,7 +260,7 @@ protected:
   vectord mGPY;                                                ///< Data values
   vectord mMeanV;                           ///< Mean value at the input points
 
-  std::vector<boost::math::normal> priorKernel;  ///< Prior of kernel function
+  std::vector<boost::math::normal> priorKernel;   ///< Prior of kernel function
   boost::scoped_ptr<Kernel> mKernel;            ///< Pointer to kernel function
   boost::scoped_ptr<ParametricFunction> mMean;    ///< Pointer to mean function
 
@@ -253,6 +275,7 @@ protected:
 private:
   size_t mMinIndex, mMaxIndex;	
   KernelFactory mKFactory;
+  MeanFactory mPFactory;
 };
 
 /**@}*/

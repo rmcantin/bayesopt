@@ -14,13 +14,12 @@ MeanFactory::MeanFactory()
   registry["mConst"] = & create_func<ConstantFunction>;
   registry["mLinear"] = & create_func<LinearFunction>;
   registry["mSum"] = & create_func<SumFunction>;
-  registry["mProd"] = & create_func<ProdFuntion>;
 }
 
 
 /** \brief Factory method for kernels. */
-ParametricFunction* ParametricFunction::create(mean_name name, 
-					       size_t input_dim)
+ParametricFunction* MeanFactory::create(mean_name name, 
+					size_t input_dim)
 {
   ParametricFunction* m_ptr;
 

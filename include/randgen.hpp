@@ -1,3 +1,5 @@
+/** -*- c++ -*- \file randgen.hpp 
+    \brief Boost types for random number generation */
 /*
 -------------------------------------------------------------------------
    This file is part of BayesOpt, an efficient C++ library for 

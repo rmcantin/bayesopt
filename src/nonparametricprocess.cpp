@@ -76,7 +76,7 @@ NonParametricProcess* NonParametricProcess::create(size_t dim,
   
   s_ptr->setKernel(parameters.theta,parameters.n_theta,parameters.k_s_name,dim);
   s_ptr->setKernelPrior(parameters.theta,parameters.s_theta,parameters.n_theta);
-  s_ptr->setMean(parameters.mu,parameters.n_mu,parameters.m_name);
+  s_ptr->setMean(parameters.mu,parameters.n_mu,parameters.m_s_name,dim);
   return s_ptr;
 };
 
@@ -207,12 +207,37 @@ int NonParametricProcess::setKernel (const vectord &thetav,
 
 
 int NonParametricProcess::setMean (const vectord &muv,
-				   mean_name m_name)
+				   mean_name m_name,
+				   size_t dim)
 {
-  mMean.reset(ParametricFunction::create(m_name,muv));
-  if (mMean == NULL) return -1;
-  else  return 0;
+  mMean.reset(mPFactory.create(m_name,dim));
+  if (mMean == NULL) 
+    {
+     return -1; 
+    }
+  else 
+    {
+      mMean->setParameters(muv);
+      return 0;
+    } 
 }
+
+int NonParametricProcess::setMean (const vectord &muv,
+				   std::string m_name,
+				   size_t dim)
+{
+  mMean.reset(mPFactory.create(m_name,dim));
+  if (mMean == NULL) 
+    {
+     return -1; 
+    }
+  else 
+    {
+      mMean->setParameters(muv);
+      return 0;
+    } 
+}
+
 
 
 int NonParametricProcess::addNewPointToCholesky(const vectord& correlation,

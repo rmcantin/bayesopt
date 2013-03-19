@@ -28,7 +28,7 @@
 #include <boost/numeric/ublas/vector_proxy.hpp>
 #include "kernel_functors.hpp"
 
-/**\addtogroup ParametricFunction
+/**\addtogroup ParametricFunctions
  * @{
  */
 
@@ -79,7 +79,7 @@ public:
     return n_lhs + n_rhs;
   };
 
-  virtual ~CombinedKernel()
+  virtual ~CombinedFunction()
   {
     delete left;
     delete right;
@@ -92,36 +92,34 @@ protected:
 
 
 /** \brief Sum of two kernels */
-class KernelSum: public CombinedKernel
+class SumFunction: public CombinedFunction
 {
 public:
-  double operator()(const vectord &x1, const vectord &x2)
+  double getMean(const vectord &x)
   {
-    return (*left)(x1,x2) + (*right)(x1,x2);
+    return left->getMean(x) + right->getMean(x);
   };
 
-  double gradient(const vectord &x1, const vectord &x2,
-		  size_t component)
+  vectord getFeatures(const vectord &x)
   {
-    return left->gradient(x1,x2,component) + right->gradient(x1,x2,component);
-  };
-};
+    using boost::numeric::ublas::subrange;
 
-
-/** \brief Product of two kernels */
-class KernelProd: public CombinedKernel
-{
-public:
-  double operator()(const vectord &x1, const vectord &x2)
-  {
-    return (*left)(x1,x2) * (*right)(x1,x2);
+    size_t n_lhf = left->nFeatures();
+    size_t n_rhf = right->nFeatures();
+    vectord feat(n_lhf + n_rhf);
+    subrange(feat,0,n_lhf) = left->getFeatures(x);
+    subrange(feat,n_lhf,n_lhf+n_rhf) = right->getFeatures(x);
+    return feat;
   };
 
-  double gradient(const vectord &x1, const vectord &x2,
-		  size_t component)
+  size_t nFeatures() 
   {
-    return 0.0; //TODO: Not implemented
+    size_t n_lhf = left->nFeatures();
+    size_t n_rhf = right->nFeatures();
+    return n_lhf + n_rhf;
   };
+
+
 };
 
 

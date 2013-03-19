@@ -21,8 +21,8 @@
 ------------------------------------------------------------------------
 */
 
-#ifndef  _MEAN_FUNCTORS_HPP_
-#define  _MEAN_FUNCTORS_HPP_
+#ifndef  _MEAN_ATOMIC_HPP_
+#define  _MEAN_ATOMIC_HPP__
 
 #include <boost/numeric/ublas/vector_proxy.hpp>
 #include "mean_functors.hpp"
@@ -47,8 +47,9 @@ public:
   };
   vectord getParameters() {return mParameters;};
   size_t nParameters() {return n_params;};
+  size_t nFeatures() {return n_features;};
 
-  virtual ~AtomicKernel(){};
+  virtual ~AtomicFunction(){};
 
 protected:
   size_t n_params;
@@ -58,52 +59,83 @@ protected:
 
 
 /** \brief Constant zero function */
-class ZeroFunction: public ParametricFunction
+class ZeroFunction: public AtomicFunction
 {
 public:
+  int init(size_t input_dim)
+  {
+    n_inputs = input_dim;
+    n_params = 0;
+    n_features = 1;
+    return 0;
+  };
   double getMean (const vectord& x) { return 0.0; };
   vectord getFeatures(const vectord& x) { return zvectord(1); };  
-  size_t getN(const vectord& x) {return 1;}  
 };
 
 /** \brief Constant one function */
-class OneFunction: public ParametricFunction
+class OneFunction: public AtomicFunction
 {
 public:
+  int init(size_t input_dim)
+  {
+    n_inputs = input_dim;
+    n_params = 0;
+    n_features = 1;
+    return 0;
+  };
   double getMean (const vectord& x) { return 1.0; };
   vectord getFeatures(const vectord& x) { return svectord(1,1.0); };  
-  size_t getN(const vectord& x) {return 1;}  
 };
 
 
 /** \brief Constant function. 
     The first parameter indicates the constant value. */
-class ConstantFunction: public ParametricFunction
+class ConstantFunction: public AtomicFunction
 {
 public:
+  int init(size_t input_dim)
+  {
+    n_inputs = input_dim;
+    n_params = 1;
+    n_features = 1;
+    return 0;
+  };
   double getMean (const vectord& x) { return mParameters(0); };
   vectord getFeatures(const vectord& x) { return svectord(1,1.0); };  
-  size_t getN(const vectord& x) {return 1;}  
 };
 
 
 /** \brief Linear combination function. 
     Each parameter indicates the coefficient of each dimension. */
-class LinearFunction: public ParametricFunction
+class LinearFunction: public AtomicFunction
 {
 public:
+  int init(size_t input_dim)
+  {
+    n_inputs = input_dim;
+    n_params = input_dim;
+    n_features = input_dim;
+    return 0;
+  };
   double getMean (const vectord& x)
   { return boost::numeric::ublas::inner_prod(x,mParameters);  };
   vectord getFeatures(const vectord& x) { return x; };  
-  size_t getN(const vectord& x) {return x.size();}  
 };
 
 
 /** \brief Linear combination plus constant function. 
     The first parameter indicates the constant value. */
-class LinearPlusConstantFunction: public ParametricFunction
+class LinearPlusConstantFunction: public AtomicFunction
 {
 public:
+  int init(size_t input_dim)
+  {
+    n_inputs = input_dim;
+    n_params = input_dim + 1;
+    n_features = input_dim + 1;
+    return 0;
+  };
   void setParameters(const vectord& params)
   { 
     mConstParam = params(0);
@@ -123,8 +155,6 @@ public:
     project(res,range(1,res.size())) = x;
     return res; 
   };  
-
-  size_t getN(const vectord& x) {return 1+x.size();}  
 
 protected:
   double mConstParam;

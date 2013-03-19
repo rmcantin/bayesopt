@@ -19,10 +19,9 @@
    along with BayesOpt.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------
 */
+
+#include "log.hpp"
 #include "bayesoptbase.hpp"
-#include "gaussian_process_ign.hpp"
-#include "gaussian_process.hpp"
-#include "student_t_process.hpp"
 
 
 BayesOptBase::BayesOptBase():

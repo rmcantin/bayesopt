@@ -57,7 +57,8 @@ cdef extern from "parameters.h":
         kernel_name k_name
         criterium_name c_name
         mean_name m_name
-
+        char* m_s_name
+        
     kernel_name str2kernel(char* name)
     criterium_name str2crit(char* name)
     surrogate_name str2surrogate(char* name)
@@ -133,6 +134,9 @@ cdef bopt_params dict2structparams(dict dparams):
     if mean is not None:
         params.m_name = str2mean(mean)
 
+    m_string = dparams.get('m_s_name',params.log_filename)
+    params.m_s_name = m_string
+        
     return params
 
 cdef double callback(unsigned int n, const_double_ptr x,

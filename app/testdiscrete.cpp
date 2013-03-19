@@ -18,12 +18,12 @@ double testFunction(unsigned int n, const double *x,
 }
 
 /* Class to be used for C++-API testing */
-class TestDisc: public BayesOptDiscrete
+class TestDisc: public bayesopt::BayesOptDiscrete
 {
  public:
 
   TestDisc(const vecOfvec & validSet, bopt_params param):
-    BayesOptDiscrete(validSet,param) {}
+    bayesopt::BayesOptDiscrete(validSet,param) {}
 
   double evaluateSample( const vectord &Xi ) 
   {

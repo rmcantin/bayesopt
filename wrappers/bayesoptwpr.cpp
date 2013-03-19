@@ -1,6 +1,11 @@
+#include "log.hpp"
 #include "bayesoptwpr.h"
 #include "bayesoptcont.hpp"      
 #include "bayesoptdisc.hpp"      
+
+
+using bayesopt::BayesOptContinuous;
+using bayesopt::BayesOptDiscrete;
 
 /**
  * \brief Version of BayesOptContinuous for the C wrapper

@@ -20,11 +20,14 @@
 ------------------------------------------------------------------------
 */
 
-#include "bayesoptdisc.hpp"
 #include "randgen.hpp"
 #include "lhs.hpp"
+#include "log.hpp"
+#include "bayesoptdisc.hpp"
 
-
+namespace bayesopt
+{
+  
 BayesOptDiscrete::BayesOptDiscrete( const vecOfvec &validSet):
   BayesOptBase(), mInputSet(validSet)
 {} // Constructor
@@ -142,5 +145,7 @@ int BayesOptDiscrete::findOptimal(vectord &xOpt)
   return 1;
 }
 
+
+}
 
 

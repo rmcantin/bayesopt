@@ -33,7 +33,7 @@
  */
 //@{
 
-
+  
 /**
  * \brief Abstract class for Metacriteria interface.
  * The Metacriteria can be used to combine different criteria.

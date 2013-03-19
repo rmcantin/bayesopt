@@ -197,6 +197,7 @@ static bopt_params load_parameters(const mxArray* params)
 
   struct_string(params, "log_filename", parameters.log_filename);
   struct_string(params, "k_s_name", parameters.k_s_name);
+  struct_string(params, "m_s_name", parameters.m_s_name);
 
   strcpy( c_str, crit2str(parameters.c_name));
   strcpy( s_str, surrogate2str(parameters.s_name));

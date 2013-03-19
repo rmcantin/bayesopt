@@ -29,6 +29,9 @@
 /** \addtogroup BayesOpt */
 /*@{*/
 
+namespace bayesopt
+{
+
 /**
  * \brief Sequential Kriging Optimization using different non-parametric 
  * processes as surrogate (kriging) functions. 
@@ -103,6 +106,8 @@ protected:
   vecOfvec mInputSet;               ///< List of input points
 
 };
+
+}
 
 /**@}*/
 

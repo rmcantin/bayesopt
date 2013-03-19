@@ -29,7 +29,6 @@
 #include "dll_stuff.h"
 #include "parameters.h"
 #include "specialtypes.hpp"
-#include "log.hpp"
 
 #include "nonparametricprocess.hpp"
 #include "metacriteria_functors.hpp"

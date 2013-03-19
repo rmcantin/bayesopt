@@ -7,11 +7,11 @@
 
 inline double sqr( double x ){ return x*x; }
 
-class TestOneD: public BayesOptContinuous
+class TestOneD: public bayesopt::BayesOptContinuous
 {
 public:
   TestOneD(size_t dim,bopt_params par):
-    BayesOptContinuous(dim,par) {}
+    bayesopt::BayesOptContinuous(dim,par) {}
 
   double evaluateSample( const vectord& xin)
   {

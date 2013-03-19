@@ -17,12 +17,12 @@ double testFunction(unsigned int n, const double *x,
 }
 
 /* Class to be used for C++-API testing */
-class TestEGO: public BayesOptContinuous
+class TestEGO: public bayesopt::BayesOptContinuous
 {
  public:
 
   TestEGO(size_t dim,bopt_params param):
-    BayesOptContinuous(dim,param) {}
+    bayesopt::BayesOptContinuous(dim,param) {}
 
   double evaluateSample( const vectord &Xi ) 
   {

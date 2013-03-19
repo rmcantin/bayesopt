@@ -32,13 +32,16 @@
 /** \addtogroup BayesOpt */
 /**@{*/
 
+namespace bayesopt
+{
+
 /**
  * \brief Bayesian optimization using different non-parametric
  * processes as distributions over surrogate functions. The
  * exploration spaces is assumed to be continous and bounded.
  */
 class BAYESOPT_API BayesOptContinuous: public InnerOptimization, 
-			public BayesOptBase
+                                       public BayesOptBase
 {
  public:
    
@@ -84,20 +87,8 @@ class BAYESOPT_API BayesOptContinuous: public InnerOptimization,
    * 
    * @return 0 if terminate successfully, nonzero otherwise
    */
-  inline int setBoundingBox( const vectord &lowerBound,
-			     const vectord &upperBound)
-  {
-    if (mBB != NULL)
-      delete mBB;
-
-    mBB = new BoundingBox<vectord>(lowerBound,upperBound);
-
-    FILE_LOG(logINFO) << "Bounds: ";
-    FILE_LOG(logINFO) << lowerBound;
-    FILE_LOG(logINFO) << upperBound;
-
-    return 0;
-  };
+  int setBoundingBox( const vectord &lowerBound,
+		      const vectord &upperBound);
 
 
 protected:
@@ -166,6 +157,8 @@ protected:
   BoundingBox<vectord> *mBB;      ///< Bounding Box (input space limits)
 
 };
+
+}
 
 /**@}*/
 

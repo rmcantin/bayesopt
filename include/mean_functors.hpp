@@ -24,6 +24,7 @@
 #ifndef  _MEAN_FUNCTORS_HPP_
 #define  _MEAN_FUNCTORS_HPP_
 
+#include <map>
 #include "parameters.h"
 #include "specialtypes.hpp"
 
@@ -37,7 +38,8 @@ class ParametricFunction
 {
 public:
   virtual int init(size_t input_dim) {return 0;};
-  virtual int init(size_t input_dim, Kernel* left, Kernel* right) {return 0;};
+  virtual int init(size_t input_dim, ParametricFunction* left, 
+		   ParametricFunction* right) {return 0;};
 
   virtual void setParameters(const vectord& params) = 0;
   virtual vectord getParameters() = 0;
@@ -76,13 +78,13 @@ public:
   virtual ~ParametricFunction(){};
 
 protected:
-  size_t n_input;
+  size_t n_inputs;
 };
 
 
-template <typename ParametricType> ParametricFunction * create_func()
+template <typename MeanType> ParametricFunction * create_func()
 {
-  return new ParametricType();
+  return new MeanType();
 }
 
 
@@ -99,11 +101,11 @@ public:
   MeanFactory ();
   virtual ~MeanFactory () {};
   
-  ParametricType* create(mean_name name, size_t input_dim);
-  ParametricType* create(std::string name, size_t input_dim);
+  ParametricFunction* create(mean_name name, size_t input_dim);
+  ParametricFunction* create(std::string name, size_t input_dim);
     
 private:
-  typedef ParametricType* (*create_func_definition)();
+  typedef ParametricFunction* (*create_func_definition)();
   std::map<std::string , MeanFactory::create_func_definition> registry;
 };
 

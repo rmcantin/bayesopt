@@ -23,9 +23,12 @@
 #include <limits>
 #include "lhs.hpp"
 #include "randgen.hpp"
+#include "log.hpp"
 #include "bayesoptcont.hpp"
 
-
+namespace bayesopt
+{
+  
 BayesOptContinuous::BayesOptContinuous():
   BayesOptBase(), mBB(NULL)
 { 
@@ -76,6 +79,23 @@ int BayesOptContinuous::optimize(vectord &bestPoint)
   return 1;
 } // optimize
 
+int BayesOptContinuous::setBoundingBox(const vectord &lowerBound,
+				       const vectord &upperBound)
+{
+  if (mBB != NULL)
+    delete mBB;
+
+  mBB = new BoundingBox<vectord>(lowerBound,upperBound);
+
+  FILE_LOG(logINFO) << "Bounds: ";
+  FILE_LOG(logINFO) << lowerBound;
+  FILE_LOG(logINFO) << upperBound;
+
+  return 0;
+} //setBoundingBox
+
+
+
 int BayesOptContinuous::plotStepData(size_t iteration, const vectord& xNext,
 				     double yNext)
 {
@@ -88,7 +108,7 @@ int BayesOptContinuous::plotStepData(size_t iteration, const vectord& xNext,
   FILE_LOG(logINFO) << "Best outcome: " <<  mGP->getValueAtMinimum();
 
   return 1;
-}
+} //plotStepData
 
 int BayesOptContinuous::sampleInitialPoints()
 {
@@ -139,5 +159,4 @@ int BayesOptContinuous::sampleInitialPoints()
 } // sampleInitialPoints
 
 
-
-
+}

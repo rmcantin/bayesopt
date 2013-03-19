@@ -1,3 +1,4 @@
+/** -*- c++ -*- \file specialtypes.hpp \brief Boost vector and matrix types */
 /*
 -------------------------------------------------------------------------
    This file is part of BayesOpt, an efficient C++ library for 

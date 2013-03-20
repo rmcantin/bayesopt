@@ -1,7 +1,28 @@
-#include "lhs.hpp"
-#include "bayesoptdisc.hpp"
-#include "bayesoptwpr.h"
+/*
+-------------------------------------------------------------------------
+   This file is part of BayesOpt, an efficient C++ library for 
+   Bayesian optimization.
 
+   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+ 
+   BayesOpt is free software: you can redistribute it and/or modify it 
+   under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   BayesOpt is distributed in the hope that it will be useful, but 
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with BayesOpt.  If not, see <http://www.gnu.org/licenses/>.
+------------------------------------------------------------------------
+*/
+
+#include "bayesoptwpr.h"               // For the C API
+#include "bayesoptdisc.hpp"            // For the C++ API
+#include "lhs.hpp"
 
 
 /* Function to be used for C-API testing */
@@ -18,12 +39,12 @@ double testFunction(unsigned int n, const double *x,
 }
 
 /* Class to be used for C++-API testing */
-class TestDisc: public bayesopt::BayesOptDiscrete
+class ExampleDisc: public bayesopt::DiscreteModel
 {
  public:
 
-  TestDisc(const vecOfvec & validSet, bopt_params param):
-    bayesopt::BayesOptDiscrete(validSet,param) {}
+  ExampleDisc(const vecOfvec & validSet, bopt_params param):
+    DiscreteModel(validSet,param) {}
 
   double evaluateSample( const vectord &Xi ) 
   {
@@ -33,10 +54,8 @@ class TestDisc: public bayesopt::BayesOptDiscrete
     return testFunction(Xi.size(),x,NULL,NULL);
   };
 
-
   bool checkReachability( const vectord &query )
-  { return true; };
- 
+  { return true; }; 
 };
 
 
@@ -63,16 +82,16 @@ int main(int nargs, char *args[])
   par.n_init_samples = 20;
   /*******************************************/
   
-  size_t nPoints = 50;
+  size_t nPoints = 1000;
 
   randEngine mtRandom;
   matrixd xPoints(nPoints,n);
   vecOfvec xP;
 
-  //size_t nPinArr = n*nPoints;
-  double xPointsArray[1000];
+  const size_t nPinArr = n*nPoints;
+  double xPointsArray[nPinArr];
 
-  lhs(xPoints,mtRandom);
+  bayesopt::utils::lhs(xPoints,mtRandom);
 
   for(size_t i = 0; i<nPoints; ++i)
     {
@@ -85,29 +104,31 @@ int main(int nargs, char *args[])
     }
     
 
-  std::cout << "Running C++ interface" << std::endl;
+  
   // Run C++ interface
-  TestDisc gp_opt(xP,par);
+  std::cout << "Running C++ interface" << std::endl;
+  ExampleDisc opt(xP,par);
   vectord result(n);
-  gp_opt.optimize(result);
+  opt.optimize(result);
 
-  std::cout << "Running C interface" << std::endl;
+  
   // Run C interface
-
+  std::cout << "Running C interface" << std::endl;
   double x[128], fmin[128];
   bayes_optimization_disc(n, &testFunction, NULL, xPointsArray, nPoints,
 			  x, fmin, par);
 
   // Find the optimal value
   size_t min = 0;
-  double minvalue = gp_opt.evaluateSample(row(xPoints,min));
+  double minvalue = opt.evaluateSample(row(xPoints,min));
   for(size_t i = 1; i<nPoints; ++i)
     {
       vectord point = row(xPoints,i);  
-      if (gp_opt.evaluateSample(point) < minvalue)
+      if (opt.evaluateSample(point) < minvalue)
 	{
 	  min = i;
-	  minvalue = gp_opt.evaluateSample(row(xPoints,min));
+	  minvalue = opt.evaluateSample(row(xPoints,min));
+	  std::cout << i << "," << minvalue << std::endl;
 	}
     }
 

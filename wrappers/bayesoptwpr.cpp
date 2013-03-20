@@ -3,22 +3,17 @@
 #include "bayesoptcont.hpp"      
 #include "bayesoptdisc.hpp"      
 
-
-using bayesopt::BayesOptContinuous;
-using bayesopt::BayesOptDiscrete;
-
 /**
- * \brief Version of BayesOptContinuous for the C wrapper
+ * \brief Version of ContinuousModel for the C wrapper
  */
-class CBayesOptContinuous: public BayesOptContinuous 
+class CContinuousModel: public bayesopt::ContinuousModel 
 {
  public:
 
-  CBayesOptContinuous(size_t dim, bopt_params params):
-    BayesOptContinuous(dim,params)
-  {}; 
+  CContinuousModel(size_t dim, bopt_params params):
+    ContinuousModel(dim,params)  {}; 
 
-  virtual ~CBayesOptContinuous(){};
+  virtual ~CContinuousModel(){};
 
   double evaluateSample( const vectord &Xi ) 
   {
@@ -39,14 +34,14 @@ protected:
 };
 
 /**
- * \brief Version of BayesOptDiscrete for the C wrapper
+ * \brief Version of DiscreteModel for the C wrapper
  */
-class CBayesOptDiscrete: public BayesOptDiscrete
+class CDiscreteModel: public bayesopt::DiscreteModel
 {
  public:
 
-  CBayesOptDiscrete(const vecOfvec &validX, bopt_params params):
-    BayesOptDiscrete(validX, params)
+  CDiscreteModel(const vecOfvec &validX, bopt_params params):
+    DiscreteModel(validX, params)
   {}; 
 
 
@@ -82,7 +77,7 @@ int bayes_optimization(int nDim, eval_func f, void* f_data,
   std::copy(lb, lb+nDim, lowerBound.begin());
   std::copy(ub, ub+nDim, upperBound.begin());
 
-  CBayesOptContinuous optimizer(nDim, parameters);
+  CContinuousModel optimizer(nDim, parameters);
 
   optimizer.set_eval_funct(f);
   optimizer.save_other_data(f_data);
@@ -117,7 +112,7 @@ int bayes_optimization_disc(int nDim, eval_func f, void* f_data,
       parameters.n_iterations = 0;
     }
 
-  CBayesOptDiscrete optimizer(xSet,parameters);
+  CDiscreteModel optimizer(xSet,parameters);
 
   optimizer.set_eval_funct(f);
   optimizer.save_other_data(f_data);

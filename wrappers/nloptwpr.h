@@ -1,4 +1,4 @@
-/** -*- c -*- \file nloptwpr.h \brief Simple wrapper to optimize object methods with NLOPT */
+/**  \file nloptwpr.h \brief Simple wrapper to optimize object methods with NLOPT */
 /*
 -------------------------------------------------------------------------
    This file is part of BayesOpt, an efficient C++ library for 

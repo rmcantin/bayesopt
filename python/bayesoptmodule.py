@@ -40,7 +40,7 @@ class BayesOptContinuous:
     ## Let's define the parameters.
     #
     # For different options: see parameters.h and parameters.cpp .
-    # If a parameter is not define, it will be automatically set
+    # If a parameter is not defined, it will be automatically set
     # to a default value.
     def __init__(self):
         ## Library parameters 

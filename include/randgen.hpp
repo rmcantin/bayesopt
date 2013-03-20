@@ -1,4 +1,4 @@
-/** -*- c++ -*- \file randgen.hpp 
+/**  \file randgen.hpp 
     \brief Boost types for random number generation */
 /*
 -------------------------------------------------------------------------

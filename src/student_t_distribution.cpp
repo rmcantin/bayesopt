@@ -1,9 +1,9 @@
 #include "student_t_distribution.hpp"
 
-StudentTDistribution::StudentTDistribution(size_t dof):
-  d_(dof)
+StudentTDistribution::StudentTDistribution():
+  d_(2)
 {
-  mean_ = 0.0;  std_ = 1.0; dof_ = dof;
+  mean_ = 0.0;  std_ = 1.0; dof_ = 2;
 }
 
 StudentTDistribution::~StudentTDistribution(){}

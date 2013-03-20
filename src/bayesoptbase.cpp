@@ -23,91 +23,94 @@
 #include "log.hpp"
 #include "bayesoptbase.hpp"
 
-
-BayesOptBase::BayesOptBase():
-  mGP(NULL), mCrit(NULL)
+namespace bayesopt
 {
-  mParameters = initialize_parameters_to_default();
-  __init__();
-}
+  
+  BayesOptBase::BayesOptBase():
+    mGP(NULL), mCrit(NULL)
+  {
+    mParameters = initialize_parameters_to_default();
+    __init__();
+  }
 
 
-BayesOptBase::BayesOptBase(size_t dim, bopt_params parameters):
-  mGP(NULL), mCrit(NULL),  mParameters(parameters), mDims(dim)
-{
-  __init__();
-}
+  BayesOptBase::BayesOptBase(size_t dim, bopt_params parameters):
+    mGP(NULL), mCrit(NULL),  mParameters(parameters), mDims(dim)
+  {
+    __init__();
+  }
 
-int BayesOptBase::__init__()
-{ 
-  // Configure logging
-  size_t verbose = mParameters.verbose_level;
-  if (verbose>=3)
-    {
-      FILE* log_fd = fopen( mParameters.log_filename , "w" );
-      Output2FILE::Stream() = log_fd; 
-      verbose -= 3;
-    }
+  int BayesOptBase::__init__()
+  { 
+    // Configure logging
+    size_t verbose = mParameters.verbose_level;
+    if (verbose>=3)
+      {
+	FILE* log_fd = fopen( mParameters.log_filename , "w" );
+	Output2FILE::Stream() = log_fd; 
+	verbose -= 3;
+      }
 
-  switch(verbose)
-    {
-    case 0: FILELog::ReportingLevel() = logWARNING; break;
-    case 1: FILELog::ReportingLevel() = logINFO; break;
-    case 2: FILELog::ReportingLevel() = logDEBUG4; break;
-    default:
-      FILELog::ReportingLevel() = logERROR; break;
-    }
+    switch(verbose)
+      {
+      case 0: FILELog::ReportingLevel() = logWARNING; break;
+      case 1: FILELog::ReportingLevel() = logINFO; break;
+      case 2: FILELog::ReportingLevel() = logDEBUG4; break;
+      default:
+	FILELog::ReportingLevel() = logERROR; break;
+      }
 
-  // Configure iteration parameters
-  if ((mParameters.n_iterations <= 0) || 
-      (mParameters.n_iterations > MAX_ITERATIONS))
-    mParameters.n_iterations = MAX_ITERATIONS;
+    // Configure iteration parameters
+    if ((mParameters.n_iterations <= 0) || 
+	(mParameters.n_iterations > MAX_ITERATIONS))
+      mParameters.n_iterations = MAX_ITERATIONS;
 
-  if (mParameters.n_init_samples <= 0)
-    mParameters.n_init_samples = 
-      static_cast<size_t>(ceil(0.1*mParameters.n_iterations));
+    if (mParameters.n_init_samples <= 0)
+      mParameters.n_init_samples = 
+	static_cast<size_t>(ceil(0.1*mParameters.n_iterations));
 
-  // Configure Surrogate and Criteria Functions
-  mGP.reset(NonParametricProcess::create(mDims,mParameters));
-  if (mGP == NULL) 
-    {
-      FILE_LOG(logERROR) << "Error setting the surrogate function"; 
-      return -1;
-    } 
+    // Configure Surrogate and Criteria Functions
+    mGP.reset(NonParametricProcess::create(mDims,mParameters));
+    if (mGP == NULL) 
+      {
+	FILE_LOG(logERROR) << "Error setting the surrogate function"; 
+	return -1;
+      } 
 
-  mCrit.reset(MetaCriteria::create(mParameters.c_name,mGP.get()));
-  if (mCrit == NULL)       
-    {
-      FILE_LOG(logERROR) << "Error in criterium"; 
-      return -1;
-    }
+    mCrit.reset(MetaCriteria::create(mParameters.c_name,mGP.get()));
+    if (mCrit == NULL)       
+      {
+	FILE_LOG(logERROR) << "Error in criterium"; 
+	return -1;
+      }
 
-  return 0;
-} // __init__
+    return 0;
+  } // __init__
 
-BayesOptBase::~BayesOptBase()
-{} // Default destructor
+  BayesOptBase::~BayesOptBase()
+  {} // Default destructor
 
-int BayesOptBase::nextPoint(vectord &Xnext)
-{
-  bool check = false;
-  criterium_name name;
-  int error = 0;
-  mCrit->initializeSearch();
-  while (!check)
-    {
-      findOptimal(Xnext);
-      check = mCrit->checkIfBest(Xnext,name,error);
-    }
+  int BayesOptBase::nextPoint(vectord &Xnext)
+  {
+    bool check = false;
+    criterium_name name;
+    int error = 0;
+    mCrit->initializeSearch();
+    while (!check)
+      {
+	findOptimal(Xnext);
+	check = mCrit->checkIfBest(Xnext,name,error);
+      }
 
-  if ((mParameters.c_name == C_GP_HEDGE) || 
-      (mParameters.c_name == C_GP_HEDGE_RANDOM))
-    {
-      FILE_LOG(logINFO) << crit2str(name) << " was selected.";
-    }
+    if ((mParameters.c_name == C_GP_HEDGE) || 
+	(mParameters.c_name == C_GP_HEDGE_RANDOM))
+      {
+	FILE_LOG(logINFO) << crit2str(name) << " was selected.";
+      }
 
-  return error;
-}
+    return error;
+  }
 
 
+} //namespace bayesopt
 

@@ -1,4 +1,4 @@
-/** -*- c++ -*- \file criteria_functors.hpp \brief Criteria functions */
+/**  \file criteria_functors.hpp \brief Criteria functions */
 /*
 -------------------------------------------------------------------------
    This file is part of BayesOpt, an efficient C++ library for 
@@ -31,211 +31,220 @@
 #include "nonparametricprocess.hpp"
 #include "prob_distribution.hpp"
 
-/**\addtogroup CriteriaFunctions
- * \brief Set of criterium functions to select the next point during
- * optimization/exploration
- */
-//@{
-
-/**
- * \brief Abstract interface for criteria functors.
- */
-class Criteria
+namespace bayesopt
 {
-public:
-  Criteria(NonParametricProcess *proc):  mProc(proc) {};
-  virtual ~Criteria() {};
-  virtual double operator()(const vectord &x) = 0;
-  virtual void resetAnneal() {};  // dummy function
 
-  static Criteria* create(criterium_name name,
-			  NonParametricProcess* proc);
-protected:
-  NonParametricProcess *mProc;
-};
+  /**\addtogroup CriteriaFunctions
+   * \brief Set of criterium functions to select the next point during
+   * optimization/exploration
+   */
+  //@{
 
-
-/**
- * \brief Expected improvement criterion by Mockus \cite Mockus78
- */
-class ExpectedImprovement: public Criteria
-{
-public:
-  explicit ExpectedImprovement(NonParametricProcess *proc): Criteria(proc), mExp(1) {};
-  virtual ~ExpectedImprovement(){};
-  inline void setExponent(size_t exp) {mExp = exp;};
-  double operator()(const vectord &x)
-  { 
-    const double min = mProc->getValueAtMinimum();
-    return mProc->prediction(x)->negativeExpectedImprovement(min,mExp); 
-  };
-private:
-  size_t mExp;
-};
-
-
-/**
- * \brief Lower (upper) confidence bound criterion.
- */
-class LowerConfidenceBound: public Criteria
-{
-public:
-  explicit LowerConfidenceBound(NonParametricProcess *proc):Criteria(proc),mBeta(1) {};
-  virtual ~LowerConfidenceBound(){};
-  inline void setBeta(double beta) { mBeta = beta; };
-  double operator()( const vectord &x)
-  { 
-    return mProc->prediction(x)->lowerConfidenceBound(mBeta); 
-  };
-private:
-  double mBeta;
-};
-
-
-/**
- * \brief Probability of improvement criterion based on (Kushner).
- */
-class ProbabilityOfImprovement: public Criteria
-{
-public:
-  explicit ProbabilityOfImprovement(NonParametricProcess *proc): 
-    Criteria(proc), mEpsilon(0.01) {};
-  virtual ~ProbabilityOfImprovement(){};
-  inline void setEpsilon(double eps) {mEpsilon = eps;};
-  double operator()( const vectord &x)
-  { 
-    const double min = mProc->getValueAtMinimum();
-    return mProc->prediction(x)->negativeProbabilityOfImprovement(min,mEpsilon); 
-  };
-private:
-  double mEpsilon;
-};
-
-/**
- * \brief Greedy A-Optimality criterion. 
- * Used for learning the function, not to minimize.
- */
-class GreedyAOptimality: public Criteria
-{
-public:
-  explicit GreedyAOptimality(NonParametricProcess *proc): Criteria(proc){};
-  virtual ~GreedyAOptimality(){};
-  double operator()( const vectord &x)
+  /**
+   * \brief Abstract interface for criteria functors.
+   */
+  class Criteria
   {
-    return mProc->prediction(x)->getStd();
-  };
-};
+  public:
+    Criteria(NonParametricProcess *proc):  mProc(proc) {};
+    virtual ~Criteria() {};
+    virtual double operator()(const vectord &x) = 0;
+    virtual void resetAnneal() {};  // dummy function
 
-/**
- * \brief Expected return criterion.
- */
-class ExpectedReturn: public Criteria
-{
-public:
-  explicit ExpectedReturn(NonParametricProcess *proc): Criteria(proc){};
-  virtual ~ExpectedReturn(){};
-  double operator()( const vectord &x)
-  {
-    return mProc->prediction(x)->getMean();
-  };
-};
-
-/**
- * \brief Optimistic sampling. A simple variation of Thompson sampling
- * that picks only samples that are better than the best outcome so
- * far.
- */
-class OptimisticSampling: public Criteria
-{
-public:
-  explicit OptimisticSampling(NonParametricProcess *proc): 
-    Criteria(proc), mtRandom(100u) {};
-  virtual ~OptimisticSampling(){};
-  double operator()( const vectord &x)
-  {
-    ProbabilityDistribution* d_ = mProc->prediction(x);
-    const double yStar = d_->sample_query(mtRandom);
-    const double yPred = d_->getMean();
-    return (std::min)(yPred,yStar);
-  };
-private:
-  randEngine mtRandom;
-};
-
-/**
- * \brief Thompson sampling. It picks a random realization of the surrogate model.
- */
-class ThompsonSampling: public Criteria
-{
-public:
-  explicit ThompsonSampling(NonParametricProcess *proc): 
-    Criteria(proc), mtRandom(100u) {};
-  virtual ~ThompsonSampling(){};
-  double operator()( const vectord &x)
-  {
-    ProbabilityDistribution* d_ = mProc->prediction(x);
-    return d_->sample_query(mtRandom);
-  };
-private:
-  randEngine mtRandom;
-};
-
-
-/**
- * \brief Expected improvement criterion using Schonlau annealing.
- */
-class AnnealedExpectedImprovement: public Criteria
-{
-public:
-  explicit AnnealedExpectedImprovement(NonParametricProcess *proc):
-    Criteria(proc){ resetAnneal(); };
-  virtual ~AnnealedExpectedImprovement(){};
-  inline void setExponent(size_t exp) {mExp = exp;};
-  void resetAnneal() { nCalls = 0; mExp = 10;};
-  double operator()( const vectord &x)
-  {
-    ++nCalls;
-    if (nCalls % 10)
-      mExp = ceil(mExp/2.0);
-
-    ProbabilityDistribution* d_ = mProc->prediction(x);
-    const double min = mProc->getValueAtMinimum();
-    return d_->negativeExpectedImprovement(min,mExp); 
+    static Criteria* create(criterium_name name,
+			    NonParametricProcess* proc);
+  protected:
+    NonParametricProcess *mProc;
   };
 
-private:
-  size_t mExp;
-  unsigned int nCalls;
-};
 
-
-/**
- * \brief Lower (upper) confidence bound using Srinivas annealing
- */
-class AnnealedLowerConfindenceBound: public Criteria
-{
-public:
-  explicit AnnealedLowerConfindenceBound(NonParametricProcess *proc):
-    Criteria(proc){ resetAnneal(); };
-  virtual ~AnnealedLowerConfindenceBound(){};
-  inline void setBetaCoef(double betac) { mCoef = betac; };
-  void resetAnneal() { nCalls = 0; mCoef = 5.0;};
-  double operator()( const vectord &x)
+  /**
+   * \brief Expected improvement criterion by Mockus \cite Mockus78
+   */
+  class ExpectedImprovement: public Criteria
   {
-    ++nCalls;
-    size_t nDims = x.size();
+  public:
+    explicit ExpectedImprovement(NonParametricProcess *proc): 
+      Criteria(proc), mExp(1) {};
+    virtual ~ExpectedImprovement(){};
+    inline void setExponent(size_t exp) {mExp = exp;};
+    double operator()(const vectord &x)
+    { 
+      const double min = mProc->getValueAtMinimum();
+      return mProc->prediction(x)->negativeExpectedImprovement(min,mExp); 
+    };
+  private:
+    size_t mExp;
+  };
+
+
+  /**
+   * \brief Lower (upper) confidence bound criterion.
+   */
+  class LowerConfidenceBound: public Criteria
+  {
+  public:
+    explicit LowerConfidenceBound(NonParametricProcess *proc):
+      Criteria(proc),mBeta(1) {};
+    virtual ~LowerConfidenceBound(){};
+    inline void setBeta(double beta) { mBeta = beta; };
+    double operator()( const vectord &x)
+    { 
+      return mProc->prediction(x)->lowerConfidenceBound(mBeta); 
+    };
+  private:
+    double mBeta;
+  };
+
+
+  /**
+   * \brief Probability of improvement criterion based on (Kushner).
+   */
+  class ProbabilityOfImprovement: public Criteria
+  {
+  public:
+    explicit ProbabilityOfImprovement(NonParametricProcess *proc): 
+      Criteria(proc), mEpsilon(0.01) {};
+    virtual ~ProbabilityOfImprovement(){};
+    inline void setEpsilon(double eps) {mEpsilon = eps;};
+    double operator()( const vectord &x)
+    { 
+      const double min = mProc->getValueAtMinimum();
+      return mProc->prediction(x)->negativeProbabilityOfImprovement(min,mEpsilon); 
+    };
+  private:
+    double mEpsilon;
+  };
+
+  /**
+   * \brief Greedy A-Optimality criterion. 
+   * Used for learning the function, not to minimize.
+   */
+  class GreedyAOptimality: public Criteria
+  {
+  public:
+    explicit GreedyAOptimality(NonParametricProcess *proc): Criteria(proc){};
+    virtual ~GreedyAOptimality(){};
+    double operator()( const vectord &x)
+    {
+      return mProc->prediction(x)->getStd();
+    };
+  };
+
+  /**
+   * \brief Expected return criterion.
+   */
+  class ExpectedReturn: public Criteria
+  {
+  public:
+    explicit ExpectedReturn(NonParametricProcess *proc): Criteria(proc){};
+    virtual ~ExpectedReturn(){};
+    double operator()( const vectord &x)
+    {
+      return mProc->prediction(x)->getMean();
+    };
+  };
+
+  /**
+   * \brief Optimistic sampling. A simple variation of Thompson sampling
+   * that picks only samples that are better than the best outcome so
+   * far.
+   */
+  class OptimisticSampling: public Criteria
+  {
+  public:
+    explicit OptimisticSampling(NonParametricProcess *proc): 
+      Criteria(proc), mtRandom(100u) {};
+    virtual ~OptimisticSampling(){};
+    double operator()( const vectord &x)
+    {
+      ProbabilityDistribution* d_ = mProc->prediction(x);
+      const double yStar = d_->sample_query(mtRandom);
+      const double yPred = d_->getMean();
+      return (std::min)(yPred,yStar);
+    };
+  private:
+    randEngine mtRandom;
+  };
+
+  /**
+   * \brief Thompson sampling. 
+   * Picks a random realization of the surrogate model.
+   */
+  class ThompsonSampling: public Criteria
+  {
+  public:
+    explicit ThompsonSampling(NonParametricProcess *proc): 
+      Criteria(proc), mtRandom(100u) {};
+    virtual ~ThompsonSampling(){};
+    double operator()( const vectord &x)
+    {
+      ProbabilityDistribution* d_ = mProc->prediction(x);
+      return d_->sample_query(mtRandom);
+    };
+  private:
+    randEngine mtRandom;
+  };
+
+
+  /**
+   * \brief Expected improvement criterion using Schonlau annealing.
+   */
+  class AnnealedExpectedImprovement: public Criteria
+  {
+  public:
+    explicit AnnealedExpectedImprovement(NonParametricProcess *proc):
+      Criteria(proc){ resetAnneal(); };
+    virtual ~AnnealedExpectedImprovement(){};
+    inline void setExponent(size_t exp) {mExp = exp;};
+    void resetAnneal() { nCalls = 0; mExp = 10;};
+    double operator()( const vectord &x)
+    {
+      ++nCalls;
+      if (nCalls % 10)
+	mExp = ceil(mExp/2.0);
+
+      ProbabilityDistribution* d_ = mProc->prediction(x);
+      const double min = mProc->getValueAtMinimum();
+      return d_->negativeExpectedImprovement(min,mExp); 
+    };
+
+  private:
+    size_t mExp;
+    unsigned int nCalls;
+  };
+
+
+  /**
+   * \brief Lower (upper) confidence bound using Srinivas annealing
+   */
+  class AnnealedLowerConfindenceBound: public Criteria
+  {
+  public:
+    explicit AnnealedLowerConfindenceBound(NonParametricProcess *proc):
+      Criteria(proc){ resetAnneal(); };
+    virtual ~AnnealedLowerConfindenceBound(){};
+    inline void setBetaCoef(double betac) { mCoef = betac; };
+    void resetAnneal() { nCalls = 0; mCoef = 5.0;};
+    double operator()( const vectord &x)
+    {
+      ++nCalls;
+      size_t nDims = x.size();
     
-    double beta = sqrt(2*log(static_cast<double>(nCalls*nCalls))*(nDims+1) 
-		       + log(static_cast<double>(nDims))*nDims*mCoef);
+      double beta = sqrt(2*log(static_cast<double>(nCalls*nCalls))*(nDims+1) 
+			 + log(static_cast<double>(nDims))*nDims*mCoef);
 
-    ProbabilityDistribution* d_ = mProc->prediction(x);
-    return d_->lowerConfidenceBound(beta); 
+      ProbabilityDistribution* d_ = mProc->prediction(x);
+      return d_->lowerConfidenceBound(beta); 
+    };
+  private:
+    double mCoef;
+    unsigned int nCalls;
   };
-private:
-  double mCoef;
-  unsigned int nCalls;
-};
 
-//@}
+  //@}
+
+} //namespace bayesopt
+
 
 #endif

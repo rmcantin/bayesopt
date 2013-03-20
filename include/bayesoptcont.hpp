@@ -1,4 +1,4 @@
-/** -*- c++ -*- \file bayesoptcont.hpp \brief Continuous Bayesian optimization */
+/**  \file bayesoptcont.hpp \brief Continuous Bayesian optimization */
 /*
 -------------------------------------------------------------------------
    This file is part of BayesOpt, an efficient C++ library for 
@@ -28,139 +28,134 @@
 #include "inneroptimization.hpp"
 #include "bayesoptbase.hpp"
 
+namespace bayesopt  {
 
-/** \addtogroup BayesOpt */
-/**@{*/
+  /** \addtogroup BayesOpt */
+  /**@{*/
 
-namespace bayesopt
-{
-
-/**
- * \brief Bayesian optimization using different non-parametric
- * processes as distributions over surrogate functions. The
- * exploration spaces is assumed to be continous and bounded.
- */
-class BAYESOPT_API BayesOptContinuous: public InnerOptimization, 
-                                       public BayesOptBase
-{
- public:
-   
-  /** 
-   * Default constructor
+  /**
+   * \brief Bayesian optimization using different non-parametric
+   * processes as distributions over surrogate functions. The
+   * exploration spaces is assumed to be continous and box-bounded.
    */
-  BayesOptContinuous();
-
-  /** 
-   * Constructor
-   * @param params set of parameters (see parameters.h)
-   */
-  BayesOptContinuous(size_t dim, bopt_params params);
-
-  /** 
-   * Default destructor
-   * 
-   * @return 
-   */
-  virtual ~BayesOptContinuous();
-
-  /** 
-   * \brief Execute the optimization process of the function defined in
-   * evaluateSample.  If no bounding box is defined, we assume that
-   * the function is defined in the [0,1] hypercube, as a normalized
-   * representation of the bound constrains.
-   * 
-   * @see scaleInput
-   * @see evaluateSample
-   *
-   * @param bestPoint returns the optimum value in a ublas::vector.
-   * @return 0 if terminate successfully, nonzero otherwise
-   */
-  int optimize(vectord &bestPoint);
-
-
-
-  /** 
-   * \brief Sets the bounding box. 
-   *
-   * @param lowerBound vector with the lower bounds of the hypercube 
-   * @param upperBound vector with the upper bounds of the hypercube 
-   * 
-   * @return 0 if terminate successfully, nonzero otherwise
-   */
-  int setBoundingBox( const vectord &lowerBound,
-		      const vectord &upperBound);
-
-
-protected:
-
-
-  /** 
-   * \brief Returns the corresponding criteria of a series of queries
-   * in the hypercube [0,1] in order to choose the best point to try
-   * the next iteration.
-   * 
-   * @param query point in the hypercube [0,1] to evaluate the
-   * Gaussian process
-   * 
-   * @return negative criteria (Expected Improvement, LCB,
-   * A-optimality, etc.).
-   */	
-  double innerEvaluate( const vectord &query )
+  class BAYESOPT_API ContinuousModel: public InnerOptimization, 
+			      public BayesOptBase
   {
-    return evaluateCriteria(query);       
-  };  // evaluateCriteria
+  public:
+   
+    /** 
+     * Default constructor
+     */
+    ContinuousModel();
+
+    /** 
+     * Constructor
+     * @param dim number of input dimensions
+     * @param params set of parameters (see parameters.h)
+     */
+    ContinuousModel(size_t dim, bopt_params params);
+
+    /** 
+     * Default destructor
+     * 
+     * @return 
+     */
+    virtual ~ContinuousModel();
+  
+    /** 
+     * \brief Execute the optimization process of the function defined in
+     * evaluateSample.  If no bounding box is defined, we assume that
+     * the function is defined in the [0,1] hypercube, as a normalized
+     * representation of the bound constrains.
+     * 
+     * @see scaleInput
+     * @see evaluateSample
+     *
+     * @param bestPoint returns the optimum value in a ublas::vector.
+     * @return 0 if terminate successfully, nonzero otherwise
+     */
+    int optimize(vectord &bestPoint);
+    
+
+
+    /** 
+     * \brief Sets the bounding box. 
+     *
+     * @param lowerBound vector with the lower bounds of the hypercube 
+     * @param upperBound vector with the upper bounds of the hypercube 
+     * 
+     * @return 0 if terminate successfully, nonzero otherwise
+     */
+    int setBoundingBox( const vectord &lowerBound,
+			const vectord &upperBound);
+
+
+  protected:
+
+    /** 
+     * \brief Print data for every step according to the verbose level
+     * 
+     * @param iteration iteration number 
+     * @param xNext next point
+     * @param yNext function value at next point
+     * 
+     * @return error code
+     */
+    int plotStepData(size_t iteration, const vectord& xNext,
+		     double yNext);
+
+    /** \brief Sample a set of points to initialize the surrogate function.
+     * It uses pure random sampling or uniform Latin Hypercube sampling.
+     * @return error code
+     */
+    int sampleInitialPoints();
+
+
+    /** 
+     * \brief Returns the corresponding criteria of a series of queries
+     * in the hypercube [0,1] in order to choose the best point to try
+     * the next iteration.
+     * 
+     * @param query point in the hypercube [0,1] to evaluate the
+     * Gaussian process
+     * 
+     * @return negative criteria (Expected Improvement, LCB,
+     * I-optimality, etc.).
+     */	
+    double innerEvaluate( const vectord &query )
+    {  return evaluateCriteria(query); }; 
 
     
-  /** 
-   * \brief Wrapper for the target function normalize in the hypercube
-   * [0,1]
-   * @param query point to evaluate in [0,1] hypercube
-   * @return actual return value of the target function
-   */
-  inline double evaluateNormalizedSample( const vectord &query )
-  { 
-    vectord unnormalizedQuery = mBB->unnormalizeVector(query);
-    return evaluateSample(unnormalizedQuery);
-  }; // evaluateNormalizedSample
+    /** 
+     * \brief Wrapper for the target function normalize in the hypercube
+     * [0,1]
+     * @param query point to evaluate in [0,1] hypercube
+     * @return actual return value of the target function
+     */
+    inline double evaluateNormalizedSample( const vectord &query )
+    { 
+      vectord unnormalizedQuery = mBB->unnormalizeVector(query);
+      return evaluateSample(unnormalizedQuery);
+    }; // evaluateNormalizedSample
+
+    /** 
+     * \brief Wrapper of the innerOptimization class to find the optimal
+     * point acording to the criteria.
+     * 
+     * @param xOpt optimal point
+     * @return error code
+     */
+    inline int findOptimal(vectord &xOpt)
+    { return innerOptimize(xOpt); };
 
 
-  /** 
-   * \brief Print data for every step according to the verbose level
-   * 
-   * @param iteration iteration number 
-   * @param xNext next point
-   * @param yNext function value at next point
-   * 
-   * @return error code
-   */
-  int plotStepData(size_t iteration, const vectord& xNext,
-		   double yNext);
+  protected:
+    utils::BoundingBox<vectord> *mBB;      ///< Bounding Box (input space limits)
+  };
+  
+  /**@}*/
 
-  /** \brief Sample a set of points to initialize the surrogate function.
-   * It uses pure random sampling or uniform Latin Hypercube sampling.
-   * @return error code
-   */
-  int sampleInitialPoints();
-
-  /** 
-   * \brief Wrapper of the innerOptimization class to find the optimal
-   * point acording to the criteria.
-   * 
-   * @param xOpt optimal point
-   * @return error code
-   */
-  inline int findOptimal(vectord &xOpt)
-  { return innerOptimize(xOpt);};
-
-protected:
-
-  BoundingBox<vectord> *mBB;      ///< Bounding Box (input space limits)
-
-};
-
-}
-
-/**@}*/
+}  //namespace bayesopt
 
 
 #endif

@@ -1,4 +1,4 @@
-/** -*- c++ -*- \file ublas_extra.hpp \brief Extra functions for Ublas library */
+/**  \file ublas_extra.hpp \brief Extra functions for Ublas library */
 /*
 -----------------------------------------------------------------------------
    Copyright (C) 2011 Ruben Martinez-Cantin <rmcantin@unizar.es>

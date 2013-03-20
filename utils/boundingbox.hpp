@@ -1,4 +1,4 @@
-/** -*- c++ -*- \file boundingbox.hpp \brief Functions for bounding box limits */
+/**  \file boundingbox.hpp \brief Functions for bounding box limits */
 /*
 -----------------------------------------------------------------------------
    Copyright (C) 2011 Ruben Martinez-Cantin <rmcantin@unizar.es>
@@ -24,28 +24,38 @@
 #include <boost/numeric/ublas/vector.hpp>
 #include "elementwise_ublas.hpp"
 
-template <class V>
-class BoundingBox
-{
-public:
-  BoundingBox(const V &lbound, const V &ubound):
-    mLowerBound(lbound), mRangeBound(ubound - lbound)
-  {};
-
-  virtual ~BoundingBox(){};
-
-  inline V unnormalizeVector( const V &vin )
-  {
-    return ublas_elementwise_prod(vin,mRangeBound) + mLowerBound;
-  };  // unnormalizeVector
-
-  inline V normalizeVector( const V &vin )
-  {
-    return ublas_elementwise_div(vin - mLowerBound, mRangeBound);
-  }  // normalizeVector
+namespace bayesopt {
   
-protected:
-  V mLowerBound, mRangeBound; ///< Lower bound and range of the input space
-};
+  namespace utils {
+    /** Defines a bounding box or axis-alligned bound constraints. */
+    template <class V>
+    class BoundingBox
+    {
+    public:
+      BoundingBox(const V &lbound, const V &ubound):
+	mLowerBound(lbound), mRangeBound(ubound - lbound)
+      {};
+    
+      virtual ~BoundingBox(){};
+
+      inline V unnormalizeVector( const V &vin )
+      {
+	return ublas_elementwise_prod(vin,mRangeBound) + mLowerBound;
+      };  // unnormalizeVector
+
+      inline V normalizeVector( const V &vin )
+      {
+	return ublas_elementwise_div(vin - mLowerBound, mRangeBound);
+      }  // normalizeVector
+  
+    protected:
+      V mLowerBound; ///< Lower bound of the input space
+      V mRangeBound; ///< Range (up-low) of the input space
+    };
+    
+  } //namespace utils
+
+
+} //namespace bayesopt
 
 #endif

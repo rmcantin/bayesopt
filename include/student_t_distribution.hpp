@@ -32,7 +32,7 @@
 class StudentTDistribution: public ProbabilityDistribution
 {
 public:
-  StudentTDistribution(size_t dof);
+  StudentTDistribution();
   virtual ~StudentTDistribution();
 
   /** 
@@ -40,6 +40,17 @@ public:
    */
   void setMeanAndStd(double mean, double std)
   { mean_ = mean; std_ = std; };
+
+  /** 
+   * \brief Sets the degrees of freedom (dof) the distribution
+   */
+  void setDof(size_t dof)
+  { 
+    dof_ = dof; 
+    boost::math::students_t new_d(dof);
+    d_ = new_d;
+  };
+
 
   /** 
    * \brief Expected Improvement algorithm for minimization

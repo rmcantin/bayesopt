@@ -138,24 +138,24 @@ TARGET_LINK_LIBRARIES(bayesopt
   ${EXT_LIBS} ${PYTHON_LIB} )
 
 #Naive test
-ADD_EXECUTABLE(bayesopttest ./app/testbayesopt.cpp)
-add_dependencies(bayesopttest bayesopt)
-TARGET_LINK_LIBRARIES(bayesopttest bayesopt)
+ADD_EXECUTABLE(bo_cont ./app/bo_cont.cpp)
+add_dependencies(bo_cont bayesopt)
+TARGET_LINK_LIBRARIES(bo_cont bayesopt)
 
 #Discrete test
-ADD_EXECUTABLE(discretetest ./app/testdiscrete.cpp)
-add_dependencies(discretetest bayesopt)
-TARGET_LINK_LIBRARIES(discretetest bayesopt)
+ADD_EXECUTABLE(bo_disc ./app/bo_disc.cpp)
+add_dependencies(bo_disc bayesopt)
+TARGET_LINK_LIBRARIES(bo_disc bayesopt)
 
 #1D test
-ADD_EXECUTABLE(bayesoptonedtest ./app/testbopt_oned.cpp)
-add_dependencies(bayesoptonedtest bayesopt)
-TARGET_LINK_LIBRARIES(bayesoptonedtest bayesopt)
+ADD_EXECUTABLE(bo_oned ./app/bo_oned.cpp)
+add_dependencies(bo_oned bayesopt)
+TARGET_LINK_LIBRARIES(bo_oned bayesopt)
 
 #Branin
-ADD_EXECUTABLE(branintest ./app/testbranin.cpp )
-add_dependencies(branintest bayesopt)
-TARGET_LINK_LIBRARIES(branintest bayesopt)
+ADD_EXECUTABLE(bo_branin ./app/bo_branin.cpp )
+add_dependencies(bo_branin bayesopt)
+TARGET_LINK_LIBRARIES(bo_branin bayesopt)
 
 #Test for random number generator
 #ADD_EXECUTABLE(randtest ./app/testrand.cpp)

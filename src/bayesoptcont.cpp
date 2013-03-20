@@ -26,137 +26,131 @@
 #include "log.hpp"
 #include "bayesoptcont.hpp"
 
-namespace bayesopt
-{
+namespace bayesopt  {
   
-BayesOptContinuous::BayesOptContinuous():
-  BayesOptBase(), mBB(NULL)
-{ 
-  setAlgorithm(DIRECT);
-} // Def Constructor
+  ContinuousModel::ContinuousModel():
+    BayesOptBase(), mBB(NULL)
+  { 
+    setAlgorithm(DIRECT);
+  } // Def Constructor
 
-BayesOptContinuous::BayesOptContinuous(size_t dim, bopt_params parameters):
-  BayesOptBase(dim,parameters), mBB(NULL)
-{ 
-  setAlgorithm(DIRECT);
-} // Constructor
+  ContinuousModel::ContinuousModel(size_t dim, bopt_params parameters):
+    BayesOptBase(dim,parameters), mBB(NULL)
+  { 
+    setAlgorithm(DIRECT);
+  } // Constructor
 
-BayesOptContinuous::~BayesOptContinuous()
-{
-  if (mBB != NULL)
-    delete mBB;
+  ContinuousModel::~ContinuousModel()
+  {
+    if (mBB != NULL)
+      delete mBB;
+  } // Default destructor
 
-} // Default destructor
+  int ContinuousModel::optimize(vectord &bestPoint)
+  {
+    assert(mDims == bestPoint.size());
+    
+    if (mBB == NULL)
+      {
+	vectord lowerBound = zvectord(mDims);
+	vectord upperBound = svectord(mDims,1.0);
+	mBB = new utils::BoundingBox<vectord>(lowerBound,upperBound);
+      }
+
+    sampleInitialPoints();
+
+    vectord xNext(mDims);
+    for (size_t ii = 0; ii < mParameters.n_iterations; ii++)
+      {      
+	// Find what is the next point.
+	nextPoint(xNext);
+	double yNext = evaluateNormalizedSample(xNext);
+	mGP->updateSurrogateModel(xNext,yNext); 
+	plotStepData(ii,xNext,yNext);
+      }
+
+    bestPoint = mBB->unnormalizeVector(mGP->getPointAtMinimum());
+
+    return 0;
+  } // optimize
 
 
-
-
-int BayesOptContinuous::optimize(vectord &bestPoint)
-{
-  assert(mDims == bestPoint.size());
-
-  if (mBB == NULL)
-    {
-      vectord lowerBound = zvectord(mDims);
-      vectord upperBound = svectord(mDims,1.0);
-      mBB = new BoundingBox<vectord>(lowerBound,upperBound);
-    }
-
-  sampleInitialPoints();
-
-  vectord xNext(mDims);
-  for (size_t ii = 0; ii < mParameters.n_iterations; ii++)
-    {      
-      // Find what is the next point.
-      nextPoint(xNext);
-      double yNext = evaluateNormalizedSample(xNext);
-      mGP->updateSurrogateModel(xNext,yNext); 
-      plotStepData(ii,xNext,yNext);
-    }
-
-  bestPoint = mBB->unnormalizeVector(mGP->getPointAtMinimum());
-
-  return 1;
-} // optimize
-
-int BayesOptContinuous::setBoundingBox(const vectord &lowerBound,
-				       const vectord &upperBound)
-{
-  if (mBB != NULL)
-    delete mBB;
-
-  mBB = new BoundingBox<vectord>(lowerBound,upperBound);
-
-  FILE_LOG(logINFO) << "Bounds: ";
-  FILE_LOG(logINFO) << lowerBound;
-  FILE_LOG(logINFO) << upperBound;
-
-  return 0;
-} //setBoundingBox
+  int ContinuousModel::setBoundingBox(const vectord &lowerBound,
+			      const vectord &upperBound)
+  {
+    if (mBB != NULL)
+      delete mBB;
+    
+    mBB = new utils::BoundingBox<vectord>(lowerBound,upperBound);
+    
+    FILE_LOG(logINFO) << "Bounds: ";
+    FILE_LOG(logINFO) << lowerBound;
+    FILE_LOG(logINFO) << upperBound;
+    
+    return 0;
+  } //setBoundingBox
 
 
 
-int BayesOptContinuous::plotStepData(size_t iteration, const vectord& xNext,
-				     double yNext)
-{
-  FILE_LOG(logINFO) << "Iteration: " << iteration+1 << " of " 
-		       << mParameters.n_iterations << " | Total samples: " 
-		       << iteration+1+mParameters.n_init_samples ;
-  FILE_LOG(logINFO) << "Query: " << mBB->unnormalizeVector(xNext); ;
-  FILE_LOG(logINFO) << "Query outcome: " << yNext ;
-  FILE_LOG(logINFO) << "Best query: " << mBB->unnormalizeVector(mGP->getPointAtMinimum()); 
-  FILE_LOG(logINFO) << "Best outcome: " <<  mGP->getValueAtMinimum();
+  int ContinuousModel::plotStepData(size_t iteration, const vectord& xNext,
+			    double yNext)
+  {
+    FILE_LOG(logINFO) << "Iteration: " << iteration+1 << " of " 
+		      << mParameters.n_iterations << " | Total samples: " 
+		      << iteration+1+mParameters.n_init_samples ;
+    FILE_LOG(logINFO) << "Query: " << mBB->unnormalizeVector(xNext); ;
+    FILE_LOG(logINFO) << "Query outcome: " << yNext ;
+    FILE_LOG(logINFO) << "Best query: " 
+		      << mBB->unnormalizeVector(mGP->getPointAtMinimum()); 
+    FILE_LOG(logINFO) << "Best outcome: " <<  mGP->getValueAtMinimum();
+    
+    return 0;
+  } //plotStepData
 
-  return 1;
-} //plotStepData
-
-int BayesOptContinuous::sampleInitialPoints()
-{
-   
-  size_t nSamples = mParameters.n_init_samples;
-  bool useLatinBox = true;
-
-  matrixd xPoints(nSamples,mDims);
-  vectord yPoints(nSamples);
-  vectord sample(mDims);
-  randEngine mtRandom;
-
-  if (useLatinBox)
-      lhs(xPoints, mtRandom);
-  else
-      uniformSampling(xPoints, mtRandom);
-
-  for(size_t i = 0; i < nSamples; i++)
-    {
-      sample = row(xPoints,i);
-      yPoints(i) = evaluateNormalizedSample(sample);
-    }
-
-  mGP->setSamples(xPoints,yPoints);
-  mGP->fitInitialSurrogate();
-
-  // For logging purpose
-  if(mParameters.verbose_level > 0)
-    {
-      FILE_LOG(logDEBUG) << "Initial points:" ;
-      double ymin = (std::numeric_limits<double>::max)();
-      for(size_t i = 0; i < nSamples; i++)
-	{
-	  sample = row(xPoints,i);
-	  FILE_LOG(logDEBUG) << sample ;
-	  
-	  if (mParameters.verbose_level > 1)
-	    { 
-	      if(yPoints(i)<ymin) 
-		ymin = yPoints(i);
+  int ContinuousModel::sampleInitialPoints()
+  {
+    
+    size_t nSamples = mParameters.n_init_samples;
+    bool useLatinBox = true;
+    
+    matrixd xPoints(nSamples,mDims);
+    vectord yPoints(nSamples);
+    vectord sample(mDims);
+    randEngine mtRandom;
+    
+    if (useLatinBox)      utils::lhs(xPoints, mtRandom);
+    else      utils::uniformSampling(xPoints, mtRandom);
+    
+    for(size_t i = 0; i < nSamples; i++)
+      {
+	sample = row(xPoints,i);
+	yPoints(i) = evaluateNormalizedSample(sample);
+      }
+    
+    mGP->setSamples(xPoints,yPoints);
+    mGP->fitInitialSurrogate();
+    
+    // For logging purpose
+    if(mParameters.verbose_level > 0)
+      {
+	FILE_LOG(logDEBUG) << "Initial points:" ;
+	double ymin = (std::numeric_limits<double>::max)();
+	for(size_t i = 0; i < nSamples; i++)
+	  {
+	    sample = row(xPoints,i);
+	    FILE_LOG(logDEBUG) << sample ;
+	    
+	    if (mParameters.verbose_level > 1)
+	      { 
+		if(yPoints(i)<ymin) 
+		  ymin = yPoints(i);
 	      
-	      FILE_LOG(logDEBUG) << ymin << "|" << yPoints(i) << "|" 
-				 << mBB->unnormalizeVector(sample) ;
-	    }
-	}  
-    }
-  return 1;
-} // sampleInitialPoints
+		FILE_LOG(logDEBUG) << ymin << "|" << yPoints(i) << "|" 
+				   << mBB->unnormalizeVector(sample) ;
+	      }
+	  }  
+      }
+    return 0;
+  } // sampleInitialPoints
 
-
-}
+}  //namespace bayesopt

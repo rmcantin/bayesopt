@@ -1,4 +1,4 @@
-/** -*- c++ -*- \file trace_ublas.hpp \brief Trace computation for uBlas */
+/**  \file trace_ublas.hpp \brief Trace computation for uBlas */
 /*
 -----------------------------------------------------------------------------
    Copyright (C) 2011 Ruben Martinez-Cantin <rmcantin@unizar.es>

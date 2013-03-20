@@ -1,4 +1,4 @@
-/** -*- c++ -*- \file elementwise_ublas.hpp \brief Elementwise operations */
+/**  \file elementwise_ublas.hpp \brief Elementwise operations */
 /*
 -----------------------------------------------------------------------------
    Copyright (C) 2011 Ruben Martinez-Cantin <rmcantin@unizar.es>

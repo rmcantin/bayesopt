@@ -1,4 +1,4 @@
-/** -*- c -*- \file bayesoptextras.h 
+/**  \file bayesoptextras.h 
               \brief Helper functions to Matlab/Octave wrappers. */
 /*
 -----------------------------------------------------------------------------

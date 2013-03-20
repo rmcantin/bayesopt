@@ -1,6 +1,28 @@
+/*
+-------------------------------------------------------------------------
+   This file is part of BayesOpt, an efficient C++ library for 
+   Bayesian optimization.
+
+   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+ 
+   BayesOpt is free software: you can redistribute it and/or modify it 
+   under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   BayesOpt is distributed in the hope that it will be useful, but 
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with BayesOpt.  If not, see <http://www.gnu.org/licenses/>.
+------------------------------------------------------------------------
+*/
+
 #include <ctime>
-#include "bayesoptwpr.h"             // For the C-AP
-#include "bayesoptcont.hpp"              // For the C++-API
+#include "bayesoptwpr.h"                 // For the C API
+#include "bayesoptcont.hpp"              // For the C++ API
 
 
 /* Function to be used for C-API testing */
@@ -17,12 +39,12 @@ double testFunction(unsigned int n, const double *x,
 }
 
 /* Class to be used for C++-API testing */
-class TestEGO: public bayesopt::BayesOptContinuous
+class ExampleQuadratic: public bayesopt::ContinuousModel
 {
  public:
 
-  TestEGO(size_t dim,bopt_params param):
-    bayesopt::BayesOptContinuous(dim,param) {}
+  ExampleQuadratic(size_t dim,bopt_params param):
+    ContinuousModel(dim,param) {}
 
   double evaluateSample( const vectord &Xi ) 
   {
@@ -70,12 +92,12 @@ int main(int nargs, char *args[])
   std::cout << "Running C++ interface" << std::endl;
   // Configure C++ interface
 
-  TestEGO gp_opt(n,par);
+  ExampleQuadratic opt(n,par);
   vectord result(n);
 
   // Run C++ interface
   start = clock();
-  gp_opt.optimize(result);
+  opt.optimize(result);
   end = clock();
   diff = (double)(end-start) / (double)CLOCKS_PER_SEC;
   /*******************************************/
@@ -109,6 +131,5 @@ int main(int nargs, char *args[])
   std::cout << ")" << std::endl;
   std::cout << "Elapsed time in C: " << diff2 << " seconds" << std::endl;
 
-  std::cout << kernel2str(par.k_name)<< std::endl;
 }
 

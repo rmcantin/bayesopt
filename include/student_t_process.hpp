@@ -27,60 +27,65 @@
 #ifndef  _STUDENT_T_PROCESS_HPP_
 #define  _STUDENT_T_PROCESS_HPP_
 
+#include "student_t_distribution.hpp"
 #include "nonparametricprocess.hpp"
  
-/** \addtogroup  NonParametricProcesses */
-/**@{*/
-
-
-/**
- * \brief Student's t process with Jeffreys hyperprior 
- *        on mean and signal variance parameters.
- */
-class StudentTProcess: public NonParametricProcess
+namespace bayesopt
 {
-public:
-  StudentTProcess(size_t dim, double noise);
-  virtual ~StudentTProcess();
+  
+  /** \addtogroup  NonParametricProcesses */
+  /**@{*/
 
-  /** 
-   * \brief Function that returns the prediction of the GP for a query point
-   * in the hypercube [0,1].
-   * 
-   * @param query in the hypercube [0,1] to evaluate the Gaussian process
-   * @return pointer to the probability distribution.
-   */	
-  ProbabilityDistribution* prediction(const vectord &query);
-
-
-private:
-
- /** 
-   * \brief Computes the negative log likelihood and its gradient of the data.
-   * 
-   *
-   * @return value negative log likelihood
+  /**
+   * \brief Student's t process with Jeffreys hyperprior 
+   *        on mean and signal variance parameters.
    */
-  double negativeLogLikelihood();
+  class StudentTProcess: public NonParametricProcess
+  {
+  public:
+    StudentTProcess(size_t dim, double noise);
+    virtual ~StudentTProcess();
 
-  /** 
-   * \brief Precompute some values of the prediction that do not depends on
-   * the query
-   * @return error code
-   */
-  int precomputePrediction();
-
-private:
-  double mMu, mSig;                   //!< GP posterior parameters
-
-  //! Precomputed GP prediction operations
-  vectord mUInvR;     
-  vectord mInvRy;         
-  double mUInvRUDelta;
-};
+    /** 
+     * \brief Function that returns the prediction of the GP for a query point
+     * in the hypercube [0,1].
+     * 
+     * @param query in the hypercube [0,1] to evaluate the Gaussian process
+     * @return pointer to the probability distribution.
+     */	
+    ProbabilityDistribution* prediction(const vectord &query);
 
 
-/**@}*/
+  private:
+
+    /** 
+     * \brief Computes the negative log likelihood and its gradient of the data.
+     * 
+     *
+     * @return value negative log likelihood
+     */
+    double negativeLogLikelihood();
+
+    /** 
+     * \brief Precompute some values of the prediction that do not depends on
+     * the query
+     * @return error code
+     */
+    int precomputePrediction();
+
+  private:
+    double mMu, mSig;                   //!< GP posterior parameters
+
+    //! Precomputed GP prediction operations
+    vectord mUInvR;     
+    vectord mInvRy;         
+    double mUInvRUDelta;
+    StudentTDistribution* d_;
+  };
+
+  /**@}*/
+
+} //namespace bayesopt
 
 
 #endif

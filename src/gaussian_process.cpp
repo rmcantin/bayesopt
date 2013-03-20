@@ -24,54 +24,62 @@
 #include "trace_ublas.hpp"
 #include "gauss_distribution.hpp"
 
-GaussianProcess::GaussianProcess(size_t dim, double noise):
-  NonParametricProcess(dim, noise)
+namespace bayesopt
 {
-  d_.reset(new GaussianDistribution());
-}  // Constructor
+
+  namespace ublas = boost::numeric::ublas;
+
+  GaussianProcess::GaussianProcess(size_t dim, double noise):
+    NonParametricProcess(dim, noise)
+  {
+    d_ = new GaussianDistribution();
+  }  // Constructor
 
 
-GaussianProcess::~GaussianProcess()
-{} // Default destructor
+  GaussianProcess::~GaussianProcess()
+  {
+    delete d_;
+  } // Default destructor
 
 
 
-double GaussianProcess::negativeLogLikelihood()
-{
-  const matrixd K = computeCorrMatrix();
-  const size_t n = K.size1();
-  matrixd L(n,n);
-  cholesky_decompose(K,L);
+  double GaussianProcess::negativeLogLikelihood()
+  {
+    const matrixd K = computeCorrMatrix();
+    const size_t n = K.size1();
+    matrixd L(n,n);
+    utils::cholesky_decompose(K,L);
 
-  vectord alpha(mGPY);
-  inplace_solve(L,alpha,ublas::lower_tag());
-  double loglik = .5*ublas::inner_prod(alpha,alpha) + log_trace(L);
-  return loglik;
-}
+    vectord alpha(mGPY-mMeanV);
+    inplace_solve(L,alpha,ublas::lower_tag());
+    double loglik = .5*ublas::inner_prod(alpha,alpha) + log_trace(L);
+    return loglik;
+  }
 
-ProbabilityDistribution* GaussianProcess::prediction(const vectord &query)
-{
-  const double kn = (*mKernel)(query, query);
-  const vectord kStar = computeCrossCorrelation(query);
-  double yPred = ublas::inner_prod(kStar,mAlphaV);
+  ProbabilityDistribution* GaussianProcess::prediction(const vectord &query)
+  {
+    const double kn = (*mKernel)(query, query);
+    const vectord kStar = computeCrossCorrelation(query);
+    double yPred = ublas::inner_prod(kStar,mAlphaV);
 
-  vectord vd(kStar);
-  ublas::inplace_solve(mL,vd,ublas::lower_tag());
-  double sPred = sqrt(kn - ublas::inner_prod(vd,vd));
+    vectord vd(kStar);
+    ublas::inplace_solve(mL,vd,ublas::lower_tag());
+    double sPred = sqrt(kn - ublas::inner_prod(vd,vd));
 
-  d_->setMeanAndStd(yPred,sPred);
-  return d_.get();
-}
+    d_->setMeanAndStd(yPred,sPred);
+    return d_;
+  }
 
 
-int GaussianProcess::precomputePrediction()
-{
-  const size_t n = mGPY.size();
+  int GaussianProcess::precomputePrediction()
+  {
+    const size_t n = mGPY.size();
   
-  mAlphaV.resize(n,false);
-  mAlphaV = mGPY;
-  cholesky_solve(mL,mAlphaV,ublas::lower());
+    mAlphaV.resize(n,false);
+    mAlphaV = mGPY-mMeanV;
+    utils::cholesky_solve(mL,mAlphaV,ublas::lower());
 
-  return 1; 
-}
+    return 1; 
+  }
 	
+} //namespace bayesopt

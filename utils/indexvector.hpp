@@ -1,4 +1,4 @@
-/** -*- c++ -*- \file indexvector.hpp \brief Generators for index vectors. */
+/**  \file indexvector.hpp \brief Generators for index vectors. */
 /*
 -------------------------------------------------------------------------
    This file is part of BayesOpt, an efficient C++ library for 

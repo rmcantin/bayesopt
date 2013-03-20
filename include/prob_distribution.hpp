@@ -36,11 +36,6 @@ public:
   virtual ~ProbabilityDistribution(){};
 
   /** 
-   * \brief Sets the mean and std of the distribution
-   */
-  virtual void setMeanAndStd(double mean, double std) = 0;
-
-  /** 
    * \brief Expected Improvement algorithm for minimization
    * @param min minimum value found so far
    * @param g exponent (used for annealing)

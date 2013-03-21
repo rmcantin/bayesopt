@@ -78,24 +78,33 @@ extern "C" {
 
   /** \brief Configuration parameters */
   typedef struct {
+
     size_t n_iterations;         /**< Maximum BayesOpt evaluations (budget) */
     size_t n_inner_iterations;   /**< Maximum inner optimizer evaluations */
     size_t n_init_samples;       /**< Number of samples before optimization */
-    size_t verbose_level;        /**< Verbose level if <3 stderr, else log file*/
-    char* log_filename;          /**< Filename of the log file (if applicable) */
-    double theta[128];           /**< Kernel hyperparameters (mean) */
-    double s_theta[128];         /**< Kernel hyperparameters (std) */
+
+    size_t verbose_level;        /**< 1-Error,2-Warning,3-Info. 4-6 log file*/
+    char* log_filename;          /**< Log file path (if applicable) */
+
+    double theta[128];           /**< Kernel hyperparameters prior (mean) */
+    double s_theta[128];         /**< Kernel hyperparameters prior (std) */
     size_t n_theta;              /**< Number of kernel hyperparameters */
+
     double mu[128];              /**< Mean function hyperparameters */
-    size_t n_mu;                 /**< Number of mean function hyperparameters */
-    double alpha, beta, delta;   /**< Inv-Gamma-Normal hyperparameters */
-    double noise;                /**< Observation noise */
+    size_t n_mu;                 /**< Number of mean funct. hyperparameters */
+
+    double alpha;                /**< Inverse Gamma prior for signal var */
+    double beta;                 /**< Inverse Gamma prior for signal var*/
+    double delta;                /**< Normal prior for mean hyperparameters */
+    double noise;                /**< Observation noise (and nugget) */
+
     surrogate_name s_name;       /**< Name of the surrogate function */
-    kernel_name k_name;          /**< Name of the kernel function */
+    kernel_name k_name;          /**< Name of the kernel funct. -DEPRECATED-*/
     char* k_s_name;              /**< Name of the kernel function */
     criterium_name c_name;       /**< Name of the criterion */
-    mean_name m_name;            /**< Name of the mean function */
+    mean_name m_name;            /**< Name of the mean funct. -DEPRECATED-*/
     char* m_s_name;              /**< Name of the mean function */
+
   } bopt_params;
 
 

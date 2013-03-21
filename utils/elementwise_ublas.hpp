@@ -22,37 +22,41 @@
 #define  _ELEMENTWISE_UBLAS_HPP_
 
 // BOOST Libraries
-#include <boost/numeric/ublas/vector.hpp>
 #include <algorithm>
+#include <boost/numeric/ublas/vector.hpp>
 
-/** 
- * Computes the elementwise product of two vectors or matrices.
- * 
- * c_i = a_i * b_i
- *
- */
-template <class v1, class v2>
-v1 ublas_elementwise_prod(const v1& a, const v2& b)
+namespace bayesopt
 {
-  typedef typename v1::value_type D;
-  v1 c(a.size());
-  std::transform(a.begin(),a.end(),b.begin(),c.begin(),std::multiplies<D>());
-  return c;
-}
+  namespace utils
+  {
 
-/** 
- * Computes the elementwise division of two vectors or matrices.
- * 
- * c_i = a_i / b_i
- *
- */
-template <class v1, class v2>
-v1 ublas_elementwise_div(const v1& a, const v2& b)
-{
-  typedef typename v1::value_type D;
-  v1 c(a.size());
-  std::transform(a.begin(),a.end(),b.begin(),c.begin(),std::divides<D>());
-  return c;
-}
+    /** 
+     * Computes the elementwise product of two vectors or matrices.
+     *             c_i = a_i * b_i
+     */
+    template <class v1, class v2>
+    v1 ublas_elementwise_prod(const v1& a, const v2& b)
+    {
+      typedef typename v1::value_type D;
+      v1 c(a.size());
+      std::transform(a.begin(),a.end(),b.begin(),c.begin(),std::multiplies<D>());
+      return c;
+    }
+
+    /** 
+     * Computes the elementwise division of two vectors or matrices.
+     *            c_i = a_i / b_i
+     */
+    template <class v1, class v2>
+    v1 ublas_elementwise_div(const v1& a, const v2& b)
+    {
+      typedef typename v1::value_type D;
+      v1 c(a.size());
+      std::transform(a.begin(),a.end(),b.begin(),c.begin(),std::divides<D>());
+      return c;
+    }
+
+  } //namespace utils
+} //namespace bayesopt
 
 #endif

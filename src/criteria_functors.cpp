@@ -44,4 +44,27 @@ namespace bayesopt
       }
   };
 
+
+  // Criteria* CriteriaFactory::create(std::string name,
+  // 				    NonParametricProcess* proc)
+  // {
+  //   Criteria *cFunc;
+  //   size_t pos = name.find("(");         // position of "(" in str
+  //   if (pos = std::string::npos)              // Atomic criterion
+  //     {
+  // 	std::map<std::string,CriteriaFactory::create_func_definition>::iterator it = registry.find(name);
+  //     }
+
+  //   if (it == registry.end()) 
+  //     {
+  // 	FILE_LOG(logERROR) << "Error: Fatal error while parsing "
+  // 			   << "criteria function: " << os.str() 
+  // 			   << " not found" << std::endl;
+  // 	return NULL;
+  //     } 
+  //   kFunc = registry.find(name)->second();
+    
+  // std::string str3 = str.substr (pos);     // get from "live" to the end
+  // }
+
 } //namespace bayesopt

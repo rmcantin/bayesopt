@@ -72,7 +72,10 @@ int main(int nargs, char *args[])
   bopt_params par = initialize_parameters_to_default();
 
   par.theta[0] = KERNEL_THETA;
-  par.n_theta = 1;
+  par.theta[1] = KERNEL_THETA;
+  par.s_theta[0] = 1;
+  par.s_theta[1] = 1;
+  par.n_theta = 2;
   par.alpha = PRIOR_ALPHA;
   par.beta = PRIOR_BETA;
   par.delta = PRIOR_DELTA_SQ;
@@ -80,7 +83,9 @@ int main(int nargs, char *args[])
   par.c_name = C_EI;
   par.s_name = S_STUDENT_T_PROCESS_JEFFREYS;
   par.k_name = K_MATERN_ISO3;
+  par.k_s_name = "kSum(kSEISO,kConst)";
   par.m_name = M_ZERO;
+  par.m_s_name = "mConst";
   par.n_iterations = 200;       // Number of iterations
   par.n_init_samples = 50;
   par.verbose_level = 2;

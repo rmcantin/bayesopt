@@ -52,7 +52,7 @@ namespace bayesopt
 
     vectord alpha(mGPY-mMeanV);
     inplace_solve(L,alpha,ublas::lower_tag());
-    double loglik = .5*ublas::inner_prod(alpha,alpha) + log_trace(L);
+    double loglik = .5*ublas::inner_prod(alpha,alpha) + utils::log_trace(L);
     return loglik;
   }
 

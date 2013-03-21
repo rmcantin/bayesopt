@@ -23,40 +23,48 @@
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 
-template<class E>
-typename E::value_type trace(const E &A)
+namespace bayesopt
 {
-  const size_t n = std::min(A.size1(),A.size2());
-  typename E::value_type sum = 0;
-  for (size_t i=0; i<n; ++i)
-    sum += A(i,i);
+  namespace utils
+  {
 
-  return sum; 
-}
+    template<class E>
+    typename E::value_type trace(const E &A)
+    {
+      const size_t n = std::min(A.size1(),A.size2());
+      typename E::value_type sum = 0;
+      for (size_t i=0; i<n; ++i)
+	sum += A(i,i);
 
-template<class E>
-typename E::value_type log_trace(const E &A)
-{
-  const size_t n = std::min(A.size1(),A.size2());
-  typename E::value_type sum = 0;
-  for (size_t i=0; i<n; ++i)
-    sum += log(A(i,i));
+      return sum; 
+    }
 
-  return sum; 
-}
+    template<class E>
+    typename E::value_type log_trace(const E &A)
+    {
+      const size_t n = std::min(A.size1(),A.size2());
+      typename E::value_type sum = 0;
+      for (size_t i=0; i<n; ++i)
+	sum += log(A(i,i));
+
+      return sum; 
+    }
 
 
-template<class E1, class E2>
-typename E1::value_type trace_prod(const E1 & A, const E2 & B )
-{
-  namespace ublas = boost::numeric::ublas;
+    template<class E1, class E2>
+    typename E1::value_type trace_prod(const E1 & A, const E2 & B )
+    {
+      namespace ublas = boost::numeric::ublas;
 
-  const size_t n = std::min(A.size1(),B.size2());
-  typename E1::value_type sum = 0;
-  for (size_t i=0; i<n; ++i)
-    sum += ublas::inner_prod(ublas::row(A,i),ublas::column(B,i));
+      const size_t n = std::min(A.size1(),B.size2());
+      typename E1::value_type sum = 0;
+      for (size_t i=0; i<n; ++i)
+	sum += ublas::inner_prod(ublas::row(A,i),ublas::column(B,i));
 
-  return sum; 
+      return sum; 
+    }
+    
+  }
 }
 
 

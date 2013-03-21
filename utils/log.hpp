@@ -46,6 +46,7 @@ FILE_LOG(logWARNING) << "Ops, variable x should be " << expectedX << "; is " << 
 #include <string>
 #include <cstdio>
 
+
 inline std::string NowTime();
 
 enum TLogLevel {logERROR, logWARNING, logINFO, logDEBUG, 

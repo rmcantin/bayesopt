@@ -28,100 +28,102 @@
 #include <boost/numeric/ublas/vector_proxy.hpp>
 #include "kernel_functors.hpp"
 
-/**\addtogroup KernelFunctions */
-//@{
-
-
-/** \brief Abstract class for combined kernel.
- *  It allows combinations of other kernels (addition, product, etc.)
- */
-class CombinedKernel : public Kernel
+namespace bayesopt
 {
-public:
-  virtual int init(size_t input_dim, Kernel* left, Kernel* right)
+  
+  /**\addtogroup KernelFunctions */
+  //@{
+
+  /** \brief Abstract class for combined kernel.
+   *  It allows combinations of other kernels (addition, product, etc.)
+   */
+  class CombinedKernel : public Kernel
   {
-    n_inputs = input_dim;
-    this->left = left;
-    this->right = right;
-    return 0;
-  };
-  void setHyperParameters(const vectord &theta) 
-  {
-    using boost::numeric::ublas::subrange;
+  public:
+    virtual int init(size_t input_dim, Kernel* left, Kernel* right)
+    {
+      n_inputs = input_dim;
+      this->left = left;
+      this->right = right;
+      return 0;
+    };
+    void setHyperParameters(const vectord &theta) 
+    {
+      using boost::numeric::ublas::subrange;
 
-    size_t n_lhs = left->nHyperParameters();
-    size_t n_rhs = right->nHyperParameters();
-    assert(theta.size() == n_lhs + n_rhs);
-    left->setHyperParameters(subrange(theta,0,n_lhs));
-    right->setHyperParameters(subrange(theta,n_lhs,n_lhs+n_rhs));
-  };
+      size_t n_lhs = left->nHyperParameters();
+      size_t n_rhs = right->nHyperParameters();
+      assert(theta.size() == n_lhs + n_rhs);
+      left->setHyperParameters(subrange(theta,0,n_lhs));
+      right->setHyperParameters(subrange(theta,n_lhs,n_lhs+n_rhs));
+    };
 
-  vectord getHyperParameters() 
-  {
-    using boost::numeric::ublas::subrange;
+    vectord getHyperParameters() 
+    {
+      using boost::numeric::ublas::subrange;
 
-    size_t n_lhs = left->nHyperParameters();
-    size_t n_rhs = right->nHyperParameters();
-    vectord par(n_lhs + n_rhs);
-    subrange(par,0,n_lhs) = left->getHyperParameters();
-    subrange(par,n_lhs,n_lhs+n_rhs) = right->getHyperParameters();
-    return par;
-  };
+      size_t n_lhs = left->nHyperParameters();
+      size_t n_rhs = right->nHyperParameters();
+      vectord par(n_lhs + n_rhs);
+      subrange(par,0,n_lhs) = left->getHyperParameters();
+      subrange(par,n_lhs,n_lhs+n_rhs) = right->getHyperParameters();
+      return par;
+    };
 
-  size_t nHyperParameters() 
-  {
-    size_t n_lhs = left->nHyperParameters();
-    size_t n_rhs = right->nHyperParameters();
-    return n_lhs + n_rhs;
-  };
+    size_t nHyperParameters() 
+    {
+      size_t n_lhs = left->nHyperParameters();
+      size_t n_rhs = right->nHyperParameters();
+      return n_lhs + n_rhs;
+    };
 
-  virtual ~CombinedKernel()
-  {
-    delete left;
-    delete right;
-  };
+    virtual ~CombinedKernel()
+    {
+      delete left;
+      delete right;
+    };
 
-protected:
-  Kernel* left;
-  Kernel* right;
-};
-
-
-/** \brief Sum of two kernels */
-class KernelSum: public CombinedKernel
-{
-public:
-  double operator()(const vectord &x1, const vectord &x2)
-  {
-    return (*left)(x1,x2) + (*right)(x1,x2);
-  };
-
-  double gradient(const vectord &x1, const vectord &x2,
-		  size_t component)
-  {
-    return left->gradient(x1,x2,component) + right->gradient(x1,x2,component);
-  };
-};
-
-
-/** \brief Product of two kernels */
-class KernelProd: public CombinedKernel
-{
-public:
-  double operator()(const vectord &x1, const vectord &x2)
-  {
-    return (*left)(x1,x2) * (*right)(x1,x2);
+  protected:
+    Kernel* left;
+    Kernel* right;
   };
 
-  double gradient(const vectord &x1, const vectord &x2,
-		  size_t component)
+
+  /** \brief Sum of two kernels */
+  class KernelSum: public CombinedKernel
   {
-    return 0.0; //TODO: Not implemented
+  public:
+    double operator()(const vectord &x1, const vectord &x2)
+    {
+      return (*left)(x1,x2) + (*right)(x1,x2);
+    };
+
+    double gradient(const vectord &x1, const vectord &x2,
+		    size_t component)
+    {
+      return left->gradient(x1,x2,component) + right->gradient(x1,x2,component);
+    };
   };
-};
 
 
+  /** \brief Product of two kernels */
+  class KernelProd: public CombinedKernel
+  {
+  public:
+    double operator()(const vectord &x1, const vectord &x2)
+    {
+      return (*left)(x1,x2) * (*right)(x1,x2);
+    };
 
-//@}
+    double gradient(const vectord &x1, const vectord &x2,
+		    size_t component)
+    {
+      return 0.0; //TODO: Not implemented
+    };
+  };
+
+  //@}
+
+} //namespace bayesopt
 
 #endif

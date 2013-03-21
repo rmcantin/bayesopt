@@ -75,7 +75,7 @@ namespace bayesopt
     inplace_solve(L,alphY,lower_tag());
 
     double lik1 = inner_prod(alphY,alphY) / (2*sigma); 
-    double lik2 = log_trace(L) + 0.5*n*log(sigma) + n*0.91893853320467; //log(2*pi)/2
+    double lik2 = utils::log_trace(L) + 0.5*n*log(sigma) + n*0.91893853320467; //log(2*pi)/2
   
     //TODO: This must be wrong.
     size_t index = 0;

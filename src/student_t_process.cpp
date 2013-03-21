@@ -67,7 +67,7 @@ namespace bayesopt
     // Obtained from SEQUENTIAL DESIGN OF COMPUTER EXPERIMENTS
     // TO MINIMIZE INTEGRATED RESPONSE FUNCTIONS
     // http://www3.stat.sinica.edu.tw/statistica/oldpdf/A10n46.pdf
-    double negloglik = log_trace(L) + 0.5*( (n-1)*log(sigma) + log(eta) );
+    double negloglik = utils::log_trace(L) + 0.5*( (n-1)*log(sigma) + log(eta) );
 
     return negloglik;
   }

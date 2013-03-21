@@ -75,7 +75,7 @@ namespace bayesopt
 
   private:
     vectord mAlphaV;
-    GaussianDistribution* d_;
+    GaussianDistribution* d_;     ///< Pointer to distribution function
   };
 
   /**@}*/

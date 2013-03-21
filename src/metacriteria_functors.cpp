@@ -46,8 +46,8 @@ namespace bayesopt
 
 
   //////////////////////////////////////////////////////////////////////
-  SingleCriteria::SingleCriteria(criterium_name name, 
-				 NonParametricProcess* proc): 
+  AtomicCriteria::AtomicCriteria(NonParametricProcess* proc,
+				 criterium_name name): 
     MetaCriteria(proc)  
   {
     mCriterium.reset(Criteria::create(name,mProc));
@@ -58,20 +58,8 @@ namespace bayesopt
   };
 
   //////////////////////////////////////////////////////////////////////
-  DistanceBasedCriteria::DistanceBasedCriteria(criterium_name name, 
-					       NonParametricProcess* proc): 
+  CombinedCriteria::CombinedCriteria(NonParametricProcess* proc): 
     MetaCriteria(proc)  
-  {
-    mCriterium.reset(Criteria::create(name,mProc));
-    if (mCriterium == NULL) 
-      {
-	FILE_LOG(logERROR) << "ERROR setting the criteria";
-      }
-  };
-
-  //////////////////////////////////////////////////////////////////////
-  SumCriteria::SumCriteria(NonParametricProcess *proc):
-    MetaCriteria(proc)
   {
     for(size_t i = 0; i < N_ALGORITHMS_IN_GP_HEDGE; ++i)
       {
@@ -80,8 +68,7 @@ namespace bayesopt
       }
   };
 
-
-  SumCriteria::~SumCriteria()
+  CombinedCriteria::~CombinedCriteria()
   {
     for(size_t i = 0; i<N_ALGORITHMS_IN_GP_HEDGE; ++i)
       {
@@ -91,28 +78,56 @@ namespace bayesopt
 
   //////////////////////////////////////////////////////////////////////
   GP_Hedge::GP_Hedge(NonParametricProcess *proc):
-    MetaCriteria(proc), mtRandom(100u),
+    CombinedCriteria(proc), mtRandom(100u),
     sampleUniform( mtRandom, realUniformDist(0,1)),
     loss_(zvectord(N_ALGORITHMS_IN_GP_HEDGE)), 
     gain_(zvectord(N_ALGORITHMS_IN_GP_HEDGE)), 
     prob_(zvectord(N_ALGORITHMS_IN_GP_HEDGE)),
     cumprob_(zvectord(N_ALGORITHMS_IN_GP_HEDGE))
+  {};
+
+  int GP_Hedge::initializeSearch()
   {
-    for(size_t i = 0; i<N_ALGORITHMS_IN_GP_HEDGE; ++i)
+    mIndex = 0;
+    mCurrentCriterium = mCriteriaList[mIndex];
+    mBestLists.clear();
+    return 1;
+  };
+
+  bool GP_Hedge::checkIfBest(vectord& best, 
+			     std::string& name,
+			     int& error_code)
+  { 
+    if (mIndex < N_ALGORITHMS_IN_GP_HEDGE)
       {
-	mCriteriaList.push_back(Criteria::create(ALGORITHMS_IN_GP_HEDGE[i],
-						 proc));
+	loss_(mIndex) = computeLoss(best);
+	mBestLists.push_back(best);
+	error_code = 0;
+	++mIndex;
+	if (mIndex < N_ALGORITHMS_IN_GP_HEDGE)
+	  mCurrentCriterium = mCriteriaList[mIndex];
+	return false;
       }
+    else
+      {
+	int optIndex = update_hedge();
+	name = crit2str(ALGORITHMS_IN_GP_HEDGE[optIndex]);
+      
+	if (optIndex >= 0)
+	  {
+	    best = mBestLists[optIndex];
+	    error_code = 0;
+	  }
+	else
+	  {
+	    error_code = optIndex; 
+	  }
+	return true;	
+      }
+
   };
 
 
-  GP_Hedge::~GP_Hedge()
-  {
-    for(size_t i = 0; i<N_ALGORITHMS_IN_GP_HEDGE; ++i)
-      {
-	delete mCriteriaList[i];
-      }
-  };
 
   int GP_Hedge::update_hedge()
   {
@@ -155,46 +170,6 @@ namespace bayesopt
     return -1;
   };
 
-  int GP_Hedge::initializeSearch()
-  {
-    mIndex = 0;
-    mCurrentCriterium = mCriteriaList[mIndex];
-    mBestLists.clear();
-    return 1;
-  };
 
-
-  bool GP_Hedge::checkIfBest(vectord& best, 
-			     criterium_name& name,
-			     int& error_code)
-  { 
-    if (mIndex < N_ALGORITHMS_IN_GP_HEDGE)
-      {
-	loss_(mIndex) = computeLoss(best);
-	mBestLists.push_back(best);
-	error_code = 0;
-	++mIndex;
-	if (mIndex < N_ALGORITHMS_IN_GP_HEDGE)
-	  mCurrentCriterium = mCriteriaList[mIndex];
-	return false;
-      }
-    else
-      {
-	int optIndex = update_hedge();
-	name = ALGORITHMS_IN_GP_HEDGE[optIndex];
-      
-	if (optIndex >= 0)
-	  {
-	    best = mBestLists[optIndex];
-	    error_code = 0;
-	  }
-	else
-	  {
-	    error_code = optIndex; 
-	  }
-	return true;	
-      }
-
-  };
 
 } //namespace bayesopt

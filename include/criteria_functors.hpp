@@ -242,6 +242,25 @@ namespace bayesopt
     unsigned int nCalls;
   };
 
+  /**
+   * \brief Distance in input space. Can be combined with other
+   * critera to trade off large changes in input space.
+   */
+  class InputDistance: public Criteria
+  {
+  public:
+    explicit InputDistance(NonParametricProcess *proc): 
+      Criteria(proc) {};
+    virtual ~InputDistance(){};
+    double operator()(const vectord &x)
+    { 
+      vectord x2(x.size());
+      mProc->getLastSample(x2);
+      return norm_2(x-x2);
+    };
+  };
+
+
   //@}
 
 } //namespace bayesopt

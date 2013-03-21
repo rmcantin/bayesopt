@@ -162,6 +162,8 @@ TARGET_LINK_LIBRARIES(bo_branin bayesopt)
 
 #Test for random number generator
 #ADD_EXECUTABLE(randtest ./app/testrand.cpp)
+#Test for parsers
+ADD_EXECUTABLE(parsetest ./utils/parser.cpp ./app/testparser.cpp)
 
 
 INSTALL(FILES ./include/bayesoptcont.hpp 

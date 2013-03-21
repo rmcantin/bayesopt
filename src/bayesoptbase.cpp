@@ -92,22 +92,24 @@ namespace bayesopt
 
   int BayesOptBase::nextPoint(vectord &Xnext)
   {
-    bool check = false;
-    criterium_name name;
     int error = 0;
-    mCrit->initializeSearch();
-    while (!check)
+    if (mCrit->requireComparison())
+      {
+	bool check = false;
+	std::string name;
+
+	mCrit->initializeSearch();
+	while (!check)
+	  {
+	    findOptimal(Xnext);
+	    check = mCrit->checkIfBest(Xnext,name,error);
+	  }
+	FILE_LOG(logINFO) << name << " was selected.";
+      }
+    else
       {
 	findOptimal(Xnext);
-	check = mCrit->checkIfBest(Xnext,name,error);
       }
-
-    if ((mParameters.c_name == C_GP_HEDGE) || 
-	(mParameters.c_name == C_GP_HEDGE_RANDOM))
-      {
-	FILE_LOG(logINFO) << crit2str(name) << " was selected.";
-      }
-
     return error;
   }
 

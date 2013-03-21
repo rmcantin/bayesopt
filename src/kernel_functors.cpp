@@ -1,6 +1,5 @@
-#include <sstream>
-
 #include "log.hpp"
+#include "parser.hpp"
 #include "kernel_functors.hpp"
 #include "kernel_atomic.hpp"
 #include "kernel_combined.hpp"
@@ -63,41 +62,25 @@ namespace bayesopt
   Kernel* KernelFactory::create(std::string name, size_t input_dim)
   {
     Kernel *kFunc;
-    std::stringstream is(name);
-    std::stringstream os(std::stringstream::out);
-    std::stringstream os1(std::stringstream::out);
-    std::stringstream os2(std::stringstream::out);
-    char c;
-    int i = 0, j = 0;
-    while (is >> c) 
-      {
-	if (c == '(') i++;
-	else if (c == ')') i--;
-	else if ((i == 1) && (c == ',')) j++;
-	else 
-	  {
-	    if (i == 0) os << c;
-	    else if (j == 0) os1 << c;
-	    else os2 << c;
-	  }
-      }
+    std::string os, os1, os2;
+    utils::parseExpresion(name,os,os1,os2);
 
-    std::map<std::string,KernelFactory::create_func_definition>::iterator it = registry.find(os.str());
+    std::map<std::string,KernelFactory::create_func_definition>::iterator it = registry.find(os);
     if (it == registry.end()) 
       {
 	FILE_LOG(logERROR) << "Error: Fatal error while parsing "
-			   << "kernel function: " << os.str() 
+			   << "kernel function: " << os 
 			   << " not found" << std::endl;
 	return NULL;
       } 
     kFunc = it->second();
-    if (os1.str().length() == 0 && os2.str().length() == 0) 
+    if (os1.length() == 0 && os2.length() == 0) 
       {
 	kFunc->init(input_dim);
       } 
     else 
       {
-	kFunc->init(input_dim, create(os1.str(),input_dim), create(os2.str(),input_dim));
+	kFunc->init(input_dim, create(os1,input_dim), create(os2,input_dim));
       }
     return kFunc;
 

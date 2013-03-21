@@ -28,102 +28,104 @@
 #include <boost/numeric/ublas/vector_proxy.hpp>
 #include "kernel_functors.hpp"
 
-/**\addtogroup ParametricFunctions
- * @{
- */
-
-
-
-/** \brief Abstract class for combined functions.
- *  It allows combinations of other functions (addition, product, etc.)
- */
-class CombinedFunction : public ParametricFunction
+namespace bayesopt
 {
-public:
-  virtual int init(size_t input_dim, 
-		   ParametricFunction* left, 
-		   ParametricFunction* right)
+
+  /**\addtogroup ParametricFunctions
+   * @{
+   */
+
+  /** \brief Abstract class for combined functions.
+   *  It allows combinations of other functions (addition, product, etc.)
+   */
+  class CombinedFunction : public ParametricFunction
   {
-    n_inputs = input_dim;
-    this->left = left;
-    this->right = right;
-    return 0;
-  };
-  void setParameters(const vectord &theta) 
-  {
-    using boost::numeric::ublas::subrange;
+  public:
+    virtual int init(size_t input_dim, 
+		     ParametricFunction* left, 
+		     ParametricFunction* right)
+    {
+      n_inputs = input_dim;
+      this->left = left;
+      this->right = right;
+      return 0;
+    };
+    void setParameters(const vectord &theta) 
+    {
+      using boost::numeric::ublas::subrange;
 
-    size_t n_lhs = left->nParameters();
-    size_t n_rhs = right->nParameters();
-    assert(theta.size() == n_lhs + n_rhs);
-    left->setParameters(subrange(theta,0,n_lhs));
-    right->setParameters(subrange(theta,n_lhs,n_lhs+n_rhs));
-  };
+      size_t n_lhs = left->nParameters();
+      size_t n_rhs = right->nParameters();
+      assert(theta.size() == n_lhs + n_rhs);
+      left->setParameters(subrange(theta,0,n_lhs));
+      right->setParameters(subrange(theta,n_lhs,n_lhs+n_rhs));
+    };
 
-  vectord getParameters() 
-  {
-    using boost::numeric::ublas::subrange;
+    vectord getParameters() 
+    {
+      using boost::numeric::ublas::subrange;
 
-    size_t n_lhs = left->nParameters();
-    size_t n_rhs = right->nParameters();
-    vectord par(n_lhs + n_rhs);
-    subrange(par,0,n_lhs) = left->getParameters();
-    subrange(par,n_lhs,n_lhs+n_rhs) = right->getParameters();
-    return par;
-  };
+      size_t n_lhs = left->nParameters();
+      size_t n_rhs = right->nParameters();
+      vectord par(n_lhs + n_rhs);
+      subrange(par,0,n_lhs) = left->getParameters();
+      subrange(par,n_lhs,n_lhs+n_rhs) = right->getParameters();
+      return par;
+    };
 
-  size_t nParameters() 
-  {
-    size_t n_lhs = left->nParameters();
-    size_t n_rhs = right->nParameters();
-    return n_lhs + n_rhs;
-  };
+    size_t nParameters() 
+    {
+      size_t n_lhs = left->nParameters();
+      size_t n_rhs = right->nParameters();
+      return n_lhs + n_rhs;
+    };
 
-  virtual ~CombinedFunction()
-  {
-    delete left;
-    delete right;
-  };
+    virtual ~CombinedFunction()
+    {
+      delete left;
+      delete right;
+    };
 
-protected:
-  ParametricFunction* left;
-  ParametricFunction* right;
-};
-
-
-/** \brief Sum of two kernels */
-class SumFunction: public CombinedFunction
-{
-public:
-  double getMean(const vectord &x)
-  {
-    return left->getMean(x) + right->getMean(x);
-  };
-
-  vectord getFeatures(const vectord &x)
-  {
-    using boost::numeric::ublas::subrange;
-
-    size_t n_lhf = left->nFeatures();
-    size_t n_rhf = right->nFeatures();
-    vectord feat(n_lhf + n_rhf);
-    subrange(feat,0,n_lhf) = left->getFeatures(x);
-    subrange(feat,n_lhf,n_lhf+n_rhf) = right->getFeatures(x);
-    return feat;
-  };
-
-  size_t nFeatures() 
-  {
-    size_t n_lhf = left->nFeatures();
-    size_t n_rhf = right->nFeatures();
-    return n_lhf + n_rhf;
+  protected:
+    ParametricFunction* left;
+    ParametricFunction* right;
   };
 
 
-};
+  /** \brief Sum of two kernels */
+  class SumFunction: public CombinedFunction
+  {
+  public:
+    double getMean(const vectord &x)
+    {
+      return left->getMean(x) + right->getMean(x);
+    };
+
+    vectord getFeatures(const vectord &x)
+    {
+      using boost::numeric::ublas::subrange;
+
+      size_t n_lhf = left->nFeatures();
+      size_t n_rhf = right->nFeatures();
+      vectord feat(n_lhf + n_rhf);
+      subrange(feat,0,n_lhf) = left->getFeatures(x);
+      subrange(feat,n_lhf,n_lhf+n_rhf) = right->getFeatures(x);
+      return feat;
+    };
+
+    size_t nFeatures() 
+    {
+      size_t n_lhf = left->nFeatures();
+      size_t n_rhf = right->nFeatures();
+      return n_lhf + n_rhf;
+    };
+
+  };
+
+  //@}
+
+} //namespace bayesopt
 
 
-
-//@}
 
 #endif

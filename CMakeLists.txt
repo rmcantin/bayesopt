@@ -82,6 +82,9 @@ SET( BAYESOPT_SRCS
   ./src/gauss_distribution.cpp
   ./src/student_t_distribution.cpp
   )
+SET(UTILS_SRC
+  ./utils/parser.cpp
+  )
 
 SET(WRAPPPERS_SRC 
   ./wrappers/nloptwpr.cpp
@@ -109,10 +112,10 @@ ENDIF(BUILD_NLOPT)
 
 IF(BUILD_SHARED_LIBS)
 	ADD_LIBRARY(bayesopt SHARED ${BAYESOPT_SRCS}   
-	${WRAPPPERS_SRC} ${PYTHON_SRC} )
+	${WRAPPPERS_SRC} ${UTILS_SRC} ${PYTHON_SRC} )
 ELSE()
 	ADD_LIBRARY(bayesopt STATIC ${BAYESOPT_SRCS}   
-	${WRAPPPERS_SRC} ${PYTHON_SRC} )
+	${WRAPPPERS_SRC} ${UTILS_SRC} ${PYTHON_SRC} )
 ENDIF()
 
 IF(BUILD_SHARED_LIBS OR MATLAB_COMPATIBLE)

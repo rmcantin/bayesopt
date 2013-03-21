@@ -27,139 +27,144 @@
 #include <boost/numeric/ublas/vector_proxy.hpp>
 #include "mean_functors.hpp"
 
-/**\addtogroup ParametricFunctions
- * @{
- */
-
-/** \brief Abstract class for an atomic kernel */
-class AtomicFunction : public ParametricFunction
+namespace bayesopt
 {
-public:
-  virtual int init(size_t input_dim)
+
+  /**\addtogroup ParametricFunctions
+   * @{
+   */
+
+  /** \brief Abstract class for an atomic kernel */
+  class AtomicFunction : public ParametricFunction
   {
-    n_inputs = input_dim;
-    return 0;
+  public:
+    virtual int init(size_t input_dim)
+    {
+      n_inputs = input_dim;
+      return 0;
+    };
+    void setParameters(const vectord &theta) 
+    {
+      assert(theta.size() == n_params);
+      mParameters = theta;
+    };
+    vectord getParameters() {return mParameters;};
+    size_t nParameters() {return n_params;};
+    size_t nFeatures() {return n_features;};
+
+    virtual ~AtomicFunction(){};
+
+  protected:
+    size_t n_params;
+    size_t n_features;
+    vectord mParameters;
   };
-  void setParameters(const vectord &theta) 
+
+
+  /** \brief Constant zero function */
+  class ZeroFunction: public AtomicFunction
   {
-    assert(theta.size() == n_params);
-    mParameters = theta;
+  public:
+    int init(size_t input_dim)
+    {
+      n_inputs = input_dim;
+      n_params = 0;
+      n_features = 1;
+      return 0;
+    };
+    double getMean (const vectord& x) { return 0.0; };
+    vectord getFeatures(const vectord& x) { return zvectord(1); };  
   };
-  vectord getParameters() {return mParameters;};
-  size_t nParameters() {return n_params;};
-  size_t nFeatures() {return n_features;};
 
-  virtual ~AtomicFunction(){};
-
-protected:
-  size_t n_params;
-  size_t n_features;
-  vectord mParameters;
-};
-
-
-/** \brief Constant zero function */
-class ZeroFunction: public AtomicFunction
-{
-public:
-  int init(size_t input_dim)
+  /** \brief Constant one function */
+  class OneFunction: public AtomicFunction
   {
-    n_inputs = input_dim;
-    n_params = 0;
-    n_features = 1;
-    return 0;
+  public:
+    int init(size_t input_dim)
+    {
+      n_inputs = input_dim;
+      n_params = 0;
+      n_features = 1;
+      return 0;
+    };
+    double getMean (const vectord& x) { return 1.0; };
+    vectord getFeatures(const vectord& x) { return svectord(1,1.0); };  
   };
-  double getMean (const vectord& x) { return 0.0; };
-  vectord getFeatures(const vectord& x) { return zvectord(1); };  
-};
 
-/** \brief Constant one function */
-class OneFunction: public AtomicFunction
-{
-public:
-  int init(size_t input_dim)
+
+  /** \brief Constant function. 
+      The first parameter indicates the constant value. */
+  class ConstantFunction: public AtomicFunction
   {
-    n_inputs = input_dim;
-    n_params = 0;
-    n_features = 1;
-    return 0;
+  public:
+    int init(size_t input_dim)
+    {
+      n_inputs = input_dim;
+      n_params = 1;
+      n_features = 1;
+      return 0;
+    };
+    double getMean (const vectord& x) { return mParameters(0); };
+    vectord getFeatures(const vectord& x) { return svectord(1,1.0); };  
   };
-  double getMean (const vectord& x) { return 1.0; };
-  vectord getFeatures(const vectord& x) { return svectord(1,1.0); };  
-};
 
 
-/** \brief Constant function. 
-    The first parameter indicates the constant value. */
-class ConstantFunction: public AtomicFunction
-{
-public:
-  int init(size_t input_dim)
+  /** \brief Linear combination function. 
+      Each parameter indicates the coefficient of each dimension. */
+  class LinearFunction: public AtomicFunction
   {
-    n_inputs = input_dim;
-    n_params = 1;
-    n_features = 1;
-    return 0;
+  public:
+    int init(size_t input_dim)
+    {
+      n_inputs = input_dim;
+      n_params = input_dim;
+      n_features = input_dim;
+      return 0;
+    };
+    double getMean (const vectord& x)
+    { return boost::numeric::ublas::inner_prod(x,mParameters);  };
+    vectord getFeatures(const vectord& x) { return x; };  
   };
-  double getMean (const vectord& x) { return mParameters(0); };
-  vectord getFeatures(const vectord& x) { return svectord(1,1.0); };  
-};
 
 
-/** \brief Linear combination function. 
-    Each parameter indicates the coefficient of each dimension. */
-class LinearFunction: public AtomicFunction
-{
-public:
-  int init(size_t input_dim)
+  /** \brief Linear combination plus constant function. 
+      The first parameter indicates the constant value. */
+  class LinearPlusConstantFunction: public AtomicFunction
   {
-    n_inputs = input_dim;
-    n_params = input_dim;
-    n_features = input_dim;
-    return 0;
-  };
-  double getMean (const vectord& x)
-  { return boost::numeric::ublas::inner_prod(x,mParameters);  };
-  vectord getFeatures(const vectord& x) { return x; };  
-};
-
-
-/** \brief Linear combination plus constant function. 
-    The first parameter indicates the constant value. */
-class LinearPlusConstantFunction: public AtomicFunction
-{
-public:
-  int init(size_t input_dim)
-  {
-    n_inputs = input_dim;
-    n_params = input_dim + 1;
-    n_features = input_dim + 1;
-    return 0;
-  };
-  void setParameters(const vectord& params)
-  { 
-    mConstParam = params(0);
-    mParameters = boost::numeric::ublas::project(params, 
-			boost::numeric::ublas::range(1, params.size())); 
-  };
+  public:
+    int init(size_t input_dim)
+    {
+      n_inputs = input_dim;
+      n_params = input_dim + 1;
+      n_features = input_dim + 1;
+      return 0;
+    };
+    void setParameters(const vectord& params)
+    { 
+      mConstParam = params(0);
+      mParameters = boost::numeric::ublas::project(params, 
+						   boost::numeric::ublas::range(1, params.size())); 
+    };
   
-  double getMean (const vectord& x)
-  { return boost::numeric::ublas::inner_prod(x,mParameters) + mConstParam;  };
+    double getMean (const vectord& x)
+    { return boost::numeric::ublas::inner_prod(x,mParameters) + mConstParam;  };
 
-  vectord getFeatures(const vectord& x) 
-  {
-    using boost::numeric::ublas::range;
-    using boost::numeric::ublas::project;
-    vectord res(x.size()+1);
-    res(0) = 1;
-    project(res,range(1,res.size())) = x;
-    return res; 
-  };  
+    vectord getFeatures(const vectord& x) 
+    {
+      using boost::numeric::ublas::range;
+      using boost::numeric::ublas::project;
+      vectord res(x.size()+1);
+      res(0) = 1;
+      project(res,range(1,res.size())) = x;
+      return res; 
+    };  
 
-protected:
-  double mConstParam;
-};
+  protected:
+    double mConstParam;
+  };
 
-//@}
+  //@}
+
+} //namespace bayesopt
 
 #endif

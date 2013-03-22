@@ -101,7 +101,8 @@ extern "C" {
     surrogate_name s_name;       /**< Name of the surrogate function */
     kernel_name k_name;          /**< Name of the kernel funct. -DEPRECATED-*/
     char* k_s_name;              /**< Name of the kernel function */
-    criterium_name c_name;       /**< Name of the criterion */
+    criterium_name c_name;       /**< Name of the criterion -DEPRECATED-*/
+    char* c_s_name;              /**< Name of the criterion */
     mean_name m_name;            /**< Name of the mean funct. -DEPRECATED-*/
     char* m_s_name;              /**< Name of the mean function */
 

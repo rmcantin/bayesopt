@@ -31,7 +31,7 @@
 #include "specialtypes.hpp"
 
 #include "nonparametricprocess.hpp"
-#include "metacriteria_functors.hpp"
+#include "criteria_functors.hpp"
 
 /**
  * Namespace of the library interface
@@ -164,7 +164,7 @@ namespace bayesopt {
 
   protected:
     boost::scoped_ptr<NonParametricProcess> mGP;  ///< Pointer to surrogate model
-    boost::scoped_ptr<MetaCriteria> mCrit;                ///< Metacriteria model
+    boost::scoped_ptr<Criteria> mCrit;                    ///< Metacriteria model
     bopt_params mParameters;                        ///< Configuration parameters
     size_t mDims;                                       ///< Number of dimensions
 
@@ -175,6 +175,7 @@ namespace bayesopt {
      * surrogate, etc.)
      */
     int __init__();
+    CriteriaFactory mCFactory;
   };
 
   /**@}*/

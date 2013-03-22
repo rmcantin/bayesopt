@@ -52,7 +52,7 @@ namespace bayesopt
     virtual double operator()(const vectord &x) = 0;
 
     //Dummy functions.
-    virtual int initializeSearch() { assert(false); };
+    virtual int initialize() { assert(false); };
     virtual bool checkIfBest(vectord& xNext,
 			     std::string& name,
 			     int& error_code) { assert(false); };
@@ -145,7 +145,7 @@ namespace bayesopt
     bool requireComparison(){ return true; };
     double operator()(const vectord &x) { return (*mCurrentCriterium)(x); };
 
-    int initializeSearch();
+    int initialize();
     bool checkIfBest(vectord& best, std::string& name,int& error_code);
 
   protected:

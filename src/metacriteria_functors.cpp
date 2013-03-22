@@ -86,7 +86,7 @@ namespace bayesopt
     cumprob_(zvectord(N_ALGORITHMS_IN_GP_HEDGE))
   {};
 
-  int GP_Hedge::initializeSearch()
+  int GP_Hedge::initialize()
   {
     mIndex = 0;
     mCurrentCriterium = mCriteriaList[mIndex];

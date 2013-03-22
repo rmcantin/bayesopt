@@ -77,7 +77,7 @@ SET( BAYESOPT_SRCS
   ./src/parameters.cpp
   ./src/kernel_functors.cpp
   ./src/criteria_functors.cpp
-  ./src/metacriteria_functors.cpp
+  ./src/criteria_combined.cpp
   ./src/mean_functors.cpp
   ./src/gauss_distribution.cpp
   ./src/student_t_distribution.cpp
@@ -140,7 +140,7 @@ ENDIF(BUILD_NLOPT)
 TARGET_LINK_LIBRARIES(bayesopt
   ${EXT_LIBS} ${PYTHON_LIB} )
 
-#Naive test
+#Continuous test
 ADD_EXECUTABLE(bo_cont ./app/bo_cont.cpp)
 add_dependencies(bo_cont bayesopt)
 TARGET_LINK_LIBRARIES(bo_cont bayesopt)
@@ -162,8 +162,9 @@ TARGET_LINK_LIBRARIES(bo_branin bayesopt)
 
 #Test for random number generator
 #ADD_EXECUTABLE(randtest ./app/testrand.cpp)
+
 #Test for parsers
-ADD_EXECUTABLE(parsetest ./utils/parser.cpp ./app/testparser.cpp)
+#ADD_EXECUTABLE(parsetest ./utils/parser.cpp ./app/testparser.cpp)
 
 
 INSTALL(FILES ./include/bayesoptcont.hpp 

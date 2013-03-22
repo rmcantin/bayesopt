@@ -60,7 +60,7 @@ int main(int nargs, char *args[])
   parameters.n_iterations = 300;
   parameters.theta[0] = 1.0;
   parameters.n_theta = 1;
-  parameters.c_name = C_GP_HEDGE;
+  parameters.c_s_name = "cHedge(cEI,cLCB,cExpReturn,cOptimisticSampling)";
 
   ExampleOneD opt(dim,parameters);
   vectord result(dim);

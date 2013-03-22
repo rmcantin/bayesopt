@@ -19,52 +19,113 @@
    along with BayesOpt.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------
 */
-#include "criteria_functors.hpp"
 #include "log.hpp"
+#include "parser.hpp"
+#include "criteria_functors.hpp"
+#include "criteria_atomic.hpp"
+#include "criteria_combined.hpp"
 
 namespace bayesopt
 {
-  
-  Criteria* Criteria::create(criterium_name name,
-			     NonParametricProcess* proc)
+  CriteriaFactory::CriteriaFactory()
   {
+    registry["cEI"] = & create_func<ExpectedImprovement>;
+    registry["cEIa"] = & create_func<AnnealedExpectedImprovement>;
+    registry["cLCB"] = & create_func<LowerConfidenceBound>;
+    registry["cLCBa"] = & create_func<AnnealedLowerConfindenceBound>;
+    registry["cPOI"] = & create_func<ProbabilityOfImprovement>;
+    registry["cAopt"] = & create_func<GreedyAOptimality>;
+    registry["cExpReturn"] = & create_func<ExpectedReturn>;
+    registry["cOptimisticSampling"] = & create_func<OptimisticSampling>;
+    registry["cThompsonSampling"] = & create_func<ThompsonSampling>;
+    registry["cDistance"] = & create_func<InputDistance>;
+
+    registry["cSum"] = & create_func<SumCriteria>;
+    registry["cProd"] = & create_func<ProdCriteria>;
+    registry["cHedge"] = & create_func<GP_Hedge>;
+    registry["cHedgeRandom"] = & create_func<GP_Hedge_Random>;
+  }
+
+  /// Factory method for criterion functions.
+  Criteria* CriteriaFactory::create(criterium_name name,
+				    NonParametricProcess* proc)
+  {
+    Criteria* c_ptr;
+    std::vector<Criteria*> list;
     switch (name)
       {
-      case C_EI:     return new ExpectedImprovement(proc);
-      case C_EI_A:   return new AnnealedExpectedImprovement(proc);
-      case C_LCB:    return new LowerConfidenceBound(proc);
-      case C_LCB_A:  return new AnnealedLowerConfindenceBound(proc);
-      case C_POI:    return new ProbabilityOfImprovement(proc);
-      case C_GREEDY_A_OPTIMALITY: return new GreedyAOptimality(proc);
-      case C_EXPECTED_RETURN:     return new ExpectedReturn(proc);
-      case C_OPTIMISTIC_SAMPLING: return new OptimisticSampling(proc);
+      case C_EI:     c_ptr = new ExpectedImprovement(); break;
+      case C_EI_A:   c_ptr = new AnnealedExpectedImprovement(); break;
+      case C_LCB:    c_ptr = new LowerConfidenceBound(); break;
+      case C_LCB_A:  c_ptr = new AnnealedLowerConfindenceBound(); break;
+      case C_POI:    c_ptr = new ProbabilityOfImprovement(); break;
+      case C_GREEDY_A_OPTIMALITY: c_ptr = new GreedyAOptimality(); break;
+      case C_EXPECTED_RETURN: c_ptr = new ExpectedReturn(); break;
+      case C_OPTIMISTIC_SAMPLING: c_ptr = new OptimisticSampling(); break;
+      case C_GP_HEDGE: c_ptr = new GP_Hedge(); break;
+      case C_GP_HEDGE_RANDOM: c_ptr = new GP_Hedge_Random(); break;
       default:
 	FILE_LOG(logERROR) << "Error in criterium";
 	return NULL;
       }
+    if ((name = C_GP_HEDGE) || (name = C_GP_HEDGE_RANDOM))
+      {
+	for(size_t i = 0; i < N_ALGORITHMS_IN_GP_HEDGE; ++i)
+	  {
+	    list.push_back(create(ALGORITHMS_IN_GP_HEDGE[i],proc)); 
+	  }
+	c_ptr->init(proc,list);
+      }
+    else
+      {
+	c_ptr->init(proc);
+      }
+    return c_ptr;
   };
 
 
-  // Criteria* CriteriaFactory::create(std::string name,
-  // 				    NonParametricProcess* proc)
-  // {
-  //   Criteria *cFunc;
-  //   size_t pos = name.find("(");         // position of "(" in str
-  //   if (pos = std::string::npos)              // Atomic criterion
-  //     {
-  // 	std::map<std::string,CriteriaFactory::create_func_definition>::iterator it = registry.find(name);
-  //     }
+  /** 
+   * \brief Factory model for criterion functions
+   * This function is based on the libgp library by Manuel Blum
+   *      https://bitbucket.org/mblum/libgp
+   * which follows the squeme of GPML by Rasmussen and Nickisch
+   *     http://www.gaussianprocess.org/gpml/code/matlab/doc/
+   * @param name string with the criteria structure
+   * @param pointer to surrogate model
+   * @return criteria pointer
+   */
+  Criteria* CriteriaFactory::create(std::string name,
+				    NonParametricProcess* proc)
+  {
+    Criteria *cFunc;
+    std::string os;
+    std::vector<std::string> osc;
+    utils::parseExpresion(name,os,osc);
 
-  //   if (it == registry.end()) 
-  //     {
-  // 	FILE_LOG(logERROR) << "Error: Fatal error while parsing "
-  // 			   << "criteria function: " << os.str() 
-  // 			   << " not found" << std::endl;
-  // 	return NULL;
-  //     } 
-  //   kFunc = registry.find(name)->second();
-    
-  // std::string str3 = str.substr (pos);     // get from "live" to the end
-  // }
+    std::map<std::string,CriteriaFactory::create_func_definition>::iterator it = registry.find(os);
+    if (it == registry.end()) 
+      {
+	FILE_LOG(logERROR) << "Error: Fatal error while parsing "
+			   << "kernel function: " << os 
+			   << " not found" << std::endl;
+	return NULL;
+      } 
+    cFunc = it->second();
+    if (osc.size() == 0) 
+      {
+	cFunc->init(proc);
+      } 
+    else 
+      {
+	std::vector<Criteria*> list;
+	for(size_t i = 0; i < osc.size(); ++i)
+	  {
+	    list.push_back(create(osc[i],proc)); 
+	  }
+	cFunc->init(proc,list);
+      }
+    return cFunc;
+  };
+
 
 } //namespace bayesopt

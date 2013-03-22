@@ -77,7 +77,7 @@ namespace bayesopt
 	return -1;
       } 
 
-    mCrit.reset(MetaCriteria::create(mParameters.c_name,mGP.get()));
+    mCrit.reset(mCFactory.create(mParameters.c_s_name,mGP.get()));
     if (mCrit == NULL)       
       {
 	FILE_LOG(logERROR) << "Error in criterium"; 
@@ -98,7 +98,7 @@ namespace bayesopt
 	bool check = false;
 	std::string name;
 
-	mCrit->initializeSearch();
+	mCrit->reset();
 	while (!check)
 	  {
 	    findOptimal(Xnext);

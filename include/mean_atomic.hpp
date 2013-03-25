@@ -99,6 +99,7 @@ namespace bayesopt
   public:
     int init(size_t input_dim)
     {
+      std::cout << "Yay!!!" << std::endl;
       n_inputs = input_dim;
       n_params = 1;
       n_features = 1;

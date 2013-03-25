@@ -76,6 +76,8 @@ int main(int nargs, char *args[])
   par.s_theta[0] = 1;
   par.s_theta[1] = 1;
   par.n_theta = 2;
+  par.mu[0] = 1.0;
+  par.n_mu = 1;
   par.alpha = PRIOR_ALPHA;
   par.beta = PRIOR_BETA;
   par.delta = PRIOR_DELTA_SQ;

@@ -97,6 +97,8 @@ namespace bayesopt
   Criteria* CriteriaFactory::create(std::string name,
 				    NonParametricProcess* proc)
   {
+    std::cout << name << std::endl;
+
     Criteria *cFunc;
     std::string os;
     std::vector<std::string> osc;

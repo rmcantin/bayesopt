@@ -64,9 +64,7 @@ namespace bayesopt
       return sum; 
     }
     
-  }
-}
-
-
+  } //  namespace utils
+} //namespace bayesopt
 
 #endif

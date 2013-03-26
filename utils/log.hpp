@@ -37,8 +37,6 @@ Output2FILE::Stream() = log_fd;
 FILE_LOG(logWARNING) << "Ops, variable x should be " << expectedX << "; is " << realX;
 */
 
-
-
 #ifndef __LOG_HPP__
 #define __LOG_HPP__
 

@@ -23,17 +23,25 @@
 
 #include <typeinfo>
 
-template<class V, class D>
-int append(V& vect, D element)
+namespace bayesopt
 {
-  typedef typename V::value_type VD;
-  assert(typeid(VD) == typeid(D));
+  /// Extra utils: math functions, ublas helpers, etc.
+  namespace utils
+  {
+    template<class V, class D>
+    int append(V& vect, D element)
+    {
+      typedef typename V::value_type VD;
+      assert(typeid(VD) == typeid(D));
+      
+      // This method is super inefficient but there seems to be the uBlas style.
+      const size_t size = vect.size();
+      vect.resize(size+1,true);
+      vect(size) = element;
+      return 0;
+    };
 
-  // This method is super inefficient but there seems to be the uBlas style.
-  const size_t size = vect.size();
-  vect.resize(size+1,true);
-  vect(size) = element;
-  return 0;
-};
+  } //  namespace utils
+} //namespace bayesopt
 
 #endif

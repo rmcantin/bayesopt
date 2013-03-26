@@ -266,7 +266,7 @@ namespace bayesopt
 						  double selfcorrelation)
   {
     vectord newK(correlation);
-    append(newK, selfcorrelation);
+    utils::append(newK, selfcorrelation);
     utils::cholesky_add_row(mL,newK);
     return 1;
   }

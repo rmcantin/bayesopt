@@ -24,40 +24,46 @@
 #ifndef __INDEX_VECTOR_HPP__
 #define __INDEX_VECTOR_HPP__
 
-
-/**
- * \brief Simple class to generate sequences of unique numbers
- */
-class CUnique 
+namespace bayesopt
 {
-private:
-  int current;
-public:
-  CUnique() {current=0;}
-  int operator()() {return ++current;}
-};
+  namespace utils
+  {
+    /**
+     * \brief Simple class to generate sequences of unique numbers
+     */
+    class CUnique 
+    {
+    private:
+      int current;
+    public:
+      CUnique() {current=0;}
+      int operator()() {return ++current;}
+    };
 
-/** 
- * Generates a vector of indexes (0..n)
- * @param n vector size
- * @return index vector
- */
-inline std::vector<int> returnIndexVector(size_t n)
-{
-  CUnique UniqueNumber;
-  std::vector<int> arr(n);
-  generate (arr.begin(), arr.end(), UniqueNumber);
-  return arr;
-};
+    /** 
+     * Generates a vector of indexes (0..n)
+     * @param n vector size
+     * @return index vector
+     */
+    inline std::vector<int> returnIndexVector(size_t n)
+    {
+      CUnique UniqueNumber;
+      std::vector<int> arr(n);
+      generate (arr.begin(), arr.end(), UniqueNumber);
+      return arr;
+    };
 
-/** 
- * Modify a vector of indexes (0..n)
- * @param arr vector
- */
-inline void modifyIndexVector(std::vector<int>& arr)
-{
-  CUnique UniqueNumber;
-  generate (arr.begin(), arr.end(), UniqueNumber);
-};
+    /** 
+     * Modify a vector of indexes (0..n)
+     * @param arr vector
+     */
+    inline void modifyIndexVector(std::vector<int>& arr)
+    {
+      CUnique UniqueNumber;
+      generate (arr.begin(), arr.end(), UniqueNumber);
+    };
+
+  } //namespace utils
+} //namespace bayesopt
 
 #endif

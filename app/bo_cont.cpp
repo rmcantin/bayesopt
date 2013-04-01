@@ -71,23 +71,20 @@ int main(int nargs, char *args[])
   // the we can optionally change only few of them 
   bopt_params par = initialize_parameters_to_default();
 
-  par.theta[0] = KERNEL_THETA;
-  par.theta[1] = KERNEL_THETA;
-  par.s_theta[0] = 1;
-  par.s_theta[1] = 1;
-  par.n_theta = 2;
-  par.mu[0] = 1.0;
-  par.n_mu = 1;
+  par.kernel.theta[0] = KERNEL_THETA;
+  par.kernel.theta[1] = KERNEL_THETA;
+  par.kernel.s_theta[0] = 1;
+  par.kernel.s_theta[1] = 1;
+  par.kernel.n_theta = 2;
+  par.mean.mu[0] = 1.0;
+  par.mean.s_mu[0] = PRIOR_DELTA_SQ;
+  par.mean.n_mu = 1;
   par.alpha = PRIOR_ALPHA;
   par.beta = PRIOR_BETA;
-  par.delta = PRIOR_DELTA_SQ;
   par.noise = DEFAULT_NOISE;
-  par.c_name = C_EI;
-  par.s_name = S_STUDENT_T_PROCESS_JEFFREYS;
-  par.k_name = K_MATERN_ISO3;
-  par.k_s_name = "kSum(kSEISO,kConst)";
-  par.m_name = M_ZERO;
-  par.m_s_name = "mConst";
+  par.surr_name = S_STUDENT_T_PROCESS_JEFFREYS;
+  par.kernel.name = "kSum(kSEISO,kConst)";
+  par.mean.name = "mConst";
   par.n_iterations = 200;       // Number of iterations
   par.n_init_samples = 50;
   par.verbose_level = 2;

@@ -153,21 +153,26 @@ const char* mean2str(mean_name name)
 }
 
 char DEF_LOG_FILE[] = "bayesopt.log";
-char DEF_KERNEL[] = "kMaternISO3";
-char DEF_MEAN[] = "mOne";
-char DEF_CRITERIA[] = "cEI";
+char DEF_KERNEL_NAME[] = "kMaternISO3";
+char DEF_MEAN_NAME[] = "mOne";
+char DEF_CRITERIA_NAME[] = "cEI";
+
+static const kernel_parameters DEFAULT_KERNEL = {
+  DEF_KERNEL_NAME, {KERNEL_THETA}, {KERNEL_SIGMA}, 1 
+};
+
+static const mean_parameters DEFAULT_MEAN = {
+  DEF_MEAN_NAME, {MEAN_MU}, {MEAN_SIGMA}, 0
+};
+
 
 static const bopt_params DEFAULT_PARAMS = {
   DEFAULT_ITERATIONS, MAX_INNER_EVALUATIONS, DEFAULT_SAMPLES, 
   DEFAULT_VERBOSE, DEF_LOG_FILE,
-  {KERNEL_THETA}, {KERNEL_SIGMA}, 1, 
-  {MEAN_MU}, 0, 
-  PRIOR_ALPHA, PRIOR_BETA, PRIOR_DELTA_SQ,
-  DEFAULT_NOISE,
   S_GAUSSIAN_PROCESS,
-  K_MATERN_ISO3, DEF_KERNEL,
-  C_EI, DEF_CRITERIA,
-  M_ONE, DEF_MEAN 
+  PRIOR_ALPHA, PRIOR_BETA,  DEFAULT_NOISE,
+  DEFAULT_KERNEL, DEFAULT_MEAN,
+  DEF_CRITERIA_NAME,
 };
 
 

@@ -62,7 +62,7 @@ manuscript. Cite BayesOpt as something like:
 
 Ruben Martinez-Cantin, **BayesOpt: a toolbox for
 nonlinear-optimization, experimental design and stochastic bandits**,
-<http://bitbucket.org/rmcantin/bayesian-optimization>
+<http://bitbucket.org/rmcantin/bayesopt>
 
 ----------------------------------------------------------------------
 

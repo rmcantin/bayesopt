@@ -51,7 +51,7 @@ namespace bayesopt
   {
     NonParametricProcess* s_ptr;
 
-    switch(parameters.s_name)
+    switch(parameters.surr_name)
       {
       case S_GAUSSIAN_PROCESS: 
 	s_ptr = new GaussianProcess(dim,parameters.noise); 
@@ -59,15 +59,15 @@ namespace bayesopt
 
       case S_GAUSSIAN_PROCESS_INV_GAMMA_NORMAL:
 	s_ptr = new GaussianProcessIGN(dim,parameters.noise, parameters.alpha,
-				       parameters.beta,parameters.delta);  
+				       parameters.beta,parameters.mean.s_mu[0]);  
 	break;
 
       case S_STUDENT_T_PROCESS_JEFFREYS: 
-	if (parameters.m_name == M_ZERO)
+	if (strcmp(parameters.mean.name,"mZero") == 0)
 	  {
 	    FILE_LOG(logWARNING) << "Zero mean incompatible with Student's t "
 				 << "process, using one-mean instead.";
-	    parameters.m_name = M_ONE;
+	    parameters.mean.name = "mOne";
 	  }
 	s_ptr = new StudentTProcess(dim,parameters.noise); 
 	break;
@@ -77,11 +77,8 @@ namespace bayesopt
 	return NULL;
       }
   
-    s_ptr->setKernel(parameters.theta,parameters.n_theta,
-		     parameters.k_s_name,dim);
-    s_ptr->setKernelPrior(parameters.theta,
-			  parameters.s_theta,parameters.n_theta);
-    s_ptr->setMean(parameters.mu,parameters.n_mu,parameters.m_s_name,dim);
+    s_ptr->setKernel(parameters.kernel,dim);
+    s_ptr->setMean(parameters.mean,dim);
     return s_ptr;
   };
 
@@ -194,29 +191,31 @@ namespace bayesopt
     return mGPY(index);
   }
 
-  int NonParametricProcess::setKernel (const vectord &thetav, 
-				       kernel_name k_name, 
-				       size_t dim)
-  {
-    mKernel.reset(mKFactory.create(k_name, dim));
-    if (mKernel == NULL)   
-      {
-	return -1;
-      }
-    else
-      {
-	mKernel->setHyperParameters(thetav);
-	return 0;
-      }
-  }
+  // int NonParametricProcess::setKernel (const vectord &thetav,
+  // 				       kernel_name k_name, 
+  // 				       size_t dim)
+  // {
+  //   mKernel.reset(mKFactory.create(k_name, dim));
+  //   if (mKernel == NULL)   
+  //     {
+  // 	return -1;
+  //     }
+  //   else
+  //     {
+  // 	mKernel->setHyperParameters(thetav);
+  // 	return 0;
+  //     }
+  // }
 
 
   int NonParametricProcess::setKernel (const vectord &thetav, 
+				       const vectord &stheta,
 				       std::string k_name, 
 				       size_t dim)
   {
     mKernel.reset(mKFactory.create(k_name, dim));
-    if (mKernel == NULL)   
+    int error = setKernelPrior(thetav,stheta);
+    if (mKernel == NULL || error)   
       {
 	return -1;
       }
@@ -228,23 +227,24 @@ namespace bayesopt
   }
 
 
-  int NonParametricProcess::setMean (const vectord &muv,
-				     mean_name m_name,
-				     size_t dim)
-  {
-    mMean.reset(mPFactory.create(m_name,dim));
-    if (mMean == NULL) 
-      {
-	return -1; 
-      }
-    else 
-      {
-	mMean->setParameters(muv);
-	return 0;
-      } 
-  }
+  // int NonParametricProcess::setMean (const vectord &muv,
+  // 				     mean_name m_name,
+  // 				     size_t dim)
+  // {
+  //   mMean.reset(mPFactory.create(m_name,dim));
+  //   if (mMean == NULL) 
+  //     {
+  // 	return -1; 
+  //     }
+  //   else 
+  //     {
+  // 	mMean->setParameters(muv);
+  // 	return 0;
+  //     } 
+  // }
 
   int NonParametricProcess::setMean (const vectord &muv,
+				     const vectord &smu,
 				     std::string m_name,
 				     size_t dim)
   {

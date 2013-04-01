@@ -43,22 +43,28 @@ cdef extern from "parameters.h":
     ctypedef enum surrogate_name:
         pass
 
+    ctypedef struct kernel_parameters:
+        char*  name
+        double* theta
+        double* s_theta
+        unsigned int n_theta
+
+    ctypedef struct mean_parameters:
+        char* name
+        double* mu
+        double* s_mu
+        unsigned int n_mu
+
     ctypedef struct bopt_params:
         unsigned int n_iterations, n_init_samples, verbose_level
         char* log_filename
-        double* theta
-        unsigned int n_theta
-        double* mu
-        unsigned int n_mu
-        double alpha, beta, delta
+        surrogate_name surr_name
+        double alpha, beta
         double noise
-        surrogate_name s_name
-        char* k_s_name
-        kernel_name k_name
-        criterium_name c_name
-        mean_name m_name
-        char* m_s_name
-        
+        kernel_parameters kernel
+        mean_parameters mean
+        char* crit_name
+
     kernel_name str2kernel(char* name)
     criterium_name str2crit(char* name)
     surrogate_name str2surrogate(char* name)
@@ -98,45 +104,41 @@ cdef bopt_params dict2structparams(dict dparams):
     logname = dparams.get('log_filename',params.log_filename)
     params.log_filename = logname
 
+    surrogate = dparams.get('s_name', None)
+    if surrogate is not None:
+        params.surr_name = str2surrogate(surrogate)
+
     params.alpha = dparams.get('alpha',params.alpha)
     params.beta = dparams.get('beta',params.beta)
-    params.delta = dparams.get('delta',params.delta)
     params.noise = dparams.get('noise',params.noise)
 
     theta = dparams.get('theta',None)
-    if theta is not None:
-        params.n_theta = len(theta)
-        for i in range(0,params.n_theta):
-            params.theta[i] = theta[i]
+    stheta = dparams.get('s_theta',None)
+    if theta is not None and stheta is not None:
+        params.kernel.n_theta = len(theta)
+        for i in range(0,params.kernel.n_theta):
+            params.kernel.theta[i] = theta[i]
+            params.kernel.s_theta[i] = stheta[i]
+
 
     mu = dparams.get('mu',None)
-    if mu is not None:
-        params.n_mu = len(mu)
-        for i in range(0,params.n_mu):
-            params.mu[i] = mu[i]
+    smu = dparams.get('mu',None)
+    if mu is not None and smu is not None:
+        params.mean.n_mu = len(mu)
+        for i in range(0,params.mean.n_mu):
+            params.mean.mu[i] = mu[i]
+            params.mean.s_mu[i] = smu[i]
 
-    criteria = dparams.get('c_name',None)
-    if criteria is not None:
-        params.c_name = str2crit(criteria)
 
-    surrogate = dparams.get('s_name', None)
-    if criteria is not None:
-        params.s_name = str2surrogate(surrogate)
+    kname = dparams.get('k_name',params.kernel.name)
+    params.kernel.name = kname;
 
-    kernel = dparams.get('k_name',None)
-    if kernel is not None:
-        params.k_name = str2kernel(kernel)
+    mname = dparams.get('m_name',params.mean.name)
+    params.mean.name = mname
 
-    k_string = dparams.get('k_s_name',params.log_filename)
-    params.k_s_name = k_string
-        
-    mean = dparams.get('m_name',None)
-    if mean is not None:
-        params.m_name = str2mean(mean)
+    cname = dparams.get('c_name',params.crit_name)
+    params.crit_name = cname
 
-    m_string = dparams.get('m_s_name',params.log_filename)
-    params.m_s_name = m_string
-        
     return params
 
 cdef double callback(unsigned int n, const_double_ptr x,

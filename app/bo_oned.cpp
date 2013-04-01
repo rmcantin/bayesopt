@@ -58,9 +58,10 @@ int main(int nargs, char *args[])
   size_t dim = 1;
   bopt_params parameters = initialize_parameters_to_default();
   parameters.n_iterations = 300;
-  parameters.theta[0] = 1.0;
-  parameters.n_theta = 1;
-  parameters.c_s_name = "cHedge(cEI,cLCB,cExpReturn,cOptimisticSampling)";
+  parameters.kernel.theta[0] = 1.0;
+  parameters.kernel.s_theta[0] = 100.0;
+  parameters.kernel.n_theta = 1;
+  parameters.crit_name = "cHedge(cEI,cLCB,cExpReturn,cOptimisticSampling)";
 
   ExampleOneD opt(dim,parameters);
   vectord result(dim);

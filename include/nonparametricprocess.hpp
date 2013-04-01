@@ -112,98 +112,106 @@ namespace bayesopt
     inline double getValueAtMinimum() { return mGPY(mMinIndex); };
   
 
+    // /** 
+    //  * \brief Select kernel (covariance function) for the surrogate process.
+    //  * @param thetav kernel parameters
+    //  * @param k_name kernel name
+    //  * @return error_code
+    //  */
+    // int setKernel (const vectord &thetav, kernel_name k_name, size_t dim);
+
+    // /** 
+    //  * \brief Wrapper of setKernel for c arrays
+    //  */
+    // inline int setKernel (const double *theta, size_t n_theta, 
+    // 			  kernel_name k_name, size_t dim)
+    // {
+    //   vectord th(n_theta);
+    //   std::copy(theta, theta+n_theta, th.begin());
+    //   int error = setKernel(th, k_name, dim);
+    // };
+
     /** 
      * \brief Select kernel (covariance function) for the surrogate process.
-     * @param thetav kernel parameters
+     * @param thetav kernel parameters (mean)
+     * @param stheta kernel parameters (std)
      * @param k_name kernel name
      * @return error_code
      */
-    int setKernel (const vectord &thetav, kernel_name k_name, size_t dim);
+    int setKernel (const vectord &thetav, const vectord &stheta, 
+		   std::string k_name, size_t dim);
 
     /** 
      * \brief Wrapper of setKernel for c arrays
      */
-    inline int setKernel (const double *theta, size_t n_theta, 
-			  kernel_name k_name, size_t dim)
+    inline int setKernel (kernel_parameters kernel, size_t dim)
     {
-      vectord th(n_theta);
-      std::copy(theta, theta+n_theta, th.begin());
-      int error = setKernel(th, k_name, dim);
+      size_t n = kernel.n_theta;
+      vectord th(n);
+      vectord sth(n);
+      std::copy(kernel.theta, kernel.theta+n, th.begin());
+      std::copy(kernel.s_theta, kernel.s_theta+n, sth.begin());
+      int error = setKernel(th, sth, kernel.name, dim);
     };
 
-    /** 
-     * \brief Select kernel (covariance function) for the surrogate process.
-     * @param thetav kernel parameters
-     * @param k_name kernel name
-     * @return error_code
-     */
-    int setKernel (const vectord &thetav, std::string k_name, size_t dim);
-
-    /** 
-     * \brief Wrapper of setKernel for c arrays
-     */
-    inline int setKernel (const double *theta, size_t n_theta, 
-			  std::string k_name, size_t dim)
+    /** Set prior (Gaussian) for kernel hyperparameters */
+    inline int setKernelPrior (const vectord &theta, const vectord &s_theta)
     {
-      vectord th(n_theta);
-      std::copy(theta, theta+n_theta, th.begin());
-      int error = setKernel(th, k_name, dim);
-    };
-
-    /** 
-     * \brief Wrapper of setKernel for c arrays
-     */
-    inline int setKernelPrior (const double *theta, const double *s_theta,
-			       size_t n_theta)
-    {
+      size_t n_theta = theta.size();
       for (size_t i = 0; i<n_theta; ++i)
 	{
-	  boost::math::normal n(theta[i],s_theta[i]);
+	  boost::math::normal n(theta(i),s_theta(i));
 	  priorKernel.push_back(n);
 	}
+      return 0;
     };
 
+
+
+    // /** 
+    //  * \brief Select the parametric part of the surrogate process.
+    //  * 
+    //  * @param muv mean function parameters
+    //  * @param m_name mean function name
+    //  * @return error_code
+    //  */
+    // int setMean (const vectord &muv, mean_name m_name, size_t dim);
+
+    // /** 
+    //  * \brief Wrapper of setMean for c arrays
+    //  */
+    // inline int setMean (const double *mu, size_t n_mu, 
+    // 			mean_name m_name, size_t dim)
+    // {
+    //   vectord vmu(n_mu);
+    //   std::copy(mu, mu+n_mu, vmu.begin());
+    //   return setMean(vmu, m_name, dim);
+    // };
 
 
     /** 
      * \brief Select the parametric part of the surrogate process.
      * 
      * @param muv mean function parameters
+     * @param smu std function parameters
      * @param m_name mean function name
+     * @param dim number of input dimensions
      * @return error_code
      */
-    int setMean (const vectord &muv, mean_name m_name, size_t dim);
+    int setMean (const vectord &muv, const vectord &smu, 
+		 std::string m_name, size_t dim);
 
     /** 
      * \brief Wrapper of setMean for c arrays
      */
-    inline int setMean (const double *mu, size_t n_mu, 
-			mean_name m_name, size_t dim)
+    inline int setMean (mean_parameters mean, size_t dim)
     {
+      size_t n_mu = mean.n_mu;
       vectord vmu(n_mu);
-      std::copy(mu, mu+n_mu, vmu.begin());
-      return setMean(vmu, m_name, dim);
-    };
-
-
-    /** 
-     * \brief Select the parametric part of the surrogate process.
-     * 
-     * @param muv mean function parameters
-     * @param m_name mean function name
-     * @return error_code
-     */
-    int setMean (const vectord &muv, std::string m_name, size_t dim);
-
-    /** 
-     * \brief Wrapper of setMean for c arrays
-     */
-    inline int setMean (const double *mu, size_t n_mu, 
-			std::string m_name, size_t dim)
-    {
-      vectord vmu(n_mu);
-      std::copy(mu, mu+n_mu, vmu.begin());
-      return setMean(vmu, m_name, dim);
+      vectord smu(n_mu);
+      std::copy(mean.mu, mean.mu+n_mu, vmu.begin());
+      std::copy(mean.s_mu, mean.s_mu+n_mu, smu.begin());
+      return setMean(vmu, smu, mean.name, dim);
     };
 
 

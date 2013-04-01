@@ -77,7 +77,7 @@ namespace bayesopt
 	return -1;
       } 
 
-    mCrit.reset(mCFactory.create(mParameters.c_s_name,mGP.get()));
+    mCrit.reset(mCFactory.create(mParameters.crit_name,mGP.get()));
     if (mCrit == NULL)       
       {
 	FILE_LOG(logERROR) << "Error in criterium"; 

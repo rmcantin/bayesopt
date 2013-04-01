@@ -76,6 +76,25 @@ extern "C" {
     S_ERROR = -1
   } surrogate_name;
 
+  /** Kernel configuration parameters */
+  typedef struct {
+
+    char*  name;                 /**< Name of the kernel function */
+    double theta[128];           /**< Kernel hyperparameters prior (mean) */
+    double s_theta[128];         /**< Kernel hyperparameters prior (std) */
+    size_t n_theta;              /**< Number of kernel hyperparameters */
+
+  } kernel_parameters;
+
+  typedef struct {
+    
+    char* name;                  /**< Name of the mean function */
+    double mu[128];              /**< Function hyperparameters (mean) */
+    double s_mu[128];            /**< Function hyperparameters (std) */
+    size_t n_mu;                 /**< Number of mean funct. hyperparameters */
+
+  } mean_parameters;
+
   /** \brief Configuration parameters */
   typedef struct {
 
@@ -86,25 +105,15 @@ extern "C" {
     size_t verbose_level;        /**< 1-Error,2-Warning,3-Info. 4-6 log file*/
     char* log_filename;          /**< Log file path (if applicable) */
 
-    double theta[128];           /**< Kernel hyperparameters prior (mean) */
-    double s_theta[128];         /**< Kernel hyperparameters prior (std) */
-    size_t n_theta;              /**< Number of kernel hyperparameters */
-
-    double mu[128];              /**< Mean function hyperparameters */
-    size_t n_mu;                 /**< Number of mean funct. hyperparameters */
-
+    surrogate_name surr_name;    /**< Name of the surrogate function */
     double alpha;                /**< Inverse Gamma prior for signal var */
     double beta;                 /**< Inverse Gamma prior for signal var*/
-    double delta;                /**< Normal prior for mean hyperparameters */
     double noise;                /**< Observation noise (and nugget) */
 
-    surrogate_name s_name;       /**< Name of the surrogate function */
-    kernel_name k_name;          /**< Name of the kernel funct. -DEPRECATED-*/
-    char* k_s_name;              /**< Name of the kernel function */
-    criterium_name c_name;       /**< Name of the criterion -DEPRECATED-*/
-    char* c_s_name;              /**< Name of the criterion */
-    mean_name m_name;            /**< Name of the mean funct. -DEPRECATED-*/
-    char* m_s_name;              /**< Name of the mean function */
+    kernel_parameters kernel;    /**< Kernel parameters */
+    mean_parameters mean;        /**< Mean (parametric function) parameters */
+
+    char* crit_name;             /**< Name of the criterion */
 
   } bopt_params;
 
@@ -117,6 +126,7 @@ extern "C" {
   const double KERNEL_THETA    = 1.0;
   const double KERNEL_SIGMA    = 10.0;
   const double MEAN_MU         = 1.0;
+  const double MEAN_SIGMA      = 1000.0;
   const double PRIOR_ALPHA     = 1.0;
   const double PRIOR_BETA      = 1.0;
   const double PRIOR_DELTA_SQ  = 1000.0;
@@ -128,21 +138,21 @@ extern "C" {
   const size_t DEFAULT_VERBOSE     = 1;
 
   /* Algorithm limits */
-  const size_t MAX_ITERATIONS  = 1000;       /* Not used */
-  const size_t MAX_DIM         = 40;         /* Not used */
+  const size_t MAX_ITERATIONS  = 1000;        /**< Used if n_iterations <0 */
+  //  const size_t MAX_DIM         = 40;         /* Not used */
 
   /* INNER Optimizer default values */
-  const size_t MAX_INNER_EVALUATIONS = 500;   /*Used per dimmension */
-  const size_t MAX_INNER_ITERATIONS  = 3000; /* Not used */
+  const size_t MAX_INNER_EVALUATIONS = 500;   /**< Used per dimmension */
+  //  const size_t MAX_INNER_ITERATIONS  = 3000; /* Not used */
 
   /* Latin Hypercube Sampling (LHS) default values */
-  const size_t N_LHS_EVALS_PER_DIM = 30;     /* Not used */
-  const size_t MAX_LHS_EVALUATIONS = 100;    /* Not used */
+  //  const size_t N_LHS_EVALS_PER_DIM = 30;     /* Not used */
+  //  const size_t MAX_LHS_EVALUATIONS = 100;    /* Not used */
 
-  const size_t N_ALGORITHMS_IN_GP_HEDGE = 5;
-  const criterium_name ALGORITHMS_IN_GP_HEDGE[] = { C_EI, C_LCB, C_POI,
-						    C_EXPECTED_RETURN,
-						    C_OPTIMISTIC_SAMPLING };
+  //  const size_t N_ALGORITHMS_IN_GP_HEDGE = 5;
+  //  const criterium_name ALGORITHMS_IN_GP_HEDGE[] = { C_EI, C_LCB, C_POI,
+  //						    C_EXPECTED_RETURN,
+  //						    C_OPTIMISTIC_SAMPLING };
 
   /*************************************************************/
   /* These functions are added to simplify wrapping code       */

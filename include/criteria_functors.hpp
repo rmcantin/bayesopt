@@ -83,7 +83,7 @@ namespace bayesopt
     CriteriaFactory ();
     virtual ~CriteriaFactory () {};
   
-    Criteria* create(criterium_name name, NonParametricProcess* proc);
+    //Criteria* create(criterium_name name, NonParametricProcess* proc);
     Criteria* create(std::string name, NonParametricProcess* proc);
     
   private:

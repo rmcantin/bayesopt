@@ -51,6 +51,12 @@ public:
     d_ = new_d;
   };
 
+  /** 
+   * \brief Probability density function
+   * @param x query point
+   * @return probability
+   */
+  double pdf(double x) {return boost::math::pdf(d_,x); };
 
   /** 
    * \brief Expected Improvement algorithm for minimization

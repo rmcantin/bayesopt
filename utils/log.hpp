@@ -1,3 +1,4 @@
+
 /** \file log.hpp 
     \brief Modules and helper macros for logging. */
 /* 
@@ -135,7 +136,7 @@ public:
 
 inline FILE*& Output2FILE::Stream()
 {
-    static FILE* pStream = stderr;
+    static FILE* pStream = stdout;
     return pStream;
 }
 

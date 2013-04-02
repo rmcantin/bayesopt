@@ -172,9 +172,12 @@ static double user_function(unsigned n, const double *x,
 static bopt_params load_parameters(const mxArray* params)
 {
   char log_str[100], k_s_str[100];
-  char c_str[100], s_str[100], k_str[100], m_str[100];
+  char c_str[100], s_str[100], k_str[100], m_str[100], l_str[100];
+  size_t n_theta, n_mu;
 
   bopt_params parameters = initialize_parameters_to_default();
+  n_theta = parameters.kernel.n_theta;
+  n_mu = parameters.mean.n_mu;
 
   struct_size(params,"n_iterations", &parameters.n_iterations);
   struct_size(params,"n_inner_iterations", &parameters.n_inner_iterations);
@@ -183,38 +186,41 @@ static bopt_params load_parameters(const mxArray* params)
 
   struct_value(params, "alpha", &parameters.alpha);
   struct_value(params, "beta",  &parameters.beta);
-  struct_value(params, "delta", &parameters.delta);
   struct_value(params, "noise", &parameters.noise);
 
-  struct_array(params, "theta", &parameters.n_theta, 
-	       &parameters.theta[0]);
+  struct_array(params, "theta", &parameters.kernel.n_theta, 
+	       &parameters.kernel.theta[0]);
 
-  struct_array(params, "mu", &parameters.n_mu, 
-	       &parameters.mu[0]);
+  struct_array(params, "s_theta", &n_theta, 
+	       &parameters.kernel.s_theta[0]);
+
+  CHECK0(parameters.kernel.n_theta == n_theta, 
+	 "Error processing kernel parameters");
+
+  struct_array(params, "mu", &parameters.mean.n_mu, 
+	       &parameters.mean.mu[0]);
+
+  struct_array(params, "s_mu", &n_mu, 
+	       &parameters.mean.s_mu[0]);
+
+  CHECK0(parameters.mean.n_mu == n_mu, 
+	 "Error processing mean parameters");
 
   /* Extra configuration
   See parameters.h for the available options */
 
   struct_string(params, "log_filename", parameters.log_filename);
-  struct_string(params, "k_s_name", parameters.k_s_name);
-  struct_string(params, "m_s_name", parameters.m_s_name);
+  struct_string(params, "kernel_name", parameters.kernel.name);
+  struct_string(params, "mean_name", parameters.mean.name);
+  struct_string(params, "crit_name", parameters.crit_name);
 
-  strcpy( c_str, crit2str(parameters.c_name));
-  strcpy( s_str, surrogate2str(parameters.s_name));
-  strcpy( k_str, kernel2str(parameters.k_name));
-  strcpy( m_str, mean2str(parameters.m_name));
+  strcpy( s_str, surrogate2str(parameters.surr_name));
+  struct_string(params, "surr_name", s_str);
+  parameters.surr_name = str2surrogate(s_str);
 
-  struct_string(params, "c_name", c_str);
-  parameters.c_name = str2crit(c_str);
-
-  struct_string(params, "s_name", s_str);
-  parameters.s_name = str2surrogate(s_str);
-  
-  struct_string(params, "k_name", k_str);
-  parameters.k_name = str2kernel(k_str);
-
-  struct_string(params, "m_name", m_str);
-  parameters.m_name = str2mean(m_str);
+  strcpy( l_str, learn2str(parameters.l_type));
+  struct_string(params, "l_type", l_str);
+  parameters.l_type = str2learn(l_str);
 
   return parameters;
 }

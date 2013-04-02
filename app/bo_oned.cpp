@@ -57,6 +57,7 @@ int main(int nargs, char *args[])
 {
   size_t dim = 1;
   bopt_params parameters = initialize_parameters_to_default();
+  parameters.n_init_samples = 10;
   parameters.n_iterations = 300;
   parameters.kernel.theta[0] = 1.0;
   parameters.kernel.s_theta[0] = 100.0;

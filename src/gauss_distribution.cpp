@@ -17,8 +17,8 @@ double GaussianDistribution::negativeExpectedImprovement(double min,
 
   const double diff = min - mean_;
   const double z = diff / std_;
-  const double pdf_z = pdf(d_,z);
-  const double cdf_z = cdf(d_,z);
+  const double pdf_z = boost::math::pdf(d_,z);
+  const double cdf_z = boost::math::cdf(d_,z);
   
   if (g == 1)
     return -1.0 * ( diff * cdf_z + std_ * pdf_z );

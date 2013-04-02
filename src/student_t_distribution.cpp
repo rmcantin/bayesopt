@@ -16,7 +16,8 @@ double StudentTDistribution::negativeExpectedImprovement(double min,
   const double z = diff / std_;
   
   assert((g == 1) && "Students t EI with exponent not yet supported.");
-  return -(diff * cdf(d_,z) +  (dof_*std_+z*diff)/(dof_-1) * pdf(d_,z) ); 
+  return -(diff * boost::math::cdf(d_,z) 
+	   + (dof_*std_+z*diff)/(dof_-1) * boost::math::pdf(d_,z) ); 
 }  // negativeExpectedImprovement
 
 

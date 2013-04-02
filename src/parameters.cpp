@@ -108,6 +108,18 @@ surrogate_name str2surrogate(const char* name)
   else return S_ERROR;
 }
 
+learning_type str2learn(const char* name)
+{
+  if      (!strcmp(name,  "L_ML"))
+    return L_ML;
+  else if (!strcmp(name,  "L_MAP"))
+    return L_MAP;
+  else if (!strcmp(name,  "L_LOO"))
+    return L_LOO;
+  else return L_ERROR;
+}
+
+
 
 const char* surrogate2str(surrogate_name name)
 {
@@ -152,6 +164,19 @@ const char* mean2str(mean_name name)
     }
 }
 
+const char* learn2str(learning_type name)
+{
+  switch(name)
+    {
+    case L_ML: return "L_ML"; 
+    case L_MAP: return "L_MAP"; 
+    case L_LOO: return "L_LOO"; 
+    case L_ERROR:
+    default: return "ERROR!";
+    }
+}
+
+
 char DEF_LOG_FILE[] = "bayesopt.log";
 char DEF_KERNEL_NAME[] = "kMaternISO3";
 char DEF_MEAN_NAME[] = "mOne";
@@ -171,6 +196,7 @@ static const bopt_params DEFAULT_PARAMS = {
   DEFAULT_VERBOSE, DEF_LOG_FILE,
   S_GAUSSIAN_PROCESS,
   PRIOR_ALPHA, PRIOR_BETA,  DEFAULT_NOISE,
+  L_MAP,
   DEFAULT_KERNEL, DEFAULT_MEAN,
   DEF_CRITERIA_NAME,
 };

@@ -1,24 +1,24 @@
 ## \file bayesopt.pyx \brief Cython wrapper for the BayesOpt Python API
-
-# ----------------------------------------------------------------------------
-#    This file is part of BayesOptimization, an efficient C++ library for
+# -------------------------------------------------------------------------
+#    This file is part of BayesOpt, an efficient C++ library for
 #    Bayesian optimization.
 #
-#    Copyright (C) 2011-2012 Ruben Martinez-Cantin <rmcantin@unizar.es>
+#    Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
 #
-#    BayesOptimization is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
+#    BayesOpt is free software: you can redistribute it and/or modify it
+#    under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
 #    (at your option) any later version.
 #
-#    BayesOptimization is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    BayesOpt is distributed in the hope that it will be useful, but
+#    WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    You should have received a copy of the GNU General Public License
-#    along with BayesOptimization. If not, see <http://www.gnu.org/licenses/>.
-# ----------------------------------------------------------------------------
+#    along with BayesOpt.  If not, see <http://www.gnu.org/licenses/>.
+# ------------------------------------------------------------------------
+
 
 import numpy as np
 cimport numpy as np
@@ -43,6 +43,9 @@ cdef extern from "parameters.h":
     ctypedef enum surrogate_name:
         pass
 
+    ctypedef enum learning_type:
+        pass
+
     ctypedef struct kernel_parameters:
         char*  name
         double* theta
@@ -61,6 +64,7 @@ cdef extern from "parameters.h":
         surrogate_name surr_name
         double alpha, beta
         double noise
+        learning_type l_type
         kernel_parameters kernel
         mean_parameters mean
         char* crit_name
@@ -69,11 +73,13 @@ cdef extern from "parameters.h":
     criterium_name str2crit(char* name)
     surrogate_name str2surrogate(char* name)
     mean_name str2mean(char* name)
+    learning_type str2learn(char* name)
 
     char* kernel2str(kernel_name name)
     char* crit2str(criterium_name name)
     char* surrogate2str(surrogate_name name)
     char* mean2str(mean_name name)
+    char* learn2str(learning_type name)
 
     bopt_params initialize_parameters_to_default()
 
@@ -104,9 +110,14 @@ cdef bopt_params dict2structparams(dict dparams):
     logname = dparams.get('log_filename',params.log_filename)
     params.log_filename = logname
 
-    surrogate = dparams.get('s_name', None)
+    surrogate = dparams.get('surr_name', None)
     if surrogate is not None:
         params.surr_name = str2surrogate(surrogate)
+
+    learning = dparams.get('learning_type', None)
+    if learning is not None:
+        params.l_type = str2learn(learning)
+
 
     params.alpha = dparams.get('alpha',params.alpha)
     params.beta = dparams.get('beta',params.beta)
@@ -122,7 +133,7 @@ cdef bopt_params dict2structparams(dict dparams):
 
 
     mu = dparams.get('mu',None)
-    smu = dparams.get('mu',None)
+    smu = dparams.get('s_mu',None)
     if mu is not None and smu is not None:
         params.mean.n_mu = len(mu)
         for i in range(0,params.mean.n_mu):
@@ -130,13 +141,13 @@ cdef bopt_params dict2structparams(dict dparams):
             params.mean.s_mu[i] = smu[i]
 
 
-    kname = dparams.get('k_name',params.kernel.name)
+    kname = dparams.get('kernel_name',params.kernel.name)
     params.kernel.name = kname;
 
-    mname = dparams.get('m_name',params.mean.name)
+    mname = dparams.get('mean_name',params.mean.name)
     params.mean.name = mname
 
-    cname = dparams.get('c_name',params.crit_name)
+    cname = dparams.get('crit_name',params.crit_name)
     params.crit_name = cname
 
     return params
@@ -153,17 +164,19 @@ cdef double callback(unsigned int n, const_double_ptr x,
 def initialize_params():
     params = {
         "theta"  : [1.0],
+        "s_theta": [1.0],
         "n_theta": 1,
         "mu"     : [1.0],
+        "s_mu"   : [1.0],
         "n_mu"   : 1,
         "alpha"  : 1.0,
         "beta"   : 1.0,
-        "delta"  : 1000.0,
         "noise"  : 0.001,
-        "c_name" : "EI",
-        "s_name" : "GAUSSIAN_PROCESS" ,
-        "k_name" : "MATERN_ISO3",
-        "m_name" : "ZERO",
+        "crit_name" : "cEI",
+        "surr_name" : "GAUSSIAN_PROCESS" ,
+        "kernel_name" : "kMaternISO3",
+        "mean_name" : "mZero",
+        "learning_type" : "L_MAP",
         "n_iterations"   : 300,
         "n_init_samples" : 30,
         "verbose_level"  : 1,

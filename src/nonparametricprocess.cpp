@@ -76,22 +76,27 @@ namespace bayesopt
 	FILE_LOG(logERROR) << "Error: surrogate function not supported.";
 	return NULL;
       }
-  
+
+    s_ptr->setLearnType(parameters.l_type);
     s_ptr->setKernel(parameters.kernel,dim);
     s_ptr->setMean(parameters.mean,dim);
     return s_ptr;
   };
 
 
-  int NonParametricProcess::fitInitialSurrogate()
+  int NonParametricProcess::fitInitialSurrogate(bool learnTheta)
   {
-    vectord optimalTheta = mKernel->getHyperParameters();
     int error = -1;
-
-    FILE_LOG(logDEBUG) << "Computing kernel parameters. Seed: " << optimalTheta;
-    innerOptimize(optimalTheta);
-    mKernel->setHyperParameters(optimalTheta);
-    FILE_LOG(logDEBUG) << "Final kernel parameters: " << optimalTheta;
+    if (learnTheta)
+      {
+	vectord optimalTheta = mKernel->getHyperParameters();
+	
+	FILE_LOG(logDEBUG) << "Computing kernel parameters. Seed: " 
+			   << optimalTheta;
+	innerOptimize(optimalTheta);
+	mKernel->setHyperParameters(optimalTheta);
+	FILE_LOG(logDEBUG) << "Final kernel parameters: " << optimalTheta;	
+      }
 
     //TODO: Choose one!
 #if USE_CHOL
@@ -260,6 +265,74 @@ namespace bayesopt
       } 
   }
 
+
+
+  double NonParametricProcess::negativeCrossCorrelation()
+  {
+    // This is highly ineffient implementation for comparison purposes.
+    size_t n = mGPXX.size();
+    size_t last = n-1;
+    int error = 0;
+    double sum = 0.0;
+    vecOfvec tempXX(mGPXX);
+    vectord tempY(mGPY);
+    vectord tempM(mMeanV);
+    matrixd tempF(mFeatM);
+    for(size_t i = 0; i<n; ++i)
+      {
+	vectord x = mGPXX[0];  double y = mGPY(0);
+	double m = mMeanV(0);
+
+	mGPXX.erase(mGPXX.begin()); 
+	utils::erase(mGPY,mGPY.begin());
+	utils::erase(mMeanV,mMeanV.begin());
+	utils::erase_column(mFeatM,0);
+
+	fitInitialSurrogate(false);
+	ProbabilityDistribution* pd = prediction(x);
+	sum += log(pd->pdf(y));
+	mGPXX.push_back(x);     
+	mGPY.resize(mGPY.size()+1);  mGPY(mGPY.size()-1) = y;
+	mMeanV.resize(mGPY.size());  mMeanV(mGPY.size()-1) = m;
+	mFeatM.resize(mFeatM.size1(),mFeatM.size2()+1);  
+	mFeatM = tempF;
+      }
+      std::cout << "End" << mGPY.size();
+    return -sum;
+  }
+
+  double NonParametricProcess::negativeLogPrior()
+  {
+    double prior = 0.0;
+    vectord th = mKernel->getHyperParameters();
+    for(size_t i = 0; i<th.size();++i)
+      {
+	if (priorKernel[i].standard_deviation() > 0)
+	  {
+	    prior += log(boost::math::pdf(priorKernel[i],th(i)));
+	  }
+      }
+    return prior;
+  }
+
+  double NonParametricProcess::innerEvaluate(const vectord& query)
+  { 
+    mKernel->setHyperParameters(query);
+    double result;
+    switch(mLearnType)
+      {
+      case L_ML:
+	result = negativeLogLikelihood(); break;
+      case L_MAP:
+	result = negativeLogLikelihood()+negativeLogPrior();
+	break;
+      case L_LOO:
+	result = negativeCrossCorrelation(); break;
+      default:
+	FILE_LOG(logERROR) << "Learning type not supported";
+      }	  
+    return result;
+  }
 
 
   int NonParametricProcess::addNewPointToCholesky(const vectord& correlation,

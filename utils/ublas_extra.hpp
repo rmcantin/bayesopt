@@ -40,6 +40,28 @@ namespace bayesopt
       vect(size) = element;
       return 0;
     };
+    template<class V, class I>
+    int erase(V& vect, I begin)
+    {
+      typedef typename V::iterator VI;
+      assert(typeid(VI) == typeid(I));
+     
+      for(VI it = begin; it != vect.end()-1; ++it)
+	{
+	  *it = *(it+1); 
+	}
+      vect.resize(vect.size()-1);
+    }
+
+    template<class M>
+    int erase_column(M& mat, size_t pos)
+    {
+      for(size_t i = pos; i < mat.size2()-1; ++i)
+	{
+	  column(mat,i) = column(mat,i+1);
+	}
+      mat.resize(mat.size1(),mat.size2()-1);
+    }
 
   } //  namespace utils
 } //namespace bayesopt

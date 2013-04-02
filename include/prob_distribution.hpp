@@ -36,6 +36,14 @@ public:
   virtual ~ProbabilityDistribution(){};
 
   /** 
+   * \brief Probability density function
+   * @param x query point
+   * @return probability
+   */
+  virtual double pdf(double x) = 0;
+
+
+  /** 
    * \brief Expected Improvement algorithm for minimization
    * @param min minimum value found so far
    * @param g exponent (used for annealing)

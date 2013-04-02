@@ -77,7 +77,7 @@ namespace bayesopt
      * function is hightly inefficient.  Use it only at the begining.
      * @return error code
      */
-    int fitInitialSurrogate();
+    int fitInitialSurrogate(bool learnTheta = true);
   
     /** 
      * \brief Sequential update of the surrogate model by adding a new point.
@@ -214,8 +214,15 @@ namespace bayesopt
       return setMean(vmu, smu, mean.name, dim);
     };
 
+    inline void setLearnType(learning_type l_type) { mLearnType = l_type; };
 
   protected:
+
+    /**
+     * Computes the negative score of the data using cross correlation.
+     * @return negative score
+     */
+    double negativeCrossCorrelation();
 
     /** 
      * \brief Computes the negative log likelihood of the data.
@@ -230,19 +237,18 @@ namespace bayesopt
      */
     virtual int precomputePrediction() = 0;
 
-    double innerEvaluate(const vectord& query)
-    { 
-      mKernel->setHyperParameters(query);
-      double posterior = negativeLogLikelihood();
-      for(size_t i = 0; i<query.size();++i)
-	{
-	  if (priorKernel[i].standard_deviation() > 0)
-	    {
-	      posterior *= pdf(priorKernel[i],query(i));
-	    }
-	}
-      return posterior;
-    };
+    /** 
+     * \brief Computes the negative log prior of the hyperparameters.
+     * @return value negative log prior
+     */
+    double negativeLogPrior();
+
+    /** 
+     * \brief Wrapper to the function that computes the score of the parameters.
+     * @param query set of parameters.
+     * @return score
+     */
+    double innerEvaluate(const vectord& query);
 
 
     /** 
@@ -285,6 +291,7 @@ namespace bayesopt
     matrixd mL;             ///< Cholesky decomposition of the Correlation matrix
     covMatrix mInvR;                              ///< Inverse Correlation matrix
     size_t dim_;
+    learning_type mLearnType;
 
   private:
     size_t mMinIndex, mMaxIndex;	

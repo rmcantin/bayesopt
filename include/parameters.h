@@ -76,6 +76,13 @@ extern "C" {
     S_ERROR = -1
   } surrogate_name;
 
+  typedef enum {
+    L_ML,
+    L_MAP,
+    L_LOO,
+    L_ERROR = -1
+  } learning_type;
+
   /** Kernel configuration parameters */
   typedef struct {
 
@@ -109,6 +116,7 @@ extern "C" {
     double alpha;                /**< Inverse Gamma prior for signal var */
     double beta;                 /**< Inverse Gamma prior for signal var*/
     double noise;                /**< Observation noise (and nugget) */
+    learning_type l_type;        /**< Type of learning for the kernel params*/
 
     kernel_parameters kernel;    /**< Kernel parameters */
     mean_parameters mean;        /**< Mean (parametric function) parameters */
@@ -139,21 +147,21 @@ extern "C" {
 
   /* Algorithm limits */
   const size_t MAX_ITERATIONS  = 1000;        /**< Used if n_iterations <0 */
-  //  const size_t MAX_DIM         = 40;         /* Not used */
+  /*  const size_t MAX_DIM         = 40;         Not used */
 
   /* INNER Optimizer default values */
   const size_t MAX_INNER_EVALUATIONS = 500;   /**< Used per dimmension */
-  //  const size_t MAX_INNER_ITERATIONS  = 3000; /* Not used */
+  /*  const size_t MAX_INNER_ITERATIONS  = 3000;  Not used */
 
   /* Latin Hypercube Sampling (LHS) default values */
-  //  const size_t N_LHS_EVALS_PER_DIM = 30;     /* Not used */
-  //  const size_t MAX_LHS_EVALUATIONS = 100;    /* Not used */
+  /*  const size_t N_LHS_EVALS_PER_DIM = 30;      Not used */
+  /*  const size_t MAX_LHS_EVALUATIONS = 100;     Not used */
 
-  //  const size_t N_ALGORITHMS_IN_GP_HEDGE = 5;
-  //  const criterium_name ALGORITHMS_IN_GP_HEDGE[] = { C_EI, C_LCB, C_POI,
-  //						    C_EXPECTED_RETURN,
-  //						    C_OPTIMISTIC_SAMPLING };
-
+  /*  const size_t N_ALGORITHMS_IN_GP_HEDGE = 5;
+    const criterium_name ALGORITHMS_IN_GP_HEDGE[] = { C_EI, C_LCB, C_POI,
+  						    C_EXPECTED_RETURN,
+  						    C_OPTIMISTIC_SAMPLING };*/
+						    
   /*************************************************************/
   /* These functions are added to simplify wrapping code       */
   /*************************************************************/
@@ -161,11 +169,13 @@ extern "C" {
   criterium_name str2crit      (const char* name);
   surrogate_name str2surrogate (const char* name);
   mean_name      str2mean      (const char* name);
+  learning_type  str2learn     (const char* name);
 
   BAYESOPT_API const char* kernel2str(kernel_name name);
   BAYESOPT_API const char* crit2str(criterium_name name);
   BAYESOPT_API const char* surrogate2str(surrogate_name name);
   BAYESOPT_API const char* mean2str(mean_name name);
+  BAYESOPT_API const char* learn2str(learning_type name);
 
   BAYESOPT_API bopt_params initialize_parameters_to_default(void);
 

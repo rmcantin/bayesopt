@@ -24,14 +24,14 @@ addpath('testfunctions')
 
 params.n_iterations = 100;
 params.n_init_iterations = 50;
-params.c_name = 'EI';
-params.s_name = 'GAUSSIAN_PROCESS';
+params.crit_name = 'cEI';
+params.surr_name = 'GAUSSIAN_PROCESS';
 params.noise = 0.005;
-params.kernel = 'MATERN_ISO3';
+params.kernel_name = 'kMaternISO3';
 params.theta = [0.5];
-params.verbose_level = 5;
+params.s_theta = [100];
+params.verbose_level = 1;
 params.log_filename = 'matbopt.log';
-%params.k_s_name = 'kMaternISO1';
 
 n = 5;
 

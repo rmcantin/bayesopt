@@ -32,7 +32,7 @@ namespace bayesopt
   
   
   StudentTProcess::StudentTProcess(size_t dim, double noise):
-    NonParametricProcess(dim, noise)
+    HierarchicalGaussianProcess(dim, noise)
   {
     d_ = new StudentTDistribution();
   }  // Constructor

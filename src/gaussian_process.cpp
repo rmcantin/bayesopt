@@ -42,6 +42,12 @@ namespace bayesopt
   } // Default destructor
 
 
+  double GaussianProcess::negativeTotalLogLikelihood()
+  {
+    // In this case it is equivalent.
+    return negativeLogLikelihood();
+  }
+
 
   double GaussianProcess::negativeLogLikelihood()
   {

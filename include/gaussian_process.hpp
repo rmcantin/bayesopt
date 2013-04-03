@@ -54,12 +54,19 @@ namespace bayesopt
     ProbabilityDistribution* prediction(const vectord &query);
 
   private:
+
     /** 
-     * \brief Computes the negative log likelihood and its gradient of the data.
+     * \brief Computes the negative log likelihood of the data for all
+     * the parameters.
+     * @return value negative log likelihood
+     */
+    double negativeTotalLogLikelihood();
+
+    /** 
+     * \brief Computes the negative log likelihood of the data.
      * 
-     * \f[ \log p(y|x,\theta,f) \propto \frac{1}{2} 
-     *                             \left( y^T (K+\sigma I)^{-1} y + 
-     *                             \log|K+\sigma I| \right) 
+     * \f[ \log p(y|x,\theta,f) \propto  y^T (K+\sigma I)^{-1} y + 
+     *                             \log|K+\sigma I|
      * \f]
      *
      * @return value negative log likelihood
@@ -74,7 +81,7 @@ namespace bayesopt
     int precomputePrediction();
 
   private:
-    vectord mAlphaV;
+    vectord mAlphaV;              ///< Precomputed L\y
     GaussianDistribution* d_;     ///< Pointer to distribution function
   };
 

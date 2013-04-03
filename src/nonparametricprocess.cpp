@@ -196,23 +196,13 @@ namespace bayesopt
     return mGPY(index);
   }
 
-  // int NonParametricProcess::setKernel (const vectord &thetav,
-  // 				       kernel_name k_name, 
-  // 				       size_t dim)
-  // {
-  //   mKernel.reset(mKFactory.create(k_name, dim));
-  //   if (mKernel == NULL)   
-  //     {
-  // 	return -1;
-  //     }
-  //   else
-  //     {
-  // 	mKernel->setHyperParameters(thetav);
-  // 	return 0;
-  //     }
-  // }
-
-
+  double NonParametricProcess::getLastSample(vectord &x)
+  {
+    size_t last = mGPY.size()-1;
+    x = mGPXX[last];
+    return mGPY[last];
+  }
+    
   int NonParametricProcess::setKernel (const vectord &thetav, 
 				       const vectord &stheta,
 				       std::string k_name, 
@@ -220,33 +210,13 @@ namespace bayesopt
   {
     mKernel.reset(mKFactory.create(k_name, dim));
     int error = setKernelPrior(thetav,stheta);
-    if (mKernel == NULL || error)   
-      {
-	return -1;
-      }
-    else
-      {
-	mKernel->setHyperParameters(thetav);
-	return 0;
-      }
+    
+    if (mKernel == NULL || error)   return -1;
+
+    mKernel->setHyperParameters(thetav);
+    return 0;
   }
 
-
-  // int NonParametricProcess::setMean (const vectord &muv,
-  // 				     mean_name m_name,
-  // 				     size_t dim)
-  // {
-  //   mMean.reset(mPFactory.create(m_name,dim));
-  //   if (mMean == NULL) 
-  //     {
-  // 	return -1; 
-  //     }
-  //   else 
-  //     {
-  // 	mMean->setParameters(muv);
-  // 	return 0;
-  //     } 
-  // }
 
   int NonParametricProcess::setMean (const vectord &muv,
 				     const vectord &smu,
@@ -254,15 +224,12 @@ namespace bayesopt
 				     size_t dim)
   {
     mMean.reset(mPFactory.create(m_name,dim));
-    if (mMean == NULL) 
-      {
-	return -1; 
-      }
-    else 
-      {
-	mMean->setParameters(muv);
-	return 0;
-      } 
+
+    if (mMean == NULL) 	return -1; 
+
+    //TODO: This might be unnecesary
+    mMean->setParameters(muv);
+    return 0;
   }
 
 
@@ -322,7 +289,7 @@ namespace bayesopt
     switch(mLearnType)
       {
       case L_ML:
-	result = negativeLogLikelihood(); break;
+	result = negativeTotalLogLikelihood(); break;
       case L_MAP:
 	result = negativeLogLikelihood()+negativeLogPrior();
 	break;

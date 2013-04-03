@@ -70,10 +70,11 @@ SET( BAYESOPT_SRCS
   ./src/bayesoptdisc.cpp
   ./src/bayesoptbase.cpp
   ./src/inneroptimization.cpp
+  ./src/nonparametricprocess.cpp
+  ./src/hierarchical_gaussian_process.cpp
   ./src/gaussian_process.cpp
   ./src/gaussian_process_ign.cpp
   ./src/student_t_process.cpp
-  ./src/nonparametricprocess.cpp
   ./src/parameters.cpp
   ./src/kernel_functors.cpp
   ./src/criteria_functors.cpp

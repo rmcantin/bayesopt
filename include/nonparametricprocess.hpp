@@ -98,39 +98,15 @@ namespace bayesopt
 				  double Ynew);
 
 
-    /// Getters and setters
+    // Getters and setters
     void setSamples(const matrixd &x, const vectord &y);
     void addSample(const vectord &x, double y);
     double getSample(size_t index, vectord &x);
-    double getLastSample(vectord &x)
-    {
-      size_t last = mGPY.size()-1;
-      x = mGPXX[last];
-      return mGPY[last];
-    };
+    double getLastSample(vectord &x);
     inline vectord getPointAtMinimum() { return mGPXX[mMinIndex]; };
     inline double getValueAtMinimum() { return mGPY(mMinIndex); };
   
-
-    // /** 
-    //  * \brief Select kernel (covariance function) for the surrogate process.
-    //  * @param thetav kernel parameters
-    //  * @param k_name kernel name
-    //  * @return error_code
-    //  */
-    // int setKernel (const vectord &thetav, kernel_name k_name, size_t dim);
-
-    // /** 
-    //  * \brief Wrapper of setKernel for c arrays
-    //  */
-    // inline int setKernel (const double *theta, size_t n_theta, 
-    // 			  kernel_name k_name, size_t dim)
-    // {
-    //   vectord th(n_theta);
-    //   std::copy(theta, theta+n_theta, th.begin());
-    //   int error = setKernel(th, k_name, dim);
-    // };
-
+    // Kernel function
     /** 
      * \brief Select kernel (covariance function) for the surrogate process.
      * @param thetav kernel parameters (mean)
@@ -141,9 +117,7 @@ namespace bayesopt
     int setKernel (const vectord &thetav, const vectord &stheta, 
 		   std::string k_name, size_t dim);
 
-    /** 
-     * \brief Wrapper of setKernel for c arrays
-     */
+    /** Wrapper of setKernel for C kernel structure */
     inline int setKernel (kernel_parameters kernel, size_t dim)
     {
       size_t n = kernel.n_theta;
@@ -166,27 +140,8 @@ namespace bayesopt
       return 0;
     };
 
-
-
-    // /** 
-    //  * \brief Select the parametric part of the surrogate process.
-    //  * 
-    //  * @param muv mean function parameters
-    //  * @param m_name mean function name
-    //  * @return error_code
-    //  */
-    // int setMean (const vectord &muv, mean_name m_name, size_t dim);
-
-    // /** 
-    //  * \brief Wrapper of setMean for c arrays
-    //  */
-    // inline int setMean (const double *mu, size_t n_mu, 
-    // 			mean_name m_name, size_t dim)
-    // {
-    //   vectord vmu(n_mu);
-    //   std::copy(mu, mu+n_mu, vmu.begin());
-    //   return setMean(vmu, m_name, dim);
-    // };
+    /** Sets the kind of learning methodology for kernel hyperparameters */
+    inline void setLearnType(learning_type l_type) { mLearnType = l_type; };
 
 
     /** 
@@ -201,9 +156,7 @@ namespace bayesopt
     int setMean (const vectord &muv, const vectord &smu, 
 		 std::string m_name, size_t dim);
 
-    /** 
-     * \brief Wrapper of setMean for c arrays
-     */
+    /** Wrapper of setMean for the C structure */
     inline int setMean (mean_parameters mean, size_t dim)
     {
       size_t n_mu = mean.n_mu;
@@ -214,9 +167,28 @@ namespace bayesopt
       return setMean(vmu, smu, mean.name, dim);
     };
 
-    inline void setLearnType(learning_type l_type) { mLearnType = l_type; };
-
   protected:
+    /** 
+     * \brief Computes the negative log likelihood of the data for all
+     * the parameters.
+     * @return value negative log likelihood
+     */
+    virtual double negativeTotalLogLikelihood() = 0;
+
+
+    /** 
+     * \brief Computes the negative log likelihood of the data for the
+     * kernel hyperparameters.
+     * @return value negative log likelihood
+     */
+    virtual double negativeLogLikelihood() = 0;
+
+    /** 
+     * \brief Precompute some values of the prediction that do not
+     * depends on the query.
+     * @return error code
+     */
+    virtual int precomputePrediction() = 0;
 
     /**
      * Computes the negative score of the data using cross correlation.
@@ -225,26 +197,14 @@ namespace bayesopt
     double negativeCrossCorrelation();
 
     /** 
-     * \brief Computes the negative log likelihood of the data.
-     * @return value negative log likelihood
-     */
-    virtual double negativeLogLikelihood() = 0;
-
-    /** 
-     * \brief Precompute some values of the prediction that do not depends on
-     * the query
-     * @return error code
-     */
-    virtual int precomputePrediction() = 0;
-
-    /** 
      * \brief Computes the negative log prior of the hyperparameters.
      * @return value negative log prior
      */
     double negativeLogPrior();
 
     /** 
-     * \brief Wrapper to the function that computes the score of the parameters.
+     * \brief Wrapper to the function that computes the score of the
+     * parameters.
      * @param query set of parameters.
      * @return score
      */
@@ -283,7 +243,7 @@ namespace bayesopt
     vectord mMeanV;                           ///< Mean value at the input points
     matrixd mFeatM;           ///< Value of the mean features at the input points
 
-    std::vector<boost::math::normal> priorKernel;   ///< Prior of kernel function
+    std::vector<boost::math::normal> priorKernel; ///< Prior of kernel parameters
     boost::scoped_ptr<Kernel> mKernel;            ///< Pointer to kernel function
     boost::scoped_ptr<ParametricFunction> mMean;    ///< Pointer to mean function
 

@@ -28,7 +28,7 @@
 #define  _STUDENT_T_PROCESS_HPP_
 
 #include "student_t_distribution.hpp"
-#include "nonparametricprocess.hpp"
+#include "hierarchical_gaussian_process.hpp"
  
 namespace bayesopt
 {
@@ -40,7 +40,7 @@ namespace bayesopt
    * \brief Student's t process with Jeffreys hyperprior 
    *        on mean and signal variance parameters.
    */
-  class StudentTProcess: public NonParametricProcess
+  class StudentTProcess: public HierarchicalGaussianProcess
   {
   public:
     StudentTProcess(size_t dim, double noise);

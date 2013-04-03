@@ -53,12 +53,20 @@ namespace bayesopt
      */	
     ProbabilityDistribution* prediction(const vectord &query);
 
-  protected:
+  private:
 
     /** 
-     * \brief Computes the negative log likelihood and its gradient of the data.
-     * 
-     *
+     * \brief Computes the negative log likelihood of the data for all
+     * the parameters.
+     * @return value negative log likelihood
+     */
+    double negativeTotalLogLikelihood()
+    { //TODO: Implement
+      assert(false); };
+
+    /** 
+     * \brief Computes the negative log likelihood and its gradient of
+     * the data.
      * @return value negative log likelihood
      */
     double negativeLogLikelihood();

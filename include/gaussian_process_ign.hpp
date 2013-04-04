@@ -24,7 +24,7 @@
 #define  _GAUSSIAN_PROCESS_IGN_HPP_
 
 #include "gauss_distribution.hpp"
-#include "nonparametricprocess.hpp"
+#include "hierarchical_gaussian_process.hpp"
 
 namespace bayesopt
 {
@@ -36,7 +36,7 @@ namespace bayesopt
    * \brief Gaussian process with normal-inverse-gamma hyperprior 
    *        on mean and signal variance parameters.
    */
-  class GaussianProcessIGN: public NonParametricProcess 
+  class GaussianProcessIGN: public HierarchicalGaussianProcess
   {
   public:
     GaussianProcessIGN(size_t dim, double noise, double alpha,
@@ -60,9 +60,9 @@ namespace bayesopt
      * the parameters.
      * @return value negative log likelihood
      */
-    double negativeTotalLogLikelihood()
-    { //TODO: Implement
-      assert(false); };
+    //    double negativeTotalLogLikelihood()
+    //{ //TODO: Implement
+    //  assert(false); };
 
     /** 
      * \brief Computes the negative log likelihood and its gradient of

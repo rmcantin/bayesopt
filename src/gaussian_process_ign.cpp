@@ -36,7 +36,7 @@ namespace bayesopt
 
   GaussianProcessIGN::GaussianProcessIGN(size_t dim, double noise, double alpha, 
 					 double beta, double delta):
-    NonParametricProcess(dim,noise),
+    HierarchicalGaussianProcess(dim,noise),
     mAlpha(alpha), mBeta (beta), mDelta2(delta)
   {
     d_ = new GaussianDistribution();

@@ -40,8 +40,43 @@ namespace bayesopt
    */
   class GaussianProcessML: public HierarchicalGaussianProcess
   {
-    G
-  }
+    GaussianProcessML(size_t dim, double noise);
+    virtual ~GaussianProcessML();
+
+    /** 
+     * \brief Function that returns the prediction of the GP for a query point
+     * in the hypercube [0,1].
+     * 
+     * @param query in the hypercube [0,1] to evaluate the Gaussian process
+     * @return pointer to the probability distribution.
+     */	
+    ProbabilityDistribution* prediction(const vectord &query);
+
+  private:
+
+    /** 
+     * \brief Computes the negative log likelihood and its gradient of
+     * the data. In this case, it is equivalent to the
+     * negativeTotalLogLikelihood
+     * @return value negative log likelihood
+     */
+    double negativeLogLikelihood()
+    { return negativeTotalLogLikelihood(); };
+
+    /** 
+     * \brief Precompute some values of the prediction that do not depends on
+     * the query
+     * @return error code
+     */
+    int precomputePrediction();
+
+  private:
+    double mWML, mSigML;           //!< GP ML parameters
+
+    /// Precomputed GP prediction operations
+
+    GaussianDistribution* d_;      //!< Predictive distributions
+  };
 
   /**@}*/
 

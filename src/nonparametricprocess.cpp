@@ -234,7 +234,7 @@ namespace bayesopt
 
 
 
-  double NonParametricProcess::negativeCrossCorrelation()
+  double NonParametricProcess::negativeCrossValidation()
   {
     // This is highly ineffient implementation for comparison purposes.
     size_t n = mGPXX.size();
@@ -294,7 +294,7 @@ namespace bayesopt
 	result = negativeLogLikelihood()+negativeLogPrior();
 	break;
       case L_LOO:
-	result = negativeCrossCorrelation(); break;
+	result = negativeCrossValidation(); break;
       default:
 	FILE_LOG(logERROR) << "Learning type not supported";
       }	  

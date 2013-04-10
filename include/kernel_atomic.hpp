@@ -107,8 +107,8 @@ namespace bayesopt
 		    size_t component)
     {
       assert(false);
-	  return 0.0;
-	};
+      return 0.0;
+    };
   };
 
   /** \brief Linear kernel. */
@@ -226,7 +226,7 @@ namespace bayesopt
 		    size_t component)
     {
       assert(false); //TODO: 
-	  return 0.0;
+      return 0.0;
     };
   };
 

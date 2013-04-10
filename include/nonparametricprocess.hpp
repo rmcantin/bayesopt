@@ -195,7 +195,7 @@ namespace bayesopt
      * Computes the negative score of the data using cross correlation.
      * @return negative score
      */
-    double negativeCrossCorrelation();
+    double negativeCrossValidation();
 
     /** 
      * \brief Computes the negative log prior of the hyperparameters.

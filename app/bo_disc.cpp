@@ -89,14 +89,17 @@ int main(int nargs, char *args[])
   matrixd xPoints(nPoints,n);
   vecOfvec xP;
 
-  const size_t nPinArr = n*nPoints;
   //Thanks to the quirks of Visual Studio, the following expression is invalid,
   //so we have to replace it by a literal.
   //WARNING: Make sure to update the size of the array if the number of points
   //or dimensions change.
-  //double xPointsArray[nPinArr];
+#ifdef _MSC_VER
   double xPointsArray[6000];
-
+#else
+  const size_t nPinArr = n*nPoints;
+  double xPointsArray[nPinArr];
+#endif
+  
   bayesopt::utils::lhs(xPoints,mtRandom);
 
   for(size_t i = 0; i<nPoints; ++i)

@@ -17,4 +17,3 @@ syntax:glob
 *.out
 *.so
 *~
-#*#

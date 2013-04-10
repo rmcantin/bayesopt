@@ -83,6 +83,7 @@ SET( BAYESOPT_SRCS
   ./src/gauss_distribution.cpp
   ./src/student_t_distribution.cpp
   )
+
 SET(UTILS_SRC
   ./utils/parser.cpp
   )
@@ -106,34 +107,35 @@ INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/include
 
 LINK_DIRECTORIES( ${CMAKE_SOURCE_DIR}/lib )
 
-IF(BUILD_NLOPT)
-  ADD_SUBDIRECTORY(nlopt)
-  include_directories(${CMAKE_SOURCE_DIR}/nlopt/api)
-ENDIF(BUILD_NLOPT)
+# IF(BUILD_NLOPT)
+#   ADD_SUBDIRECTORY(nlopt)
+#   include_directories(${CMAKE_SOURCE_DIR}/nlopt/api)
+# ENDIF(BUILD_NLOPT)
 
 IF(BUILD_SHARED_LIBS)
-	ADD_LIBRARY(bayesopt SHARED ${BAYESOPT_SRCS}   
-	${WRAPPPERS_SRC} ${UTILS_SRC} ${PYTHON_SRC} )
-	IF(WIN32)
-		#SET_TARGET_PROPERTIES(bayesopt PROPERTIES DEFINE_SYMBOL "COMPILE_DLL")
-		# In new versions of CMAKE they use a different system and the symbol is not defined
-		#SET_TARGET_PROPERTIES(bayesopt PROPERTIES DEFINE_SYMBOL "bayesopt_EXPORT")
-		ADD_DEFINITIONS(-DCOMPILE_DLL)	
-		ADD_DEFINITIONS(-Dbayesopt_EXPORT )
-	ELSE()
-		SET_TARGET_PROPERTIES(bayesopt PROPERTIES PREFIX "" SUFFIX ".so")
-	ENDIF()
+  ADD_LIBRARY(bayesopt SHARED ${BAYESOPT_SRCS}   
+    ${WRAPPPERS_SRC} ${UTILS_SRC} ${PYTHON_SRC} )
+  IF(WIN32)
+    ADD_DEFINITIONS(-DBAYESOPT_DLL)	
+    # In new versions of CMAKE they use a different system and the
+    # symbol is not defined
+    ADD_DEFINITIONS(-Dbayesopt_EXPORT )
+  ELSE()
+    SET_TARGET_PROPERTIES(bayesopt PROPERTIES PREFIX "" SUFFIX ".so")
+  ENDIF()
 ELSE()
-	ADD_LIBRARY(bayesopt STATIC ${BAYESOPT_SRCS}   
-	${WRAPPPERS_SRC} ${UTILS_SRC} ${PYTHON_SRC} )
+  ADD_LIBRARY(bayesopt STATIC ${BAYESOPT_SRCS}   
+    ${WRAPPPERS_SRC} ${UTILS_SRC} ${PYTHON_SRC} )
 ENDIF()
 
 IF((BUILD_SHARED_LIBS OR MATLAB_COMPATIBLE) AND NOT WIN32)
-	SET_TARGET_PROPERTIES(bayesopt PROPERTIES COMPILE_FLAGS "-fPIC")
+  SET_TARGET_PROPERTIES(bayesopt PROPERTIES COMPILE_FLAGS "-fPIC")
 ENDIF()
   
 
 IF(BUILD_NLOPT)
+  ADD_SUBDIRECTORY(nlopt)
+  include_directories(${CMAKE_SOURCE_DIR}/nlopt/api)
   add_dependencies(bayesopt nlopt)
   SET(EXT_LIBS nlopt)
 ELSE(BUILD_NLOPT)
@@ -170,10 +172,12 @@ TARGET_LINK_LIBRARIES(bo_branin bayesopt)
 #ADD_EXECUTABLE(parsetest ./utils/parser.cpp ./app/testparser.cpp)
 
 
-INSTALL(FILES ./include/bayesoptcont.hpp 
-              ./include/bayesoptdisc.hpp 
-	      ./wrappers/bayesoptwpr.h 
-	DESTINATION include)
+INSTALL(FILES 
+  ./include/bayesoptcont.hpp 
+  ./include/bayesoptdisc.hpp 
+  ./wrappers/bayesoptwpr.h 
+  DESTINATION include
+)
 
 INSTALL(
   TARGETS bayesopt

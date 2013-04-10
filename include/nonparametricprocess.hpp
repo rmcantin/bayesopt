@@ -126,6 +126,7 @@ namespace bayesopt
       std::copy(kernel.theta, kernel.theta+n, th.begin());
       std::copy(kernel.s_theta, kernel.s_theta+n, sth.begin());
       int error = setKernel(th, sth, kernel.name, dim);
+	  return 0;
     };
 
     /** Set prior (Gaussian) for kernel hyperparameters */

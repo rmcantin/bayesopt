@@ -107,7 +107,8 @@ namespace bayesopt
 		    size_t component)
     {
       assert(false);
-    };
+	  return 0.0;
+	};
   };
 
   /** \brief Linear kernel. */
@@ -132,7 +133,7 @@ namespace bayesopt
     double gradient(const vectord &x1, const vectord &x2,
 		    size_t component)
     {
-      assert(false);
+      assert(false); return 0.0;
     };
   };
 
@@ -224,7 +225,8 @@ namespace bayesopt
     double gradient(const vectord &x1, const vectord &x2,
 		    size_t component)
     {
-      assert(false); //TODO:
+      assert(false); //TODO: 
+	  return 0.0;
     };
   };
 
@@ -277,7 +279,7 @@ namespace bayesopt
     double gradient( const vectord &x1, const vectord &x2,
 		     size_t component)
     {
-      assert(false);
+      assert(false); return 0.0;
     };
   };
 
@@ -329,7 +331,7 @@ namespace bayesopt
     double gradient( const vectord &x1, const vectord &x2,
 		     size_t component)
     {    
-      assert(false);
+      assert(false); return 0.0;
     };
   };
 

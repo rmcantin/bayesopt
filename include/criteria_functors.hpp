@@ -58,7 +58,7 @@ namespace bayesopt
     virtual void reset() { assert(false); };
     virtual bool checkIfBest(vectord& xNext,
 			     std::string& name,
-			     int& error_code) { assert(false); };
+			     int& error_code) { assert(false); return false; };
   protected:
     NonParametricProcess *mProc;
   };

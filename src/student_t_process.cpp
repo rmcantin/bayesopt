@@ -31,10 +31,17 @@ namespace bayesopt
   using utils::cholesky_decompose;
   
   
-  StudentTProcess::StudentTProcess(size_t dim, double noise):
-    HierarchicalGaussianProcess(dim, noise)
+  StudentTProcess::StudentTProcess(size_t dim, bopt_params params):
+    HierarchicalGaussianProcess(dim, params)
   {
     d_ = new StudentTDistribution();
+    if (strcmp(parameters.mean.name,"mZero") == 0)
+      {
+	FILE_LOG(logWARNING) << "Zero mean incompatible with Student's t "
+			     << "process, using one-mean instead.";
+	parameters.mean.name = "mOne";
+      }
+    setMean(parameters.mean,dim);
   }  // Constructor
 
 

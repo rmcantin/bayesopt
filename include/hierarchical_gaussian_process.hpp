@@ -41,7 +41,7 @@ namespace bayesopt
   class HierarchicalGaussianProcess: public NonParametricProcess
   {
   public:
-    HierarchicalGaussianProcess(size_t dim, double noise);
+    HierarchicalGaussianProcess(size_t dim, bopt_params params);
     virtual ~HierarchicalGaussianProcess() {};
 
   protected:

@@ -29,84 +29,88 @@
 #include "dll_stuff.h"
 #include "specialtypes.hpp"
 
-// We plan to add more in the future since nlopt actually support many of them
-enum innerOptAlgorithms {
-  DIRECT,    ///< Global optimization
-  LBFGS,     ///< Local, derivative based
-  BOBYQA,    ///< Local, derivative free
-  COMBINED   ///< Global exploration, local refinement
-};
+namespace bayesopt {
+
+  // We plan to add more in the future since nlopt actually support many of them
+  typedef enum {
+    DIRECT,    ///< Global optimization
+    LBFGS,     ///< Local, derivative based
+    BOBYQA,    ///< Local, derivative free
+    COMBINED   ///< Global exploration, local refinement
+  } innerOptAlgorithms;
 
 
-class BAYESOPT_API InnerOptimization
-{
-public:
-  InnerOptimization()
-  { 
-    alg = DIRECT;    mDown = 0.;    mUp = 1.;
+  class BAYESOPT_API InnerOptimization
+  {
+  public:
+    InnerOptimization()
+      { 
+	alg = DIRECT;    mDown = 0.;    mUp = 1.;
+      };
+
+    virtual ~InnerOptimization(){};
+
+    /** 
+     * Set the optimization algorithm
+     * 
+     * @param newAlg 
+     */
+    void setAlgorithm(innerOptAlgorithms newAlg)
+    { alg = newAlg; }
+
+    /** 
+     * Limits of the hypercube. 
+     * Currently, it assumes that all dimensions have the same limits.
+     * 
+     * @param down 
+     * @param up 
+     */
+    void setLimits(double down, double up)
+    {
+      mDown = down;   mUp = up;
+    }
+
+    /** 
+     * Compute the inner optimization algorithm
+     * 
+     * @param Xnext input: initial guess, output: result
+     * 
+     * @return error_code
+     */
+    int innerOptimize(vectord &Xnext);
+    int innerOptimize(double* x, int n, void* objPointer);	
+
+
+    /** 
+     * Virtual function to be overriden by the actual function to be evaluated
+     * 
+     * @param query input point
+     * 
+     * @return function value at query point
+     */
+    virtual double innerEvaluate(const vectord& query) 
+    {return 0.0;};
+
+
+    /** 
+     * Virtual function to be overriden by the actual function to be evaluated
+     * 
+     * @param query input point
+     * @param grad output gradient at query point
+     * 
+     * @return function value at query point
+     */
+    virtual double innerEvaluate(const vectord& query, 
+				 vectord& grad) 
+    {return 0.0;};
+
+
+  protected:
+
+    innerOptAlgorithms alg;
+    double mDown, mUp;
   };
 
-  virtual ~InnerOptimization(){};
-
-  /** 
-   * Set the optimization algorithm
-   * 
-   * @param newAlg 
-   */
-  void setAlgorithm(innerOptAlgorithms newAlg)
-  { alg = newAlg; }
-
-  /** 
-   * Limits of the hypercube. 
-   * Currently, it assumes that all dimensions have the same limits.
-   * 
-   * @param down 
-   * @param up 
-   */
-  void setLimits(double down, double up)
-  {
-    mDown = down;   mUp = up;
-  }
-
-  /** 
-   * Compute the inner optimization algorithm
-   * 
-   * @param Xnext input: initial guess, output: result
-   * 
-   * @return error_code
-   */
-  int innerOptimize(vectord &Xnext);
-  int innerOptimize(double* x, int n, void* objPointer);	
-
-
-  /** 
-   * Virtual function to be overriden by the actual function to be evaluated
-   * 
-   * @param query input point
-   * 
-   * @return function value at query point
-   */
-  virtual double innerEvaluate(const vectord& query) 
-  {return 0.0;};
-
-
-  /** 
-   * Virtual function to be overriden by the actual function to be evaluated
-   * 
-   * @param query input point
-   * @param grad output gradient at query point
-   * 
-   * @return function value at query point
-   */
-  virtual double innerEvaluate(const vectord& query, 
-			       vectord& grad) 
-  {return 0.0;};
-
-
-protected:
-
-  innerOptAlgorithms alg;
-  double mDown, mUp;
-};
+}//namespace bayesopt
 
 #endif

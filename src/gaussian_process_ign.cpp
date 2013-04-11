@@ -34,10 +34,9 @@ namespace bayesopt
   using utils::cholesky_solve;
   using utils::cholesky_decompose;
 
-  GaussianProcessIGN::GaussianProcessIGN(size_t dim, double noise, double alpha, 
-					 double beta, double delta):
-    HierarchicalGaussianProcess(dim,noise),
-    mAlpha(alpha), mBeta (beta), mDelta2(delta)
+  GaussianProcessIGN::GaussianProcessIGN(size_t dim, bopt_params params):
+    GaussianProcess(dim,params), mAlpha(params.alpha), 
+    mBeta (params.beta), mDelta2(parameters.mean.s_mu[0])
   {
     d_ = new GaussianDistribution();
   }  // Constructor

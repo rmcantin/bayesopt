@@ -22,15 +22,14 @@
 #include "gaussian_process.hpp"
 #include "cholesky.hpp"
 #include "trace_ublas.hpp"
-#include "gauss_distribution.hpp"
 
 namespace bayesopt
 {
 
   namespace ublas = boost::numeric::ublas;
 
-  GaussianProcess::GaussianProcess(size_t dim, double noise):
-    NonParametricProcess(dim, noise)
+  GaussianProcess::GaussianProcess(size_t dim, bopt_params params):
+    NonParametricProcess(dim, params), mSigma(params.sigma_s)
   {
     d_ = new GaussianDistribution();
   }  // Constructor
@@ -56,21 +55,22 @@ namespace bayesopt
     matrixd L(n,n);
     utils::cholesky_decompose(K,L);
 
-    vectord alpha(mGPY-mMeanV);
+    vectord alpha(mGPY-prod(mMu,mFeatM));
     inplace_solve(L,alpha,ublas::lower_tag());
-    double loglik = .5*ublas::inner_prod(alpha,alpha) + utils::log_trace(L);
+    double loglik = ublas::inner_prod(alpha,alpha)/(2*mSigma) + 
+      utils::log_trace(L);
     return loglik;
   }
 
   ProbabilityDistribution* GaussianProcess::prediction(const vectord &query)
   {
-    const double kn = (*mKernel)(query, query);
-    const vectord kStar = computeCrossCorrelation(query);
-    double yPred = ublas::inner_prod(kStar,mAlphaV);
+    const double kq = (*mKernel)(query, query);
+    const vectord kn = computeCrossCorrelation(query);
 
-    vectord vd(kStar);
+    vectord vd(kn);
     ublas::inplace_solve(mL,vd,ublas::lower_tag());
-    double sPred = sqrt(kn - ublas::inner_prod(vd,vd));
+    double yPred = ublas::inner_prod(vd,mAlphaV);
+    double sPred = sqrt(mSigma*(kq - ublas::inner_prod(vd,vd)));
 
     d_->setMeanAndStd(yPred,sPred);
     return d_;
@@ -82,7 +82,7 @@ namespace bayesopt
     const size_t n = mGPY.size();
   
     mAlphaV.resize(n,false);
-    mAlphaV = mGPY-mMeanV;
+    mAlphaV = mGPY-prod(mMu,mFeatM);
     utils::cholesky_solve(mL,mAlphaV,ublas::lower());
 
     return 1; 

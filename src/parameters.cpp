@@ -101,6 +101,8 @@ surrogate_name str2surrogate(const char* name)
 {
   if      (!strcmp(name,  "GAUSSIAN_PROCESS"))
     return S_GAUSSIAN_PROCESS;
+  if      (!strcmp(name,  "GAUSSIAN_PROCESS_ML"))
+    return S_GAUSSIAN_PROCESS_ML;
   else if (!strcmp(name,  "GAUSSIAN_PROCESS_INV_GAMMA_NORMAL"))
     return S_GAUSSIAN_PROCESS_INV_GAMMA_NORMAL;
   else if (!strcmp(name,  "STUDENT_T_PROCESS_JEFFREYS"))
@@ -126,6 +128,7 @@ const char* surrogate2str(surrogate_name name)
   switch(name)
     {
     case S_GAUSSIAN_PROCESS: return "GAUSSIAN_PROCESS"; 
+    case S_GAUSSIAN_PROCESS_ML: return "GAUSSIAN_PROCESS_ML"; 
     case S_GAUSSIAN_PROCESS_INV_GAMMA_NORMAL: return "GAUSSIAN_PROCESS_INV_GAMMA_NORMAL"; 
     case S_STUDENT_T_PROCESS_JEFFREYS: return "S_STUDENT_T_PROCESS_JEFFREYS"; 
     case S_ERROR:
@@ -194,11 +197,12 @@ static const mean_parameters DEFAULT_MEAN = {
 static const bopt_params DEFAULT_PARAMS = {
   DEFAULT_ITERATIONS, MAX_INNER_EVALUATIONS, DEFAULT_SAMPLES, 
   DEFAULT_VERBOSE, DEF_LOG_FILE,
-  S_GAUSSIAN_PROCESS,
-  PRIOR_ALPHA, PRIOR_BETA,  DEFAULT_NOISE,
+  S_GAUSSIAN_PROCESS, 
+  DEFAULT_SIGMA, DEFAULT_NOISE,
+  PRIOR_ALPHA, PRIOR_BETA, 
   L_MAP,
   DEFAULT_KERNEL, DEFAULT_MEAN,
-  DEF_CRITERIA_NAME,
+  DEF_CRITERIA_NAME, {}, 0
 };
 
 

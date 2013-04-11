@@ -43,7 +43,7 @@ namespace bayesopt
   class StudentTProcess: public HierarchicalGaussianProcess
   {
   public:
-    StudentTProcess(size_t dim, double noise);
+    StudentTProcess(size_t dim, bopt_params params);
     virtual ~StudentTProcess();
 
     /** 

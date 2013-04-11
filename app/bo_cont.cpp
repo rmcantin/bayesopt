@@ -78,13 +78,13 @@ int main(int nargs, char *args[])
   par.kernel.n_theta = 2;
   par.mean.mu[0] = 1.0;
   par.mean.mu[1] = 1.0;
-  par.mean.s_mu[0] = PRIOR_DELTA_SQ;
-  par.mean.s_mu[1] = PRIOR_DELTA_SQ;
+  par.mean.s_mu[0] = MEAN_SIGMA;
+  par.mean.s_mu[1] = MEAN_SIGMA;
   par.mean.n_mu = 2;
   par.alpha = PRIOR_ALPHA;
   par.beta = PRIOR_BETA;
   par.noise = DEFAULT_NOISE;
-  par.surr_name = S_STUDENT_T_PROCESS_JEFFREYS;
+  par.surr_name = S_GAUSSIAN_PROCESS_ML;//S_STUDENT_T_PROCESS_JEFFREYS;
   par.kernel.name = "kSum(kSEISO,kConst)";
   par.mean.name = "mSum(mConst,mConst)";
   par.l_type = L_ML;

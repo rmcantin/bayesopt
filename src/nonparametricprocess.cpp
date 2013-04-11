@@ -28,6 +28,7 @@
 #include "ublas_extra.hpp"
 
 #include "gaussian_process.hpp"
+#include "gaussian_process_ml.hpp"
 #include "gaussian_process_ign.hpp"
 #include "student_t_process.hpp"
 
@@ -35,12 +36,15 @@
 namespace bayesopt
 {
   
-  NonParametricProcess::NonParametricProcess(size_t dim, double noise):
-    InnerOptimization(), mRegularizer(noise), dim_(dim)
+  NonParametricProcess::NonParametricProcess(size_t dim, bopt_params parameters):
+    InnerOptimization(), mRegularizer(parameters.noise), dim_(dim)
   { 
     mMinIndex = 0;     mMaxIndex = 0;   
     setAlgorithm(BOBYQA);
     setLimits(0.,100.);
+    setLearnType(parameters.l_type);
+    setKernel(parameters.kernel,dim);
+    setMean(parameters.mean,dim);
   }
 
   NonParametricProcess::~NonParametricProcess(){}
@@ -54,32 +58,22 @@ namespace bayesopt
     switch(parameters.surr_name)
       {
       case S_GAUSSIAN_PROCESS: 
-	s_ptr = new GaussianProcess(dim,parameters.noise); 
-	break;
+	s_ptr = new GaussianProcess(dim,parameters); break;
 
-      case S_GAUSSIAN_PROCESS_INV_GAMMA_NORMAL:
-	s_ptr = new GaussianProcessIGN(dim,parameters.noise, parameters.alpha,
-				       parameters.beta,parameters.mean.s_mu[0]);  
-	break;
+      case S_GAUSSIAN_PROCESS_ML: 
+	s_ptr = new GaussianProcessML(dim,parameters); break;
 
-      case S_STUDENT_T_PROCESS_JEFFREYS: 
-	if (strcmp(parameters.mean.name,"mZero") == 0)
-	  {
-	    FILE_LOG(logWARNING) << "Zero mean incompatible with Student's t "
-				 << "process, using one-mean instead.";
-	    parameters.mean.name = "mOne";
-	  }
-	s_ptr = new StudentTProcess(dim,parameters.noise); 
-	break;
+      // case S_GAUSSIAN_PROCESS_INV_GAMMA_NORMAL:
+      // 	s_ptr = new GaussianProcessIGN(dim,parameters);	break;
+
+      // case S_STUDENT_T_PROCESS_JEFFREYS: 
+      // 	s_ptr = new StudentTProcess(dim,parameters); break;
 
       default:
 	FILE_LOG(logERROR) << "Error: surrogate function not supported.";
 	return NULL;
       }
 
-    s_ptr->setLearnType(parameters.l_type);
-    s_ptr->setKernel(parameters.kernel,dim);
-    s_ptr->setMean(parameters.mean,dim);
     return s_ptr;
   };
 
@@ -224,6 +218,7 @@ namespace bayesopt
 				     size_t dim)
   {
     mMean.reset(mPFactory.create(m_name,dim));
+    mMu = muv; mS_Mu = smu;
 
     if (mMean == NULL) 	return -1; 
 

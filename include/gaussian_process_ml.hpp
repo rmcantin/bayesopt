@@ -26,7 +26,8 @@
 #ifndef __GAUSSIAN_PROCESS_ML_HPP__
 #define __GAUSSIAN_PROCESS_ML_HPP__
 
-#include "nonparametricprocess.hpp"
+#include "gauss_distribution.hpp"
+#include "hierarchical_gaussian_process.hpp"
 
 
 namespace bayesopt
@@ -40,7 +41,8 @@ namespace bayesopt
    */
   class GaussianProcessML: public HierarchicalGaussianProcess
   {
-    GaussianProcessML(size_t dim, double noise);
+  public:
+    GaussianProcessML(size_t dim, bopt_params params);
     virtual ~GaussianProcessML();
 
     /** 
@@ -60,8 +62,7 @@ namespace bayesopt
      * negativeTotalLogLikelihood
      * @return value negative log likelihood
      */
-    double negativeLogLikelihood()
-    { return negativeTotalLogLikelihood(); };
+    double negativeLogLikelihood();
 
     /** 
      * \brief Precompute some values of the prediction that do not depends on
@@ -71,9 +72,12 @@ namespace bayesopt
     int precomputePrediction();
 
   private:
-    double mWML, mSigML;           //!< GP ML parameters
-
+    vectord mWML;           //!< GP ML parameters
+    double mSigML;           //!< GP ML parameters
+    
     /// Precomputed GP prediction operations
+    vectord mAlphaF;
+    matrixd mKF, mL2;
 
     GaussianDistribution* d_;      //!< Predictive distributions
   };

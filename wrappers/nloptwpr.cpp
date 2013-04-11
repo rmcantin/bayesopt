@@ -31,7 +31,8 @@
 namespace NLOPT_WPR
 {
 
-  using namespace boost::numeric::ublas;	
+  namespace ublas = boost::numeric::ublas;
+  using bayesopt::InnerOptimization;
 
 
   double evaluate_nlopt (unsigned int n, const double *x,
@@ -41,8 +42,8 @@ namespace NLOPT_WPR
     double xcopy[128];
     for (unsigned int i=0;i<n;i++)
       xcopy[i] = x[i];
-    array_adaptor<double> shared(n, xcopy);
-    vector<double, array_adaptor<double> > sharedN(n, shared); 
+    ublas::array_adaptor<double> shared(n, xcopy);
+    ublas::vector<double, ublas::array_adaptor<double> > sharedN(n, shared); 
     
     // This is not very clever... but works!
     void *objPointer = my_func_data;
@@ -59,14 +60,14 @@ namespace NLOPT_WPR
     double xcopy[128];
     for (unsigned int i=0;i<n;i++)
       xcopy[i] = x[i];
-    array_adaptor<double> shared(n, xcopy);
-    vector<double, array_adaptor<double> > sharedN(n, shared); 
+    ublas::array_adaptor<double> shared(n, xcopy);
+    ublas::vector<double, ublas::array_adaptor<double> > sharedN(n, shared); 
     
     // This is not very clever... but works!
     void *objPointer = my_func_data;
     InnerOptimization* OPTIMIZER = static_cast<InnerOptimization*>(objPointer);
     
-    vector<double> vgrad = zero_vector<double>(n);
+    ublas::vector<double> vgrad = ublas::zero_vector<double>(n);
 
     double f =  OPTIMIZER->innerEvaluate(sharedN,vgrad);
   

@@ -39,8 +39,7 @@ namespace bayesopt
   class GaussianProcessIGN: public HierarchicalGaussianProcess
   {
   public:
-    GaussianProcessIGN(size_t dim, double noise, double alpha,
-		       double beta, double delta);
+    GaussianProcessIGN(size_t dim, bopt_params params);
 
     virtual ~GaussianProcessIGN();
 

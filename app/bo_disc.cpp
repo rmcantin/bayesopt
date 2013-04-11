@@ -75,7 +75,7 @@ int main(int nargs, char *args[])
   par.alpha = PRIOR_ALPHA;
   par.beta = PRIOR_BETA;
   par.mean.mu[0] = 0.0;
-  par.mean.s_mu[0] = PRIOR_DELTA_SQ;
+  par.mean.s_mu[0] = MEAN_SIGMA;
   par.mean.n_mu = 1;
   par.noise = DEFAULT_NOISE;
   par.surr_name = S_GAUSSIAN_PROCESS_INV_GAMMA_NORMAL;

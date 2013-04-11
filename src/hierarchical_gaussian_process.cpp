@@ -28,18 +28,21 @@ namespace bayesopt
   namespace ublas = boost::numeric::ublas;
 
   HierarchicalGaussianProcess::HierarchicalGaussianProcess(size_t dim, 
-							   double noise):
-    NonParametricProcess(dim, noise) {};
+							   bopt_params params):
+    NonParametricProcess(dim, params) {};
 
   double HierarchicalGaussianProcess::negativeTotalLogLikelihood()
   {
+    /*This is the restricted version. For the unrestricted, make p=0
+      and remove the last term of loglik*/
+
     const matrixd K = computeCorrMatrix();
     const size_t n = K.size1();
     const size_t p = mFeatM.size1(); 
     matrixd L(n,n);
     utils::cholesky_decompose(K,L);
 
-    matrixd KF(n,p);
+    matrixd KF(ublas::trans(mFeatM));
     inplace_solve(L,KF,ublas::lower_tag());
     
     matrixd FKF = prod(ublas::trans(KF),KF);
@@ -48,15 +51,16 @@ namespace bayesopt
 
     vectord Ky(mGPY);
     inplace_solve(L,Ky,ublas::lower_tag());
-    vectord wML = prod(Ky,KF);
 
+    vectord wML = prod(Ky,KF);
     utils::cholesky_solve(L2,wML,ublas::lower());
 
     vectord alpha = mGPY - prod(wML,mFeatM);
     inplace_solve(L,alpha,ublas::lower_tag());
+    double sigma = ublas::inner_prod(alpha,alpha)/(n-p);
 
-    double loglik = .5*n*log(ublas::inner_prod(alpha,alpha)) 
-                    + utils::log_trace(L);
+    double loglik = .5*(n-p)*log(ublas::inner_prod(alpha,alpha)) 
+      + utils::log_trace(L) + utils::log_trace(L2);
     return loglik;
   }
 }

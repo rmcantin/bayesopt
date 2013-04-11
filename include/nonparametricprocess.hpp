@@ -52,7 +52,7 @@ namespace bayesopt
   class NonParametricProcess: public InnerOptimization
   {
   public:
-    NonParametricProcess(size_t dim, double noise);
+    NonParametricProcess(size_t dim, bopt_params parameters);
     virtual ~NonParametricProcess();
 
     /** 
@@ -241,8 +241,11 @@ namespace bayesopt
     const double mRegularizer;   ///< Std of the obs. model (also used as nugget)
     vecOfvec mGPXX;                                              ///< Data inputs
     vectord mGPY;                                                ///< Data values
+    
     vectord mMeanV;                           ///< Mean value at the input points
     matrixd mFeatM;           ///< Value of the mean features at the input points
+    vectord mMu;                 ///< Mean of the parameters of the mean function
+    vectord mS_Mu;    ///< Variance of the params of the mean function W=mS_Mu*I
 
     std::vector<boost::math::normal> priorKernel; ///< Prior of kernel parameters
     boost::scoped_ptr<Kernel> mKernel;            ///< Pointer to kernel function

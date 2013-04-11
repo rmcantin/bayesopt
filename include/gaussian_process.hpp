@@ -41,7 +41,7 @@ namespace bayesopt
   class GaussianProcess: public NonParametricProcess
   {
   public:
-    GaussianProcess(size_t dim, double noise);
+    GaussianProcess(size_t dim, bopt_params params);
     virtual ~GaussianProcess();
 
     /** 
@@ -82,6 +82,7 @@ namespace bayesopt
 
   private:
     vectord mAlphaV;              ///< Precomputed L\y
+    double mSigma;                ///< Signal variance
     GaussianDistribution* d_;     ///< Pointer to distribution function
   };
 

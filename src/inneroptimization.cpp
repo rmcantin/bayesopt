@@ -26,9 +26,11 @@
 #include "log.hpp"
 #include "inneroptimization.hpp"
 
-void checkNLOPTerror(nlopt_result errortype)
+namespace bayesopt
 {
-  switch(errortype)
+  void checkNLOPTerror(nlopt_result errortype)
+  {
+    switch(errortype)
       {
       case -1: FILE_LOG(logERROR) << "NLOPT: General failure"; break;
       case -2: FILE_LOG(logERROR) << "NLOPT: Invalid arguments. Check bounds."; break;
@@ -38,11 +40,11 @@ void checkNLOPTerror(nlopt_result errortype)
       case -5: FILE_LOG(logERROR) << "NLOPT: Force stop."; break;
       default: ;
       }
-}
+  }
 
 
-int InnerOptimization::innerOptimize(vectord &Xnext)
-{   
+  int InnerOptimization::innerOptimize(vectord &Xnext)
+  {   
     void *objPointer = static_cast<void *>(this);
     int n = static_cast<int>(Xnext.size());
     int error;
@@ -51,20 +53,20 @@ int InnerOptimization::innerOptimize(vectord &Xnext)
     error = innerOptimize(&Xnext(0), n, objPointer);
 
     return error;
-} // innerOptimize (uBlas)
+  } // innerOptimize (uBlas)
 
-int InnerOptimization::innerOptimize(double* x, int n, void* objPointer)
-{
+  int InnerOptimization::innerOptimize(double* x, int n, void* objPointer)
+  {
     double u[128], l[128];
     double fmin = 1;
     int maxf = MAX_INNER_EVALUATIONS*n;    
     int ierror;
 
     for (int i = 0; i < n; ++i) {
-	l[i] = mDown;	u[i] = mUp;
-	// What if x is undefined?
-	if (x[i] < l[i] || x[i] > u[i])
-	  x[i]=(l[i]+u[i])/2.0;
+      l[i] = mDown;	u[i] = mUp;
+      // What if x is undefined?
+      if (x[i] < l[i] || x[i] > u[i])
+	x[i]=(l[i]+u[i])/2.0;
     }
 
     nlopt_opt opt;
@@ -117,6 +119,8 @@ int InnerOptimization::innerOptimize(double* x, int n, void* objPointer)
     ierror = static_cast<int>(errortype);
     return ierror;
 
-} // innerOptimize (C array)
+  } // innerOptimize (C array)
 
+
+}// namespace bayesopt
 

@@ -71,6 +71,7 @@ extern "C" {
 
   typedef enum {  
     S_GAUSSIAN_PROCESS,
+    S_GAUSSIAN_PROCESS_ML,
     S_GAUSSIAN_PROCESS_INV_GAMMA_NORMAL,
     S_STUDENT_T_PROCESS_JEFFREYS,
     S_ERROR = -1
@@ -113,16 +114,18 @@ extern "C" {
     char* log_filename;          /**< Log file path (if applicable) */
 
     surrogate_name surr_name;    /**< Name of the surrogate function */
+    double sigma_s;              /**< Signal variance (if known) */
+    double noise;                /**< Observation noise (and nugget) */
     double alpha;                /**< Inverse Gamma prior for signal var */
     double beta;                 /**< Inverse Gamma prior for signal var*/
-    double noise;                /**< Observation noise (and nugget) */
     learning_type l_type;        /**< Type of learning for the kernel params*/
 
     kernel_parameters kernel;    /**< Kernel parameters */
     mean_parameters mean;        /**< Mean (parametric function) parameters */
 
     char* crit_name;             /**< Name of the criterion */
-
+    double crit_params[128];     /**< Criterion hyperparameters (if needed) */
+    size_t n_crit_params;        /**< Number of criterion hyperparameters */
   } bopt_params;
 
 
@@ -137,7 +140,7 @@ extern "C" {
   const double MEAN_SIGMA      = 1000.0;
   const double PRIOR_ALPHA     = 1.0;
   const double PRIOR_BETA      = 1.0;
-  const double PRIOR_DELTA_SQ  = 1000.0;
+  const double DEFAULT_SIGMA   = 1.0;
   const double DEFAULT_NOISE   = 1e-4;
 
   /* Algorithm parameters */

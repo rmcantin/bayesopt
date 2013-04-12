@@ -29,8 +29,8 @@
 
 #include "gaussian_process.hpp"
 #include "gaussian_process_ml.hpp"
-#include "gaussian_process_ign.hpp"
-#include "student_t_process.hpp"
+//#include "gaussian_process_ign.hpp"
+#include "student_t_process_jef.hpp"
 
 
 namespace bayesopt
@@ -66,8 +66,8 @@ namespace bayesopt
       // case S_GAUSSIAN_PROCESS_INV_GAMMA_NORMAL:
       // 	s_ptr = new GaussianProcessIGN(dim,parameters);	break;
 
-      // case S_STUDENT_T_PROCESS_JEFFREYS: 
-      // 	s_ptr = new StudentTProcess(dim,parameters); break;
+      case S_STUDENT_T_PROCESS_JEFFREYS: 
+      	s_ptr = new StudentTProcessJeffreys(dim,parameters); break;
 
       default:
 	FILE_LOG(logERROR) << "Error: surrogate function not supported.";

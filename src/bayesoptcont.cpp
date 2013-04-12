@@ -60,12 +60,17 @@ namespace bayesopt  {
     sampleInitialPoints();
 
     vectord xNext(mDims);
-    for (size_t ii = 0; ii < mParameters.n_iterations; ii++)
+    for (size_t ii = 0; ii < mParameters.n_iterations; ++ii)
       {      
 	// Find what is the next point.
 	nextPoint(xNext);
 	double yNext = evaluateNormalizedSample(xNext);
-	mGP->updateSurrogateModel(xNext,yNext); 
+	if ((mParameters.n_iter_relearn > 0) && 
+	    ((ii + 1) % mParameters.n_iter_relearn == 0))
+	  mGP->fullUpdateSurrogateModel(xNext,yNext); 
+	else
+	  mGP->updateSurrogateModel(xNext,yNext); 
+
 	plotStepData(ii,xNext,yNext);
       }
 

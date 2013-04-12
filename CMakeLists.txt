@@ -74,6 +74,7 @@ SET( BAYESOPT_SRCS
   ./src/hierarchical_gaussian_process.cpp
   ./src/gaussian_process.cpp
   ./src/gaussian_process_ml.cpp
+  ./src/student_t_process_jef.cpp
 #  ./src/gaussian_process_ign.cpp
 #  ./src/student_t_process.cpp
   ./src/parameters.cpp

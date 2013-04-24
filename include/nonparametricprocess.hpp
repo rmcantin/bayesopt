@@ -120,11 +120,11 @@ namespace bayesopt
     /** Wrapper of setKernel for C kernel structure */
     inline int setKernel (kernel_parameters kernel, size_t dim)
     {
-      size_t n = kernel.n_theta;
+      size_t n = kernel.n_hp;
       vectord th(n);
       vectord sth(n);
-      std::copy(kernel.theta, kernel.theta+n, th.begin());
-      std::copy(kernel.s_theta, kernel.s_theta+n, sth.begin());
+      std::copy(kernel.hp_mean, kernel.hp_mean+n, th.begin());
+      std::copy(kernel.hp_std, kernel.hp_std+n, sth.begin());
       int error = setKernel(th, sth, kernel.name, dim);
 	  return 0;
     };
@@ -160,11 +160,11 @@ namespace bayesopt
     /** Wrapper of setMean for the C structure */
     inline int setMean (mean_parameters mean, size_t dim)
     {
-      size_t n_mu = mean.n_mu;
+      size_t n_mu = mean.n_coef;
       vectord vmu(n_mu);
       vectord smu(n_mu);
-      std::copy(mean.mu, mean.mu+n_mu, vmu.begin());
-      std::copy(mean.s_mu, mean.s_mu+n_mu, smu.begin());
+      std::copy(mean.coef_mean, mean.coef_mean+n_mu, vmu.begin());
+      std::copy(mean.coef_std, mean.coef_std+n_mu, smu.begin());
       return setMean(vmu, smu, mean.name, dim);
     };
 

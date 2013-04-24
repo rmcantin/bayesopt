@@ -28,6 +28,7 @@
 #include <boost/scoped_ptr.hpp>
 #include "dll_stuff.h"
 #include "parameters.h"
+#include "randgen.hpp"
 #include "specialtypes.hpp"
 
 #include "nonparametricprocess.hpp"
@@ -176,6 +177,7 @@ namespace bayesopt {
      */
     int __init__();
     CriteriaFactory mCFactory;
+    randEngine mEngine;
   };
 
   /**@}*/

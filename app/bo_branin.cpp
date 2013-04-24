@@ -75,8 +75,8 @@ int main(int nargs, char *args[])
   bopt_params par = initialize_parameters_to_default();
   par.n_iterations = 200;
   par.n_init_samples = 50;
-  par.kernel.theta[0] = 1.0;
-  par.kernel.n_theta = 1;
+  par.kernel.hp_mean[0] = 1.0;
+  par.kernel.n_hp = 1;
   par.crit_name = "cHedge(cEI,cLCB,cPOI)";
   
   ExampleBranin branin(2,par);

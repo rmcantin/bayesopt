@@ -69,14 +69,14 @@ int main(int nargs, char *args[])
   // the we can optionally change only few of them 
   bopt_params par = initialize_parameters_to_default();
 
-  par.kernel.theta[0] = KERNEL_THETA;
-  par.kernel.s_theta[0] = 100.0;
-  par.kernel.n_theta = 1;
+  par.kernel.hp_mean[0] = KERNEL_THETA;
+  par.kernel.hp_std[0] = 100.0;
+  par.kernel.n_hp = 1;
   par.alpha = PRIOR_ALPHA;
   par.beta = PRIOR_BETA;
-  par.mean.mu[0] = 0.0;
-  par.mean.s_mu[0] = MEAN_SIGMA;
-  par.mean.n_mu = 1;
+  par.mean.coef_mean[0] = 0.0;
+  par.mean.coef_std[0] = MEAN_SIGMA;
+  par.mean.n_coef = 1;
   par.noise = DEFAULT_NOISE;
   par.surr_name = S_GAUSSIAN_PROCESS_INV_GAMMA_NORMAL;
   par.n_iterations = 20;       // Number of iterations

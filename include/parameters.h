@@ -88,18 +88,18 @@ extern "C" {
   typedef struct {
 
     char*  name;                 /**< Name of the kernel function */
-    double theta[128];           /**< Kernel hyperparameters prior (mean) */
-    double s_theta[128];         /**< Kernel hyperparameters prior (std) */
-    size_t n_theta;              /**< Number of kernel hyperparameters */
+    double hp_mean[128];         /**< Kernel hyperparameters prior (mean) */
+    double hp_std[128];          /**< Kernel hyperparameters prior (st dev) */
+    size_t n_hp;                 /**< Number of kernel hyperparameters */
 
   } kernel_parameters;
 
   typedef struct {
     
     char* name;                  /**< Name of the mean function */
-    double mu[128];              /**< Function hyperparameters (mean) */
-    double s_mu[128];            /**< Function hyperparameters (std) */
-    size_t n_mu;                 /**< Number of mean funct. hyperparameters */
+    double coef_mean[128];       /**< Basis function coefficients (mean) */
+    double coef_std[128];        /**< Basis function coefficients (std) */
+    size_t n_coef;               /**< Number of mean funct. hyperparameters */
 
   } mean_parameters;
 
@@ -120,6 +120,7 @@ extern "C" {
     double alpha;                /**< Inverse Gamma prior for signal var */
     double beta;                 /**< Inverse Gamma prior for signal var*/
     learning_type l_type;        /**< Type of learning for the kernel params*/
+    double epsilon;              /**< For epsilon-greedy exploration */
 
     kernel_parameters kernel;    /**< Kernel parameters */
     mean_parameters mean;        /**< Mean (parametric function) parameters */

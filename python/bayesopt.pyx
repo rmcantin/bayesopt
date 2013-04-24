@@ -48,23 +48,26 @@ cdef extern from "parameters.h":
 
     ctypedef struct kernel_parameters:
         char*  name
-        double* theta
-        double* s_theta
-        unsigned int n_theta
+        double* hp_mean
+        double* hp_std
+        unsigned int n_hp
 
     ctypedef struct mean_parameters:
         char* name
-        double* mu
-        double* s_mu
-        unsigned int n_mu
+        double* coef_mean
+        double* coef_std
+        unsigned int n_coef
 
     ctypedef struct bopt_params:
-        unsigned int n_iterations, n_init_samples, verbose_level
+        unsigned int n_iterations, n_inner_iterations,
+        unsigned int n_init_samples, n_iter_relearn,
+        unsigned int verbose_level
         char* log_filename
         surrogate_name surr_name
-        double alpha, beta
         double noise
+        double alpha, beta
         learning_type l_type
+        double epsilon
         kernel_parameters kernel
         mean_parameters mean
         char* crit_name
@@ -126,19 +129,19 @@ cdef bopt_params dict2structparams(dict dparams):
     theta = dparams.get('theta',None)
     stheta = dparams.get('s_theta',None)
     if theta is not None and stheta is not None:
-        params.kernel.n_theta = len(theta)
-        for i in range(0,params.kernel.n_theta):
-            params.kernel.theta[i] = theta[i]
-            params.kernel.s_theta[i] = stheta[i]
+        params.kernel.n_hp = len(theta)
+        for i in range(0,params.kernel.n_hp):
+            params.kernel.hp_mean[i] = theta[i]
+            params.kernel.hp_std[i] = stheta[i]
 
 
     mu = dparams.get('mu',None)
     smu = dparams.get('s_mu',None)
     if mu is not None and smu is not None:
-        params.mean.n_mu = len(mu)
-        for i in range(0,params.mean.n_mu):
-            params.mean.mu[i] = mu[i]
-            params.mean.s_mu[i] = smu[i]
+        params.mean.n_coef = len(mu)
+        for i in range(0,params.mean.n_coef):
+            params.mean.coef_mean[i] = mu[i]
+            params.mean.coef_std[i] = smu[i]
 
 
     kname = dparams.get('kernel_name',params.kernel.name)
@@ -163,24 +166,27 @@ cdef double callback(unsigned int n, const_double_ptr x,
 
 def initialize_params():
     params = {
-        "theta"  : [1.0],
-        "s_theta": [1.0],
-        "n_theta": 1,
-        "mu"     : [1.0],
-        "s_mu"   : [1.0],
-        "n_mu"   : 1,
+        "n_iterations"   : 300,
+        "n_inner_iterations" : 500,
+        "n_init_samples" : 30,
+        "n_iter_relearn" : 30,
+        "verbose_level"  : 1,
+        "log_filename"   : "bayesopt.log" ,
+        "surr_name" : "GAUSSIAN_PROCESS" ,
+        "sigma_s"  : 1.0,
+        "noise"  : 0.001,
         "alpha"  : 1.0,
         "beta"   : 1.0,
-        "noise"  : 0.001,
-        "crit_name" : "cEI",
-        "surr_name" : "GAUSSIAN_PROCESS" ,
+        "l_type" : "L_MAP",
+        "epsilon" : 0.0,
         "kernel_name" : "kMaternISO3",
-        "mean_name" : "mZero",
-        "learning_type" : "L_MAP",
-        "n_iterations"   : 300,
-        "n_init_samples" : 30,
-        "verbose_level"  : 1,
-        "log_filename"   : "bayesopt.log"
+        "kernel_hp_mean"  : [1.0],
+        "kernel_hp_std": [1.0],
+        "mean_name" : "mOne",
+        "mean_coef_mean"     : [1.0],
+        "mean_coef_std"   : [1.0],
+        "crit_name" : "cEI",
+        "crit_params" : [],
         }
     return params
 

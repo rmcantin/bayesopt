@@ -46,7 +46,7 @@ class BayesOptTest(bayesoptmodule.BayesOptContinuous):
 params = bayesopt.initialize_params()
 params['n_iterations'] = 50
 params['n_init_samples'] = 20
-params['surr_name'] = "GAUSSIAN_PROCESS_INV_GAMMA_NORMAL"
+#params['surr_name'] = "GAUSSIAN_PROCESS_INV_GAMMA_NORMAL"
 params['crit_name'] = "cEI"
 params['kernel_name'] = "kMaternISO3"
 print params['mean_name']

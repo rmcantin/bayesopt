@@ -71,16 +71,16 @@ int main(int nargs, char *args[])
   // the we can optionally change only few of them 
   bopt_params par = initialize_parameters_to_default();
 
-  par.kernel.theta[0] = KERNEL_THETA;
-  par.kernel.theta[1] = KERNEL_THETA;
-  par.kernel.s_theta[0] = 1;
-  par.kernel.s_theta[1] = 1;
-  par.kernel.n_theta = 2;
-  par.mean.mu[0] = 1.0;
-  par.mean.mu[1] = 1.0;
-  par.mean.s_mu[0] = MEAN_SIGMA;
-  par.mean.s_mu[1] = MEAN_SIGMA;
-  par.mean.n_mu = 2;
+  par.kernel.hp_mean[0] = KERNEL_THETA;
+  par.kernel.hp_mean[1] = KERNEL_THETA;
+  par.kernel.hp_std[0] = 1;
+  par.kernel.hp_std[1] = 1;
+  par.kernel.n_hp = 2;
+  par.mean.coef_mean[0] = 1.0;
+  par.mean.coef_mean[1] = 1.0;
+  par.mean.coef_std[0] = MEAN_SIGMA;
+  par.mean.coef_std[1] = MEAN_SIGMA;
+  par.mean.n_coef = 2;
   par.alpha = PRIOR_ALPHA;
   par.beta = PRIOR_BETA;
   par.noise = DEFAULT_NOISE;

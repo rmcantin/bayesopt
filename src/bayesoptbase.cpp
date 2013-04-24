@@ -27,7 +27,7 @@ namespace bayesopt
 {
   
   BayesOptBase::BayesOptBase():
-    mGP(NULL), mCrit(NULL)
+    mGP(NULL), mCrit(NULL), mEngine()
   {
     mParameters = initialize_parameters_to_default();
     __init__();
@@ -93,6 +93,24 @@ namespace bayesopt
   int BayesOptBase::nextPoint(vectord &Xnext)
   {
     int error = 0;
+    
+    //Epsilon-Greedy exploration (see Bull 2011)
+    if ((mParameters.epsilon > 0.0) && (mParameters.epsilon < 1.0))
+      {
+	randFloat drawSample(mEngine,realUniformDist(0,1));
+	double result = drawSample();
+	FILE_LOG(logINFO) << "Trying random jump with prob:" << result;
+	if (mParameters.epsilon > result)
+	  {
+	    for (size_t i = 0; i <Xnext.size(); ++i)
+	      {
+		 Xnext(i) = drawSample();
+	      } 
+	    FILE_LOG(logINFO) << "Epsilon-greedy random query!";
+	    return 0;
+	  }
+      }
+
     if (mCrit->requireComparison())
       {
 	bool check = false;

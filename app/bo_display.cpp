@@ -61,12 +61,13 @@ using namespace bayesopt;
 int is_run=1;
 size_t state_ii = 0;
 BayesOptBase* GLOBAL_MODEL;
+vector<double> lx,ly;
 
 class MP :public MatPlot{ 
 void DISPLAY(){
     // Create test data 
-    int n=40;
-    dvec x,y,z,su,sl,c;
+    int n=400;
+    vector<double> x,y,z,su,sl,c;
     x=linspace(0,1,n);
     y = x; z = x; su = x; sl = x; c= x;
     vectord q(1);
@@ -75,21 +76,25 @@ void DISPLAY(){
 	q(0) = x[i];
 	ProbabilityDistribution* pd = GLOBAL_MODEL->getSurrogateModel()->prediction(q);
 	y[i] = pd->getMean();
-	su[i] = y[i] + 2*pd->getStd();
-	sl[i] = y[i] - 2*pd->getStd();
+	su[i] = y[i] + 3*pd->getStd();
+	sl[i] = y[i] - 3*pd->getStd();
 	c[i] = -GLOBAL_MODEL->evaluateCriteria(q);
 	z[i] = GLOBAL_MODEL->evaluateSample(q);
       }
     //plot
-    subplot(2,1,1);
+    subplot(3,1,1);
     title("press r to run and stop");
-    plot(x,z);
     plot(x,y);
-    plot(x,su);
-    plot(x,sl);
+    plot(x,su);set("g");
+    plot(x,sl);set("g");
+    plot(x,z);set("r");
    
+    subplot(3,1,2);
+    axis(0,1,-10,10);
+    plot(lx,ly);set("k");set("*");
+
     //mesh
-    subplot(2,1,2);
+    subplot(3,1,3);
     plot(x,c);
 
 }
@@ -104,6 +109,12 @@ void idle( void )
       if (state_ii < 300)
 	++state_ii;
       GLOBAL_MODEL->stepOptimization(state_ii); 
+      vectord last(1);
+      double res = GLOBAL_MODEL->getSurrogateModel()->getLastSample(last);
+      std::cout << res << last(0) <<","<< ly.size() <<","<< lx.size() << std::endl;
+      ly.push_back(res);
+      lx.push_back(last(0));
+    
     }
   glutPostRedisplay();
 }
@@ -122,9 +133,10 @@ int main(int nargs, char *args[])
   bopt_params parameters = initialize_parameters_to_default();
   parameters.n_init_samples = 10;
   parameters.n_iterations = 300;
-  parameters.kernel.hp_mean[0] = 1.0;
+  parameters.kernel.hp_mean[0] = 0.5;
   parameters.kernel.hp_std[0] = 100.0;
   parameters.kernel.n_hp = 1;
+  parameters.mean.name = "mZero";
   parameters.crit_name = "cHedge(cEI,cLCB,cExpReturn,cOptimisticSampling)";
   parameters.epsilon = 0.0;
 

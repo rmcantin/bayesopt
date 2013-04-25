@@ -45,7 +45,7 @@ namespace bayesopt
     };
     void setParameters(const vectord &theta) 
     {
-      assert(theta.size() == n_params);
+      //      assert(theta.size() == n_params);
       mParameters = theta;
     };
     vectord getParameters() {return mParameters;};

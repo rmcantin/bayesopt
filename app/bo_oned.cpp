@@ -59,11 +59,12 @@ int main(int nargs, char *args[])
   bopt_params parameters = initialize_parameters_to_default();
   parameters.n_init_samples = 10;
   parameters.n_iterations = 300;
-  parameters.kernel.hp_mean[0] = 1.0;
+  parameters.surr_name = S_GAUSSIAN_PROCESS_ML;
+  /*  parameters.kernel.hp_mean[0] = 1.0;
   parameters.kernel.hp_std[0] = 100.0;
   parameters.kernel.n_hp = 1;
   parameters.crit_name = "cHedge(cEI,cLCB,cExpReturn,cOptimisticSampling)";
-  parameters.epsilon = 0.0;
+  parameters.epsilon = 0.0;*/
 
   ExampleOneD opt(dim,parameters);
   vectord result(dim);

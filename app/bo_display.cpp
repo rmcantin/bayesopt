@@ -82,19 +82,15 @@ void DISPLAY(){
 	z[i] = GLOBAL_MODEL->evaluateSample(q);
       }
     //plot
-    subplot(3,1,1);
+    subplot(2,1,1);
     title("press r to run and stop");
     plot(x,y);
+    plot(lx,ly);set("k");set("*");
     plot(x,su);set("g");
     plot(x,sl);set("g");
     plot(x,z);set("r");
    
-    subplot(3,1,2);
-    axis(0,1,-10,10);
-    plot(lx,ly);set("k");set("*");
-
-    //mesh
-    subplot(3,1,3);
+    subplot(2,1,2);
     plot(x,c);
 
 }
@@ -111,7 +107,6 @@ void idle( void )
       GLOBAL_MODEL->stepOptimization(state_ii); 
       vectord last(1);
       double res = GLOBAL_MODEL->getSurrogateModel()->getLastSample(last);
-      std::cout << res << last(0) <<","<< ly.size() <<","<< lx.size() << std::endl;
       ly.push_back(res);
       lx.push_back(last(0));
     
@@ -132,13 +127,14 @@ int main(int nargs, char *args[])
   size_t dim = 1;
   bopt_params parameters = initialize_parameters_to_default();
   parameters.n_init_samples = 10;
-  parameters.n_iterations = 300;
-  parameters.kernel.hp_mean[0] = 0.5;
-  parameters.kernel.hp_std[0] = 100.0;
-  parameters.kernel.n_hp = 1;
-  parameters.mean.name = "mZero";
-  parameters.crit_name = "cHedge(cEI,cLCB,cExpReturn,cOptimisticSampling)";
-  parameters.epsilon = 0.0;
+  parameters.n_iterations = 100;
+  parameters.surr_name = S_GAUSSIAN_PROCESS;
+  // parameters.kernel.hp_mean[0] = 0.5;
+  // parameters.kernel.hp_std[0] = 100.0;
+  // parameters.kernel.n_hp = 1;
+  // parameters.mean.name = "mZero";
+  //  parameters.crit_name = "cHedge(cEI,cLCB,cExpReturn,cOptimisticSampling)";
+  // parameters.epsilon = 0.0;
 
   state_ii = 0;
 

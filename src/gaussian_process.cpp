@@ -66,12 +66,14 @@ namespace bayesopt
   {
     const double kq = (*mKernel)(query, query);
     const vectord kn = computeCrossCorrelation(query);
+    
 
     vectord vd(kn);
-    ublas::inplace_solve(mL,vd,ublas::lower_tag());
-    double yPred = ublas::inner_prod(vd,mAlphaV);
+    inplace_solve(mL,vd,ublas::lower_tag());
+    double basisPred = ublas::inner_prod(mMu,mMean->getFeatures(query));
+    double yPred = basisPred + ublas::inner_prod(vd,mAlphaV);
     double sPred = sqrt(mSigma*(kq - ublas::inner_prod(vd,vd)));
-
+    
     d_->setMeanAndStd(yPred,sPred);
     return d_;
   }
@@ -83,7 +85,7 @@ namespace bayesopt
   
     mAlphaV.resize(n,false);
     mAlphaV = mGPY-prod(mMu,mFeatM);
-    utils::cholesky_solve(mL,mAlphaV,ublas::lower());
+    inplace_solve(mL,mAlphaV,ublas::lower_tag());
 
     return 1; 
   }

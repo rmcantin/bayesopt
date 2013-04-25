@@ -31,20 +31,34 @@ knowledge as possible about the target function or about the
 problem. Or, if the knowledge is not available, keep the model as
 general as possible (to avoid bias). 
 
-For that reason, the parameters are bundled in a structure or dictionary, depending on the API that we use. This is a brief explanation of every parameter:
-\li \b n_iterations: Maximum number of iterations of BayesOpt. Each iteration corresponds with a target function evaluation. This is related with the budget of the application 
-\li \b n_init_samples: BayesOpt requires an initial set of samples to learn a preliminar model of the target function. Each sample is also a function evaluation.
-\li \b verbose_level: (integer value) Verbose level 1,2,3 -> stderr, 4,5,6 -> log file
-\li \b log_filename: Filename of the log file (if applicable) 
+For that reason, the parameters are bundled in a structure or dictionary, depending on the API that we use. This is a brief explanation of every parameter
+
+\subsection budgetpar Budget parameters
+\li \b n_iterations: Maximum number of iterations of BayesOpt. Each iteration corresponds with a target function evaluation. This is related with the budget of the application [Default 300]
+\li \b n_inner_iterations: Maximum number of iterations of the inner optimization process. Each iteration corresponds with a criterion evaluation. The inner optimization results in the "most interest point" to run evaluate the target function. This is also used for the kernel hyperparameter computation. In order to scale the process for increasing dimensional spaces, the actual number of iterations is this number times the number of dimensions. [Default 500]
+\li \b n_init_samples: BayesOpt requires an initial set of samples to learn a preliminary model of the target function. Each sample is also a target function evaluation. [Default 30]
+\li \b n_iter_relearn: Although most of the parameters of the model are updated after every iteration, the kernel parameters cannot be updated continuously as it might crash the convergence. This represents the number of iterations between recomputing the kernel parameters. If it is set to 0, they are only learned after the initial set of samples. [Default 0]
+
+\subsection logpar Logging parameters
+\li \b verbose_level: (integer value) Verbose level 0,3 -> warnings, 1,4 -> general information, 2,5 -> debug information, any other value -> only errors. Levels < 3 send the messages to stdout. Levels > 4 send them to a log file. [Default 1].
+\li \b log_filename: Name of the log file (if applicable, verbose > 4)[Default "bayesopt.log"] 
+
+\subsection surrpar Surrogate model parameters
+\li \b surr_name: Name of the hierarchical surrogate function (nonparametric process and the hyperpriors on sigma and w). See section ??? for a detailed description. [Default S_GaussianProcess]
+\li \b sigma_s: Signal variance (if known) [Default 1.0]
+\li \b noise: Observation noise. For computer simulations or deterministic functions, it should be close to 0. However, to avoid numerical instability due to model inaccuracies, do not make it 0. [Default 0.0001]
+\li \b alpha, \b beta: Inverse-Gamma prior hyperparameters (if applicable) [Default 1.0, 1.0] 
+\li \b l_type: Learning method for the kernel hyperparameters. See section ??? for a detailed description [Default L_MAP]
+
+\subsection critpar Exploration parameters
+\li \b epsilon: According to some authors, it is recommendable to include an epsilon-greedy strategy to achieve near optimal convergence rates. Epsilon is the probability of performing a random (blind) evaluation of the target function [Default 0.0 (disabled)]
+\li \b crit_name: Name of the sample selection criterion. It is used to select which points to evaluate for each iteration of the optimization process. See section ??? for the different possibilities. [Default: "cEI"]
+
 \li \b theta: Kernel hyperparameters. Depends on the kernel selected.
 \li \b n_theta: Number of kernel hyperparameters.
 \li \b mu: Mean function hyperparameters. Depends on the mean function selected.
 \li \b n_mu: Number of mean function hyperparameters 
-\li \b alpha, \b beta, \b delta: Inverse-Gamma-Normal prior hyperparameters (if applicable) 
-\li \b noise: Observation noise. For computer simulations or deterministic functions, it should be close to 0. However, to avoid numerical instability due to model inaccuracies, do not make it 0.
-\li \b s_name: Name of the hierarchical surrogate function (gaussian process + hyperpriors)
 \li \b k_name: Name of the kernel function. 
-\li \b c_name: Name of the sample selection criterion. It is used to select which points to evaluate for each iteration of the optimization process.
 \li \b m_name: Name of the mean function (parametric part of the surrogate function).
 
 \section usage Using the library

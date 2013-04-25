@@ -162,6 +162,18 @@ ADD_EXECUTABLE(bo_oned ./app/bo_oned.cpp)
 add_dependencies(bo_oned bayesopt)
 TARGET_LINK_LIBRARIES(bo_oned bayesopt)
 
+#Display test
+find_package(GLUT)
+find_package(OpenGL)
+INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/matplotpp)
+enable_language(C)
+ADD_EXECUTABLE(bo_display 
+  ./app/bo_display.cpp 
+  ./matplotpp/matplotpp.cc 
+  ./matplotpp/gl2ps.c)
+add_dependencies(bo_display bayesopt)
+TARGET_LINK_LIBRARIES(bo_display bayesopt ${GLUT_LIBRARY} ${OPENGL_LIBRARY})
+
 #Branin
 ADD_EXECUTABLE(bo_branin ./app/bo_branin.cpp )
 add_dependencies(bo_branin bayesopt)

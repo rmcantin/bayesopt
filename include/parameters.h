@@ -105,7 +105,6 @@ extern "C" {
 
   /** \brief Configuration parameters */
   typedef struct {
-
     size_t n_iterations;         /**< Maximum BayesOpt evaluations (budget) */
     size_t n_inner_iterations;   /**< Maximum inner optimizer evaluations */
     size_t n_init_samples;       /**< Number of samples before optimization */

@@ -29,7 +29,7 @@
 namespace bayesopt
 {
   
-  DiscreteModel::DiscreteModel( const vecOfvec &validSet):
+  DiscreteModel::DiscreteModel(const vecOfvec &validSet):
     BayesOptBase(), mInputSet(validSet)
   {} // Constructor
 
@@ -43,26 +43,17 @@ namespace bayesopt
   DiscreteModel::~DiscreteModel()
   {} // Default destructor
 
-
-  int DiscreteModel::optimize( vectord &bestPoint )
+  int DiscreteModel::initializeOptimization()
   {
-    mDims = mInputSet[0].size();
+    mDims = mInputSet[0].size();    
     sampleInitialPoints();
+    return 0;
+  }
 
-    vectord xNext(mDims);
-    for (size_t ii = 0; ii < mParameters.n_iterations; ++ii)
-      {      
-	nextPoint(xNext);
-	double yNext = evaluateSample(xNext);
-	mGP->updateSurrogateModel(xNext,yNext);   
-	plotStepData(ii,xNext,yNext);
-      }
-    
-    bestPoint = mGP->getPointAtMinimum();
-
-    return 1;
-  } // optimize
-
+  vectord DiscreteModel::getFinalResult()
+  {
+    return mGP->getPointAtMinimum();
+  }
   
   int DiscreteModel::plotStepData(size_t iteration, const vectord& xNext,
 				double yNext)

@@ -28,8 +28,8 @@ params.crit_name = 'cEI';
 params.surr_name = 'GAUSSIAN_PROCESS';
 params.noise = 0.005;
 params.kernel_name = 'kMaternISO3';
-params.theta = [0.5];
-params.s_theta = [100];
+params.kernel_hp_mean = [0.5];
+params.kernel_hp_std = [10];
 params.verbose_level = 1;
 params.log_filename = 'matbopt.log';
 
@@ -37,14 +37,17 @@ n = 5;
 
 lb = ones(n,1)*pi/2;
 ub = ones(n,1)*pi;
+fun = 'michalewicz';
 
+disp('Continuous optimization');pause;
 tic;
-bayesopt('michalewicz',n,params,lb,ub)
+bayesopt(fun,n,params,lb,ub)
 toc;
 
+disp('Discrete optimization');pause;
 % The set of points must be nDim x nPoints.
-xset = rand(n,100);
+xset = repmat((ub-lb),1,100) .* rand(n,100) - repmat(lb,1,100);
 
 tic;
-bayesoptdisc('quadratic',xset, params);
+bayesoptdisc(fun,xset, params);
 toc;

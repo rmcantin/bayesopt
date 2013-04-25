@@ -170,57 +170,68 @@ static double user_function(unsigned n, const double *x,
 }
 
 static bopt_params load_parameters(const mxArray* params)
-{
+{  
+  
+  /* See parameters.h for the available options */
+  
   char log_str[100], k_s_str[100];
   char c_str[100], s_str[100], k_str[100], m_str[100], l_str[100];
-  size_t n_theta, n_mu;
+  size_t n_hp_test, n_coef_test;
 
   bopt_params parameters = initialize_parameters_to_default();
-  n_theta = parameters.kernel.n_theta;
-  n_mu = parameters.mean.n_mu;
+
+  n_hp_test = parameters.kernel.n_hp;
+  n_coef_test = parameters.mean.n_coef;
 
   struct_size(params,"n_iterations", &parameters.n_iterations);
   struct_size(params,"n_inner_iterations", &parameters.n_inner_iterations);
-  struct_size(params, "n_init_iterations", &parameters.n_init_samples);
+  struct_size(params, "n_init_samples", &parameters.n_init_samples);
+  struct_size(params, "n_iter_relearn", &parameters.n_iter_relearn);
+  
   struct_size(params, "verbose_level", &parameters.verbose_level);
-
-  struct_value(params, "alpha", &parameters.alpha);
-  struct_value(params, "beta",  &parameters.beta);
-  struct_value(params, "noise", &parameters.noise);
-
-  struct_array(params, "theta", &parameters.kernel.n_theta, 
-	       &parameters.kernel.theta[0]);
-
-  struct_array(params, "s_theta", &n_theta, 
-	       &parameters.kernel.s_theta[0]);
-
-  CHECK0(parameters.kernel.n_theta == n_theta, 
-	 "Error processing kernel parameters");
-
-  struct_array(params, "mu", &parameters.mean.n_mu, 
-	       &parameters.mean.mu[0]);
-
-  struct_array(params, "s_mu", &n_mu, 
-	       &parameters.mean.s_mu[0]);
-
-  CHECK0(parameters.mean.n_mu == n_mu, 
-	 "Error processing mean parameters");
-
-  /* Extra configuration
-  See parameters.h for the available options */
-
   struct_string(params, "log_filename", parameters.log_filename);
-  struct_string(params, "kernel_name", parameters.kernel.name);
-  struct_string(params, "mean_name", parameters.mean.name);
-  struct_string(params, "crit_name", parameters.crit_name);
 
   strcpy( s_str, surrogate2str(parameters.surr_name));
   struct_string(params, "surr_name", s_str);
   parameters.surr_name = str2surrogate(s_str);
 
+  struct_value(params, "sigma_s", &parameters.sigma_s);
+  struct_value(params, "noise", &parameters.noise);
+  struct_value(params, "alpha", &parameters.alpha);
+  struct_value(params, "beta",  &parameters.beta);
+  
+
   strcpy( l_str, learn2str(parameters.l_type));
   struct_string(params, "l_type", l_str);
   parameters.l_type = str2learn(l_str);
+
+  struct_value(params, "epsilon",  &parameters.epsilon);
+
+  struct_string(params, "crit_name", parameters.crit_name);
+  struct_array(params, "crit_params", &parameters.n_crit_params, 
+	       &parameters.crit_params[0]);
+
+  /* Kernel parameters */
+  struct_string(params, "kernel_name", parameters.kernel.name);
+  struct_array(params, "kernel_hp_mean", &parameters.kernel.n_hp, 
+	       &parameters.kernel.hp_mean[0]);
+  struct_array(params, "kernel_hp_std", &n_hp_test, 
+	       &parameters.kernel.hp_std[0]);
+
+  CHECK0(parameters.kernel.n_hp == n_hp_test, 
+	 "Error processing kernel parameters");
+
+  /* Mean function parameters */
+  struct_string(params, "mean_name", parameters.mean.name);
+  struct_array(params, "mean_coef_mean", &parameters.mean.n_coef, 
+	       &parameters.mean.coef_mean[0]);
+
+  struct_array(params, "mean_coef_std", &n_coef_test, 
+	       &parameters.mean.coef_std[0]);
+
+  CHECK0(parameters.mean.n_coef == n_coef_test, 
+	 "Error processing mean parameters");
+
 
   return parameters;
 }

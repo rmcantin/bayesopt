@@ -63,20 +63,15 @@ namespace bayesopt  {
     virtual ~ContinuousModel();
   
     /** 
-     * \brief Execute the optimization process of the function defined in
-     * evaluateSample.  If no bounding box is defined, we assume that
-     * the function is defined in the [0,1] hypercube, as a normalized
-     * representation of the bound constrains.
-     * 
-     * @see scaleInput
-     * @see evaluateSample
-     *
-     * @param bestPoint returns the optimum value in a ublas::vector.
-     * @return 0 if terminate successfully, nonzero otherwise
+     * Initialize the optimization process.
+     * @return error_code
      */
-    int optimize(vectord &bestPoint);
-    
+    int initializeOptimization();
 
+    /** 
+     * Once the optimization has been perfomed, return the optimal point.
+     */
+    vectord getFinalResult();
 
     /** 
      * \brief Sets the bounding box. 
@@ -132,11 +127,11 @@ namespace bayesopt  {
      * @param query point to evaluate in [0,1] hypercube
      * @return actual return value of the target function
      */
-    inline double evaluateNormalizedSample( const vectord &query )
+    inline double evaluateSampleInternal( const vectord &query )
     { 
       vectord unnormalizedQuery = mBB->unnormalizeVector(query);
       return evaluateSample(unnormalizedQuery);
-    }; // evaluateNormalizedSample
+    }; // evaluateSampleInternal
 
     /** 
      * \brief Wrapper of the innerOptimization class to find the optimal

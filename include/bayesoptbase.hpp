@@ -78,8 +78,32 @@ namespace bayesopt {
      * @param bestPoint returns point with the optimum value in a ublas::vector.
      * @return 0 if terminate successfully, any other value otherwise
      */
-    virtual int optimize(vectord &bestPoint) = 0;
-  
+    int optimize(vectord &bestPoint);
+
+    /** 
+     * \brief Execute ONE step the optimization process of the function defined
+     * in evaluateSample.
+     * 
+     * @see evaluateSample
+     * @see checkReachability
+     *
+     * @param ii iteration number.
+     * @return 0 if terminate successfully, any other value otherwise
+     */  
+    int stepOptimization(size_t ii);
+
+    /** 
+     * Initialize the optimization process.
+     * @return error_code
+     */
+    virtual int initializeOptimization() = 0;
+
+    /** 
+     * Once the optimization has been perfomed, return the optimal point.
+     */
+    virtual vectord getFinalResult() = 0;
+
+
     /** 
      * \brief Function that defines the actual function to be optimized.
      * This function must be modified (overriden) according to the
@@ -110,17 +134,7 @@ namespace bayesopt {
     virtual bool checkReachability( const vectord &query )
     { return true; };
 
-    
-    /** 
-     * Getter to access the underlying surrogate function.
-     * Used mainly for visualization purposed.
-     * 
-     * @return Pointer to the surrogate function object.
-     */  
-    // NonParametricProcess* getSurrogateFunctionPointer()
-    // { return mGP; };
-    
-  protected:
+
     /** 
      * \brief Evaluate the criteria considering if the query is
      * reachable or not.  This is a way to include non-linear
@@ -137,6 +151,32 @@ namespace bayesopt {
       if (!reachable)  return 0.0;
       return (*mCrit)(query);
     };
+
+
+    NonParametricProcess* getSurrogateModel()
+    { return mGP.get(); };
+  protected:
+    /** 
+     * Print data for every step according to the verbose level
+     * 
+     * @param iteration 
+     * @param xNext 
+     * @param yNext 
+     * 
+     * @return error code
+     */
+    virtual int plotStepData(size_t iteration, const vectord& xNext,
+		     double yNext) = 0;
+
+
+    /** 
+     * \brief Wrapper for the target function normalize in the hypercube
+     * [0,1]
+     * @param query point to evaluate in [0,1] hypercube
+     * @return actual return value of the target function
+     */
+    virtual double evaluateSampleInternal( const vectord &query ) = 0;
+
 
     /** 
      * \brief Returns the optimal point acording to certain criteria
@@ -162,6 +202,8 @@ namespace bayesopt {
      * @return error code
      */
     int nextPoint( vectord &Xnext );  
+
+
 
   protected:
     boost::scoped_ptr<NonParametricProcess> mGP;  ///< Pointer to surrogate model

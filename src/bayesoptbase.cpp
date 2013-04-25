@@ -90,6 +90,40 @@ namespace bayesopt
   BayesOptBase::~BayesOptBase()
   {} // Default destructor
 
+  int BayesOptBase::stepOptimization(size_t ii)
+  {
+    vectord xNext(mDims);
+    nextPoint(xNext); // Find what is the next point.
+    
+    double yNext = evaluateSampleInternal(xNext);
+
+    // Update surrogate model
+    if ((mParameters.n_iter_relearn > 0) && 
+	((ii + 1) % mParameters.n_iter_relearn == 0))
+      mGP->fullUpdateSurrogateModel(xNext,yNext); 
+    else
+      mGP->updateSurrogateModel(xNext,yNext); 
+    
+    plotStepData(ii,xNext,yNext);
+    return 0;
+  }
+
+  int BayesOptBase::optimize(vectord &bestPoint)
+  {
+    initializeOptimization();
+    assert(mDims == bestPoint.size());
+    
+    for (size_t ii = 0; ii < mParameters.n_iterations; ++ii)
+      {      
+	stepOptimization(ii);
+      }
+   
+    bestPoint = getFinalResult();
+
+    return 0;
+  } // optimize
+  
+
   int BayesOptBase::nextPoint(vectord &Xnext)
   {
     int error = 0;

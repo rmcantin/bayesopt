@@ -46,38 +46,22 @@ namespace bayesopt  {
       delete mBB;
   } // Default destructor
 
-  int ContinuousModel::optimize(vectord &bestPoint)
+  int ContinuousModel::initializeOptimization()
   {
-    assert(mDims == bestPoint.size());
-    
     if (mBB == NULL)
       {
 	vectord lowerBound = zvectord(mDims);
 	vectord upperBound = svectord(mDims,1.0);
 	mBB = new utils::BoundingBox<vectord>(lowerBound,upperBound);
       }
-
     sampleInitialPoints();
-
-    vectord xNext(mDims);
-    for (size_t ii = 0; ii < mParameters.n_iterations; ++ii)
-      {      
-	// Find what is the next point.
-	nextPoint(xNext);
-	double yNext = evaluateNormalizedSample(xNext);
-	if ((mParameters.n_iter_relearn > 0) && 
-	    ((ii + 1) % mParameters.n_iter_relearn == 0))
-	  mGP->fullUpdateSurrogateModel(xNext,yNext); 
-	else
-	  mGP->updateSurrogateModel(xNext,yNext); 
-
-	plotStepData(ii,xNext,yNext);
-      }
-
-    bestPoint = mBB->unnormalizeVector(mGP->getPointAtMinimum());
-
     return 0;
-  } // optimize
+  }
+
+  vectord ContinuousModel::getFinalResult()
+  {
+    return mBB->unnormalizeVector(mGP->getPointAtMinimum());
+  }
 
 
   int ContinuousModel::setBoundingBox(const vectord &lowerBound,
@@ -129,7 +113,7 @@ namespace bayesopt  {
     for(size_t i = 0; i < nSamples; i++)
       {
 	sample = row(xPoints,i);
-	yPoints(i) = evaluateNormalizedSample(sample);
+	yPoints(i) = evaluateSampleInternal(sample);
       }
     
     mGP->setSamples(xPoints,yPoints);

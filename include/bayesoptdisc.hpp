@@ -60,22 +60,17 @@ namespace bayesopt
     virtual ~DiscreteModel();
 
     /** 
-     * Execute the optimization process of the function defined in 
-     * evaluateSample.
-     * We assume that the function is defined in the [0,1] hypercube, as a 
-     * normalized representation of the bound constrains.
-     * 
-     * @see scaleInput
-     * @see evaluateSample
-     *
-     * @param bestPoint returns the optimum value in a ublas::vector defined in 
-     * the hypercube [0,1], it might also be used as an initial point
-     * 
-     * @return 1 if terminate successfully, 0 otherwise
+     * Initialize the optimization process.
+     * @return error_code
      */
-    int optimize( vectord &bestPoint);
-  
+    int initializeOptimization();
 
+    /** 
+     * Once the optimization has been perfomed, return the optimal point.
+     */
+    vectord getFinalResult();
+
+    
   protected:
     
     
@@ -98,6 +93,15 @@ namespace bayesopt
      * @return error code
      */
     int sampleInitialPoints();
+
+    /** 
+     * \brief Wrapper for the target function normalize in the hypercube
+     * [0,1]
+     * @param query point to evaluate in [0,1] hypercube
+     * @return actual return value of the target function
+     */
+    inline double evaluateSampleInternal( const vectord &query )
+    { return evaluateSample(query); }; 
 
     int findOptimal(vectord &xOpt);
 

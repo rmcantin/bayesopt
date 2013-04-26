@@ -25,12 +25,7 @@
 namespace bayesopt
 {
 
-  using boost::numeric::ublas::inplace_solve;
-  using boost::numeric::ublas::inner_prod;
-  using boost::numeric::ublas::lower_tag;
-  using boost::numeric::ublas::lower;
-  using boost::numeric::ublas::trans;
-  
+  namespace ublas = boost::numeric::ublas; 
 
   StudentTProcessJeffreys::StudentTProcessJeffreys(size_t dim, 
 						   bopt_params params):
@@ -64,12 +59,12 @@ namespace bayesopt
     vectord phi = mMean->getFeatures(query);
   
     vectord v(kn);
-    inplace_solve(mL,v,lower_tag());
+    inplace_solve(mL,v,ublas::lower_tag());
 
     vectord rq = phi - prod(v,mKF);
 
     vectord rho(rq);
-    inplace_solve(mL2,rho,lower_tag());
+    inplace_solve(mL2,rho,ublas::lower_tag());
     
     double yPred = inner_prod(phi,mWML) + inner_prod(v,mAlphaF);
     double sPred = sqrt( mSigML * (kq - inner_prod(v,v) 
@@ -85,20 +80,20 @@ namespace bayesopt
     size_t p = mMean->nFeatures();
 
     mKF = trans(mFeatM);
-    inplace_solve(mL,mKF,lower_tag());
+    inplace_solve(mL,mKF,ublas::lower_tag());
 
     matrixd FKF = prod(trans(mKF),mKF);
     mL2 = FKF;
     utils::cholesky_decompose(FKF,mL2);
 
     vectord Ky(mGPY);
-    inplace_solve(mL,Ky,lower_tag());
+    inplace_solve(mL,Ky,ublas::lower_tag());
 
     mWML = prod(Ky,mKF);
-    utils::cholesky_solve(mL2,mWML,lower());
+    utils::cholesky_solve(mL2,mWML,ublas::lower());
 
     mAlphaF = mGPY - prod(mWML,mFeatM);
-    inplace_solve(mL,mAlphaF,lower_tag());
+    inplace_solve(mL,mAlphaF,ublas::lower_tag());
     mSigML = inner_prod(mAlphaF,mAlphaF)/(n-p);
     
     d_->setDof(n-p);  

@@ -38,7 +38,7 @@ public:
       }
 
     double x = xin(0);
-    return sqr(x-0.5) + sin(20*x)*0.2;
+    return sqr(x-0.3) + sin(20*x)*0.2;
   };
 
   bool checkReachability(const vectord &query)
@@ -65,8 +65,7 @@ vector<double> lx,ly;
 
 class MP :public MatPlot{ 
 void DISPLAY(){
-    // Create test data 
-    int n=400;
+    int n=100;
     vector<double> x,y,z,su,sl,c;
     x=linspace(0,1,n);
     y = x; z = x; su = x; sl = x; c= x;
@@ -76,23 +75,22 @@ void DISPLAY(){
 	q(0) = x[i];
 	ProbabilityDistribution* pd = GLOBAL_MODEL->getSurrogateModel()->prediction(q);
 	y[i] = pd->getMean();
-	su[i] = y[i] + 3*pd->getStd();
-	sl[i] = y[i] - 3*pd->getStd();
+	su[i] = y[i] + 2*pd->getStd();
+	sl[i] = y[i] - 2*pd->getStd();
 	c[i] = -GLOBAL_MODEL->evaluateCriteria(q);
 	z[i] = GLOBAL_MODEL->evaluateSample(q);
       }
     //plot
     subplot(2,1,1);
     title("press r to run and stop");
-    plot(x,y);
+    plot(x,y); set(3);
     plot(lx,ly);set("k");set("*");
-    plot(x,su);set("g");
-    plot(x,sl);set("g");
-    plot(x,z);set("r");
+    plot(x,su);set("g"); set(2);
+    plot(x,sl);set("g"); set(2);
+    plot(x,z);set("r"); set(3);
    
     subplot(2,1,2);
-    plot(x,c);
-
+    plot(x,c); set(3);
 }
 }mp;
 
@@ -100,16 +98,14 @@ void display(){mp.display(); }
 void reshape(int w,int h){ mp.reshape(w,h); }
 void idle( void )
 {
-  if(is_run)
+  if ((is_run) && (state_ii < 150))
     {
-      if (state_ii < 300)
-	++state_ii;
+      ++state_ii;
       GLOBAL_MODEL->stepOptimization(state_ii); 
       vectord last(1);
       double res = GLOBAL_MODEL->getSurrogateModel()->getLastSample(last);
       ly.push_back(res);
       lx.push_back(last(0));
-    
     }
   glutPostRedisplay();
 }
@@ -126,15 +122,17 @@ int main(int nargs, char *args[])
 {
   size_t dim = 1;
   bopt_params parameters = initialize_parameters_to_default();
-  parameters.n_init_samples = 10;
-  parameters.n_iterations = 100;
-  parameters.surr_name = S_GAUSSIAN_PROCESS;
-  // parameters.kernel.hp_mean[0] = 0.5;
-  // parameters.kernel.hp_std[0] = 100.0;
-  // parameters.kernel.n_hp = 1;
+  parameters.n_init_samples = 7;
+  parameters.n_iter_relearn = 0;
+  parameters.n_iterations = 150;
+  parameters.surr_name = S_STUDENT_T_PROCESS_JEFFREYS;
+  parameters.kernel.hp_mean[0] = 1;
+  parameters.kernel.hp_std[0] = 0.1;
+  parameters.kernel.n_hp = 1;
   // parameters.mean.name = "mZero";
   //  parameters.crit_name = "cHedge(cEI,cLCB,cExpReturn,cOptimisticSampling)";
   // parameters.epsilon = 0.0;
+  //  parameters.verbose_level = 2;
 
   state_ii = 0;
 
@@ -142,9 +140,17 @@ int main(int nargs, char *args[])
   vectord result(dim);
   GLOBAL_MODEL = opt;
   opt->initializeOptimization();
+  vectord last(1);
+  size_t n_points = GLOBAL_MODEL->getSurrogateModel()->getNSamples();
+  for (size_t i = 0; i<n_points;++i)
+    {
+      double res = GLOBAL_MODEL->getSurrogateModel()->getSample(i,last);
+      ly.push_back(res);
+      lx.push_back(last(0));
+    }
   
   glutInit(&nargs, args);
-  glutCreateWindow(100,100,500,400);
+  glutCreateWindow(100,100,900,700);
   glutDisplayFunc( display );
   glutReshapeFunc( reshape );
   glutIdleFunc( idle );

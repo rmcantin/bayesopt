@@ -134,8 +134,8 @@ namespace bayesopt  {
 		if(yPoints(i)<ymin) 
 		  ymin = yPoints(i);
 	      
-		FILE_LOG(logDEBUG) << ymin << "|" << yPoints(i) << "|" 
-				   << mBB->unnormalizeVector(sample) ;
+		FILE_LOG(logDEBUG) << "X:" << mBB->unnormalizeVector(sample) 
+				   << "|Y:" << yPoints(i) << "|Min:" << ymin ;
 	      }
 	  }  
       }

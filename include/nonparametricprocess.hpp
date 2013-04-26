@@ -105,6 +105,7 @@ namespace bayesopt
     double getLastSample(vectord &x);
     inline vectord getPointAtMinimum() { return mGPXX[mMinIndex]; };
     inline double getValueAtMinimum() { return mGPY(mMinIndex); };
+    inline size_t getNSamples() { return mGPY.size(); };
   
     // Kernel function
     /** 

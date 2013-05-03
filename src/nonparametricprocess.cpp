@@ -179,8 +179,9 @@ namespace bayesopt
     mMeanV.resize(mMeanV.size()+1);  
     mMeanV(mMeanV.size()-1) = mMean->getMean(x);
 
-    mFeatM.resize(mFeatM.size1(),mFeatM.size2()+1);  
-    column(mFeatM,mFeatM.size2()-1) = mMean->getFeatures(x);
+    vectord feat = mMean->getFeatures(x);
+    mFeatM.resize(feat.size(),mFeatM.size2()+1);  
+    column(mFeatM,mFeatM.size2()-1) = feat;
 
   };
 

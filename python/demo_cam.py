@@ -1,6 +1,7 @@
 from SimpleCV import Camera
 import numpy as np
 import bayesopt
+from time import sleep
 # Initialize the camera
 cam = Camera()
 cost = np.zeros(256)

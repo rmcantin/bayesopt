@@ -70,15 +70,13 @@ int main(int nargs, char *args[])
   bopt_params par = initialize_parameters_to_default();
 
   par.kernel.hp_mean[0] = KERNEL_THETA;
-  par.kernel.hp_std[0] = 100.0;
+  par.kernel.hp_std[0] = 1.0;
   par.kernel.n_hp = 1;
-  par.alpha = PRIOR_ALPHA;
-  par.beta = PRIOR_BETA;
   par.mean.coef_mean[0] = 0.0;
   par.mean.coef_std[0] = MEAN_SIGMA;
   par.mean.n_coef = 1;
   par.noise = DEFAULT_NOISE;
-  par.surr_name = S_GAUSSIAN_PROCESS_INV_GAMMA_NORMAL;
+  par.surr_name = S_STUDENT_T_PROCESS_JEFFREYS;
   par.n_iterations = 20;       // Number of iterations
   par.n_init_samples = 20;
   /*******************************************/

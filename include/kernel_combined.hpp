@@ -47,15 +47,20 @@ namespace bayesopt
       this->right = right;
       return 0;
     };
-    void setHyperParameters(const vectord &theta) 
+    int setHyperParameters(const vectord &theta) 
     {
       using boost::numeric::ublas::subrange;
 
       size_t n_lhs = left->nHyperParameters();
       size_t n_rhs = right->nHyperParameters();
-      assert(theta.size() == n_lhs + n_rhs);
+      if (theta.size() != n_lhs + n_rhs)
+	{
+	  FILE_LOG(logERROR) << "Wrong number of hyperparameters"; 
+	  return -1; 
+	}
       left->setHyperParameters(subrange(theta,0,n_lhs));
       right->setHyperParameters(subrange(theta,n_lhs,n_lhs+n_rhs));
+      return 0;
     };
 
     vectord getHyperParameters() 

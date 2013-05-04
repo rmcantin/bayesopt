@@ -44,7 +44,7 @@ namespace bayesopt
     virtual int init(size_t input_dim) {return 0;};
     virtual int init(size_t input_dim, Kernel* left, Kernel* right) {return 0;};
 
-    virtual void setHyperParameters(const vectord &theta) = 0;
+    virtual int setHyperParameters(const vectord &theta) = 0;
     virtual vectord getHyperParameters() = 0;
     virtual size_t nHyperParameters() = 0;
 

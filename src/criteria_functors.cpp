@@ -30,6 +30,7 @@ namespace bayesopt
   CriteriaFactory::CriteriaFactory()
   {
     registry["cEI"] = & create_func<ExpectedImprovement>;
+    registry["cBEI"] = & create_func<BiasedExpectedImprovement>;
     registry["cEIa"] = & create_func<AnnealedExpectedImprovement>;
     registry["cLCB"] = & create_func<LowerConfidenceBound>;
     registry["cLCBa"] = & create_func<AnnealedLowerConfindenceBound>;

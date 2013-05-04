@@ -72,7 +72,6 @@ namespace bayesopt
 
   private:
     vectord mWML;           //!< GP ML parameters
-    double mSigML;           //!< GP ML parameters
     
     /// Precomputed GP prediction operations
     vectord mAlphaF;

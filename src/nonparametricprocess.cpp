@@ -37,7 +37,8 @@ namespace bayesopt
 {
   
   NonParametricProcess::NonParametricProcess(size_t dim, bopt_params parameters):
-    InnerOptimization(), mRegularizer(parameters.noise), dim_(dim)
+    InnerOptimization(), mRegularizer(parameters.noise), 
+    mSigma(parameters.sigma_s), dim_(dim)
   { 
     mMinIndex = 0;     mMaxIndex = 0;   
     setAlgorithm(BOBYQA);

@@ -67,7 +67,7 @@ namespace bayesopt
     inplace_solve(mL2,rho,ublas::lower_tag());
     
     double yPred = inner_prod(phi,mWML) + inner_prod(v,mAlphaF);
-    double sPred = sqrt( mSigML * (kq - inner_prod(v,v) 
+    double sPred = sqrt( mSigma * (kq - inner_prod(v,v) 
 				   + inner_prod(rho,rho)));
 
     d_->setMeanAndStd(yPred,sPred);
@@ -94,7 +94,7 @@ namespace bayesopt
 
     mAlphaF = mGPY - prod(mWML,mFeatM);
     inplace_solve(mL,mAlphaF,ublas::lower_tag());
-    mSigML = inner_prod(mAlphaF,mAlphaF)/(n-p);
+    mSigma = inner_prod(mAlphaF,mAlphaF)/(n-p);
   
     return 1;
   }

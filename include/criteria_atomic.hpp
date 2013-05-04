@@ -63,19 +63,61 @@ namespace bayesopt
       return 0;
     };
 
-    inline void setExponent(size_t exp) {mExp = exp;};
+    int setParameters(const vectord &params)
+    {
+      mExp = static_cast<size_t>(params(0));
+      return 0;
+    };
+
+    size_t nParameters() {return 1;};
+
     double operator()(const vectord &x)
     { 
       const double min = mProc->getValueAtMinimum();
       return mProc->prediction(x)->negativeExpectedImprovement(min,mExp); 
     };
+
     std::string name() {return "cEI";};
+
   private:
     size_t mExp;
   };
 
+  /// Expected improvement criterion modification by Lizotte
+  class BiasedExpectedImprovement: public AtomicCriteria
+  {
+  public:
+    virtual ~BiasedExpectedImprovement(){};
+    int init(NonParametricProcess* proc)
+    { 
+      mProc = proc;
+      mBias = 0.01;
+      mExp = 1;
+      return 0;
+    };
+    int setParameters(const vectord &params)
+    {
+      mExp = static_cast<size_t>(params(0));
+      mBias = params(1);
+      return 0;
+    };
 
-  /// Lower (upper) confidence bound criterion.
+    size_t nParameters() {return 2;};
+
+    double operator()(const vectord &x)
+    { 
+      const double sigma = mProc->getSignalVariance();
+      const double min = mProc->getValueAtMinimum() - mBias/sigma;
+      return mProc->prediction(x)->negativeExpectedImprovement(min,mExp); 
+    };
+    std::string name() {return "cBEI";};
+  private:
+    double mBias;
+    size_t mExp;
+  };
+
+
+  /// Lower (upper) confidence bound criterion by [Cox and John, 1992].
   class LowerConfidenceBound: public AtomicCriteria
   {
   public:
@@ -86,8 +128,14 @@ namespace bayesopt
       mBeta = 1.0;
       return 0;
     };
+    int setParameters(const vectord &params)
+    {
+      mBeta = params(0);
+      return 0;
+    };
 
-    inline void setBeta(double beta) { mBeta = beta; };
+    size_t nParameters() {return 1;};
+
     double operator()( const vectord &x)
     { 
       return mProc->prediction(x)->lowerConfidenceBound(mBeta); 
@@ -109,6 +157,13 @@ namespace bayesopt
       mEpsilon = 0.01;
       return 0;
     };
+    int setParameters(const vectord &params)
+    {
+      mEpsilon = params(0);
+      return 0;
+    };
+
+    size_t nParameters() {return 1;};
 
     inline void setEpsilon(double eps) { mEpsilon = eps; };
     double operator()( const vectord &x)
@@ -132,20 +187,26 @@ namespace bayesopt
   {
   public:
     virtual ~GreedyAOptimality(){};
+    int setParameters(const vectord &params) { return 0; };
+    size_t nParameters() {return 0;};
     double operator()( const vectord &x)
     { return mProc->prediction(x)->getStd(); };
     std::string name() {return "cAopt";};
   };
+
 
   /// Expected return criterion.
   class ExpectedReturn: public AtomicCriteria
   {
   public:
     virtual ~ExpectedReturn(){};
+    int setParameters(const vectord &params) { return 0; };
+    size_t nParameters() {return 0;};
     double operator()( const vectord &x)
     { return mProc->prediction(x)->getMean(); };
     std::string name() {return "cExpReturn";};
   };
+
 
   /**
    * \brief Optimistic sampling. A simple variation of Thompson sampling
@@ -157,6 +218,8 @@ namespace bayesopt
   public:
     OptimisticSampling(): mtRandom(100u) {};
     virtual ~OptimisticSampling(){};
+    int setParameters(const vectord &params) { return 0; };
+    size_t nParameters() {return 0;};
     double operator()( const vectord &x)
     {
       ProbabilityDistribution* d_ = mProc->prediction(x);
@@ -169,6 +232,7 @@ namespace bayesopt
     randEngine mtRandom;
   };
 
+
   /**
    * \brief Thompson sampling. 
    * Picks a random realization of the surrogate model.
@@ -178,6 +242,8 @@ namespace bayesopt
   public:
     ThompsonSampling(): mtRandom(100u) {};
     virtual ~ThompsonSampling(){};
+    int setParameters(const vectord &params) { return 0; };
+    size_t nParameters() {return 0;};
     double operator()( const vectord &x)
     {
       ProbabilityDistribution* d_ = mProc->prediction(x);
@@ -187,6 +253,7 @@ namespace bayesopt
   private:
     randEngine mtRandom;
   };
+
 
 
   /// Expected improvement criterion using Schonlau annealing. \cite Schonlau98
@@ -201,7 +268,13 @@ namespace bayesopt
       return 0;
     };
 
-    inline void setExponent(size_t exp) {mExp = exp;};
+    int setParameters(const vectord &params)
+    {
+      mExp = static_cast<size_t>(params(0));
+      return 0;
+    };
+
+    size_t nParameters() {return 1;};
     void reset() { nCalls = 0; mExp = 10;};
     double operator()( const vectord &x)
     {
@@ -231,7 +304,13 @@ namespace bayesopt
       reset();
       return 0;
     };
-    inline void setBetaCoef(double betac) { mCoef = betac; };
+
+    int setParameters(const vectord &params)
+    {
+      mCoef = params(0);
+      return 0;
+    };
+    size_t nParameters() {return 1;};
     void reset() { nCalls = 0; mCoef = 5.0;};
     double operator()( const vectord &x)
     {
@@ -264,7 +343,13 @@ namespace bayesopt
       return 0;
     };
     virtual ~InputDistance(){};
-    inline void setWeight(double w) { mW = w; };
+    int setParameters(const vectord &params)
+    {
+      mW = params(0);
+      return 0;
+    };
+    size_t nParameters() {return 1;};
+ 
     double operator()(const vectord &x)
     { 
       vectord x2(x.size());

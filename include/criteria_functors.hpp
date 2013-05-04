@@ -53,6 +53,8 @@ namespace bayesopt
     virtual bool requireComparison() = 0;
     virtual double operator()(const vectord &x) = 0;
     virtual std::string name() = 0;
+    virtual int setParameters(const vectord &params) = 0;
+    virtual size_t nParameters() = 0;
 
     //Dummy functions.
     virtual void reset() { assert(false); };

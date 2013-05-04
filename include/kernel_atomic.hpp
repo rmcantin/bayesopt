@@ -43,10 +43,15 @@ namespace bayesopt
       n_inputs = input_dim;
       return 0;
     };
-    void setHyperParameters(const vectord &theta) 
+    int setHyperParameters(const vectord &theta) 
     {
-      assert(theta.size() == n_params);
+      if(theta.size() != n_params)
+	{
+	  FILE_LOG(logERROR) << "Wrong number of hyperparameters"; 
+	  return -1; 
+	}
       params = theta;
+      return 0;
     };
     vectord getHyperParameters() {return params;};
     size_t nHyperParameters() {return n_params;};

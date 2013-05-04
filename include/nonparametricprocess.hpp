@@ -106,6 +106,7 @@ namespace bayesopt
     inline vectord getPointAtMinimum() { return mGPXX[mMinIndex]; };
     inline double getValueAtMinimum() { return mGPY(mMinIndex); };
     inline size_t getNSamples() { return mGPY.size(); };
+    inline double getSignalVariance() { return mSigma; };
   
     // Kernel function
     /** 
@@ -240,6 +241,7 @@ namespace bayesopt
 
   protected:
     const double mRegularizer;   ///< Std of the obs. model (also used as nugget)
+    double mSigma;                                           ///< Signal variance
     vecOfvec mGPXX;                                              ///< Data inputs
     vectord mGPY;                                                ///< Data values
     

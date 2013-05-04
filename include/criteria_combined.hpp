@@ -24,7 +24,9 @@
 #ifndef  _CRITERIA_COMBINED_HPP_
 #define  _CRITERIA_COMBINED_HPP_
 
+#include <boost/numeric/ublas/vector_proxy.hpp>
 #include "criteria_functors.hpp"
+
 
 namespace bayesopt
 {
@@ -52,6 +54,43 @@ namespace bayesopt
       mCriteriaList = list;
       return 0; 
     };
+
+    int setParameters(const vectord &theta) 
+    {
+      using boost::numeric::ublas::subrange;
+      vectori sizes(mCriteriaList.size());
+
+      for (size_t i = 0; i < mCriteriaList.size(); ++i)
+	{
+	  sizes(i) = mCriteriaList[i]->nParameters();
+	}
+
+      if (theta.size() != norm_1(sizes))
+	{
+	  FILE_LOG(logERROR) << "Wrong number of criteria parameters"; 
+	  return -1; 
+	}
+
+      size_t start = 0;
+      for (size_t i = 0; i < mCriteriaList.size(); ++i)
+	{
+	  mCriteriaList[i]->setParameters(subrange(theta,start,start+sizes(i)));
+	  start += sizes(i);
+	}
+      return 0;
+    };
+
+    size_t nParameters() 
+    {
+      size_t sum = 0;
+      for (size_t i = 0; i < mCriteriaList.size(); ++i)
+	{
+	  sum += mCriteriaList[i]->nParameters();
+	}
+      return sum;
+    };
+
+
   protected:
     NonParametricProcess* mProc;
     std::vector<Criteria*> mCriteriaList;

@@ -71,6 +71,8 @@ cdef extern from "parameters.h":
         kernel_parameters kernel
         mean_parameters mean
         char* crit_name
+        double* crit_params
+        unsigned int n_crit_params
 
     kernel_name str2kernel(char* name)
     criterium_name str2crit(char* name)
@@ -143,6 +145,11 @@ cdef bopt_params dict2structparams(dict dparams):
             params.mean.coef_mean[i] = mu[i]
             params.mean.coef_std[i] = smu[i]
 
+    cp = dparams.get('crit_params',None)
+    if cp is not None:
+        params.n_crit_params = len(cp)
+        for i in range(0,params.n_crit_params):
+            params.crit_params[i] = cp[i]
 
     kname = dparams.get('kernel_name',params.kernel.name)
     params.kernel.name = kname;

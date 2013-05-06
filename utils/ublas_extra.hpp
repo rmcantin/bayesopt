@@ -22,6 +22,7 @@
 #define __UBLAS_EXTRA_HPP__
 
 #include <typeinfo>
+#include <boost/numeric/ublas/vector.hpp>
 
 namespace bayesopt
 {
@@ -51,8 +52,8 @@ namespace bayesopt
 	  *it = *(it+1); 
 	}
       vect.resize(vect.size()-1);
-	  return 0;
-	}
+      return 0;
+    };
 
     template<class M>
     int erase_column(M& mat, size_t pos)
@@ -62,8 +63,11 @@ namespace bayesopt
 	  column(mat,i) = column(mat,i+1);
 	}
       mat.resize(mat.size1(),mat.size2()-1);
-	  return 0;
-    }
+      return 0;
+    };
+
+    boost::numeric::ublas::vector<double> array2vector(const double array[], 
+						       const size_t n);
 
   } //  namespace utils
 } //namespace bayesopt

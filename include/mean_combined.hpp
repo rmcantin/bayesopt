@@ -56,7 +56,7 @@ namespace bayesopt
 
       size_t n_lhs = left->nParameters();
       size_t n_rhs = right->nParameters();
-      assert(theta.size() == n_lhs + n_rhs);
+      //assert(theta.size() == n_lhs + n_rhs);
       left->setParameters(subrange(theta,0,n_lhs));
       right->setParameters(subrange(theta,n_lhs,n_lhs+n_rhs));
     };

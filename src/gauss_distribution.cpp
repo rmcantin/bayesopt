@@ -1,3 +1,4 @@
+
 #include <boost/math/special_functions/factorials.hpp>
 #include "gauss_distribution.hpp"
 

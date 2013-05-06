@@ -88,6 +88,7 @@ SET( BAYESOPT_SRCS
 
 SET(UTILS_SRC
   ./utils/parser.cpp
+  ./utils/ublas_extra.cpp
   )
 
 SET(WRAPPPERS_SRC 

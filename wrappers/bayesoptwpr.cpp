@@ -1,4 +1,5 @@
 #include "log.hpp"
+#include "ublas_extra.hpp"
 #include "bayesoptwpr.h"
 #include "bayesoptcont.hpp"      
 #include "bayesoptdisc.hpp"      
@@ -71,11 +72,8 @@ int bayes_optimization(int nDim, eval_func f, void* f_data,
 {
   vectord result(nDim);
 
-  vectord lowerBound(nDim); 
-  vectord upperBound(nDim); 
-
-  std::copy(lb, lb+nDim, lowerBound.begin());
-  std::copy(ub, ub+nDim, upperBound.begin());
+  vectord lowerBound = bayesopt::utils::array2vector(lb,nDim); 
+  vectord upperBound = bayesopt::utils::array2vector(ub,nDim); 
 
   CContinuousModel optimizer(nDim, parameters);
 

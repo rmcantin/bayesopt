@@ -29,6 +29,7 @@
 #include <boost/scoped_ptr.hpp>
 #include <boost/math/distributions/normal.hpp> 
 #include "parameters.h"
+#include "ublas_extra.hpp"
 #include "kernel_functors.hpp"
 #include "mean_functors.hpp"
 #include "specialtypes.hpp"
@@ -120,19 +121,17 @@ namespace bayesopt
 		   std::string k_name, size_t dim);
 
     /** Wrapper of setKernel for C kernel structure */
-    inline int setKernel (kernel_parameters kernel, size_t dim)
+    int setKernel (kernel_parameters kernel, size_t dim)
     {
       size_t n = kernel.n_hp;
-      vectord th(n);
-      vectord sth(n);
-      std::copy(kernel.hp_mean, kernel.hp_mean+n, th.begin());
-      std::copy(kernel.hp_std, kernel.hp_std+n, sth.begin());
+      vectord th = utils::array2vector(kernel.hp_mean,n);
+      vectord sth = utils::array2vector(kernel.hp_std,n);
       int error = setKernel(th, sth, kernel.name, dim);
 	  return 0;
     };
 
     /** Set prior (Gaussian) for kernel hyperparameters */
-    inline int setKernelPrior (const vectord &theta, const vectord &s_theta)
+    int setKernelPrior (const vectord &theta, const vectord &s_theta)
     {
       size_t n_theta = theta.size();
       for (size_t i = 0; i<n_theta; ++i)
@@ -160,13 +159,11 @@ namespace bayesopt
 		 std::string m_name, size_t dim);
 
     /** Wrapper of setMean for the C structure */
-    inline int setMean (mean_parameters mean, size_t dim)
+    int setMean (mean_parameters mean, size_t dim)
     {
       size_t n_mu = mean.n_coef;
-      vectord vmu(n_mu);
-      vectord smu(n_mu);
-      std::copy(mean.coef_mean, mean.coef_mean+n_mu, vmu.begin());
-      std::copy(mean.coef_std, mean.coef_std+n_mu, smu.begin());
+      vectord vmu = utils::array2vector(mean.coef_mean,n_mu);
+      vectord smu = utils::array2vector(mean.coef_std,n_mu);
       return setMean(vmu, smu, mean.name, dim);
     };
 

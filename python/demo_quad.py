@@ -49,7 +49,6 @@ params['n_init_samples'] = 20
 #params['surr_name'] = "GAUSSIAN_PROCESS_INV_GAMMA_NORMAL"
 params['crit_name'] = "cEI"
 params['kernel_name'] = "kMaternISO3"
-print params['mean_name']
 print "Callback implementation"
 
 n = 5                     # n dimensions

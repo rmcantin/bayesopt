@@ -152,9 +152,13 @@ namespace bayesopt {
       return (*mCrit)(query);
     };
 
-
+    
     NonParametricProcess* getSurrogateModel()
     { return mGP.get(); };
+
+    int setSurrogateModel();    
+    int setCriteria();
+
   protected:
     /** 
      * Print data for every step according to the verbose level

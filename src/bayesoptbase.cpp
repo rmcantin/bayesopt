@@ -70,25 +70,46 @@ namespace bayesopt
 	static_cast<size_t>(ceil(0.1*mParameters.n_iterations));
 
     // Configure Surrogate and Criteria Functions
-    mGP.reset(NonParametricProcess::create(mDims,mParameters));
-    if (mGP == NULL) 
-      {
-	FILE_LOG(logERROR) << "Error setting the surrogate function"; 
-	return -1;
-      } 
-
-    mCrit.reset(mCFactory.create(mParameters.crit_name,mGP.get()));
-    if (mCrit == NULL)       
-      {
-	FILE_LOG(logERROR) << "Error in criterium"; 
-	return -1;
-      }
+    setSurrogateModel();
+    setCriteria();
 
     return 0;
   } // __init__
 
   BayesOptBase::~BayesOptBase()
   {} // Default destructor
+
+  int BayesOptBase::setSurrogateModel()
+  {
+    // Configure Surrogate and Criteria Functions
+    mGP.reset(NonParametricProcess::create(mDims,mParameters));
+    if (mGP == NULL) 
+      {
+	FILE_LOG(logERROR) << "Error setting the surrogate function"; 
+	return -1;
+      } 
+    return 0;
+  } // setSurrogateModel
+
+  int BayesOptBase::setCriteria()
+  {
+    mCrit.reset(mCFactory.create(mParameters.crit_name,mGP.get()));
+    if ((mCrit == NULL) || (mCrit->nParameters() != mParameters.n_crit_params))
+      {
+	FILE_LOG(logERROR) << "Error in criterium"; 
+	if (mCrit->nParameters() != mParameters.n_crit_params)
+	  {
+	    FILE_LOG(logERROR) << "Expected " << mCrit->nParameters() 
+			       << " parameters. Got " 
+			       << mParameters.n_crit_params << " instead.";
+	  }
+	return -1;
+      }
+    vectord critParams = utils::array2vector(mParameters.crit_params,
+					     mParameters.n_crit_params);
+    mCrit->setParameters(critParams);
+    return 0;
+  } // setCriteria
 
   int BayesOptBase::stepOptimization(size_t ii)
   {

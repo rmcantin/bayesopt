@@ -12,7 +12,6 @@ seed = 197; randn('seed',seed), rand('seed',seed)
 plotting = 0;
 
 f = @ackley;
-criteria = @nei;
 bounds = ones(2,1)*[-32.768, 32.768];
 
 % Set initial set of points using latin hypercube sampling
@@ -37,21 +36,31 @@ lik = 'likGauss';     inf = 'infExact';
 Ncg = 50;
 hyp = minimize(hyp0,'gp', -Ncg, inf, mean, cov, lik, xtr, ytr); % opt hypers
 
+
 % set up DIRECT
-opts.maxevals = 1000;
-opts.maxits = 1000;
-opts.showits = 0;
-Problem.f = criteria;
+opt.algorithm = NLOPT_GN_DIRECT_L;
+opt.lower_bounds = bounds(:,1);
+opt.upper_bounds = bounds(:,2);
+
+opt.maxeval = 1000;
+% opts.maxevals = 1000;
+% opts.maxits = 1000;
+% opts.showits = 0;
+% Problem.f = criteria;
 
 times = zeros(nIter,1);
 
 for i = 1:nIter
     
     fprintf(1,'- Iter %i of %i \n', i,nIter);
-    [minval, newX, hist] = Direct(Problem, bounds, opts, hyp, inf, mean,...
-                                  cov, lik, xtr, ytr);
+    %[minval, newX, hist] = Direct(Problem, bounds, opts, hyp, inf, mean,...
+    %                              cov, lik, xtr, ytr);
+    criteria = (@(x) nei(x,hyp,inf,mean,cov,lik,xtr,ytr));
+    opt.min_objective = criteria;
+    
+    [newX, minval, retcode] = nlopt_optimize(opt, [0 0]);
     newY = f(newX);
-    xtr = [xtr; newX'];    
+    xtr = [xtr; newX];    
     ytr = [ytr; newY];
     
     times(i) = cputime - start_t;
@@ -65,8 +74,8 @@ for i = 1:nIter
         % =====================================================================
         x = 0:0.001:1;
         for j = 1:length(x)
-            [crit(j), ymu(j), ys(j)] = feval(criteria, x(j), hyp, inf,...
-                                             mean, cov, lik, xtr, ytr );
+            [crit(j), ymu(j), ys(j)] = feval(criteria, x(j) );
+            yh(j) = f(x(j));
         end
     
         lw = 2;
@@ -78,7 +87,7 @@ for i = 1:nIter
         plot(xtr,ytr,'ko','LineWidth',lw);
         plot(newX,newY,'ro','LineWidth',lw);
     
-        plot(x,f(x), 'b','LineWidth',lw);
+        plot(x,yh, 'b','LineWidth',lw);
         plot(x, ymu, 'k','LineWidth',lw);
         plot(x, ymu+2*ys, 'k:','LineWidth',lw);
         plot(x, ymu-2*ys, 'k:','LineWidth',lw);
@@ -93,7 +102,7 @@ for i = 1:nIter
     end
 end
 
-save('log_aiken_finkel.mat',times)
+save('log_aiken.mat',times)
 
 minY = min(ytr);
 

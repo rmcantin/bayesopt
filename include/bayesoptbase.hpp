@@ -153,7 +153,7 @@ namespace bayesopt {
     };
 
     
-    NonParametricProcess* getSurrogateModel()
+    inline NonParametricProcess* getSurrogateModel()
     { return mGP.get(); };
 
     int setSurrogateModel();    
@@ -222,6 +222,7 @@ namespace bayesopt {
      * surrogate, etc.)
      */
     int __init__();
+
     CriteriaFactory mCFactory;
     randEngine mEngine;
   };

@@ -203,7 +203,7 @@ static const bopt_params DEFAULT_PARAMS = {
   PRIOR_ALPHA, PRIOR_BETA, 
   L_MAP, 0.0,
   DEFAULT_KERNEL, DEFAULT_MEAN,
-  DEF_CRITERIA_NAME, {}, 0
+  DEF_CRITERIA_NAME, {1.0}, 1
 };
 
 

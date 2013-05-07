@@ -55,8 +55,10 @@ public:
 
 #include "unistd.h"
 using namespace std;
+#include "matplotpp.h"  
+
+
 using namespace bayesopt;
-#include "matplotpp.h"
 
 int is_run=1;
 size_t state_ii = 0;
@@ -65,7 +67,17 @@ vector<double> lx,ly;
 
 class MP :public MatPlot{ 
 void DISPLAY(){
-    int n=100;
+    if ((is_run) && (state_ii < 150))
+    {
+      ++state_ii;
+      GLOBAL_MODEL->stepOptimization(state_ii); 
+      vectord last(1);
+      double res = GLOBAL_MODEL->getSurrogateModel()->getLastSample(last);
+      ly.push_back(res);
+      lx.push_back(last(0));
+    }
+    
+    int n=1000;
     vector<double> x,y,z,su,sl,c;
     x=linspace(0,1,n);
     y = x; z = x; su = x; sl = x; c= x;
@@ -98,15 +110,6 @@ void display(){mp.display(); }
 void reshape(int w,int h){ mp.reshape(w,h); }
 void idle( void )
 {
-  if ((is_run) && (state_ii < 150))
-    {
-      ++state_ii;
-      GLOBAL_MODEL->stepOptimization(state_ii); 
-      vectord last(1);
-      double res = GLOBAL_MODEL->getSurrogateModel()->getLastSample(last);
-      ly.push_back(res);
-      lx.push_back(last(0));
-    }
   glutPostRedisplay();
 }
 
@@ -132,7 +135,7 @@ int main(int nargs, char *args[])
   // parameters.mean.name = "mZero";
   //  parameters.crit_name = "cHedge(cEI,cLCB,cExpReturn,cOptimisticSampling)";
   // parameters.epsilon = 0.0;
-  //  parameters.verbose_level = 2;
+  parameters.verbose_level = 0;
 
   state_ii = 0;
 

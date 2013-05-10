@@ -50,16 +50,19 @@ For that reason, the parameters are bundled in a structure or dictionary, depend
 \li \b alpha, \b beta: Inverse-Gamma prior hyperparameters (if applicable) [Default 1.0, 1.0] 
 \li \b l_type: Learning method for the kernel hyperparameters. See section ??? for a detailed description [Default L_MAP]
 
-\subsection critpar Exploration parameters
+\subsection critpar Exploration/exploitation parameters
 \li \b epsilon: According to some authors, it is recommendable to include an epsilon-greedy strategy to achieve near optimal convergence rates. Epsilon is the probability of performing a random (blind) evaluation of the target function [Default 0.0 (disabled)]
-\li \b crit_name: Name of the sample selection criterion. It is used to select which points to evaluate for each iteration of the optimization process. See section ??? for the different possibilities. [Default: "cEI"]
+\li \b crit_name: Name of the sample selection criterion or a combination of them. It is used to select which points to evaluate for each iteration of the optimization process. Could be a combination of functions like "cHedge(cEI,cLCB,cPOI,cThompsonSampling)". See section ??? for the different possibilities. [Default: "cEI]"
+\li \b crit_params, \b n_crit_params: Array with the set of parameters for the selected criteria. If there are more than one, the parameters are split among them according to the number of parameters required for each criterion. [Default: 1, 1]
 
-\li \b theta: Kernel hyperparameters. Depends on the kernel selected.
-\li \b n_theta: Number of kernel hyperparameters.
-\li \b mu: Mean function hyperparameters. Depends on the mean function selected.
-\li \b n_mu: Number of mean function hyperparameters 
-\li \b k_name: Name of the kernel function. 
-\li \b m_name: Name of the mean function (parametric part of the surrogate function).
+\subsection kernelpar Kernel parameters
+\li \b kernel.name: Name of the kernel function. Could be a combination of functions like "kSum(kSEARD,kMaternARD3)". See section for the different posibilities. [Default: "kMaternISO3"]
+\li \b kernel.hp_mean, \b kernel.hp_std, \b kernel.n_hp: Kernel hyperparameters prior. Any "ilegal" standard deviation (std<=0) results in a maximum likelihood estimate. Depends on the kernel selected. If there are more than one, the parameters are split among them according to the number of parameters required for each criterion. [Default: "1.0, 10.0, 1" ]
+
+\subsection meanpar Mean function parameters
+\li \b mean.name: Name of the mean function. Could be a combination of functions like "mSum(mOne, mLinear)". See section for the different posibilities. [Default: "mOne"]
+\li \b mean.coef_mean, \b kernel.coef_std, \b kernel.n_coef: Mean function coefficients. The standard deviation is only used if the surrogate model assumes a normal prior. If there are more than one, the parameters are split among them according to the number of parameters required for each criterion. [Default: "1.0, 30.0, 1" ]
+
 
 \section usage Using the library
 

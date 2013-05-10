@@ -138,7 +138,7 @@ extern "C" {
   const double KERNEL_THETA    = 1.0;
   const double KERNEL_SIGMA    = 10.0;
   const double MEAN_MU         = 1.0;
-  const double MEAN_SIGMA      = 1000.0;
+  const double MEAN_SIGMA      = 30.0;
   const double PRIOR_ALPHA     = 1.0;
   const double PRIOR_BETA      = 1.0;
   const double DEFAULT_SIGMA   = 1.0;

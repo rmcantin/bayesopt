@@ -128,14 +128,14 @@ int main(int nargs, char *args[])
   parameters.n_init_samples = 7;
   parameters.n_iter_relearn = 0;
   parameters.n_iterations = 150;
-  parameters.surr_name = S_STUDENT_T_PROCESS_JEFFREYS;
+  parameters.surr_name = S_STUDENT_T_PROCESS_NORMAL_INV_GAMMA;
   parameters.kernel.hp_mean[0] = 1;
   parameters.kernel.hp_std[0] = 0.1;
   parameters.kernel.n_hp = 1;
   // parameters.mean.name = "mZero";
   //  parameters.crit_name = "cHedge(cEI,cLCB,cExpReturn,cOptimisticSampling)";
   // parameters.epsilon = 0.0;
-  parameters.verbose_level = 0;
+  parameters.verbose_level = 2;
 
   state_ii = 0;
 

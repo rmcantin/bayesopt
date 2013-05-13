@@ -66,6 +66,19 @@ namespace bayesopt
       return 0;
     };
 
+    template<class M, class V>
+    int addToDiagonal(M& mat, const V& vec)
+    {
+      assert(mat.size1()==mat.size2());
+      assert(mat.size1()==vec.size());
+      const size_t ll = vec.size();
+      for(size_t ii = 0; ii < ll; ++ii)
+	{
+	  mat(ii,ii) += vec(ii);
+	}
+      return 0;
+    }
+
     boost::numeric::ublas::vector<double> array2vector(const double array[], 
 						       const size_t n);
 

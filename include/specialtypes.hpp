@@ -34,6 +34,7 @@ typedef boost::numeric::ublas::vector<double>                   vectord;
 typedef boost::numeric::ublas::zero_vector<double>             zvectord;
 typedef boost::numeric::ublas::scalar_vector<double>           svectord;
 typedef boost::numeric::ublas::matrix<double>                   matrixd;
+typedef boost::numeric::ublas::zero_matrix<double>             zmatrixd;
 
 typedef std::vector<vectord>                                   vecOfvec;
 typedef std::vector<vectord>::iterator                 vecOfvecIterator;

@@ -97,7 +97,7 @@ namespace bayesopt
     mSigma = inner_prod(mAlphaF,mAlphaF)/(n-p);
     
     d_->setDof(n-p);  
-    return 1;
+    return 0;
   }
 
 } //namespace bayesopt

@@ -103,8 +103,8 @@ surrogate_name str2surrogate(const char* name)
     return S_GAUSSIAN_PROCESS;
   if      (!strcmp(name,  "GAUSSIAN_PROCESS_ML"))
     return S_GAUSSIAN_PROCESS_ML;
-  else if (!strcmp(name,  "GAUSSIAN_PROCESS_INV_GAMMA_NORMAL"))
-    return S_GAUSSIAN_PROCESS_INV_GAMMA_NORMAL;
+  else if (!strcmp(name,  "STUDENT_T_PROCESS_NORMAL_INV_GAMMA"))
+    return S_STUDENT_T_PROCESS_NORMAL_INV_GAMMA;
   else if (!strcmp(name,  "STUDENT_T_PROCESS_JEFFREYS"))
     return S_STUDENT_T_PROCESS_JEFFREYS;
   else return S_ERROR;
@@ -129,8 +129,8 @@ const char* surrogate2str(surrogate_name name)
     {
     case S_GAUSSIAN_PROCESS: return "GAUSSIAN_PROCESS"; 
     case S_GAUSSIAN_PROCESS_ML: return "GAUSSIAN_PROCESS_ML"; 
-    case S_GAUSSIAN_PROCESS_INV_GAMMA_NORMAL: return "GAUSSIAN_PROCESS_INV_GAMMA_NORMAL"; 
-    case S_STUDENT_T_PROCESS_JEFFREYS: return "S_STUDENT_T_PROCESS_JEFFREYS"; 
+    case S_STUDENT_T_PROCESS_NORMAL_INV_GAMMA: return "STUDENT_T_PROCESS_NORMAL_INV_GAMMA";
+    case S_STUDENT_T_PROCESS_JEFFREYS: return "STUDENT_T_PROCESS_JEFFREYS"; 
     case S_ERROR:
     default: return "ERROR!";
     }

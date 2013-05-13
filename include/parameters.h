@@ -136,7 +136,7 @@ extern "C" {
 
   /* Nonparametric process "parameters" */
   const double KERNEL_THETA    = 1.0;
-  const double KERNEL_SIGMA    = 10.0;
+  const double KERNEL_SIGMA    = 100.0;
   const double MEAN_MU         = 1.0;
   const double MEAN_SIGMA      = 1000.0;
   const double PRIOR_ALPHA     = 1.0;

@@ -125,13 +125,15 @@ int main(int nargs, char *args[])
 {
   size_t dim = 1;
   bopt_params parameters = initialize_parameters_to_default();
-  parameters.n_init_samples = 7;
+  parameters.n_init_samples = 10;
   parameters.n_iter_relearn = 0;
   parameters.n_iterations = 150;
   parameters.surr_name = S_STUDENT_T_PROCESS_NORMAL_INV_GAMMA;
   parameters.kernel.hp_mean[0] = 1;
-  parameters.kernel.hp_std[0] = 0.1;
+  parameters.kernel.hp_std[0] = 5;
   parameters.kernel.n_hp = 1;
+  //  parameters.noise = 0.01;
+  // parameters.l_type = L_ML;
   // parameters.mean.name = "mZero";
   //  parameters.crit_name = "cHedge(cEI,cLCB,cExpReturn,cOptimisticSampling)";
   // parameters.epsilon = 0.0;

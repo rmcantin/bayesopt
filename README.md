@@ -46,7 +46,7 @@ regression, etc.
 Start by reading the \ref install and the \ref reference
 
 You can also find more details at:
-<http://bitbucket.org/rmcantin/bayesian-optimization/wiki/Home>
+<http://bitbucket.org/rmcantin/bayesopt/wiki/Home>
 
 **Important:** This code is free to use. However, if you are using,
 or plan to use, the library, specially if it is for research or

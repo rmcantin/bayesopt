@@ -71,7 +71,7 @@ namespace bayesopt
 
     nlopt_opt opt;
     double (*fpointer)(unsigned int, const double *, double *, void *);
-    double coef = 1.0;  //Percentaje of resources used in local optimization
+    double coef = 0.8;  //Percentaje of resources used in local optimization
 
     /* algorithm and dims */
     if (alg == LBFGS)                                     //Require gradient

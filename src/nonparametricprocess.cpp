@@ -29,7 +29,6 @@
 
 #include "gaussian_process.hpp"
 #include "gaussian_process_ml.hpp"
-//#include "gaussian_process_ign.hpp"
 #include "student_t_process_jef.hpp"
 #include "student_t_process_nig.hpp"
 
@@ -42,8 +41,15 @@ namespace bayesopt
     mSigma(parameters.sigma_s), dim_(dim)
   { 
     mMinIndex = 0;     mMaxIndex = 0;   
-    setAlgorithm(BOBYQA);
-    setLimits(0.,100.);
+    if (parameters.l_type == L_ML)
+      {
+	setAlgorithm(BOBYQA);    // local search to avoid underfitting
+      }
+    else
+      {
+	setAlgorithm(COMBINED);
+      }
+    setLimits(1e-10,100.);
     setLearnType(parameters.l_type);
     setKernel(parameters.kernel,dim);
     setMean(parameters.mean,dim);
@@ -277,7 +283,7 @@ namespace bayesopt
       {
 	if (priorKernel[i].standard_deviation() > 0)
 	  {
-	    prior += log(boost::math::pdf(priorKernel[i],th(i)));
+	    prior -= log(boost::math::pdf(priorKernel[i],th(i)));
 	  }
       }
     return prior;

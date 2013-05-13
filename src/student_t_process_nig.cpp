@@ -20,6 +20,7 @@
 ------------------------------------------------------------------------
 */
 
+#include <boost/math/special_functions/fpclassify.hpp>
 #include <boost/numeric/ublas/banded.hpp>
 #include "log.hpp"
 #include "student_t_process_nig.hpp"
@@ -75,6 +76,13 @@ namespace bayesopt
     double sPred = sqrt( mSigmaMap * (kq - inner_prod(v,v) 
 				   + inner_prod(rho,rho)));
 
+    if ((boost::math::isnan(yPred)) || (boost::math::isnan(sPred)))
+      {
+	FILE_LOG(logERROR) << "Error in prediction. NaN found.";
+	throw 1;
+      }
+					
+
     d_->setMeanAndStd(yPred,sPred);
     return d_;
   }
@@ -82,8 +90,26 @@ namespace bayesopt
 
   double StudentTProcessNIG::negativeLogLikelihood()
   {
-    /* TODO: For testing */
-    return negativeTotalLogLikelihood();
+    matrixd KK = computeCorrMatrix();
+    const size_t n = KK.size1();
+    const size_t p = mMean->nFeatures();
+    const size_t nalpha = (n+2*mAlpha);
+
+    vectord v0 = mGPY - prod(trans(mFeatM),mW0);
+    matrixd WW = zmatrixd(p,p);  //TODO: diagonal matrix
+    utils::addToDiagonal(WW,mInvVarW);
+    matrixd FW = prod(trans(mFeatM),WW);
+    KK += prod(FW,mFeatM);
+    matrixd BB(n,n);
+    utils::cholesky_decompose(KK,BB);
+    inplace_solve(BB,v0,ublas::lower_tag());
+    double zz = inner_prod(v0,v0);
+    double sigmaMap = (mBeta/mAlpha + zz)/nalpha;
+
+    double lik = nalpha/2 * log(1+zz/(2*mBeta*sigmaMap));
+    lik += utils::log_trace(BB);
+    lik += n/2 * log(sigmaMap);
+    return lik;
   }
 
 
@@ -111,7 +137,8 @@ namespace bayesopt
 
     vectord v0 = mGPY - prod(trans(mFeatM),mW0);
     //TODO: check for "cheaper" version
-    matrixd KK = prod(mL,trans(mL));
+    //matrixd KK = prod(mL,trans(mL));
+    matrixd KK = computeCorrMatrix();
     matrixd WW = zmatrixd(p,p);  //TODO: diagonal matrix
     utils::addToDiagonal(WW,mInvVarW);
     matrixd FW = prod(trans(mFeatM),WW);
@@ -123,6 +150,13 @@ namespace bayesopt
     
     int dof = static_cast<int>(n+2*mAlpha);
     
+    if ((boost::math::isnan(mWMap(0))) || (boost::math::isnan(mSigmaMap)))
+      {
+	FILE_LOG(logERROR) << "Error in precomputed prediction. NaN found.";
+	throw 1;
+      }
+
+
     if (dof <= 0)  
       {
 	FILE_LOG(logERROR) << "ERROR: Incorrect alpha. Dof invalid.";

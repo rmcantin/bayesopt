@@ -71,11 +71,13 @@ namespace bayesopt
     int precomputePrediction();
 
   private:
-    vectord mWML;           //!< GP ML parameters
-    
-    /// Precomputed GP prediction operations
-    vectord mAlphaF;
-    matrixd mKF, mL2;
+    vectord mWMap;                      //!< GP posterior parameters
+    double mSigma;
+    vectord mW0;
+    vectord mInvVarW;
+    //! Precomputed GP prediction operations
+    vectord mVf;
+    matrixd mKF, mD;     
 
     GaussianDistribution* d_;      //!< Predictive distributions
   };

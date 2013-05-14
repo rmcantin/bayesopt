@@ -1,11 +1,26 @@
 /*! \page reference Reference Manual
 \tableofcontents
 
-After installing the library, several test program will also be
-generated and can be found in the \em bin folder. For the external
-interfaces, there are test programs respectively under the \em python
-and \em matlab folders.  They provide examples of the different
-interfaces that Bayesian-optimization provide.
+Originally, it was developed for as part of a robotics research
+project \cite MartinezCantin09AR \cite MartinezCantin07RSS, where a
+Gaussian process with hyperpriors on the mean and signal covariance
+parameters. Then, the metamodel was constructed using the Maximum a
+Posteriory (MAP) of the parameters.
+
+However, the library now has grown to support many more surrogate
+models, with different distributions (Gaussian processes,
+Student's-t processes, etc.), with many kernels and mean
+functions. It also provides different criteria (even some combined
+criteria) so the library can be used to any problem involving some
+bounded optimization, stochastic bandits, active learning for
+regression, etc.
+
+\section testing Testing the installation.
+
+The library includes several test program that can be found in the \em
+bin folder. Furthermore, there are test programs respectively under
+the \em python and \em matlab folders.  They provide examples of the
+different interfaces that BayesOpt provide.
 
 First of all, make sure your system finds the correct libraries. In
 Windows, you can copy the dlls to your working folder or include the
@@ -13,9 +28,10 @@ lib folder in the path.
 
 In some *nix systems, including Ubuntu, Debian and Mac OS, the library
 is installed by default in /usr/local/lib/. However, this folder is
-not included in the linker, Python or Matlab paths by default. The
-script \em exportlocalpaths.sh makes sure that the folder is included
-in all the necessary paths.
+not included by default in the linker, Python or Matlab paths by
+default. This is specially critical when building shared libraries
+(mandatory for Python usage). The script \em exportlocalpaths.sh makes
+sure that the folder is included in all the necessary paths.
 
 After that, there are 3 steps that should be follow:
 \li Define the function to optimize.
@@ -29,39 +45,96 @@ BayesOpt relies on a complex and highly configurable mathematical
 model. Also, the key to nonlinear optimization is to include as much
 knowledge as possible about the target function or about the
 problem. Or, if the knowledge is not available, keep the model as
-general as possible (to avoid bias). 
+general as possible (to avoid bias).
 
-For that reason, the parameters are bundled in a structure or dictionary, depending on the API that we use. This is a brief explanation of every parameter
+For that reason, the parameters are bundled in a structure or
+dictionary, depending on the API that we use. This is a brief
+explanation of every parameter
 
 \subsection budgetpar Budget parameters
-\li \b n_iterations: Maximum number of iterations of BayesOpt. Each iteration corresponds with a target function evaluation. This is related with the budget of the application [Default 300]
-\li \b n_inner_iterations: Maximum number of iterations of the inner optimization process. Each iteration corresponds with a criterion evaluation. The inner optimization results in the "most interest point" to run evaluate the target function. This is also used for the kernel hyperparameter computation. In order to scale the process for increasing dimensional spaces, the actual number of iterations is this number times the number of dimensions. [Default 500]
-\li \b n_init_samples: BayesOpt requires an initial set of samples to learn a preliminary model of the target function. Each sample is also a target function evaluation. [Default 30]
-\li \b n_iter_relearn: Although most of the parameters of the model are updated after every iteration, the kernel parameters cannot be updated continuously as it might crash the convergence. This represents the number of iterations between recomputing the kernel parameters. If it is set to 0, they are only learned after the initial set of samples. [Default 0]
+
+\li \b n_iterations: Maximum number of iterations of BayesOpt. Each
+iteration corresponds with a target function evaluation. This is
+related with the budget of the application [Default 300]
+\li \b n_inner_iterations: Maximum number of iterations of the inner
+optimization process. Each iteration corresponds with a criterion
+evaluation. The inner optimization results in the "most interest
+point" to run evaluate the target function. This is also used for the
+kernel hyperparameter computation. In order to scale the process for
+increasing dimensional spaces, the actual number of iterations is this
+number times the number of dimensions. [Default 500]
+\li \b n_init_samples: BayesOpt requires an initial set of samples to
+learn a preliminary model of the target function. Each sample is also
+a target function evaluation. [Default 30]
+\li \b n_iter_relearn: Although most of the parameters of the model
+are updated after every iteration, the kernel parameters cannot be
+updated continuously as it might crash the convergence. This
+represents the number of iterations between recomputing the kernel
+parameters. If it is set to 0, they are only learned after the initial
+set of samples. [Default 0]
 
 \subsection logpar Logging parameters
-\li \b verbose_level: (integer value) Verbose level 0,3 -> warnings, 1,4 -> general information, 2,5 -> debug information, any other value -> only errors. Levels < 3 send the messages to stdout. Levels > 4 send them to a log file. [Default 1].
-\li \b log_filename: Name of the log file (if applicable, verbose > 4)[Default "bayesopt.log"] 
+
+\li \b verbose_level: (integer value) Verbose level 0,3 -> warnings,
+1,4 -> general information, 2,5 -> debug information, any other value
+-> only errors. Levels < 3 send the messages to stdout. Levels > 4
+send them to a log file. [Default 1].
+\li \b log_filename: Name of the log file (if applicable, verbose >
+4)[Default "bayesopt.log"]
 
 \subsection surrpar Surrogate model parameters
-\li \b surr_name: Name of the hierarchical surrogate function (nonparametric process and the hyperpriors on sigma and w). See section ??? for a detailed description. [Default S_GaussianProcess]
+
+\li \b surr_name: Name of the hierarchical surrogate function
+(nonparametric process and the hyperpriors on sigma and w). See
+section ??? for a detailed description. [Default S_GaussianProcess]
 \li \b sigma_s: Signal variance (if known) [Default 1.0]
-\li \b noise: Observation noise. For computer simulations or deterministic functions, it should be close to 0. However, to avoid numerical instability due to model inaccuracies, do not make it 0. [Default 0.0001]
-\li \b alpha, \b beta: Inverse-Gamma prior hyperparameters (if applicable) [Default 1.0, 1.0] 
-\li \b l_type: Learning method for the kernel hyperparameters. See section ??? for a detailed description [Default L_MAP]
+\li \b noise: Observation noise. For computer simulations or
+deterministic functions, it should be close to 0. However, to avoid
+numerical instability due to model inaccuracies, do not make it
+0. [Default 0.0001]
+\li \b alpha, \b beta: Inverse-Gamma prior hyperparameters (if
+applicable) [Default 1.0, 1.0]
+\li \b l_type: Learning method for the kernel hyperparameters. See
+section ??? for a detailed description [Default L_MAP]
 
 \subsection critpar Exploration/exploitation parameters
-\li \b epsilon: According to some authors, it is recommendable to include an epsilon-greedy strategy to achieve near optimal convergence rates. Epsilon is the probability of performing a random (blind) evaluation of the target function [Default 0.0 (disabled)]
-\li \b crit_name: Name of the sample selection criterion or a combination of them. It is used to select which points to evaluate for each iteration of the optimization process. Could be a combination of functions like "cHedge(cEI,cLCB,cPOI,cThompsonSampling)". See section ??? for the different possibilities. [Default: "cEI]"
-\li \b crit_params, \b n_crit_params: Array with the set of parameters for the selected criteria. If there are more than one, the parameters are split among them according to the number of parameters required for each criterion. [Default: 1, 1]
+
+\li \b epsilon: According to some authors, it is recommendable to
+include an epsilon-greedy strategy to achieve near optimal convergence
+rates. Epsilon is the probability of performing a random (blind)
+evaluation of the target function [Default 0.0 (disabled)]
+\li \b crit_name: Name of the sample selection criterion or a
+combination of them. It is used to select which points to evaluate for
+each iteration of the optimization process. Could be a combination of
+functions like "cHedge(cEI,cLCB,cPOI,cThompsonSampling)". See section
+??? for the different possibilities. [Default: "cEI]"
+\li \b crit_params, \b n_crit_params: Array with the set of parameters
+for the selected criteria. If there are more than one, the parameters
+are split among them according to the number of parameters required
+for each criterion. [Default: 1, 1]
 
 \subsection kernelpar Kernel parameters
-\li \b kernel.name: Name of the kernel function. Could be a combination of functions like "kSum(kSEARD,kMaternARD3)". See section for the different posibilities. [Default: "kMaternISO3"]
-\li \b kernel.hp_mean, \b kernel.hp_std, \b kernel.n_hp: Kernel hyperparameters prior. Any "ilegal" standard deviation (std<=0) results in a maximum likelihood estimate. Depends on the kernel selected. If there are more than one, the parameters are split among them according to the number of parameters required for each criterion. [Default: "1.0, 10.0, 1" ]
+
+\li \b kernel.name: Name of the kernel function. Could be a
+combination of functions like "kSum(kSEARD,kMaternARD3)". See section
+for the different posibilities. [Default: "kMaternISO3"]
+\li \b kernel.hp_mean, \b kernel.hp_std, \b kernel.n_hp: Kernel
+hyperparameters prior. Any "ilegal" standard deviation (std<=0)
+results in a maximum likelihood estimate. Depends on the kernel
+selected. If there are more than one, the parameters are split among
+them according to the number of parameters required for each
+criterion. [Default: "1.0, 10.0, 1" ]
 
 \subsection meanpar Mean function parameters
-\li \b mean.name: Name of the mean function. Could be a combination of functions like "mSum(mOne, mLinear)". See section for the different posibilities. [Default: "mOne"]
-\li \b mean.coef_mean, \b kernel.coef_std, \b kernel.n_coef: Mean function coefficients. The standard deviation is only used if the surrogate model assumes a normal prior. If there are more than one, the parameters are split among them according to the number of parameters required for each criterion. [Default: "1.0, 30.0, 1" ]
+
+\li \b mean.name: Name of the mean function. Could be a combination of
+functions like "mSum(mOne, mLinear)". See section for the different
+posibilities. [Default: "mOne"]
+\li \b mean.coef_mean, \b kernel.coef_std, \b kernel.n_coef: Mean
+function coefficients. The standard deviation is only used if the
+surrogate model assumes a normal prior. If there are more than one,
+the parameters are split among them according to the number of
+parameters required for each criterion. [Default: "1.0, 30.0, 1" ]
 
 
 \section usage Using the library

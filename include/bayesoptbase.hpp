@@ -151,6 +151,7 @@ namespace bayesopt {
 
     int setSurrogateModel();    
     int setCriteria();
+    bopt_params* getParameters() {return &mParameters;};
 
   protected:
     /** 

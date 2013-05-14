@@ -67,7 +67,8 @@ vector<double> lx,ly;
 
 class MP :public MatPlot{ 
 void DISPLAY(){
-    if ((is_run) && (state_ii < 150))
+  size_t nruns = GLOBAL_MODEL->getParameters()->n_iterations;
+    if ((is_run) && (state_ii < nruns))
     {
       ++state_ii;
       GLOBAL_MODEL->stepOptimization(state_ii); 
@@ -127,16 +128,18 @@ int main(int nargs, char *args[])
   bopt_params parameters = initialize_parameters_to_default();
   parameters.n_init_samples = 10;
   parameters.n_iter_relearn = 0;
-  parameters.n_iterations = 150;
-  parameters.surr_name = "STUDENT_T_PROCESS_NORMAL_INV_GAMMA";
+  parameters.n_iterations = 300;
+  //parameters.surr_name = "STUDENT_T_PROCESS_NORMAL_INV_GAMMA";
+  parameters.surr_name = "GAUSSIAN_PROCESS_NORMAL";
+
+  parameters.crit_name = "cLCB";
+  parameters.crit_params[0] = 5;
+  parameters.n_crit_params = 1;
+
   parameters.kernel.hp_mean[0] = 1;
   parameters.kernel.hp_std[0] = 5;
   parameters.kernel.n_hp = 1;
-  //  parameters.noise = 0.01;
-  // parameters.l_type = L_ML;
-  // parameters.mean.name = "mZero";
-  //  parameters.crit_name = "cHedge(cEI,cLCB,cExpReturn,cOptimisticSampling)";
-  // parameters.epsilon = 0.0;
+
   parameters.verbose_level = 2;
 
   state_ii = 0;

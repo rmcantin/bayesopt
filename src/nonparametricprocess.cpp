@@ -29,6 +29,7 @@
 
 #include "gaussian_process.hpp"
 #include "gaussian_process_ml.hpp"
+#include "gaussian_process_normal.hpp"
 #include "student_t_process_jef.hpp"
 #include "student_t_process_nig.hpp"
 
@@ -69,6 +70,8 @@ namespace bayesopt
       s_ptr = new GaussianProcess(dim,parameters);
     else  if(!name.compare("GAUSSIAN_PROCESS_ML"))
       s_ptr = new GaussianProcessML(dim,parameters);
+    else  if(!name.compare("GAUSSIAN_PROCESS_NORMAL"))
+      s_ptr = new GaussianProcessNormal(dim,parameters);
     else if (!name.compare("STUDENT_T_PROCESS_JEFFREYS"))
       s_ptr = new StudentTProcessNIG(dim,parameters); 
     else if (!name.compare("STUDENT_T_PROCESS_NORMAL_INV_GAMMA"))

@@ -17,28 +17,6 @@ namespace bayesopt
   }
 
 
-  /** \brief Factory method for kernels. */
-  ParametricFunction* MeanFactory::create(mean_name name, 
-					  size_t input_dim)
-  {
-    ParametricFunction* m_ptr;
-
-    switch(name)
-      {    
-      case M_ZERO: m_ptr = new ZeroFunction(); break;
-      case M_ONE: m_ptr = new OneFunction(); break;
-      case M_CONSTANT: m_ptr = new ConstantFunction(); break;
-      case M_LINEAR: m_ptr = new LinearFunction(); break;
-      case M_LINEAR_CONSTANT: m_ptr = new LinearPlusConstantFunction(); break;
-      default:
-	FILE_LOG(logERROR) << "Error: mean function not supported.";
-	return NULL;
-      }
-
-    m_ptr->init(input_dim);
-    return m_ptr;
-  };
-
   /** 
    * \brief Factory model for kernel functions
    * This function is based on the libgp library by Manuel Blum

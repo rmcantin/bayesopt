@@ -104,7 +104,6 @@ namespace bayesopt
     MeanFactory ();
     virtual ~MeanFactory () {};
   
-    ParametricFunction* create(mean_name name, size_t input_dim);
     ParametricFunction* create(std::string name, size_t input_dim);
     
   private:

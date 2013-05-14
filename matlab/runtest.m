@@ -39,12 +39,12 @@ lb = ones(n,1)*pi/2;
 ub = ones(n,1)*pi;
 fun = 'michalewicz';
 
-disp('Continuous optimization');pause;
+disp('Continuous optimization');
 tic;
 bayesopt(fun,n,params,lb,ub)
 toc;
 
-disp('Discrete optimization');pause;
+disp('Discrete optimization');
 % The set of points must be nDim x nPoints.
 xset = repmat((ub-lb),1,100) .* rand(n,100) - repmat(lb,1,100);
 

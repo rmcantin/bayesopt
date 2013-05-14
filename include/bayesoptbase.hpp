@@ -25,13 +25,6 @@
 #ifndef  _BAYESOPTBASE_HPP_
 #define  _BAYESOPTBASE_HPP_
 
-#include <boost/scoped_ptr.hpp>
-#include "dll_stuff.h"
-#include "parameters.h"
-#include "randgen.hpp"
-#include "specialtypes.hpp"
-
-#include "nonparametricprocess.hpp"
 #include "criteria_functors.hpp"
 
 /**

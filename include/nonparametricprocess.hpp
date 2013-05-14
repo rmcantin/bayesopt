@@ -28,15 +28,12 @@
 
 #include <boost/scoped_ptr.hpp>
 #include <boost/math/distributions/normal.hpp> 
-#include "parameters.h"
 #include "ublas_extra.hpp"
 #include "kernel_functors.hpp"
 #include "mean_functors.hpp"
-#include "specialtypes.hpp"
 #include "inneroptimization.hpp"	
 #include "prob_distribution.hpp"
 
-#define USE_CHOL 1
 
 namespace bayesopt
 {
@@ -46,6 +43,7 @@ namespace bayesopt
    *  t process, etc.) for surrogate modelling
    */
   /**@{*/
+
 
   /**
    * \brief Abstract class to implement non-parametric processes
@@ -121,26 +119,10 @@ namespace bayesopt
 		   std::string k_name, size_t dim);
 
     /** Wrapper of setKernel for C kernel structure */
-    int setKernel (kernel_parameters kernel, size_t dim)
-    {
-      size_t n = kernel.n_hp;
-      vectord th = utils::array2vector(kernel.hp_mean,n);
-      vectord sth = utils::array2vector(kernel.hp_std,n);
-      int error = setKernel(th, sth, kernel.name, dim);
-	  return 0;
-    };
+    int setKernel (kernel_parameters kernel, size_t dim);
 
     /** Set prior (Gaussian) for kernel hyperparameters */
-    int setKernelPrior (const vectord &theta, const vectord &s_theta)
-    {
-      size_t n_theta = theta.size();
-      for (size_t i = 0; i<n_theta; ++i)
-	{
-	  boost::math::normal n(theta(i),s_theta(i));
-	  priorKernel.push_back(n);
-	}
-      return 0;
-    };
+    int setKernelPrior (const vectord &theta, const vectord &s_theta);
 
     /** Sets the kind of learning methodology for kernel hyperparameters */
     inline void setLearnType(learning_type l_type) { mLearnType = l_type; };
@@ -159,13 +141,7 @@ namespace bayesopt
 		 std::string m_name, size_t dim);
 
     /** Wrapper of setMean for the C structure */
-    int setMean (mean_parameters mean, size_t dim)
-    {
-      size_t n_mu = mean.n_coef;
-      vectord vmu = utils::array2vector(mean.coef_mean,n_mu);
-      vectord smu = utils::array2vector(mean.coef_std,n_mu);
-      return setMean(vmu, smu, mean.name, dim);
-    };
+    int setMean (mean_parameters mean, size_t dim);
 
   protected:
     /** 

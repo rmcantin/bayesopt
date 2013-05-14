@@ -76,7 +76,7 @@ int main(int nargs, char *args[])
   par.mean.coef_std[0] = MEAN_SIGMA;
   par.mean.n_coef = 1;
   par.noise = DEFAULT_NOISE;
-  par.surr_name = S_STUDENT_T_PROCESS_JEFFREYS;
+  par.surr_name = "STUDENT_T_PROCESS_JEFFREYS";
   par.n_iterations = 20;       // Number of iterations
   par.n_init_samples = 20;
   /*******************************************/

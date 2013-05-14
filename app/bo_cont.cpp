@@ -84,7 +84,7 @@ int main(int nargs, char *args[])
   par.alpha = PRIOR_ALPHA;
   par.beta = PRIOR_BETA;
   par.noise = DEFAULT_NOISE;
-  par.surr_name = S_STUDENT_T_PROCESS_JEFFREYS;
+  par.surr_name = "STUDENT_T_PROCESS_JEFFREYS";
   par.kernel.name = "kSum(kSEISO,kConst)";
   par.mean.name = "mSum(mConst,mConst)";
   par.l_type = L_ML;

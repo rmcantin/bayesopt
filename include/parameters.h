@@ -36,39 +36,6 @@ extern "C" {
   /*** Type definitions                                       **/
   /*************************************************************/
   
-  typedef enum {
-    K_MATERN_ISO1,
-    K_MATERN_ISO3,
-    K_MATERN_ISO5,
-    K_SE_ISO,
-    K_SE_ARD,
-    K_ERROR = -1
-  } kernel_name;
-  
-  typedef enum {
-    M_ZERO,
-    M_ONE,
-    M_CONSTANT,
-    M_LINEAR,
-    M_LINEAR_CONSTANT,
-    M_ERROR = -1
-  } mean_name;
-
-  typedef enum {  
-    C_EI,
-    C_EI_A,
-    C_LCB,
-    C_LCB_A,
-    C_POI,
-    C_GREEDY_A_OPTIMALITY,
-    C_EXPECTED_RETURN,
-    C_OPTIMISTIC_SAMPLING,
-    C_THOMPSON_SAMPLING,
-    C_GP_HEDGE,
-    C_GP_HEDGE_RANDOM,
-    C_ERROR = -1
-  } criterium_name;
-
   typedef enum {  
     S_GAUSSIAN_PROCESS,
     S_GAUSSIAN_PROCESS_ML,
@@ -86,21 +53,17 @@ extern "C" {
 
   /** Kernel configuration parameters */
   typedef struct {
-
     char*  name;                 /**< Name of the kernel function */
     double hp_mean[128];         /**< Kernel hyperparameters prior (mean) */
     double hp_std[128];          /**< Kernel hyperparameters prior (st dev) */
     size_t n_hp;                 /**< Number of kernel hyperparameters */
-
   } kernel_parameters;
 
   typedef struct {
-    
     char* name;                  /**< Name of the mean function */
     double coef_mean[128];       /**< Basis function coefficients (mean) */
     double coef_std[128];        /**< Basis function coefficients (std) */
     size_t n_coef;               /**< Number of mean funct. hyperparameters */
-
   } mean_parameters;
 
   /** \brief Configuration parameters */
@@ -113,7 +76,7 @@ extern "C" {
     size_t verbose_level;        /**< 1-Error,2-Warning,3-Info. 4-6 log file*/
     char* log_filename;          /**< Log file path (if applicable) */
 
-    surrogate_name surr_name;    /**< Name of the surrogate function */
+    char* surr_name;             /**< Name of the surrogate function */
     double sigma_s;              /**< Signal variance (if known) */
     double noise;                /**< Observation noise (and nugget) */
     double alpha;                /**< Inverse Gamma prior for signal var */
@@ -160,25 +123,14 @@ extern "C" {
   /* Latin Hypercube Sampling (LHS) default values */
   /*  const size_t N_LHS_EVALS_PER_DIM = 30;      Not used */
   /*  const size_t MAX_LHS_EVALUATIONS = 100;     Not used */
-
-  /*  const size_t N_ALGORITHMS_IN_GP_HEDGE = 5;
-    const criterium_name ALGORITHMS_IN_GP_HEDGE[] = { C_EI, C_LCB, C_POI,
-  						    C_EXPECTED_RETURN,
-  						    C_OPTIMISTIC_SAMPLING };*/
 						    
   /*************************************************************/
   /* These functions are added to simplify wrapping code       */
   /*************************************************************/
-  kernel_name    str2kernel    (const char* name);
-  criterium_name str2crit      (const char* name);
   surrogate_name str2surrogate (const char* name);
-  mean_name      str2mean      (const char* name);
   learning_type  str2learn     (const char* name);
 
-  BAYESOPT_API const char* kernel2str(kernel_name name);
-  BAYESOPT_API const char* crit2str(criterium_name name);
   BAYESOPT_API const char* surrogate2str(surrogate_name name);
-  BAYESOPT_API const char* mean2str(mean_name name);
   BAYESOPT_API const char* learn2str(learning_type name);
 
   BAYESOPT_API bopt_params initialize_parameters_to_default(void);

@@ -25,9 +25,6 @@
 #define  _CRITERIA_FUNCTORS_HPP_
 
 #include <algorithm>
-#include "parameters.h"
-
-#include <boost/scoped_ptr.hpp>
 #include "nonparametricprocess.hpp"
 
 namespace bayesopt

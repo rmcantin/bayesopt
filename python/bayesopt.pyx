@@ -31,15 +31,6 @@ cdef extern from *:
 ###########################################################################
 cdef extern from "parameters.h":
 
-    ctypedef enum kernel_name:
-        pass
-
-    ctypedef enum mean_name:
-        pass
-
-    ctypedef enum criterium_name:
-        pass
-
     ctypedef enum surrogate_name:
         pass
 
@@ -63,7 +54,7 @@ cdef extern from "parameters.h":
         unsigned int n_init_samples, n_iter_relearn,
         unsigned int verbose_level
         char* log_filename
-        surrogate_name surr_name
+        char* surr_name
         double noise
         double alpha, beta
         learning_type l_type
@@ -74,16 +65,10 @@ cdef extern from "parameters.h":
         double* crit_params
         unsigned int n_crit_params
 
-    kernel_name str2kernel(char* name)
-    criterium_name str2crit(char* name)
     surrogate_name str2surrogate(char* name)
-    mean_name str2mean(char* name)
     learning_type str2learn(char* name)
 
-    char* kernel2str(kernel_name name)
-    char* crit2str(criterium_name name)
     char* surrogate2str(surrogate_name name)
-    char* mean2str(mean_name name)
     char* learn2str(learning_type name)
 
     bopt_params initialize_parameters_to_default()
@@ -115,9 +100,8 @@ cdef bopt_params dict2structparams(dict dparams):
     logname = dparams.get('log_filename',params.log_filename)
     params.log_filename = logname
 
-    surrogate = dparams.get('surr_name', None)
-    if surrogate is not None:
-        params.surr_name = str2surrogate(surrogate)
+    sname = dparams.get('surr_name',params.surr_name)
+    params.surr_name = sname;
 
     learning = dparams.get('learning_type', None)
     if learning is not None:
@@ -193,7 +177,7 @@ def initialize_params():
         "mean_coef_mean"     : [1.0],
         "mean_coef_std"   : [1.0],
         "crit_name" : "cEI",
-        "crit_params" : [],
+        "crit_params" : [1.0],
         }
     return params
 

@@ -76,7 +76,6 @@ namespace bayesopt
     KernelFactory ();
     virtual ~KernelFactory () {};
   
-    Kernel* create(kernel_name name, size_t input_dim);
     Kernel* create(std::string name, size_t input_dim);
     
   private:

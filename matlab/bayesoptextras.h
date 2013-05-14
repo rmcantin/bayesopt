@@ -175,7 +175,7 @@ static bopt_params load_parameters(const mxArray* params)
   /* See parameters.h for the available options */
   
   char log_str[100], k_s_str[100];
-  char c_str[100], s_str[100], k_str[100], m_str[100], l_str[100];
+  char l_str[100];
   size_t n_hp_test, n_coef_test;
 
   bopt_params parameters = initialize_parameters_to_default();
@@ -191,9 +191,7 @@ static bopt_params load_parameters(const mxArray* params)
   struct_size(params, "verbose_level", &parameters.verbose_level);
   struct_string(params, "log_filename", parameters.log_filename);
 
-  strcpy( s_str, surrogate2str(parameters.surr_name));
-  struct_string(params, "surr_name", s_str);
-  parameters.surr_name = str2surrogate(s_str);
+  struct_string(params, "surr_name", parameters.surr_name);
 
   struct_value(params, "sigma_s", &parameters.sigma_s);
   struct_value(params, "noise", &parameters.noise);

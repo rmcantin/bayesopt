@@ -40,10 +40,10 @@ def func(x):
 params = bayesopt.initialize_params()
 
 # We decided to change some of them
-params['n_init_samples'] = 300
-params['noise'] = 1
-params['kernel_name'] = "kMaternISO3"
-#params['surr_name'] = "GAUSSIAN_PROCESS_INV_GAMMA_NORMAL"
+params['n_init_samples'] = 150
+#params['noise'] = 0.01
+#params['kernel_name'] = "kMaternISO3"
+params['surr_name'] = "STUDENT_T_PROCESS_NORMAL_INV_GAMMA"
 
 dim = 20
 lb = np.ones((dim,))*0

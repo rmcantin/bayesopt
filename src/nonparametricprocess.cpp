@@ -63,28 +63,21 @@ namespace bayesopt
   {
     NonParametricProcess* s_ptr;
 
-    switch(parameters.surr_name)
+    std::string name = parameters.surr_name;
+
+    if (!name.compare("GAUSSIAN_PROCESS"))
+      s_ptr = new GaussianProcess(dim,parameters);
+    else  if(!name.compare("GAUSSIAN_PROCESS_ML"))
+      s_ptr = new GaussianProcessML(dim,parameters);
+    else if (!name.compare("STUDENT_T_PROCESS_JEFFREYS"))
+      s_ptr = new StudentTProcessNIG(dim,parameters); 
+    else if (!name.compare("STUDENT_T_PROCESS_NORMAL_INV_GAMMA"))
+      s_ptr = new StudentTProcessNIG(dim,parameters); 
+    else
       {
-      case S_GAUSSIAN_PROCESS: 
-	s_ptr = new GaussianProcess(dim,parameters); break;
-
-      case S_GAUSSIAN_PROCESS_ML: 
-	s_ptr = new GaussianProcessML(dim,parameters); break;
-
-      // case S_GAUSSIAN_PROCESS_INV_GAMMA_NORMAL:
-      // 	s_ptr = new GaussianProcessIGN(dim,parameters);	break;
-
-      case S_STUDENT_T_PROCESS_JEFFREYS: 
-      	s_ptr = new StudentTProcessJeffreys(dim,parameters); break;
-
-      case S_STUDENT_T_PROCESS_NORMAL_INV_GAMMA: 
-      	s_ptr = new StudentTProcessNIG(dim,parameters); break;
-
-      default:
 	FILE_LOG(logERROR) << "Error: surrogate function not supported.";
 	return NULL;
       }
-
     return s_ptr;
   };
 
@@ -103,12 +96,7 @@ namespace bayesopt
 	FILE_LOG(logDEBUG) << "Final kernel parameters: " << optimalTheta;	
       }
 
-    //TODO: Choose one!
-#if USE_CHOL
     error = computeCholeskyCorrelation();
-#else
-    error = computeInverseCorrelation();
-#endif
 
     if (error < 0)
       {
@@ -137,13 +125,7 @@ namespace bayesopt
     double selfCorrelation = (*mKernel)(Xnew, Xnew) + mRegularizer;
   
     addSample(Xnew,Ynew);
-
-    //TODO: Choose one!
-#if USE_CHOL
     addNewPointToCholesky(newK,selfCorrelation);
-#else
-    addNewPointToInverse(newK,selfCorrelation);
-#endif
 
     int error = precomputePrediction(); 
     if (error < 0)
@@ -223,6 +205,29 @@ namespace bayesopt
     return 0;
   }
 
+  int NonParametricProcess::setKernel (kernel_parameters kernel, 
+				       size_t dim)
+  {
+    size_t n = kernel.n_hp;
+    vectord th = utils::array2vector(kernel.hp_mean,n);
+    vectord sth = utils::array2vector(kernel.hp_std,n);
+    int error = setKernel(th, sth, kernel.name, dim);
+    return 0;
+  };
+
+  int NonParametricProcess::setKernelPrior (const vectord &theta, 
+					    const vectord &s_theta)
+  {
+    size_t n_theta = theta.size();
+    for (size_t i = 0; i<n_theta; ++i)
+      {
+	boost::math::normal n(theta(i),s_theta(i));
+	priorKernel.push_back(n);
+      }
+    return 0;
+  };
+
+
 
   int NonParametricProcess::setMean (const vectord &muv,
 				     const vectord &smu,
@@ -239,6 +244,13 @@ namespace bayesopt
     return 0;
   }
 
+  int NonParametricProcess::setMean (mean_parameters mean, size_t dim)
+  {
+    size_t n_mu = mean.n_coef;
+    vectord vmu = utils::array2vector(mean.coef_mean,n_mu);
+    vectord smu = utils::array2vector(mean.coef_std,n_mu);
+    return setMean(vmu, smu, mean.name, dim);
+  };
 
 
   double NonParametricProcess::negativeCrossValidation()

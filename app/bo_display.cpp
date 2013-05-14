@@ -128,7 +128,7 @@ int main(int nargs, char *args[])
   parameters.n_init_samples = 10;
   parameters.n_iter_relearn = 0;
   parameters.n_iterations = 150;
-  parameters.surr_name = S_STUDENT_T_PROCESS_NORMAL_INV_GAMMA;
+  parameters.surr_name = "STUDENT_T_PROCESS_NORMAL_INV_GAMMA";
   parameters.kernel.hp_mean[0] = 1;
   parameters.kernel.hp_std[0] = 5;
   parameters.kernel.n_hp = 1;

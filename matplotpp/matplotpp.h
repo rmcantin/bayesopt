@@ -12,7 +12,7 @@ Version:0.3.13
 #include <string>
 #include <valarray>
 #include <iostream>
-#include <math.h>
+#include <cmath>
 #include <time.h>
 #include "gl2ps.h"
 

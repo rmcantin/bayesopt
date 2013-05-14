@@ -1,8 +1,8 @@
 /*! \page install Installing BayesOpt
 \tableofcontents
 
-Bayesian-optimization uses standard C/C++ code and it can be
-compiled in different platforms and linked with different APIs.
+BayesOpt uses standard C/C++ code (C++98) and it can be compiled in
+different platforms and used from different languages.
 
 \section instc Install C/C++ library:
 

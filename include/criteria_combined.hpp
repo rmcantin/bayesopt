@@ -58,9 +58,10 @@ namespace bayesopt
     int setParameters(const vectord &theta) 
     {
       using boost::numeric::ublas::subrange;
-      vectori sizes(mCriteriaList.size());
+      const size_t np = mCriteriaList.size();
+      vectori sizes(np);
 
-      for (size_t i = 0; i < mCriteriaList.size(); ++i)
+      for (size_t i = 0; i < np; ++i)
 	{
 	  sizes(i) = mCriteriaList[i]->nParameters();
 	}
@@ -72,7 +73,7 @@ namespace bayesopt
 	}
 
       size_t start = 0;
-      for (size_t i = 0; i < mCriteriaList.size(); ++i)
+      for (size_t i = 0; i < np; ++i)
 	{
 	  mCriteriaList[i]->setParameters(subrange(theta,start,start+sizes(i)));
 	  start += sizes(i);

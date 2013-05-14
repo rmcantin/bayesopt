@@ -280,7 +280,7 @@ namespace bayesopt
     {
       ++nCalls;
       if (nCalls % 10)
-	mExp = ceil(mExp/2.0);
+	mExp = static_cast<size_t>(ceil(mExp/2.0));
 
       ProbabilityDistribution* d_ = mProc->prediction(x);
       const double min = mProc->getValueAtMinimum();

@@ -29,7 +29,7 @@
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/io.hpp>
 
-typedef boost::numeric::ublas::vector<size_t>                   vectori;
+typedef boost::numeric::ublas::vector<int>                      vectori;
 typedef boost::numeric::ublas::vector<double>                   vectord;
 typedef boost::numeric::ublas::zero_vector<double>             zvectord;
 typedef boost::numeric::ublas::scalar_vector<double>           svectord;

@@ -48,7 +48,7 @@ namespace bayesopt
   /**
    * \brief Abstract class to implement non-parametric processes
    */
-  class NonParametricProcess: public InnerOptimization
+  class BAYESOPT_API NonParametricProcess: public InnerOptimization
   {
   public:
     NonParametricProcess(size_t dim, bopt_params parameters);

@@ -35,6 +35,7 @@
 
 #include "gl2ps.h"
 
+#define _USE_MATH_DEFINES
 #include <math.h>
 #include <string.h>
 #include <sys/types.h>

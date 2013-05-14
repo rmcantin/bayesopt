@@ -31,7 +31,7 @@ namespace bayesopt
     template<class E>
     typename E::value_type trace(const E &A)
     {
-      const size_t n = std::min(A.size1(),A.size2());
+      const size_t n = (std::min)(A.size1(),A.size2());
       typename E::value_type sum = 0;
       for (size_t i=0; i<n; ++i)
 	sum += A(i,i);
@@ -42,7 +42,7 @@ namespace bayesopt
     template<class E>
     typename E::value_type log_trace(const E &A)
     {
-      const size_t n = std::min(A.size1(),A.size2());
+      const size_t n = (std::min)(A.size1(),A.size2());
       typename E::value_type sum = 0;
       for (size_t i=0; i<n; ++i)
 	sum += log(A(i,i));
@@ -56,7 +56,7 @@ namespace bayesopt
     {
       namespace ublas = boost::numeric::ublas;
 
-      const size_t n = std::min(A.size1(),B.size2());
+      const size_t n = (std::min)(A.size1(),B.size2());
       typename E1::value_type sum = 0;
       for (size_t i=0; i<n; ++i)
 	sum += ublas::inner_prod(ublas::row(A,i),ublas::column(B,i));

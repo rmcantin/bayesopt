@@ -8,6 +8,13 @@ Version:0.3.13
 using namespace std;
 #include "matplotpp.h"
 
+#if defined(_WIN32) || defined(_WIN64)
+#define fmax max
+#define fmin min
+#pragma warning (disable:4996)
+#define snprintf sprintf_s
+#endif
+
 /// Figure
 void Figure::add_child(int i){Children.push_back(i);}
 /// Axes
@@ -2155,7 +2162,7 @@ void MatPlot::display_surface_2d(){
 
     // (Z) // do not use
     if(nxi==0){
-	printf("%s %s:%d\n", __func__, __FILE__, __LINE__);
+      //printf("%s %s:%d\n", __func__, __FILE__, __LINE__);
 	// Edge
 	if(cs->EdgeColor != "none"){	    
 	    glLineWidth(cs->LineWidth);

@@ -29,11 +29,16 @@ example:
   produce more advanced functions,
 - etc.
 
-Start by reading the \ref install and the \ref reference. You
-can also check about \ref bopttheory.
+The documentation can be found in:
+- [Install guide](http://rmcantin.bitbucket.org/html/install.html) | \ref install
+- [Reference manual](http://rmcantin.bitbucket.org/html/reference.html)  | \ref reference
+- [Bayesian optimization](http://rmcantin.bitbucket.org/html/bopttheory.html) | \ref bopttheory
+- [Models and functions](http://rmcantin.bitbucket.org/html/modelopt.html) | \ref modelopt
 
-You can also find more details at:
-<http://bitbucket.org/rmcantin/bayesopt/wiki/Home>
+You can also find more details at the [proyect wiki]
+(http://bitbucket.org/rmcantin/bayesopt/wiki/Home) or subscribe to the
+[bayesopt-discussion mailing
+list](https://groups.google.com/forum/#!forum/bayesopt-discussion).
 
 **Important:** This code is free to use. However, if you are using the
 library, specially if it is for research or academic purposes, please

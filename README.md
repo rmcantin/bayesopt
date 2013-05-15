@@ -36,9 +36,9 @@ The documentation can be found in:
 - [Bayesian optimization](http://rmcantin.bitbucket.org/html/bopttheory.html) and \ref bopttheory
 - [Models and functions](http://rmcantin.bitbucket.org/html/modelopt.html) and \ref modelopt
 
-You can also find more details at the [proyect wiki]
-(http://bitbucket.org/rmcantin/bayesopt/wiki/Home) or subscribe to the
-[bayesopt-discussion mailing
+You can also find more details at the [proyect
+wiki](http://bitbucket.org/rmcantin/bayesopt/wiki/Home) or subscribe
+to the [bayesopt-discussion mailing
 list](https://groups.google.com/forum/#!forum/bayesopt-discussion).
 
 **Important:** This code is free to use. However, if you are using the

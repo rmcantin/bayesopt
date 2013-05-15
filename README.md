@@ -30,6 +30,7 @@ example:
 - etc.
 
 The documentation can be found in:
+
 - [Install guide](http://rmcantin.bitbucket.org/html/install.html) | \ref install
 - [Reference manual](http://rmcantin.bitbucket.org/html/reference.html)  | \ref reference
 - [Bayesian optimization](http://rmcantin.bitbucket.org/html/bopttheory.html) | \ref bopttheory

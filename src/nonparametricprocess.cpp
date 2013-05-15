@@ -66,15 +66,15 @@ namespace bayesopt
 
     std::string name = parameters.surr_name;
 
-    if (!name.compare("GAUSSIAN_PROCESS"))
+    if (!name.compare("sGaussianProcess"))
       s_ptr = new GaussianProcess(dim,parameters);
-    else  if(!name.compare("GAUSSIAN_PROCESS_ML"))
+    else  if(!name.compare("sGaussianProcessML"))
       s_ptr = new GaussianProcessML(dim,parameters);
-    else  if(!name.compare("GAUSSIAN_PROCESS_NORMAL"))
+    else  if(!name.compare("sGaussianProcessNormal"))
       s_ptr = new GaussianProcessNormal(dim,parameters);
-    else if (!name.compare("STUDENT_T_PROCESS_JEFFREYS"))
+    else if (!name.compare("sStudentTProcessJef"))
       s_ptr = new StudentTProcessNIG(dim,parameters); 
-    else if (!name.compare("STUDENT_T_PROCESS_NORMAL_INV_GAMMA"))
+    else if (!name.compare("sStudentTProcessNIG"))
       s_ptr = new StudentTProcessNIG(dim,parameters); 
     else
       {

@@ -340,8 +340,38 @@ namespace bayesopt
     };
   };
 
+  /** Polynomial covariance function*/
+  class Polynomial: public AtomicKernel
+  {
+  public:
+    Polynomial(){ mExp = 1; };
 
+    int init(size_t input_dim)
+    {
+      n_params = 2;
+      n_inputs = input_dim;
+      return 0;
+    };
 
+    double operator()( const vectord &x1, const vectord &x2)
+    {
+      double xx = boost::numeric::ublas::inner_prod(x1,x2); 
+      return params(0)*params(0) * (params(1)+xx)*mExp;
+    };
+    double gradient( const vectord &x1, const vectord &x2,
+		     size_t component)
+    {    
+      assert(false); return 0.0;
+    };
+  protected:
+    size_t mExp;
+  };
+
+  class Polynomial2: public Polynomial { public: Polynomial2(){ mExp = 2;};};
+  class Polynomial3: public Polynomial { public: Polynomial3(){ mExp = 3;};};
+  class Polynomial4: public Polynomial { public: Polynomial4(){ mExp = 4;};};
+  class Polynomial5: public Polynomial { public: Polynomial5(){mExp = 5;};};
+  class Polynomial6: public Polynomial { public: Polynomial6(){mExp = 6;};};
 
   /** \brief Square exponential (Gaussian) kernel. Isotropic version. */
   class SEIso: public ISOkernel
@@ -395,6 +425,31 @@ namespace bayesopt
       double k = rl*rl;
       double r = (x1(component) - x2(component))/params(component);
       return exp(-k/2)*r*r;
+    };
+  };
+
+
+  /** \brief Rational quadratic (Student's t) kernel. Isotropic version. */
+  class RQIso: public ISOkernel
+  {
+  public:
+    int init(size_t input_dim)
+    {
+      n_params = 2;
+      n_inputs = input_dim;
+      return 0;
+    };
+
+    double operator()( const vectord &x1, const vectord &x2)
+    {
+      double rl = computeWeightedNorm2(x1,x2);
+      double k = rl*rl/(2*params(1));
+      return pow(1+k,-params(1));
+    };
+    double gradient(const vectord &x1, const vectord &x2,
+		    size_t component)
+    {
+      assert(false); return 0.0;
     };
   };
 

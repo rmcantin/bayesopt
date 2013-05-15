@@ -1,3 +1,221 @@
-/*!
+/*! \page modelopt Models and functions
+
+This library was originally developed for as part of a robotics
+research project \cite MartinezCantin09AR \cite MartinezCantin07RSS,
+where a Gaussian process with hyperpriors on the mean and signal
+covariance parameters. Then, the metamodel was constructed using the
+Maximum a Posteriory (MAP) of the parameters. By that time, it only
+supported one kernel function, one mean function and one criterion.
+
+However, the library now has grown to support many more surrogate
+models, with different distributions (Gaussian processes,
+Student's-t processes, etc.), with many kernels and mean
+functions. It also provides different criteria (even some combined
+criteria) so the library can be used to any problem involving some
+bounded optimization, stochastic bandits, active learning for
+regression, etc.
+
+\section surrmod Surrogate models
+
+As seen in Section \ref modopt this library implements only one
+general regression model. However, we can assign a set of priors on
+the parameters of the model \f$\mathbf{w}\f$, \f$\sigma_s^2\f$ (the
+kernel hyperparameter will be discussed in Section \ref
+learnker). Thus, the options are:
+
+\li "sGaussianProcess": a standard Gaussian process where the
+hyperparameters are known.
+\li "sGaussianProcessML": a standard Gaussian process where the
+hyperparameters are estimated directly from data using maximum
+likelihood estimates.
+\li "sGaussianProcessNormal": a Gaussian process with a Normal 
+prior on the mean function parameters \f$\mathbf{w}\f$ and known 
+\f$\sigma_s^2\f$.
+\li "sStudentTProcessJef": in this case we use the Jeffreys prior 
+for \f$\mathbf{w}\f$ and \f$\sigma_s^2\f$. This is a kind of 
+uninformative prior which is invariant to reparametrizations. Once
+we set a prior on \f$\sigma_s^2\f$ the posterior becomes a Student's
+t Process.
+\li "sStudentTProcessNIG": in this case we standard conjugate priors,
+that is, a Normal prior on \f$\mathbf{w}\f$ and a Inverse Gamma on 
+\f$\sigma_s^2\f$. Therefore, the posterior is again a Student's t process.
+
+Gaussian processes are a very general model that can achieve good
+performance with a reasonable computational cost. However, Student's t
+processes, thanks to the hierarchical structure of priors, provide an
+even more general setup for a minor extra cost. Furthermore, the
+Student's t distribution is robust to outliers and heavy tails in the
+data.
+
+\section kermod Kernel (covariance) models
+
+One of the critical components of Gaussian and Student's t processes
+is the definition of the kernel function, which defines the
+correlation between points in the input space. As a correlation
+function, the kernel must satisfy a set of properties (e.g.: being
+positive definite). All the kernel models available and its
+combinations satisfy the kernel restrictions.
+
+The functions with \b "ISO" in their name are \a isotropic function,
+that is, they share a single set of parameters for all the dimensions
+of the input space.
+
+The functions with \b "ARD" in their name use <em>Automatic Relevance
+Determination</em>, that is, they use independent parameters for every
+dimension of the problem. Therefore, they can be use to find the \a
+relevance of the each feature in the input space. In the limit, this
+can be used for feature selection.
+
+\subsection singker Atomic kernels
+\li "kConst": a simple constant function.
+\li "kLinear", "kLinearARD": a linear function.
+\li "kMaternISO1",
+"kMaternISO3","kMaternISO5","kMaternARD1","kMaternARD3","kMaternARD5":
+Matern kernel functions. The number divided by 2 represents the order
+of the function. See \cite Rasmussen:2006 for a description.
+\li "kPolyX": Polynomial kernel function. X is a number 1-6 which
+represents the exponent of the function.
+\li "kSEARD","kSEISO": Squared exponential kernel, also known as
+Gaussian kernel.
+\li "kRQISO": Rational quadratic kernel, also known as Student's t
+kernel.
+
+\subsection combker Binary kernels
+This kernels allow to combine some of the previous kernels.
+\li "kSum": Sum of kernels.
+\li "kProd": Product of kernels.
+
+Note that the binary kernels only admits two terms. However, we can
+combine them for more complex operations. For example if we write:
+
+"kSum(kMaternISO3,kSum(kRQISO,kProd(kPoly4,kConst))"
+
+it represents the expresion: Matern(3) + RationalQuadratic + C*Polynomial^4 
+
+In this case, the vector of parameters is splited from left to right:
+1 for the Matern function, 2 for the RQ function, 2 for polynomial
+function and 1 for the constant. If the vector of parameters have more
+or less than 6 elements, the system complains.
+
+\section parmod Parametric (mean) functions
+
+Although the nonparametric process is able to model a large amount of
+funtions, we can model the expected value of the nonparametric process
+as a parametric function. This parametric model will help to capture
+large offsets and global trends. 
+
+The usage is analogous to the kernel functions.
+
+\li "mZero","mOne","mConst": constant functions. For simplicity and
+because they are largely used, we provide special cases f(x) = 0 and
+f(x) = 1.
+\li "mLinear": linear function.
+\li "mSum": binary function which can be used to combine other functions.
+
+\section critmod Selection criteria
+
+As discussed in \ref introbopt, one of the critical aspects for
+Bayesian optimization is the decision (loss) function. Unfortunately,
+the functions described there are unavailable, because they assume
+knowledge of the optimal value \f$x^*\f$. However, we can define proxies for
+those functions.
+
+Some criteria, such as the expected improvement and the lower
+confidence bound admits an annealed version "cXXXa". In that version,
+the parameter that is used to trade off exploration and exploitation
+changes over time to priorize exploration at the begining and
+exploitation at the end.
+
+Many criteria depends on the prediction function, which can be a
+Gaussian or a Student's t distribution, depending on the surrogate
+model. However, the library includes all the criteria for both
+distributions, and the system automatically selected the correct one.
+
+\subsection atomcri Atomic criteria
+
+\li "cEI","cBEI","cEIa": The most extended and reliable algorithm is
+the Expected Improvement algorithm \cite Mockus78. In this case we
+provide the general version from \cite Schonlau98 which includes an
+exponent to trade off exploration and exploitation "cEI". Whe also includes
+a variation from \cite Mockus1989 which add a \a bias or \a threshold
+to the improvement "cBEI".
+\li "cLCB", "cLCBa": Another popular algorithm is the Lower Confidence
+Bound (LCB), or UCB in case of maximization. Introduced by 
+\cite cox1992statistical as Sequential Design for Optimization (SDO).
+\li "cPOI": Probability of improvement, by \cite Kushner:1964
+\li "cExpReturn","cThompsonSampling","cOptimisticSampling": This
+criteria are related with the predicted return of the function. The
+first one is literally the expected return of the function (mean
+value). The second one is based on the Thompson sampling (drawing a
+random sample from the predicted distribution). Finally, the
+optimistic sampling takes the minimum of the other two (mean vs random).
+
+\li "cAopt": This is based on the A-optimality criteria. It is the
+predicted variance at the query point. Thus, this criteria is intended
+for \b exploration of the input space, not for optimization.
+\li "cDistance": This criteria adds a cost to a query point based on
+the distance with respect to the previous evaluation. Combined with other
+criteria functions, it might provide a more realistic setup for certain
+applications \cite Marchant2012
+
+
+\subsection combcri Combined criteria
+
+\li "cSum","cProd": Sum and product of different criteria functions.
+\li "cHedge", "cHedgeRandom": Bandit based selection of the best
+criteria based on the GP-Hedge algorithm \cite Hoffman2011. It
+automatically learns based on the behaviour of the criteria during the
+optimization process. The original version "cHedge" uses the maximum
+expected return as a \a reward for each criteria. We add a variant
+"cHedgeRandom" where the \a reward is defined in terms of Thompson
+sampling.
+
+In this case, the combined criteria admits more that two
+functions. For example:
+
+"cHedge(cSum(cEI,cDistance),cLCB,cPOI,cOptimisticSampling)"
+
+\subsection learnmod Methods for learning the kernel parameters  
+
+As commented before, we consider that the prior of the kernel
+hyperparameters \f$\theta\f$ --if available-- is independent of other
+variables. Thus, either if we are going to use maximum likelihood,
+maximum a posteriori or a fully Bayesian approach, we need to find the
+likelihood function of the observed data for the parameters. Depending
+on the model, this function will be a multivariate Gaussian
+distribution or multivariate t distribution. In general, we present
+the likelihood function up to a constant factor, that is, we remove
+the terms independent of \f$\theta\f$ from the log likelihood. In
+practice, wether we use ML or MAP point estimates or full Bayes MCMC
+posterior, the constant factor is not needed.
+
+We are going to consider the following algorithms to learn the kernel
+hyperparameters:
+
+\li Cross-validation (L_LOO): In this case, we try to maximize the
+average predicted log probability by the <em>leave one out</em> (LOO)
+strategy. This is sometimes called a pseudo-likelihood.
+
+\li Maximum Likelihood (L_ML) For any of the models presented, one
+approach to learn the hyperparameters is to maximize the likelihood of
+all the parameters \f$\mathbf{w}\f$, \f$\sigma_s^2\f$ and
+\f$\theta\f$. Then, the likelihood function is a multivariate Gaussian
+distribution. We can obtain a better estimate if we adjust the number
+of degrees of freedom, this is called <em>restricted maximum
+likelihood</em>. The library automatically selects the restricted
+version, if it is suitable.
+\li Posterior maximum likelihood (L_MAP): In this case, the likelihood
+function is modified to consider the posterior estimate of
+\f$(\mathbf{w},\sigma_s^2)\f$ based on the different cases defined in
+Section \ref surrmods. In this case, the function will be a
+multivariate Gaussian or t distribution, depending on the kind of
+prior used for \f$\sigma_s^2\f$.
+
+\li Maximum a posteriori (L_ML or L_MAP): We can modify any of the
+previous algorithms by adding a prior distribution \f$p(\theta)\f$. By
+default, we add a normal prior on the kernel hyperparameters. However,
+if the variance of the prior \a hp_std is invalid (<=0), then we
+assume no prior. Since we assume that the hyperparameters are independent,
+we can apply priors selectively only to a small set.
 
 */

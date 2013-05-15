@@ -20,8 +20,17 @@ namespace bayesopt
     registry["kMaternARD3"] = & create_func<MaternARD3>;
     registry["kMaternARD5"] = & create_func<MaternARD5>;
   
+    registry["kPoly1"] = & create_func<Polynomial>;
+    registry["kPoly2"] = & create_func<Polynomial2>;
+    registry["kPoly3"] = & create_func<Polynomial3>;
+    registry["kPoly4"] = & create_func<Polynomial4>;
+    registry["kPoly5"] = & create_func<Polynomial5>;
+    registry["kPoly6"] = & create_func<Polynomial6>;
+
     registry["kSEARD"] = & create_func<SEArd>;
     registry["kSEISO"] = & create_func<SEIso>;
+
+    registry["kRQISO"] = & create_func<RQIso>;
 
     registry["kSum"] = & create_func<KernelSum>;
     registry["kProd"] = & create_func<KernelProd>;

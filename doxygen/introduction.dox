@@ -105,7 +105,7 @@ assume certain error in the observation. The main reason being that,
 in practice, there might be some mismodelling errors which can lead to
 instability of the recursion if neglected.
 
-\section models Bayesian optimization general model
+\section modbopt Bayesian optimization general model
 
 In order to simplify the description, we are going to use a special
 case of Bayesian optimization model defined previously which

@@ -129,16 +129,23 @@ int main(int nargs, char *args[])
   parameters.n_init_samples = 10;
   parameters.n_iter_relearn = 0;
   parameters.n_iterations = 300;
-  //parameters.surr_name = "STUDENT_T_PROCESS_NORMAL_INV_GAMMA";
-  parameters.surr_name = "GAUSSIAN_PROCESS_NORMAL";
+  //parameters.surr_name = "sStudentTProcessNIG";
+  parameters.surr_name = "sGaussianProcessNormal";
 
   parameters.crit_name = "cLCB";
   parameters.crit_params[0] = 5;
   parameters.n_crit_params = 1;
 
+  parameters.kernel.name = "kSum(kPoly3,kRQISO)";
   parameters.kernel.hp_mean[0] = 1;
+  parameters.kernel.hp_mean[1] = 1;
+  parameters.kernel.hp_mean[2] = 1;
+  parameters.kernel.hp_mean[3] = 1;
   parameters.kernel.hp_std[0] = 5;
-  parameters.kernel.n_hp = 1;
+  parameters.kernel.hp_std[1] = 5;
+  parameters.kernel.hp_std[2] = 5;
+  parameters.kernel.hp_std[3] = 5;
+  parameters.kernel.n_hp = 4;
 
   parameters.verbose_level = 2;
 

@@ -163,7 +163,7 @@ def initialize_params():
         "n_iter_relearn" : 30,
         "verbose_level"  : 1,
         "log_filename"   : "bayesopt.log" ,
-        "surr_name" : "GAUSSIAN_PROCESS" ,
+        "surr_name" : "sGaussianProcess" ,
         "sigma_s"  : 1.0,
         "noise"  : 0.001,
         "alpha"  : 1.0,

@@ -31,10 +31,10 @@ example:
 
 The documentation can be found in:
 
-- [Install guide](http://rmcantin.bitbucket.org/html/install.html) | \ref install
-- [Reference manual](http://rmcantin.bitbucket.org/html/reference.html)  | \ref reference
-- [Bayesian optimization](http://rmcantin.bitbucket.org/html/bopttheory.html) | \ref bopttheory
-- [Models and functions](http://rmcantin.bitbucket.org/html/modelopt.html) | \ref modelopt
+- [Install guide](http://rmcantin.bitbucket.org/html/install.html) and \ref install
+- [Reference manual](http://rmcantin.bitbucket.org/html/reference.html)  and \ref reference
+- [Bayesian optimization](http://rmcantin.bitbucket.org/html/bopttheory.html) and \ref bopttheory
+- [Models and functions](http://rmcantin.bitbucket.org/html/modelopt.html) and \ref modelopt
 
 You can also find more details at the [proyect wiki]
 (http://bitbucket.org/rmcantin/bayesopt/wiki/Home) or subscribe to the

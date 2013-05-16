@@ -147,7 +147,7 @@ We use a generalized linear model of the form:
 \f]
 where
 \f[
-  \epsilon(\mathbf{x}) \sim \mathcal{NP} \left( 0, \sigma^2_s (\mathbf{K}(\theta) + \sigma^2_n \I) \right)
+  \epsilon(\mathbf{x}) \sim \mathcal{NP} \left( 0, \sigma^2_s (\mathbf{K}(\theta) + \sigma^2_n \mathbf{I}) \right)
 \f]
 The term \f$\mathcal{NP}\f$ means a non-parametric process, which can
 make reference to a Gaussian process \f$\mathcal{GP}\f$ or a Student's

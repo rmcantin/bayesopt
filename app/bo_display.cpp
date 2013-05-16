@@ -127,27 +127,36 @@ int main(int nargs, char *args[])
   size_t dim = 1;
   bopt_params parameters = initialize_parameters_to_default();
   parameters.n_init_samples = 10;
-  parameters.n_iter_relearn = 0;
+  parameters.n_iter_relearn = 10;
   parameters.n_iterations = 300;
+  parameters.verbose_level = 2;
+
+  // Surrogate models
   //parameters.surr_name = "sStudentTProcessNIG";
   parameters.surr_name = "sGaussianProcessNormal";
 
+  // Criterion models
+  // parameters.crit_name = "cEI";
+  // parameters.crit_params[0] = 1;
   parameters.crit_name = "cLCB";
   parameters.crit_params[0] = 5;
   parameters.n_crit_params = 1;
 
+  // Kernel models
   parameters.kernel.name = "kSum(kPoly3,kRQISO)";
-  parameters.kernel.hp_mean[0] = 1;
-  parameters.kernel.hp_mean[1] = 1;
-  parameters.kernel.hp_mean[2] = 1;
-  parameters.kernel.hp_mean[3] = 1;
-  parameters.kernel.hp_std[0] = 5;
-  parameters.kernel.hp_std[1] = 5;
-  parameters.kernel.hp_std[2] = 5;
-  parameters.kernel.hp_std[3] = 5;
-  parameters.kernel.n_hp = 4;
+  double mean[128] = {1, 1, 1, 1};
+  double std[128] = {5, 5, 5, 5};
+  size_t nhp = 4;
+  memcpy(parameters.kernel.hp_mean, mean, nhp * sizeof(double));
+  memcpy(parameters.kernel.hp_std,std, nhp * sizeof(double));
+  parameters.kernel.n_hp = nhp;
 
-  parameters.verbose_level = 2;
+  // parameters.kernel.name = "kSEISO";
+  // parameters.kernel.hp_mean[0] = 1;
+  // parameters.kernel.hp_std[0] = 5;
+  // parameters.kernel.n_hp = 1;
+
+
 
   state_ii = 0;
 

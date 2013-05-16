@@ -10,6 +10,9 @@ Optimization (EGO).
 The online HTML version of these docs:
 <http://rmcantin.bitbucket.org/html/>
 
+- Download: <https://bitbucket.org/rmcantin/bayesopt>
+- Mirror: <https://github.com/rmcantin/bayesopt>
+
 Bayesian optimization uses a distribution over functions to build a
 metamodel of the unknown function for we are looking the extrema,
 and then apply some active learning strategy to select the query

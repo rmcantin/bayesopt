@@ -1,12 +1,6 @@
 
 /** \file log.hpp 
     \brief Modules and helper macros for logging. */
-/* 
-   Original file obtained from:
-   Logging In C++
-   By Petru Marginean, September 05, 2007
-   http://www.drdobbs.com/cpp/logging-in-c/201804215
-*/
 /*
 -------------------------------------------------------------------------
    This file is part of BayesOpt, an efficient C++ library for 
@@ -28,14 +22,19 @@
    along with BayesOpt.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------
 */
-/*
+/* 
+   Original file obtained from:
+   Logging In C++
+   By Petru Marginean, September 05, 2007
+   http://www.drdobbs.com/cpp/logging-in-c/201804215
+
   Configure:
-FILELog::ReportingLevel() = logDEBUG3;
-FILE* log_fd = fopen( "mylogfile.txt", "w" );
-Output2FILE::Stream() = log_fd;
+     FILELog::ReportingLevel() = logDEBUG3;
+     FILE* log_fd = fopen( "mylogfile.txt", "w" );
+     Output2FILE::Stream() = log_fd;
 
   Usage:
-FILE_LOG(logWARNING) << "Ops, variable x should be " << expectedX << "; is " << realX;
+     FILE_LOG(logWARNING) << "Ops, variable x should be " << expectedX << "; is " << realX;
 */
 
 #ifndef __LOG_HPP__
@@ -175,6 +174,7 @@ class FILELOG_DECLSPEC FILELog : public Log<Output2FILE> {};
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__)
 
+#define NOMINMAX
 #include <windows.h>
 
 inline std::string NowTime()
@@ -197,16 +197,25 @@ inline std::string NowTime()
 
 inline std::string NowTime()
 {
-    char buffer[11];
-    time_t t;
-    time(&t);
-    tm r = {0};
-    strftime(buffer, sizeof(buffer), "%X", localtime_r(&t, &r));
-    struct timeval tv;
-    gettimeofday(&tv, 0);
-    char result[100] = {0};
-    std::sprintf(result, "%s.%03ld", buffer, (long)tv.tv_usec / 1000); 
-    return result;
+  struct timeval tv;
+  gettimeofday(&tv, 0);
+  char buffer[11];
+  tm r = {0};
+  strftime(buffer, sizeof(buffer), "%X", localtime_r(&tv.tv_sec, &r));
+  char result[100] = {0};
+  std::sprintf(result, "%s.%06ld", buffer, (long)tv.tv_usec);
+  return result;
+
+    // char buffer[11];
+    // time_t t;
+    // time(&t);
+    // tm r = {0};
+    // strftime(buffer, sizeof(buffer), "%X", localtime_r(&t, &r));
+    // struct timeval tv;
+    // gettimeofday(&tv, 0);
+    // char result[100] = {0};
+    // std::sprintf(result, "%s.%03ld", buffer, (long)tv.tv_usec / 1000); 
+    // return result;
 }
 
 #endif //WIN32

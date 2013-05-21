@@ -4,39 +4,74 @@
 BayesOpt uses standard C/C++ code (C++98) and it can be compiled in
 different platforms and used from different languages.
 
-\section instc Install C/C++ library:
+\section unixinst Installing in Linux/MacOS:
+
+The compilation is very similar in any *nix system. Note that the
+Python or Matlab interfaces are not included by default.
+
+\subsection getDepend Getting dependencies:
 
 The easiest way to compile this library is using the cross platform
 and cross compiler tool <a href="http://www.cmake.org/">CMake</a>.
 
 This code uses Boost libraries for matrix operations (uBlas), random
-number generation, math functions and smart pointer. They can be found
-in many Linux and MacOS repositories. It can also be downloaded from
-http://www.boost.org.
+number generation, math functions and smart pointers. Being only
+include files, Boost does not require any speciall install. Boost can
+be found in many Linux and MacOS repositories. It can also be
+downloaded from http://www.boost.org.
 
-\subsection cinlinux Linux:
-For Ubuntu/Debian, the minimum dependencies can be optained by running:
+Both Python development files (Python.h) and Numpy are needed if you
+want the Python interface. The library has been tested with Python 2.6
+and 2.7. The interface relies on Numpy arrays.
+
+Finally, if you want the Matlab interface, just make sure your C++
+compiler is compatible with your Matlab version.
+
+\subsubsection cinlinux Linux:
+For Ubuntu/Debian, the minimum dependencies (C/C++) can be optained by running:
 \verbatim
->> sudo apt-get install libboost-dev cmake g++
+>> sudo apt-get install libboost-dev cmake cmake-curses-gui g++
+\endverbatim
+
+If you want the Python interface:
+\verbatim
+>> sudo apt-get install python-dev python-numpy
+\endverbatim
+
+If you want the Octave interface:
+\verbatim
+>> sudo apt-get install octave-headers
 \endverbatim
 
 And for all dependencies:
 \verbatim
->> sudo apt-get install libboost-dev python-dev python-numpy cmake g++ cython octave-headers
+>> sudo apt-get install libboost-dev python-dev python-numpy cmake cmake-curses-gui g++ cython octave-headers
 \endverbatim
 
-\subsection cinmac MacOS:
-There are many options. For example, you can install macports and run:
+\subsubsection cinmac MacOS:
+This section assumes \b macports is installed. Similar packages can be
+found in \b fink or \b homebrew. For the minimal install, run:
 \verbatim
 >> sudo port install boost gcc46 cmake
 \endverbatim
 
-Again, for full dependencies:
+If you want the Python interface:
+\verbatim
+>> sudo port install python27 py27-numpy
+\endverbatim
+
+If you want the Octave interface:
+\verbatim
+>> sudo port install octave
+\endverbatim
+
+Again, for all dependencies:
 \verbatim
 >> sudo port install boost python27 py27-numpy gcc46 cmake py27-cython octave
 \endverbatim
 
-\subsection compile Compile in Linux or MacOS:
+
+\subsection compile Compile the library:
 In order to compile the source code in a *nix system, run this from a terminal.
 \verbatim
 >> cmake . 
@@ -44,10 +79,13 @@ In order to compile the source code in a *nix system, run this from a terminal.
 >> sudo make install
 \endverbatim
 
-If you use \em ccmake instead of \em cmake you will access a graphical
-interface to select features such as debug/release mode and if you
-want to use shared libraries or not. Shared libraries are required to
-run the Python interface.
+\b Important: If you use \b ccmake instead of \b cmake you will access a graphical
+interface to select features such as the include the Python and Matlab
+interfaces, debug/release mode or if you want to use shared libraries
+or not. \b Shared libraries are required to run the Python interface.
+
+
+\subsubsection docbuild Building the documentation
 
 If you have doxygen installed on your computer, you can compile the
 documentation right after compiling the code by running.
@@ -56,67 +94,100 @@ documentation right after compiling the code by running.
 \endverbatim
 Thid documentation will appear in the "doc" subdirectory.
 
-\subsection cinwin Windows and other systems:
+\subsection instpython Python interface:
+
+Both Python development files (Python.h) and Numpy are needed if you
+want the python interface. The library has been tested with Python 2.6
+and 2.7. The interface relies on Numpy arrays. If we want to select
+the option to compile the Python interface we can just run:
+\verbatim
+>> ccmake . 
+>> make
+>> sudo make install
+\endverbatim
+
+\b Important: Python requires bayesopt to be a \b shared library.
+
+<HR>
+
+\section cinwin Windows and other systems:
 Install this components:
 \li CMake: http://www.cmake.org
-\li Boost: http://www.boost.org
-\li MinGW: http://www.mingw.org
 
-MinGW can be replaced by your favorite C++ compiler (Visual Studio,
-Intel, etc.).
+CMake for Windows provides a nice GUI where you can select your
+favorite C++ compiler (MinGW, Visual Studio, etc.). It will
+automatically create the necesary configuration files for the compiler
+(makefile, solution, etc.).
+
+\li Boost: http://www.boost.org
 
 Since Boost they are pure template libraries, they do not require
 compilation. Just make sure the headers are on the include path. You
 can also add an entry named BOOST_ROOT in CMake with the corresponding
 path to the library.
 
+\li MinGW: http://www.mingw.org
+
+If you do not have a C++ compiler, we recomend MinGW+MSYS. Then, you
+just need to compile from the command line with:
+\verbatim
+>> mingw32-make
+\endverbatim
+
+Python for \b Windows has not been tested because getting the
+dependencies might be involved. You might need to download and
+install:
+\li Python: http://www.python.org
+\li Numpy: http://new.scipy.org/download.html 
+
+Also, read this article:
+http://docs.python.org/2/extending/windows.html#building-on-windows
+
 <HR>
 
-\section instpython Install Python interface:
+\section instmatlab Install MATLAB/Octave interface
 
-Both Python and Numpy are needed if you want the python interface. The
-library has been tested with Python 2.6 and 2.7. The interface relies
-on Numpy arrays. Python development files such as Python.h are needed
-to compile the interface.
+Make sure the library is compiled with the MATLAB_COMPATIBLE option
+(using ccmake or CMake in Windows) and configure Matlab/Octave to
+compile mex files.
 
-In \b Ubuntu/Debian, you can get the dependencies by running:
+Run the corresponding script compile_matlab.m or compile_octave.m,
+which can be found in the \em /matlab/ directory. Modify the path of
+the libraries if it is not correct.
+
+If bayesopt or nlopt are compiled as \b shared libraries, then, at run
+time, MATLAB/Octave also needs to access to the libraries. For
+example, in Linux and Mac OS LD_LIBRARY_PATH must include the folder
+where the libraries are. If the install path is the default, you can
+execute the exportlocalpath.sh script is executed before calling
+MATLAB.
+
+
+<HR>
+
+\section instcython Modifying the Python interface:
+
+Read this part <B>only if you need to modify</B> the Python interface. For this task, you need to install Cython:
+
+In \b Ubuntu/Debian, you can get it by running:
 \verbatim
->> sudo apt-get install python-dev python-numpy cython
+>> sudo apt-get install cython
 \endverbatim
 
 In \b MacOS you can install macports and run:
 \verbatim
->> sudo port install python27 py27-numpy py27-cython
+>> sudo port install py27-cython
 \endverbatim
 
-It you want to \b modify the Python interface, you need to modify the
+Or we can download it from the website: http://cython.org 
+
+If you want to modify the interface, you need to modify the
 pyx file and run the Cython compiler.
 
 \verbatim
 $ cython --cplus bayesopt.pyx
 \endverbatim
 
-\b Important: Python requires bayesopt to be a \b shared library.
-
-In \b Windows you might need to download and install:
-\li Python: http://www.python.org
-\li Numpy: http://new.scipy.org/download.html 
-\li Cython: http://cython.org 
-
-Make sure that CMake finds all the dependencies.
-
-<HR>
-
-\section instmatlab Install MATLAB/Octave interface
-
-Make sure the library is compiled with the MATLAB_COMPATIBLE option.
-
-Compile the interface using the compile_matlab.m or compile_octave.m
-script, which can be found in the \em /matlab/ directory.
-
-If bayesopt or nlopt are compiled as \b shared libraries, then, at run
-time, MATLAB/Octave also needs to access to the libraries. For
-example, in Linux and Mac OS you make sure to execute the
-exportlocalpath.sh script is executed before calling MATLAB.
+and recompile the library.
 
  */

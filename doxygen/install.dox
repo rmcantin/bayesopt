@@ -108,6 +108,26 @@ the option to compile the Python interface we can just run:
 
 \b Important: Python requires bayesopt to be a \b shared library.
 
+\subsection instmatlab MATLAB/Octave interface:
+
+Make sure the library is compiled with the MATLAB_COMPATIBLE option
+using ccmake and configure Matlab/Octave to compile mex files. For
+example, in Matlab you can run to check the supported compilers:
+\verbatim
+>> mex -setup
+\endverbatim
+
+Run the corresponding script compile_matlab.m or compile_octave.m,
+which can be found in the \em /matlab/ directory.
+
+If bayesopt or nlopt are compiled as \b shared libraries, then, at run
+time, MATLAB/Octave also needs to access to the libraries. For
+example, LD_LIBRARY_PATH must include the folder where the libraries
+are. If the install path is the default, you can execute the
+exportlocalpath.sh script before calling MATLAB.
+
+
+
 <HR>
 
 \section cinwin Windows and other systems:
@@ -134,60 +154,34 @@ just need to compile from the command line with:
 >> mingw32-make
 \endverbatim
 
-Python for \b Windows has not been tested because getting the
-dependencies might be involved. You might need to download and
-install:
-\li Python: http://www.python.org
+\subsection instpythonwin Python interface:
+
+The Python interface has not been tested in \b Windows because getting
+the correct dependencies is highly involved. You might need to
+download and install:
+\li Python (binary and \b sources): http://www.python.org
 \li Numpy: http://new.scipy.org/download.html 
 
-Also, read this article:
+Also, read this article about how to link everything:
 http://docs.python.org/2/extending/windows.html#building-on-windows
 
-<HR>
 
-\section instmatlab Install MATLAB/Octave interface
+\subsection instmatlabwin MATLAB/Octave interface:
 
 Make sure the library is compiled with the MATLAB_COMPATIBLE option
-(using ccmake or CMake in Windows) and configure Matlab/Octave to
-compile mex files.
+and configure Matlab/Octave to compile mex files. For example, in
+Matlab you can run to check the supported compilers:
+\verbatim
+>> mex -setup
+\endverbatim
 
 Run the corresponding script compile_matlab.m or compile_octave.m,
-which can be found in the \em /matlab/ directory. Modify the path of
-the libraries if it is not correct.
+which can be found in the \em /matlab/ directory. 
 
 If bayesopt or nlopt are compiled as \b shared libraries, then, at run
-time, MATLAB/Octave also needs to access to the libraries. For
-example, in Linux and Mac OS LD_LIBRARY_PATH must include the folder
-where the libraries are. If the install path is the default, you can
-execute the exportlocalpath.sh script is executed before calling
-MATLAB.
+time, MATLAB/Octave also needs to access to the libraries. You can
+modify the PATH variable or copy the dll files in the same bolder as
+the generated mexfile.
 
-
-<HR>
-
-\section instcython Modifying the Python interface:
-
-Read this part <B>only if you need to modify</B> the Python interface. For this task, you need to install Cython:
-
-In \b Ubuntu/Debian, you can get it by running:
-\verbatim
->> sudo apt-get install cython
-\endverbatim
-
-In \b MacOS you can install macports and run:
-\verbatim
->> sudo port install py27-cython
-\endverbatim
-
-Or we can download it from the website: http://cython.org 
-
-If you want to modify the interface, you need to modify the
-pyx file and run the Cython compiler.
-
-\verbatim
-$ cython --cplus bayesopt.pyx
-\endverbatim
-
-and recompile the library.
 
  */

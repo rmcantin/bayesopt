@@ -1,0 +1,28 @@
+/*!
+
+\section instcython Modifying the Python interface:
+
+Read this part <B>only if you need to modify</B> the Python interface. For this task, you need to install Cython:
+
+In \b Ubuntu/Debian, you can get it by running:
+\verbatim
+>> sudo apt-get install cython
+\endverbatim
+
+In \b MacOS you can install macports and run:
+\verbatim
+>> sudo port install py27-cython
+\endverbatim
+
+Or we can download it from the website: http://cython.org 
+
+If you want to modify the interface, you need to modify the
+pyx file and run the Cython compiler.
+
+\verbatim
+$ cython --cplus bayesopt.pyx
+\endverbatim
+
+and recompile the library.
+
+*/

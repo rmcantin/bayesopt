@@ -22,7 +22,7 @@
 clear all, close all
 addpath('testfunctions')
 
-params.n_iterations = 100;
+params.n_iterations = 300;
 params.n_init_iterations = 50;
 params.crit_name = 'cEI';
 params.surr_name = 'sGaussianProcessNormal';
@@ -33,25 +33,31 @@ params.kernel_hp_std = [10];
 params.verbose_level = 0;
 params.log_filename = 'matbopt.log';
 
-% n = 5;
-% lb = ones(n,1)*pi/2;
-% ub = ones(n,1)*pi;
-% fun = 'michalewicz';
+n = 2;          % number of low dims (effective)
+nh = 1000;      % number of actual dims
+nreembo = 10;    % number of reembo iterations
 
-n = 2;
-lb = zeros(n,1);
-ub = ones(n,1);
-fun = 'branin';
 
-disp('Continuous optimization');
-tic;
-bayesopt(fun,n,params,lb,ub)
-toc;
+global MATRIX_A
 
-disp('Discrete optimization');
-% The set of points must be nDim x nPoints.
-xset = repmat((ub-lb),1,100) .* rand(n,100) - repmat(lb,1,100);
+lb = ones(n,1)*-sqrt(n);
+ub = ones(n,1)*sqrt(n);
+fun = 'braninhighdim';    % the function has an effective 2D
+values = zeros(nreembo,1);
+points = zeros(nreembo,n);
 
-tic;
-bayesoptdisc(fun,xset, params);
-toc;
+for i=1:nreembo
+    disp('Continuous optimization');
+    MATRIX_A = randn(nh,n);
+    tic;
+    result = bayesopt(fun,n,params,lb,ub);
+    toc;
+
+    values(i) = braninhighdim(result);
+    hd_res = MATRIX_A*result';
+    points(i,:) = hd_res(1:2)';
+    disp(hd_res(1)); disp(hd_res(2)); disp(values(i));
+end;
+
+[foo,id] = min(values);
+disp(points(id,:));

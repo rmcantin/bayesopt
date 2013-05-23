@@ -86,7 +86,7 @@ int main(int nargs, char *args[])
   par.noise = DEFAULT_NOISE;
   par.surr_name = "sStudentTProcessJef";
   par.kernel.name = "kSum(kSEISO,kConst)";
-  par.mean.name = "mSum(mConst,mConst)";
+  par.mean.name = "mSum(mLinear,mConst)";
   par.l_type = L_ML;
   par.n_iterations = 200;       // Number of iterations
   par.n_init_samples = 50;

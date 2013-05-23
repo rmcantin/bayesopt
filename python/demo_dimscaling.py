@@ -43,7 +43,7 @@ params = bayesopt.initialize_params()
 params['n_init_samples'] = 150
 #params['noise'] = 0.01
 #params['kernel_name'] = "kMaternISO3"
-params['surr_name'] = "STUDENT_T_PROCESS_NORMAL_INV_GAMMA"
+params['surr_name'] = "sStudentTProcessJef"
 
 dim = 20
 lb = np.ones((dim,))*0

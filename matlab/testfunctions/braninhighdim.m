@@ -20,16 +20,24 @@
 % ------------------------------------------------------------------------
 %
 
-function x_out = langermann(x_in)
-% Bounds [3,5]
-    a = [3,5,2,1,7];
-    b = [5,2,1,4,9];
-    c = [1,2,5,2,3];
-    
-    x = x_in(1); 
-    y = x_in(2);
-  
-    t1 = exp(-(x-a).^2/pi -(y-b).^2/pi);
-    t2 = cos(pi*(x-a).^2 + pi*(y-b).^2);
-    
-    x_out = sum(c.*t1.*t2);
+function y = branin(x)
+%Bounds [0,1]^2
+% Min = 0.1239 0.8183
+% Min = 0.5428 0.1517  => 0.3979
+% Min = 0.9617 0.1650
+
+global MATRIX_A
+z = MATRIX_A*x';
+
+if (z(1) < 0) z(1) = 0; end;
+if (z(2) < 0) z(2) = 0; end;
+if (z(1) > 1) z(1) = 1; end;
+if (z(2) > 1) z(2) = 1; end;
+
+% Trick: We assume the function has 1000 dims, but in reality, it is just
+% the traditional 2D branin.
+
+a = z(1) * 15 - 5;
+b = z(2) * 15;
+
+y = (b-(5.1/(4*pi^2))*a^2+5*a/pi-6)^2+10*(1-1/(8*pi))*cos(a)+10;

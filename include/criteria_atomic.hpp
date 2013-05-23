@@ -190,7 +190,7 @@ namespace bayesopt
     int setParameters(const vectord &params) { return 0; };
     size_t nParameters() {return 0;};
     double operator()( const vectord &x)
-    { return mProc->prediction(x)->getStd(); };
+    { return -mProc->prediction(x)->getStd(); };
     std::string name() {return "cAopt";};
   };
 

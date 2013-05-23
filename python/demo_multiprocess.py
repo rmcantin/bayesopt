@@ -70,8 +70,8 @@ if __name__ == '__main__':
     bo = BayesOptProcess(pipe_child)
     bo.params['n_iterations'] = 50
     bo.params['n_init_samples'] = 20
-    bo.params['s_name'] = "GAUSSIAN_PROCESS_INV_GAMMA_NORMAL"
-    bo.params['c_name'] = "GP_HEDGE"
+    bo.params['s_name'] = "sGaussianProcessNormal"
+    bo.params['c_name'] = "cHedge(cEI,cLCB,cExpReturn,cOptimisticSampling)"
 
     p = Process(target=worker, args=(pipe_par,))
 

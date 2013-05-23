@@ -127,10 +127,10 @@ extern "C" {
   /*************************************************************/
   /* These functions are added to simplify wrapping code       */
   /*************************************************************/
-  surrogate_name str2surrogate (const char* name);
+  /* surrogate_name str2surrogate (const char* name); */
   learning_type  str2learn     (const char* name);
 
-  BAYESOPT_API const char* surrogate2str(surrogate_name name);
+  /* BAYESOPT_API const char* surrogate2str(surrogate_name name); */
   BAYESOPT_API const char* learn2str(learning_type name);
 
   BAYESOPT_API bopt_params initialize_parameters_to_default(void);

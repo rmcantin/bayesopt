@@ -107,10 +107,13 @@ static void struct_size(const mxArray *s, const char *name, size_t *result)
 static void struct_string(const mxArray *s, const char *name, char* result)
 {
   mxArray *val = mxGetField(s, 0, name);
+  char *valstr;
 
   if (val) {
     if( mxIsChar(val) ) {
-      result = mxArrayToString(val);
+      if ( mxGetString(val, result, 1+(mxGetM(val) * mxGetN(val)))) {
+	  mexErrMsgTxt("Error loading string.");
+	}
     } else {
       mexErrMsgTxt("Method name must be a string");
     }

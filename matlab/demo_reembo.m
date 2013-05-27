@@ -39,6 +39,9 @@ nreembo = 10;    % number of reembo iterations
 
 
 global MATRIX_A
+global truei
+
+truei = [150,237];
 
 lb = ones(n,1)*-sqrt(n);
 ub = ones(n,1)*sqrt(n);
@@ -55,8 +58,8 @@ for i=1:nreembo
 
     values(i) = braninhighdim(result);
     hd_res = MATRIX_A*result';
-    points(i,:) = hd_res(1:2)';
-    disp(hd_res(1)); disp(hd_res(2)); disp(values(i));
+    points(i,:) = hd_res(truei)';
+    disp(hd_res(truei)); disp(values(i));
 end;
 
 [foo,id] = min(values);

@@ -1,3 +1,18 @@
 /*! \page demos Description of demo files
+\tableofcontents
+
+We have include a descriptions of the different demos than can be found in the
+library. Most of them are used to highlight the capabilities of the Bayesian optimization
+framework or the characteristics of the library.
+
+\b Important: note that some demos requires some extra dependencies to work (OpenGL, SimpleCV, etc.)
+
+\section cppdemos C/C++ demos
+
+These demos are automatically compiled and installed with the library.
+
+\b bo_cont and \b bo_disc provides examples of the C (callback) and C++ (inheritance) interfaces for a simple quadratic function. They are the best starting point to start playing with the library.
+
+\b bo_oned deals with a more interesting, yet simple, multimodal 1D function. \b bo_display shows the same example, but includes a visualization tool (requires OpenGL and FreeGLUT)
 
 */

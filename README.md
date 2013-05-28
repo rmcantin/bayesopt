@@ -38,6 +38,7 @@ The documentation can be found in:
 - [Reference manual](http://rmcantin.bitbucket.org/html/reference.html)  and \ref reference
 - [Bayesian optimization](http://rmcantin.bitbucket.org/html/bopttheory.html) and \ref bopttheory
 - [Models and functions](http://rmcantin.bitbucket.org/html/modelopt.html) and \ref modelopt
+- [Demos and examples](http://rmcantin.bitbucket.org/html/demos.html) and \ref demos
 - [Supported OS, compilers, versions...](https://bitbucket.org/rmcantin/bayesopt/wiki/Compatibility)
 
 You can also find more details at the [proyect

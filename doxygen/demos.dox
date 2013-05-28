@@ -9,10 +9,86 @@ framework or the characteristics of the library.
 
 \section cppdemos C/C++ demos
 
-These demos are automatically compiled and installed with the library.
+These demos are automatically compiled and installed with the library. They can be found in the \c /bin subfolder. The source code of these demos is in \c /app
+
+\subsection quadcpp Interface test (continuous and discrete)
 
 \b bo_cont and \b bo_disc provides examples of the C (callback) and C++ (inheritance) interfaces for a simple quadratic function. They are the best starting point to start playing with the library.
 
-\b bo_oned deals with a more interesting, yet simple, multimodal 1D function. \b bo_display shows the same example, but includes a visualization tool (requires OpenGL and FreeGLUT)
+\subsection onedcpp 1D test
+
+\b bo_oned deals with a more interesting, yet simple, multimodal 1D function. \b bo_display shows the same example, but includes a visualization tool (requires OpenGL and FreeGLUT).
+
+\image html doxygen/oned.jpg
+
+\subsection brcpp Branin test
+
+\b bo_branin shows the a 2D example with the Branin function, which is a standard function to evaluate nonlinear optimization algorithms.
+
+\f[
+f(x,y) = \left(y-\frac{5.1}{4\pi^2}x^2 + \frac{5}{\pi}x-6\right)^2 + 10\left(1-\frac{1}{8\pi}\right) \cos(x) + 10
+\f]
+
+with a search domain \f$−5 \leq x \leq 10\f$, \f$0 \leq y \leq 15\f$.
+
+\image html doxygen/branin.jpg
+
+The function has three global minimum. The position of those points (after normalization to the [0,1] plane) are:
+
+\f{align*}{
+x &= 0.1239, y = 0.8183\\
+x &= 0.5428, y = 0.1517\\
+x &= 0.9617, y = 0.1650
+\f}
+
+\section pydemos Python demos
+
+These demos use the Python interface of the library. They can be found in the \c /python subfolder.
+
+Make sure that the interface has been generated and that it can be found in the corresponding path (i.e. PYTHONPATH).
+
+\subsection pyapidemo Interface test
+
+\b demo_quad provides an simple example (quadratic function). It shows the continuous and discrete cases and it also compares the callback and inheritance interfaces. It is the best starting point to start playing with the Python interface.
+
+\b demo_dimscaling shows a 20D quadratic function with different smoothness in each dimension. It also show the speed of the library for <em>high dimensional functions</em>.
+
+\b demo_distance is equivalent to the demo_quad example, but it includes a penalty term with respect to the distance between the current and previous sample. For example, it can be used to model sampling strategies which includes a mobile agent, like a robotic sensor as seen in \cite Marchant2012.
+
+\subsection pyproc Multiprocess demo
+
+\b demo_multiprocess is a simple example that combines BayesOpt with the brilliant multiprocessing library. It shows how simple BayesOpt can be used in a parallelized setup, where one process is dedicated for the BayesOpt and the rests are dedicated to function evaluations.
+
+\subsection pycam Computer Vision demo
+
+\b demo_cam is a demonstration of the potetial of BayesOpt for parameter tuning. The advantage of using BayesOpt versus traditional strategies is that it only requires knowledge of the <em>desired behavior</em>, while traditional methods for parameter tuning requires deep knowledge of the algorithm and the meaning of the parameters.
+
+In this case, it takes a simple example (image binarization) and show how a simple behavior (balanced white/black result) matches the result of the adaptive thresholding from Otsu's method -default in SimpleCV-. Besides, it find the optimal with few samples (typically between 10 and 20)
+
+demo_cam requires SimpleCV and a webcam.
+
+\section matdemos MATLAB/Octave demos
+
+These demos use the Matlab interface of the library. They can be found in the \c /matlab subfolder.
+
+Make sure that the interface has been generated. If the library has been generated as a shared library, make sure that it can be found in the corresponding path (i.e. LD_LIBRARY_PATH in Linux/MacOS) before running MATLAB/Octave.
+
+\subsection matapidemo Interface test
+
+\b runtest shows the discrete and continuous interface. The objective function can be selected among all the functions defined in the \c /matlab/testfunctions subfolder, which includes a selection of standard test functions for nonlinear optimization:
+
+- Quadratic function
+- Branin
+- Langermann
+- Michaelewicz
+- Rosenbrock
+
+\subsection reembodemo Demo in very high dimensions
+
+\b demo_reembo evaluates the REEMBO algorithm for optimization in very high dimensions. The idea is that Bayesian optimization can be used very high dimensions provided that the effective dimension is embedded in a lower space, by using random projections.
+
+In this case, we test it against an artificially augmented Branin function with 1000 dimensions where only 2 dimensions are actually relevant (but unknown). The function is defined in the file: \c braninghighdim
+
+For details about REEMBO, see \cite ZiyuWang2013.
 
 */

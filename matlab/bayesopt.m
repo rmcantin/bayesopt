@@ -13,15 +13,16 @@
 %        [xmin, fmin] = bayesoptdisc('function_name', validset, params)
 %
 %
-% nDimensions is the number of dimensions of the query vector.
+% nDimensions is the number of dimensions (d) of the query vector.
 %
 % Params is a struct which have the same fields as the C/C++ interface 
 %   (see include/parameters.h)
 %
-% lowerBound and upperBound should be a nDim x 1 or 1 x nDim vectors with
+% lowerBound and upperBound should be a d x 1 or 1 x d vectors with
 %      the lower and upper bound for each component. (optional, default 0-1)
 %
-% validset is the set of discrete points for discrete optimization
+% validset is the set of discrete points for discrete optimization,
+%      stacked in a single matrix. Thus, it must be a d x n matrix.
 %
 % 
 % -------------------------------------------------------------------------

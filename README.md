@@ -80,3 +80,5 @@ You should have received a copy of the GNU General Public License
 along with BayesOpt. If not, see <http:www.gnu.org/licenses/>.
 
 ----------------------------------------------------------------------
+
+[![githalytics.com alpha](https://cruel-carlota.pagodabox.com/78838f26cf7d3fa7f8bda3a05eb63017 "githalytics.com")](http://githalytics.com/rmcantin/bayesopt)

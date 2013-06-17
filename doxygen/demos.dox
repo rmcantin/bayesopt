@@ -85,10 +85,17 @@ Make sure that the interface has been generated. If the library has been generat
 
 \subsection reembodemo Demo in very high dimensions
 
-\b demo_reembo evaluates the REEMBO algorithm for optimization in very high dimensions. The idea is that Bayesian optimization can be used very high dimensions provided that the effective dimension is embedded in a lower space, by using random projections.
+\b demo_rembo evaluates the REMBO (Random EMbedding Bayesian
+Optimization) algorithm for optimization in very high dimensions. The
+idea is that Bayesian optimization can be used very high dimensions
+provided that the effective dimension is embedded in a lower space, by
+using random projections.
 
-In this case, we test it against an artificially augmented Branin function with 1000 dimensions where only 2 dimensions are actually relevant (but unknown). The function is defined in the file: \c braninghighdim
+In this case, we test it against an artificially augmented Branin
+function with 1000 dimensions where only 2 dimensions are actually
+relevant (but unknown). The function is defined in the file: 
+\c braninghighdim
 
-For details about REEMBO, see \cite ZiyuWang2013.
+For details about REMBO, see \cite ZiyuWang2013.
 
 */

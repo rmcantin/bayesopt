@@ -207,7 +207,7 @@ and then, modify the necesary fields.
 
 \subsection pyusage Python callback/inheritance usage
 
-The file python/test.py provides examples of the two Python
+The file python/demo_quad.py provides examples of the two Python
 interfaces.
 
 \b Parameters: For both interfaces, the parameters are defined as a

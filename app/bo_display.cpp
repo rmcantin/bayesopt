@@ -61,6 +61,7 @@ using namespace std;
 using namespace bayesopt;
 
 int is_run=1;
+int is_step=0;
 size_t state_ii = 0;
 BayesOptBase* GLOBAL_MODEL;
 vector<double> lx,ly;
@@ -76,6 +77,8 @@ void DISPLAY(){
       double res = GLOBAL_MODEL->getSurrogateModel()->getLastSample(last);
       ly.push_back(res);
       lx.push_back(last(0));
+	  
+	  if (is_step) { is_run = 0; is_step = 0; }
     }
     
     int n=1000;
@@ -120,13 +123,14 @@ void passive(int x, int y ){mp.passivemotion(x,y); }
 void keyboard(unsigned char key, int x, int y){
     mp.keyboard(key, x, y); 
     if(key=='r'){ if(is_run==0){is_run=1;}else{is_run=0;}}
+	if(key=='s'){ is_run=1; is_step=1; } 
 }
 
 int main(int nargs, char *args[])
 {
   size_t dim = 1;
   bopt_params parameters = initialize_parameters_to_default();
-  parameters.n_init_samples = 10;
+  parameters.n_init_samples = 7;
   parameters.n_iter_relearn = 0;
   parameters.n_iterations = 300;
   parameters.verbose_level = 2;
@@ -136,8 +140,8 @@ int main(int nargs, char *args[])
   parameters.surr_name = "sGaussianProcessNormal";
 
   // Criterion model
-  parameters.crit_name = "cAopt";
-  parameters.n_crit_params = 0;
+  // parameters.crit_name = "cAopt";
+  // parameters.n_crit_params = 0;
 
   parameters.crit_name = "cEI";
   parameters.crit_params[0] = 1;

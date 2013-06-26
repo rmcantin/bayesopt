@@ -18,21 +18,21 @@ Version:0.3.13
 
 #define PI 3.14159265358979323846264
 
-typedef vector<double> dvec;
-typedef vector< vector<double> > dmat;
-typedef vector< vector<float> > tcvec;
-typedef vector< vector< vector<float> > > tcmat;
+typedef std::vector<double> dvec;
+typedef std::vector< std::vector<double> > dmat;
+typedef std::vector< std::vector<float> > tcvec;
+typedef std::vector< std::vector< std::vector<float> > > tcmat;
 
-inline vector<double> linspace(double min,double max,int n){
-    vector<double> a;
+inline dvec linspace(double min,double max,int n){
+    dvec a;
     if(n<1){n=1;}
     a.resize(n);
     for(int i=0;i<n;++i){a[i]=min+(max-min)*i/(n-1);}
     return a;
 };
 
-inline valarray<double> valinspace(double min,double max,int n){
-    valarray<double> a; 
+inline std::valarray<double> valinspace(double min,double max,int n){
+    std::valarray<double> a; 
     a.resize(n);
     for(int i=0;i<n;++i){a[i]=min+(max-min)*i/(n-1);}
     return a;
@@ -56,7 +56,7 @@ class Figure{///
     //int Status;// 0:minimized, 1:default position, 2:maximized 
     int Position[4];//left top width height
     int Visible;
-    vector<int> Children;
+    std::vector<int> Children;
 
     void add_child(int i);
     Figure(int id_){
@@ -75,8 +75,8 @@ class Layer{///
  public:
     int id;
     int Visible;
-    string layername;
-    vector<int> Children;
+    std::string layername;
+    std::vector<int> Children;
     Layer(int id_);
     void add_child(int i);
 };
@@ -108,14 +108,14 @@ class Axes{///
     
     int View;// 0:2D, 1:3D
 
-    vector<vector<float> > ColorMap;// for colorbar
+    tcvec ColorMap;// for colorbar
 
     // Matlab variables //
     // styles
     int Box;//0:Off, 1:On
-    string GridLineStyle;
+    std::string GridLineStyle;
     float LineWidth;
-    string TickDir;// {in} | out
+    std::string TickDir;// {in} | out
     //string TickDirMode;
     //TickLength
     int Visible;//0:Off, 1:On
@@ -123,14 +123,14 @@ class Axes{///
 
     // General Information 
     int Parent;
-    vector<int> Children;
+    std::vector<int> Children;
     int Selected;
     float Position[4];//left bottom width height
     float Viewport3d[4];//left bottom width height
 
     //Scale
-    string XAxisLocation;
-    string YAxisLocation;
+    std::string XAxisLocation;
+    std::string YAxisLocation;
 
     //string XDir,YDir,ZDir;
 
@@ -140,7 +140,7 @@ class Axes{///
     int XScale,YScale,ZScale;// linear | log
 
     dvec XTick,YTick,ZTick;
-    string XTickMode,YTickMode,ZTickMode;
+    std::string XTickMode,YTickMode,ZTickMode;
     int TickLabel;// 0:Off, {1:On}
     //View
     float CameraPosition[3];
@@ -148,8 +148,8 @@ class Axes{///
     float CameraUpVector[3];
 
     // Label
-    string Title;
-    string XLabel,YLabel,ZLabel;
+    std::string Title;
+    std::string XLabel,YLabel,ZLabel;
 
     double CLim[2];
 
@@ -231,13 +231,13 @@ class Line{///
     //dmat EData,UData,LData;
     //dmat VData,WData;
 
-    string Color;
-    string LineStyle;// {-} | - - | : | -. | none
+    std::string Color;
+    std::string LineStyle;// {-} | - - | : | -. | none
     float  LineWidth;
-    string Marker;// {none}
+    std::string Marker;// {none}
     float  MarkerSize;
-    string MarkerEdgeColor;
-    string MarkerFaceColor;
+    std::string MarkerEdgeColor;
+    std::string MarkerFaceColor;
 
     int Clipping;
     //string EraseMode;
@@ -268,22 +268,22 @@ class Surface{///
  public:
     int type;
     int id;
-    string ColorMap;
+    std::string ColorMap;
 
     //dvec XData,YData;
     dmat XData,YData,ZData,CDataIndex;
     dvec V,UserData;
     tcmat CData;
     
-    string FaceColor;//ColorSpec    | none | {flat} 
-    string EdgeColor;//ColorSpec{k} | none | flat
+    std::string FaceColor;//ColorSpec    | none | {flat} 
+    std::string EdgeColor;//ColorSpec{k} | none | flat
     
-    string LineStyle;// {-} | - - | : | -. | none
+    std::string LineStyle;// {-} | - - | : | -. | none
     float  LineWidth;
-    string Marker;// {none}
+    std::string Marker;// {none}
     float  MarkerSize;
-    string MarkerEdgeColor;
-    string MarkerFaceColor;
+    std::string MarkerEdgeColor;
+    std::string MarkerFaceColor;
 
     int Parent;
 
@@ -303,10 +303,10 @@ class Surface{///
 	
     }
     void get(){
-	cout <<"FaceColor: "<< FaceColor <<endl;
-	cout <<"EdgeColor: "<< EdgeColor <<endl;
-	cout <<"LineStyle: "<< LineStyle <<endl;
-	cout <<"LineWidth: "<< LineWidth <<endl;
+	std::cout <<"FaceColor: "<< FaceColor <<std::endl;
+	std::cout <<"EdgeColor: "<< EdgeColor <<std::endl;
+	std::cout <<"LineStyle: "<< LineStyle <<std::endl;
+	std::cout <<"LineWidth: "<< LineWidth <<std::endl;
     }
 };
 //Note: 
@@ -316,7 +316,7 @@ class Patch{///
  public:
     int id;
     int type;
-    vector< vector<int> > Faces;
+    std::vector< std::vector<int> > Faces;
     dmat Vertices;
     dmat FaceVertexCData;
     dmat XData,YData,ZData;
@@ -326,9 +326,9 @@ class Patch{///
     //tcmat CData;
     tcvec CData;
 
-    string EdgeColor,FaceColor;//{ColorSpec}|none|flat|interp 
+    std::string EdgeColor,FaceColor;//{ColorSpec}|none|flat|interp 
 
-    string LineStyle; // {-} | - - | : | -. | none
+    std::string LineStyle; // {-} | - - | : | -. | none
     float  LineWidth;
 
     Patch(int id_){	
@@ -345,7 +345,7 @@ class Patch{///
 class Text{///  
  public:
     int id;
-    string String;
+    std::string String;
     float Position[3];
     int Parent;
     int type;//0:axis 1:figure
@@ -377,7 +377,7 @@ class MatPlot{///
     int is_debug1;
     int is_debug2;
     
-    vector<vector<float> > cmap;//TODO move to class Figure
+    tcvec cmap;//TODO move to class Figure
     
     int mode;//0:initialization 1:configuration
     int init_level;// initialization level of objects
@@ -401,13 +401,13 @@ class MatPlot{///
     Text *ct;    
 
     // objects containers //
-    vector< Figure > vFigure;
-    vector< Layer > vLayer;
-    vector< Axes > vAxes; 
-    vector< Line > vLine;
-    vector< Surface > vSurface;
-    vector< Patch > vPatch;
-    vector< Text > vText;
+    std::vector< Figure > vFigure;
+    std::vector< Layer > vLayer;
+    std::vector< Axes > vAxes; 
+    std::vector< Line > vLine;
+    std::vector< Surface > vSurface;
+    std::vector< Patch > vPatch;
+    std::vector< Text > vText;
 
     // objects counter //
     int iFigure;
@@ -493,8 +493,8 @@ class MatPlot{///
     // Layer ///
     int layer();
     //int layer(string s);    
-    int layer(string s,int Visible);
-    int frame(string s,int Visible);// do not use
+    int layer(std::string s,int Visible);
+    int frame(std::string s,int Visible);// do not use
 
     // Axes ///
     
@@ -507,19 +507,19 @@ class MatPlot{///
     void axis(double xMin,double xMax,double yMin,double yMax);
     void axis(double xMin,double xMax,double yMin,double yMax,double zMin,double zMax);
 
-    void axis(string s);
+    void axis(std::string s);
     void axis(int s);
     
-    void grid(string s);
+    void grid(std::string s);
     void grid(int s);
 
-    void ticklabel(string s);
+    void ticklabel(std::string s);
     void ticklabel(int s);
 
-    void title(string s);
-    void xlabel(string s);
-    void ylabel(string s);
-    void zlabel(string s);
+    void title(std::string s);
+    void xlabel(std::string s);
+    void ylabel(std::string s);
+    void zlabel(std::string s);
 
     //void xlim(double min,double max);
     //void xlim(string s);
@@ -531,12 +531,12 @@ class MatPlot{///
     void mouse_capture(double *xmouse,double *ymouse);   
     
     // set, General Object Handling ///
-    void set(string v);
+    void set(std::string v);
     void set(float v);  
-    void set(string p,float v);
-    void set(string p,string v);
-    void set(int h,string p,string v);
-    void set(int h,string p,float v);      
+    void set(std::string p,float v);
+    void set(std::string p,std::string v);
+    void set(int h,std::string p,std::string v);
+    void set(int h,std::string p,float v);      
     int gco();
     
     // Line ///
@@ -557,7 +557,7 @@ class MatPlot{///
     //int plot(dmat Y);
     //int plot(dvec x,dmat Y);
     //int plot(dmat X,dmat Y);
-    int plot(valarray<double> x,valarray<double> y);
+    int plot(std::valarray<double> x,std::valarray<double> y);
     
     int plot3(dvec x,dvec y,dvec z);
     //int plot3(dvec X,dvec Y,dvec Z);
@@ -664,17 +664,17 @@ class MatPlot{///
     // Text ///
     //TODO: more fonts    
     int text();
-    int text(double x,double y,string s);
+    int text(double x,double y,std::string s);
     void set_font(char font_[],int size);
-    void ptext(float x,float y,string s);
-    void ptext3(float x,float y,float z,string s);
-    void ptext3c(float x,float y,float z,string s);
+    void ptext(float x,float y,std::string s);
+    void ptext3(float x,float y,float z,std::string s);
+    void ptext3c(float x,float y,float z,std::string s);
 
     // Colors ///
     void color(float r,float g,float b);
-    vector<float> colormap(string c,float t);
-    void colormap(string c);
-    void colormap(vector<vector<float> > c);
+    std::vector<float> colormap(std::string c,float t);
+    void colormap(std::string c);
+    void colormap(tcvec c);
 
     void gray();
     void jet();
@@ -686,12 +686,12 @@ class MatPlot{///
     void autumn();
     void winter();
 
-    vector<float> map2color(double x,double xmin,double xmax);
+    std::vector<float> map2color(double x,double xmin,double xmax);
     
-    void Shading(string c);
-    void shading(string c);
-    vector<float> ColorSpec2RGB(string c);
-    string rgb2colorspec(vector<float> rgb);
+    void Shading(std::string c);
+    void shading(std::string c);
+    std::vector<float> ColorSpec2RGB(std::string c);
+    std::string rgb2colorspec(std::vector<float> rgb);
 
     // print ///
     void print();

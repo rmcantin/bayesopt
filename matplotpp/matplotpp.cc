@@ -4,6 +4,9 @@ License: Gnu Public license (GPL) v3
 Author: Yuichi Katori (yuichi.katori@gmail.com)
 Project:MATPLOT++ (MATLAB-like plotting tool in C++).
 Version:0.3.13
+
+TODO: This file only works in Debug mode. Revise!
+
 ****************************************************************************/
 using namespace std;
 #include "matplotpp.h"
@@ -103,7 +106,8 @@ Text::Text(int id_){
 
 /// Layer
 Layer::Layer(int id_){ 
-    id=id_;	
+    id=id_;
+    Visible=1;
     Children.clear();	
 }
 /// Patch
@@ -493,8 +497,8 @@ int MatPlot::figure(){
 
 void MatPlot::display_figure(){
 
-    if(is_debug1){printf("mode: %d handle: %4d Figure\n",
-			 mode,cf->id);}
+    if(is_debug1){printf("mode: %d handle: %4d Figure %d layers\n",
+			 mode,cf->id, cf->Children.size());}
 
     int tObj;// type of child object
     int iObj;// index of child object

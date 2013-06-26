@@ -169,8 +169,16 @@ TARGET_LINK_LIBRARIES(bo_oned bayesopt)
 find_package(GLUT)
 find_package(OpenGL)
 if(OPENGL_FOUND AND GLUT_FOUND)
-  INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/matplotpp
-                      ${GLUT_INCLUDE_DIR})
+  INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/matplotpp)
+
+  include_directories(${GLUT_INCLUDE_DIRS})
+  link_directories(${GLUT_LIBRARY_DIRS})
+  add_definitions(${GLUT_DEFINITIONS})
+
+  include_directories(${OpenGL_INCLUDE_DIRS})
+  link_directories(${OpenGL_LIBRARY_DIRS})
+  add_definitions(${OpenGL_DEFINITIONS})
+
   enable_language(C)
   ADD_EXECUTABLE(bo_display 
     ./app/bo_display.cpp 

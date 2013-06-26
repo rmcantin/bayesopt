@@ -41,7 +41,7 @@ def costImage(i):
     return ((countW-countB)/float(mat.size))**2
 
 params = bayesopt.initialize_params()
-params['n_iterations'] = 15
+params['n_iterations'] = 20
 params['n_init_samples'] = 10
 params['sigma_s'] = 1
 params['crit_name'] = "cEI"

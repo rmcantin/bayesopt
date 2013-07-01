@@ -1,6 +1,18 @@
 /*! \page reference Reference Manual
 \tableofcontents
 
+The library is intended to be both fast and clear for development and
+research. At the same time, it does everything the "right way". For
+example:
+
+- latin hypercube sampling is used for the preliminary design step,
+- extensive use of Cholesky decomposition and related tecniques to 
+  improve numeral stability and reduce computational cost,
+- kernels, criteria and parametric functions can be combined to 
+  produce more advanced functions,
+- etc.
+
+
 \section testing Testing the installation.
 
 The library includes several test program that can be found in the \em

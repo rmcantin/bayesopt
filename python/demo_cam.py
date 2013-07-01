@@ -23,6 +23,7 @@ from SimpleCV import Camera
 import numpy as np
 import bayesopt
 from time import sleep
+
 # Initialize the camera
 cam = Camera()
 cost = np.zeros(256)
@@ -41,12 +42,8 @@ def costImage(i):
     return ((countW-countB)/float(mat.size))**2
 
 params = bayesopt.initialize_params()
-params['n_iterations'] = 20
-params['n_init_samples'] = 10
-params['sigma_s'] = 1
-params['crit_name'] = "cEI"
-params['kernel_name'] = "kMaternISO3"
-params['mean_name'] = "mOne"
+params['n_iterations'] = 15
+params['n_init_samples'] = 5
 
 valid_values = np.transpose(np.array(range(256), dtype=float, ndmin=2))
 mvalue, x_out, error = bayesopt.optimize_discrete(costImage,
@@ -55,15 +52,6 @@ mvalue, x_out, error = bayesopt.optimize_discrete(costImage,
 x_out = int(x_out)
 print x_out
 img1 = img.binarize(x_out)
-
-# Loop to continuously get images
-for i in range(256):
-    cost[i] = costImage(i)
-
-minid = np.argmin(cost)
-
-print minid, cost[minid]
-img3 = img.binarize(np.argmin(cost))
 
 img1 = img.sideBySide(img1).sideBySide(img2)
 img1.drawText("Threshold: "+str(x_out))

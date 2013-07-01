@@ -26,6 +26,7 @@
 
 #include "randgen.hpp"
 #include "indexvector.hpp"
+#include "sobol.hpp"
 
 namespace bayesopt
 {
@@ -74,7 +75,29 @@ namespace bayesopt
 	    }
 	}
 
-      return 1;
+      return 0;
+    }
+
+    /** \brief Hypercube sampling based on Sobol sequences
+     * It uses the external Sobol library. Thus it do not depend on
+     * boost random.
+     */
+    template<class M>
+    int sobol(M& result, long long int seed)
+    {
+      size_t nSamples = result.size1();
+      size_t nDims = result.size2();
+
+      double *sobol_seq = i8_sobol_generate(nDims,nSamples,seed);
+      
+      for(size_t ii = 0; ii<nSamples; ++ii)
+	{
+	  for(size_t jj=0; jj<nDims; ++jj)
+	    {
+	      result(ii,jj) = *sobol_seq++;
+	    }
+	}
+      return 0;
     }
 
     /** \brief Uniform hypercube sampling
@@ -94,7 +117,7 @@ namespace bayesopt
 	for (size_t j = 0; j < nB; j++)
 	  Result(i,j) = sample();
 
-      return 1;
+      return 0;
     }
 
   } //namespace utils

@@ -10,57 +10,80 @@ Optimization (EGO).
 The online HTML version of these docs:
 <http://rmcantin.bitbucket.org/html/>
 
+Bayesian optimization uses a distribution over functions to build a
+model of the unknown function for we are looking the extrema, and then
+apply some active learning strategy to select the query points that
+provides most potential interest or improvement. Thus, it is a
+sampling efficient method for nonlinear optimization, design of
+experiments or bandits-like problems.
+
+
+Getting and installing BayesOpt
+-------------------------------
+
+The library can be download from any of this sources:
+
 - Download: <https://bitbucket.org/rmcantin/bayesopt>
 - Mirror: <https://github.com/rmcantin/bayesopt>
+- Mirror: <http://mloss.org/software/view/453/>
 
-Bayesian optimization uses a distribution over functions to build a
-metamodel of the unknown function for we are looking the extrema,
-and then apply some active learning strategy to select the query
-points that provides most potential interest for the seek. For that
-reason, it has been traditionally intended for optimization of
-expensive function. However, the efficiency of the library make it
-also interesting for many types of functions.
+The install guide for Windows, Linux and MacOS:
+- [Install guide](http://rmcantin.bitbucket.org/html/install.html) or \ref install
 
-It is intended to be both fast and clear for development and
-research. At the same time, it does everything the "right way". For
-example:
-
-- latin hypercube sampling is used for the preliminary design step,
-- extensive use of Cholesky decomposition and related tecniques to 
-  improve numeral stability and reduce computational cost,
-- kernels, criteria and parametric functions can be combined to 
-  produce more advanced functions,
-- etc.
-
-The documentation can be found in:
-
-- [Install guide](http://rmcantin.bitbucket.org/html/install.html) and \ref install
-- [Reference manual](http://rmcantin.bitbucket.org/html/reference.html)  and \ref reference
-- [Bayesian optimization](http://rmcantin.bitbucket.org/html/bopttheory.html) and \ref bopttheory
-- [Models and functions](http://rmcantin.bitbucket.org/html/modelopt.html) and \ref modelopt
-- [Demos and examples](http://rmcantin.bitbucket.org/html/demos.html) and \ref demos
+For a complete description of supported systems:
 - [Supported OS, compilers, versions...](https://bitbucket.org/rmcantin/bayesopt/wiki/Compatibility)
+
+
+Using BayesOpt
+--------------
+
+If you just want to use BayesOpt as a library for nonlinear optimization:
+- [Reference manual](http://rmcantin.bitbucket.org/html/reference.html) or \ref reference
+- [Demos and examples](http://rmcantin.bitbucket.org/html/demos.html) or \ref demos
+
+If you want to understand what is Bayesian optimization:
+- [Bayesian optimization](http://rmcantin.bitbucket.org/html/bopttheory.html) or \ref bopttheory
+- [Models and functions](http://rmcantin.bitbucket.org/html/modelopt.html) or \ref modelopt
+
+
+Getting involved
+----------------
+
+The best place to ask questions and discuss about BayesOpt is the [bayesopt-discussion mailing list](https://groups.google.com/forum/#!forum/bayesopt-discussion). Alternatively, you may directly contact Ruben Martinez-Cantin <rmcantin@unizar.es>.
+
+Please file bug reports at: https://bitbucket.org/rmcantin/bayesopt/issues
 
 You can also find more details at the [proyect
 wiki](http://bitbucket.org/rmcantin/bayesopt/wiki/Home) or subscribe
 to the [bayesopt-discussion mailing
 list](https://groups.google.com/forum/#!forum/bayesopt-discussion).
 
-**Important:** This code is free to use. However, if you are using the
-library, specially if it is for research or academic purposes, please
-send me an email at <rmcantin@unizar.es> with your name, institution
-and a brief description of your interest for this code (one or two
-lines).
 
-If you use BayesOpt in a work that leads to a scientific publication,
-we would appreciate it if you would kindly cite BayesOpt in your
-manuscript. Cite BayesOpt as something like:
+Using BayesOpt for academic or commercial purposes
+--------------------------------------------------
 
-----------------------------------------------------------------------
+This code is licensed under the GPL and it is free to use. However,
+please consider these recomentations when using BayesOpt:
 
-Ruben Martinez-Cantin, **BayesOpt: a toolbox for
-nonlinear-optimization, experimental design and stochastic bandits**,
-<http://bitbucket.org/rmcantin/bayesopt>
+- If you are using the library for research or academic purposes,
+please send me an email at <rmcantin@unizar.es> with your name,
+institution and a brief description of your interest for this code
+(one or two lines).
+
+- If you use BayesOpt in a work that leads to a scientific
+publication, we would appreciate it if you would kindly cite BayesOpt
+in your manuscript. If you use a specific algorithm, please also cite
+the corresponding work. The reference for each specific algorithm can
+be found in the documentation. Cite BayesOpt as something like:
+
+> Ruben Martinez-Cantin, **BayesOpt: a toolbox for
+> nonlinear-optimization, experimental design and stochastic bandits**,
+> <http://bitbucket.org/rmcantin/bayesopt>
+
+Commercial applications may also adquire a commercial license which
+allows more flexible terms than GPL. Please contact
+<rmcantin@unizar.es> for details.
+
 
 ----------------------------------------------------------------------
 

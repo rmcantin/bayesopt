@@ -100,15 +100,16 @@ namespace bayesopt  {
   {
     
     size_t nSamples = mParameters.n_init_samples;
-    bool useLatinBox = true;
+    int useLatinBox = 2;
     
     matrixd xPoints(nSamples,mDims);
     vectord yPoints(nSamples);
     vectord sample(mDims);
     randEngine mtRandom;
     
-    if (useLatinBox)      utils::lhs(xPoints, mtRandom);
-    else      utils::uniformSampling(xPoints, mtRandom);
+    if (useLatinBox == 1)           utils::lhs(xPoints, mtRandom);
+    else if (useLatinBox == 2)           utils::sobol(xPoints, 0);
+    else                utils::uniformSampling(xPoints, mtRandom);
     
     for(size_t i = 0; i < nSamples; i++)
       {
@@ -127,16 +128,12 @@ namespace bayesopt  {
 	for(size_t i = 0; i < nSamples; i++)
 	  {
 	    sample = row(xPoints,i);
-	    FILE_LOG(logDEBUG) << sample ;
+	    FILE_LOG(logDEBUG) << "Normalized X:" << sample ;
 	    
-	    if (mParameters.verbose_level > 1)
-	      { 
-		if(yPoints(i)<ymin) 
-		  ymin = yPoints(i);
+	    if (yPoints(i)<ymin)  ymin = yPoints(i);
 	      
-		FILE_LOG(logDEBUG) << "X:" << mBB->unnormalizeVector(sample) 
-				   << "|Y:" << yPoints(i) << "|Min:" << ymin ;
-	      }
+	    FILE_LOG(logDEBUG) << "X:" << mBB->unnormalizeVector(sample) 
+			       << "|Y:" << yPoints(i) << "|Min:" << ymin ;
 	  }  
       }
     return 0;

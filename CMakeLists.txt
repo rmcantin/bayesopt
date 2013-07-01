@@ -92,6 +92,8 @@ SET(UTILS_SRC
   ./utils/parser.cpp
   ./utils/ublas_extra.cpp
   ./sobol/sobol.cpp
+  ./sobol/sobol_i4.cpp
+  ./sobol/sobol_i8.cpp
   )
 
 SET(WRAPPPERS_SRC 

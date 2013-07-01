@@ -35,7 +35,7 @@ params.log_filename = 'matbopt.log';
 
 n = 2;          % number of low dims (effective)
 nh = 1000;      % number of actual dims
-nreembo = 10;    % number of reembo iterations
+nreembo = 5;    % number of reembo iterations
 
 
 global MATRIX_A
@@ -63,4 +63,5 @@ for i=1:nreembo
 end;
 
 [foo,id] = min(values);
+disp('Final result');
 disp(points(id,:));

@@ -91,6 +91,7 @@ SET( BAYESOPT_SRCS
 SET(UTILS_SRC
   ./utils/parser.cpp
   ./utils/ublas_extra.cpp
+  ./sobol/sobol.cpp
   )
 
 SET(WRAPPPERS_SRC 
@@ -107,7 +108,8 @@ ENDIF(BUILD_PYTHON_INTERFACE)
 
 INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/include 
                      ${CMAKE_SOURCE_DIR}/wrappers
-		     ${CMAKE_SOURCE_DIR}/utils )
+		     ${CMAKE_SOURCE_DIR}/utils
+		     ${CMAKE_SOURCE_DIR}/sobol )
 
 
 LINK_DIRECTORIES( ${CMAKE_SOURCE_DIR}/lib )

@@ -4,7 +4,7 @@
 
 include(FindPythonInterp)
 ## check python
-find_package(PythonLibs) # using PYTHON_INCLUDE_PATH instead of PYTHON_INCLUDE_DIR
+find_package(PythonLibs 2 EXACT) # using PYTHON_INCLUDE_PATH instead of PYTHON_INCLUDE_DIR
 if( NOT PYTHON_EXECUTABLE )
   # look specifically for 2.7
   find_program(PYTHON_EXECUTABLE NAMES python2.7 python27 python PATHS [HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore\\2.7\\InstallPath])

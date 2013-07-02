@@ -34,7 +34,8 @@ SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
-option(BUILD_PYTHON_INTERFACE "Build Python Interface?" OFF)
+option(BUILD_EXAMPLES "Build examples and demos?" ON)
+option(BUILD_PYTHON_INTERFACE "Build Python interface?" OFF)
 option(MATLAB_COMPATIBLE "Build library compatible with Matlab?" ON)
 
 if(BUILD_PYTHON_INTERFACE)
@@ -154,55 +155,10 @@ ENDIF(BUILD_NLOPT)
 TARGET_LINK_LIBRARIES(bayesopt
   ${EXT_LIBS} ${PYTHON_LIB} )
 
-#Continuous test
-ADD_EXECUTABLE(bo_cont ./app/bo_cont.cpp)
-add_dependencies(bo_cont bayesopt)
-TARGET_LINK_LIBRARIES(bo_cont bayesopt)
 
-#Discrete test
-ADD_EXECUTABLE(bo_disc ./app/bo_disc.cpp)
-add_dependencies(bo_disc bayesopt)
-TARGET_LINK_LIBRARIES(bo_disc bayesopt)
-
-#1D test
-ADD_EXECUTABLE(bo_oned ./app/bo_oned.cpp)
-add_dependencies(bo_oned bayesopt)
-TARGET_LINK_LIBRARIES(bo_oned bayesopt)
-
-#Display test
-find_package(GLUT)
-find_package(OpenGL)
-if(OPENGL_FOUND AND GLUT_FOUND)
-  INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/matplotpp)
-
-  include_directories(${GLUT_INCLUDE_DIRS})
-  link_directories(${GLUT_LIBRARY_DIRS})
-  add_definitions(${GLUT_DEFINITIONS})
-
-  include_directories(${OpenGL_INCLUDE_DIRS})
-  link_directories(${OpenGL_LIBRARY_DIRS})
-  add_definitions(${OpenGL_DEFINITIONS})
-
-  enable_language(C)
-  ADD_EXECUTABLE(bo_display 
-    ./app/bo_display.cpp 
-    ./matplotpp/matplotpp.cc 
-    ./matplotpp/gl2ps.c)
-  add_dependencies(bo_display bayesopt)
-  TARGET_LINK_LIBRARIES(bo_display bayesopt ${GLUT_LIBRARY} ${OPENGL_LIBRARY})
-endif()
-
-#Branin
-ADD_EXECUTABLE(bo_branin ./app/bo_branin.cpp )
-add_dependencies(bo_branin bayesopt)
-TARGET_LINK_LIBRARIES(bo_branin bayesopt)
-
-#Test for random number generator
-#ADD_EXECUTABLE(randtest ./app/testrand.cpp)
-
-#Test for parsers
-#ADD_EXECUTABLE(parsetest ./utils/parser.cpp ./app/testparser.cpp)
-
+IF(BUILD_EXAMPLES)
+  ADD_SUBDIRECTORY(examples)
+endif(BUILD_EXAMPLES)
 
 INSTALL(FILES 
   ./include/bayesoptcont.hpp 

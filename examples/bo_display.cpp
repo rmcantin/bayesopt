@@ -98,7 +98,7 @@ void DISPLAY(){
  
   //plot
   subplot(2,1,1);
-  title("press r to run and stop");
+  title("Press r to run and stop, s to run a step and q to quit.");
   plot(x,y); set(3);
   plot(lx,ly);set("k");set("*");
   plot(x,su);set("g"); set(2);

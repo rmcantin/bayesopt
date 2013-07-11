@@ -1,4 +1,5 @@
 #!/bin/bash
 
-export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib
-export PYTHONPATH=${PYTHONPATH}:/usr/local/lib
+BAYESOPT_PATH=$PWD
+export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${BAYESOPT_PATH}/lib
+export PYTHONPATH=${PYTHONPATH}:${BAYESOPT_PATH}/lib

@@ -78,11 +78,11 @@ const char* learn2str(learning_type name)
 }
 
 
-char DEF_LOG_FILE[] = "bayesopt.log";
-char DEF_SUR_NAME[] = "sGaussianProcess";
-char DEF_KERNEL_NAME[] = "kMaternISO3";
-char DEF_MEAN_NAME[] = "mOne";
-char DEF_CRITERIA_NAME[] = "cEI";
+char DEF_LOG_FILE[128] = "bayesopt.log";
+char DEF_SUR_NAME[128] = "sGaussianProcess";
+char DEF_KERNEL_NAME[128] = "kMaternISO3";
+char DEF_MEAN_NAME[128] = "mOne";
+char DEF_CRITERIA_NAME[128] = "cEI";
 
 static const kernel_parameters DEFAULT_KERNEL = {
   DEF_KERNEL_NAME, {KERNEL_THETA}, {KERNEL_SIGMA}, 1 

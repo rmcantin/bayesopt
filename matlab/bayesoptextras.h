@@ -111,6 +111,7 @@ static void struct_string(const mxArray *s, const char *name, char* result)
 
   if (val) {
     if( mxIsChar(val) ) {
+      printf("Loading %s. Size %d by %d", name, mxGetM(val), mxGetN(val));
       if ( mxGetString(val, result, 1+(mxGetM(val) * mxGetN(val)))) {
 	  mexErrMsgTxt("Error loading string.");
 	}

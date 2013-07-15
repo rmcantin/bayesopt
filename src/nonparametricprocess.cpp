@@ -66,6 +66,9 @@ namespace bayesopt
 
     std::string name = parameters.surr_name;
 
+    FILE_LOG(logINFO) << "Using surrogate: " << name;
+    FILE_LOG(logINFO) << "Using kernel: " << parameters.kernel.name;
+
     if (!name.compare("sGaussianProcess"))
       s_ptr = new GaussianProcess(dim,parameters);
     else  if(!name.compare("sGaussianProcessML"))

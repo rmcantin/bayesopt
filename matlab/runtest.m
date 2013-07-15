@@ -23,14 +23,14 @@ clear all, close all
 addpath('testfunctions')
 
 params.n_iterations = 100;
-params.n_init_iterations = 50;
+params.n_init_iterations = 5;
 params.crit_name = 'cEI';
 params.surr_name = 'sGaussianProcessNormal';
 params.noise = 0.005;
 params.kernel_name = 'kMaternISO3';
 params.kernel_hp_mean = [0.5];
 params.kernel_hp_std = [10];
-params.verbose_level = 0;
+params.verbose_level = 1;
 params.log_filename = 'matbopt.log';
 
 % n = 5;

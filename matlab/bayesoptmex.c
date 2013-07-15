@@ -88,7 +88,6 @@ void mexFunction(int nlhs, mxArray *plhs[],
     {
       params = mxCreateStructMatrix(1,1,0,NULL);
     }
-
   parameters = load_parameters(params);
 
   if(nrhs == 5)
@@ -111,8 +110,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
     }
   else
     {
-      lb = mxCalloc(nDim,sizeof(double));
-      ub = mxCalloc(nDim,sizeof(double));
+      lb = (double*)(mxCalloc(nDim,sizeof(double)));
+      ub = (double*)(mxCalloc(nDim,sizeof(double)));
 	 
 
       

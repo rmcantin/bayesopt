@@ -31,8 +31,9 @@
 #include <math.h>
 #include <mex.h>
 
-#include "parameters.h"
 #include "bayesoptwpr.h"
+#include "parameters.h"
+
 
 #define CHECK0(cond, msg) if (!(cond)) mexErrMsgTxt(msg);
 
@@ -107,7 +108,6 @@ static void struct_size(const mxArray *s, const char *name, size_t *result)
 static void struct_string(const mxArray *s, const char *name, char* result)
 {
   mxArray *val = mxGetField(s, 0, name);
-  char *valstr;
 
   if (val) {
     if( mxIsChar(val) ) {
@@ -177,7 +177,6 @@ static bopt_params load_parameters(const mxArray* params)
   
   /* See parameters.h for the available options */
   
-  char log_str[100], k_s_str[100];
   char l_str[100];
   size_t n_hp_test, n_coef_test;
 

@@ -56,7 +56,7 @@ extern "C" {
  * 
  * @return error code
  */
-  BAYESOPT_C_API(int) bayes_optimization(int nDim, eval_func f, void* f_data,
+  BAYESOPT_API int bayes_optimization(int nDim, eval_func f, void* f_data,
 			 const double *lb, const double *ub,
 			 double *x, double *minf,
 			 bopt_params parameters);
@@ -79,7 +79,7 @@ extern "C" {
  * 
  * @return error code
  */
-  BAYESOPT_C_API(int) bayes_optimization_disc(int nDim, eval_func f, void* f_data,
+  BAYESOPT_API int bayes_optimization_disc(int nDim, eval_func f, void* f_data,
 			      double *valid_x, size_t n_points,
 			      double *x, double *minf,
 			      bopt_params parameters);

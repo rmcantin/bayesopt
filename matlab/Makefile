@@ -7,7 +7,7 @@ FLAGS=-shared -DMATLAB_MEX_FILE -Wl,--export-all-symbols
 all: disc cont
 
 cont:
-	$(CC) $(FLAGS) $(INCLUDES) -o bayesopt.mexw32  bayesoptmex.c libbayesopt.dll $(LIBS)
+	$(CC) $(FLAGS) $(INCLUDES) -o bayesoptcont.mexw32  bayesoptmex.c libbayesopt.dll $(LIBS)
 
 disc:
 	$(CC) $(FLAGS) $(INCLUDES) -o bayesoptdisc.mexw32  bayesoptdiscmex.c libbayesopt.dll $(LIBS)

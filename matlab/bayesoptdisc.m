@@ -1,3 +1,16 @@
+% BAYESOPTDISC Optimization (minimization) of discrete target function 
+% using Bayesian optimization.
+%
+% Usage: [xmin, fmin] = bayesoptdisc(@function_handler, validset, params)
+%        [xmin, fmin] = bayesoptdisc('function_name', validset, params)
+%
+%
+% params is a struct which have the same fields as the C/C++ interface 
+%   (see include/parameters.h)
+%
+% validset is the set of discrete points for discrete optimization,
+%      stacked in a single matrix. Thus, it must be a d x n matrix.
+%
 % 
 % -------------------------------------------------------------------------
 %    This file is part of BayesOpt, an efficient C++ library for 
@@ -19,39 +32,4 @@
 %    along with BayesOpt.  If not, see <http://www.gnu.org/licenses/>.
 % ------------------------------------------------------------------------
 %
-clear all, close all
-addpath('testfunctions')
 
-params.n_iterations = 100;
-params.n_init_iterations = 5;
-params.crit_name = 'cEI';
-params.surr_name = 'sGaussianProcessNormal';
-params.noise = 0.005;
-params.kernel_name = 'kMaternISO3';
-params.kernel_hp_mean = [0.5];
-params.kernel_hp_std = [10];
-params.verbose_level = 1;
-params.log_filename = 'matbopt.log';
-
-% n = 5;
-% lb = ones(n,1)*pi/2;
-% ub = ones(n,1)*pi;
-% fun = 'michalewicz';
-
-n = 2;
-lb = zeros(n,1);
-ub = ones(n,1);
-fun = 'branin';
-
-disp('Continuous optimization');
-tic;
-bayesoptcont(fun,n,params,lb,ub)
-toc;
-
-disp('Discrete optimization');
-% The set of points must be nDim x nPoints.
-xset = repmat((ub-lb),1,100) .* rand(n,100) - repmat(lb,1,100);
-
-tic;
-bayesoptdisc(fun,xset, params);
-toc;

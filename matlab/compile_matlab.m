@@ -13,11 +13,11 @@ if (ispc)
         disp('Compiling static library');
         mex -output bayesoptcont bayesoptmex.c ...
             -L../lib/Release -lbayesopt -lnlopt ...
-            -I../include -I../wrappers -I../nlopt/api
+            -I../include -I../wrappers
         
         mex -output bayesoptdisc bayesoptdiscmex.c ...
             -L../lib/Release -lbayesopt -lnlopt ...
-            -I../include -I../wrappers -I../nlopt/api
+            -I../include -I../wrappers
     end
 else
     if exist('../lib/libbayesopt.a','file')

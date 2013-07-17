@@ -202,5 +202,16 @@ time, MATLAB/Octave also needs to access to the libraries. You can
 modify the PATH variable or copy the dll files in the same bolder as
 the generated mexfile.
 
+\b Important: It is strongly recommended to compile bayesopt with
+exactly the same compiler that was select for mex files. For a list of
+the supported compilers for your Matlab version, you can check the
+online docs at mathworks. 
+
+Unfortunately, MinGW has never been suported by Matlab. Thus I have
+also included a Makefile to generate the mex files outside Matlab. You
+might need to change the \c MATLABROOT path with the root folder of
+your Matlab install and copy the dlls. Then, run \c mingw32-make. Note
+that \c mingw32-make only supports 32 bits libraries, so you need a 32
+bit Matlab install.
 
  */

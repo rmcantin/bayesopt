@@ -2,7 +2,7 @@
 /*
  -   begin                : 2005-08-24
  -   copyright            : (C) 2005 by Gunter Winkler, Konstantin Kutzkow
-                            2011-2012 by Ruben Martinez-Cantin <rmcantin@unizar.es>
+                            2011-2013 by Ruben Martinez-Cantin <rmcantin@unizar.es>
  -   email                : guwi17@gmx.de
 
     This library is free software; you can redistribute it and/or

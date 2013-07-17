@@ -53,7 +53,7 @@ for i=1:nreembo
     disp('Continuous optimization');
     MATRIX_A = randn(nh,n);
     tic;
-    result = bayesopt(fun,n,params,lb,ub);
+    result = bayesoptcont(fun,n,params,lb,ub);
     toc;
 
     values(i) = braninhighdim(result);

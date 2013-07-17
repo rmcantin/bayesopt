@@ -99,7 +99,7 @@ TLogLevel& Log<T>::ReportingLevel()
 template <typename T>
 std::string Log<T>::ToString(TLogLevel level)
 {
-	static const char* const buffer[] = {"ERROR", "WARNING", "INFO", "DEBUG", "DEBUG1", "DEBUG2", "DEBUG3", "DEBUG4"};
+    static const char* const buffer[] = {"ERROR", "WARNING", "INFO", "DEBUG", "DEBUG1", "DEBUG2", "DEBUG3", "DEBUG4"};
     return buffer[level];
 }
 
@@ -174,7 +174,9 @@ class FILELOG_DECLSPEC FILELog : public Log<Output2FILE> {};
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__)
 
-#define NOMINMAX
+#ifndef NOMINMAX
+#  define NOMINMAX
+#endif
 #include <windows.h>
 
 inline std::string NowTime()

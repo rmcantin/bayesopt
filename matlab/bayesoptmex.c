@@ -3,7 +3,7 @@
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2012 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
    under the terms of the GNU General Public License as published by
@@ -88,7 +88,6 @@ void mexFunction(int nlhs, mxArray *plhs[],
     {
       params = mxCreateStructMatrix(1,1,0,NULL);
     }
-
   parameters = load_parameters(params);
 
   if(nrhs == 5)
@@ -111,8 +110,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
     }
   else
     {
-      lb = mxCalloc(nDim,sizeof(double));
-      ub = mxCalloc(nDim,sizeof(double));
+      lb = (double*)(mxCalloc(nDim,sizeof(double)));
+      ub = (double*)(mxCalloc(nDim,sizeof(double)));
 	 
 
       

@@ -17,35 +17,22 @@ if(NOT CMAKE_BUILD_TYPE)
       FORCE)
 endif(NOT CMAKE_BUILD_TYPE)
 
-#SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wdouble-promotion -Wpedantic -Wfloat-equal -Wno-endif-labels -Wshadow")
-#SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -Wall -Wextra -Wdouble-promotion -Wpedantic -Wfloat-equal -Wno-endif-labels -Wshadow")
-
-# SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG ${CMAKE_CXX_FLAGS}")
-# SET(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG ${CMAKE_C_FLAGS}")
-
-# SET(CMAKE_CXX_FLAGS_DEBUG "-g -pg ${CMAKE_CXX_FLAGS}")
-# SET(CMAKE_C_FLAGS_DEBUG "-g -pg ${CMAKE_C_FLAGS}")
-  
-# enable warnings
-# ADD_DEFINITIONS("-Wall")
-# ADD_DEFINITIONS("-Wextra -Wdouble-promotion -pedantic -Wfloat-equal -Wno-endif-labels -Wshadow")
-
 SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
 option(BUILD_EXAMPLES "Build examples and demos?" ON)
-option(BUILD_PYTHON_INTERFACE "Build Python interface?" OFF)
-option(MATLAB_COMPATIBLE "Build library compatible with Matlab?" ON)
+option(BAYESOPT_PYTHON_INTERFACE "Build Python interface?" OFF)
+option(BAYESOPT_MATLAB_COMPATIBLE "Build library compatible with Matlab?" ON)
 
-if(BUILD_PYTHON_INTERFACE)
+if(BAYESOPT_PYTHON_INTERFACE)
   INCLUDE(PythonMagic)
   SET(PYTHON_LIB  ${PYTHON_LIBRARIES} )
   INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
-  SET(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared libraries?" FORCE)
+  SET(BAYESOPT_BUILD_SHARED ON CACHE BOOL "Build shared libraries?" FORCE)
 ELSE()
-  SET(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared libraries?")
-ENDIF(BUILD_PYTHON_INTERFACE)
+  SET(BAYESOPT_BUILD_SHARED OFF CACHE BOOL "Build shared libraries?")
+ENDIF(BAYESOPT_PYTHON_INTERFACE)
 
 find_package( Boost REQUIRED )
 if(Boost_FOUND)
@@ -58,12 +45,11 @@ endif()
 FIND_LIBRARY(NLOPT nlopt)
 
 IF(NLOPT MATCHES NLOPT-NOTFOUND)
-  SET(BUILD_NLOPT ON CACHE BOOL "Build included version of NLOPT?")
+  SET(NLOPT_BUILD ON CACHE BOOL "Build included version of NLOPT?")
 ELSE(NLOPT MATCHES NLOPT-NOTFOUND)
-  SET(BUILD_NLOPT OFF CACHE BOOL "Build included version of NLOPT?")
+  SET(NLOPT_BUILD OFF CACHE BOOL "Build included version of NLOPT?")
 ENDIF(NLOPT MATCHES NLOPT-NOTFOUND)
 
-#SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 INCLUDE(UseDoxygen)
 
 SET( BAYESOPT_SRCS
@@ -78,8 +64,6 @@ SET( BAYESOPT_SRCS
   ./src/gaussian_process_normal.cpp
   ./src/student_t_process_jef.cpp
   ./src/student_t_process_nig.cpp
-#  ./src/gaussian_process_ign.cpp
-#  ./src/student_t_process.cpp
   ./src/parameters.cpp
   ./src/kernel_functors.cpp
   ./src/criteria_functors.cpp
@@ -102,11 +86,11 @@ SET(WRAPPPERS_SRC
   ./wrappers/bayesoptwpr.cpp
   )
 
-IF(BUILD_PYTHON_INTERFACE)
+IF(BAYESOPT_PYTHON_INTERFACE)
   SET(PYTHON_SRC  ./python/bayesopt.cpp)
-ELSE(BUILD_PYTHON_INTERFACE)
-  SET(PYTHON_SRC )
-ENDIF(BUILD_PYTHON_INTERFACE)
+ELSE(BAYESOPT_PYTHON_INTERFACE)
+  SET(PYTHON_SRC)
+ENDIF(BAYESOPT_PYTHON_INTERFACE)
 
 
 INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/include 
@@ -117,12 +101,7 @@ INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/include
 
 LINK_DIRECTORIES( ${CMAKE_SOURCE_DIR}/lib )
 
-# IF(BUILD_NLOPT)
-#   ADD_SUBDIRECTORY(nlopt)
-#   include_directories(${CMAKE_SOURCE_DIR}/nlopt/api)
-# ENDIF(BUILD_NLOPT)
-
-IF(BUILD_SHARED_LIBS)
+IF(BAYESOPT_BUILD_SHARED)
   ADD_LIBRARY(bayesopt SHARED ${BAYESOPT_SRCS}   
     ${WRAPPPERS_SRC} ${UTILS_SRC} ${PYTHON_SRC} )
   IF(WIN32)
@@ -138,19 +117,19 @@ ELSE()
     ${WRAPPPERS_SRC} ${UTILS_SRC} ${PYTHON_SRC} )
 ENDIF()
 
-IF((BUILD_SHARED_LIBS OR MATLAB_COMPATIBLE) AND NOT WIN32)
+IF((BAYESOPT_BUILD_SHARED OR BAYESOPT_MATLAB_COMPATIBLE) AND NOT WIN32)
   SET_TARGET_PROPERTIES(bayesopt PROPERTIES COMPILE_FLAGS "-fPIC")
 ENDIF()
   
 
-IF(BUILD_NLOPT)
+IF(NLOPT_BUILD)
   ADD_SUBDIRECTORY(nlopt)
   include_directories(${CMAKE_SOURCE_DIR}/nlopt/api)
   add_dependencies(bayesopt nlopt)
   SET(EXT_LIBS nlopt)
-ELSE(BUILD_NLOPT)
+ELSE(NLOPT_BUILD)
   SET(EXT_LIBS ${NLOPT})
-ENDIF(BUILD_NLOPT)
+ENDIF(NLOPT_BUILD)
 
 TARGET_LINK_LIBRARIES(bayesopt
   ${EXT_LIBS} ${PYTHON_LIB} )

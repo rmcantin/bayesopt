@@ -207,6 +207,8 @@ exactly the same compiler that was select for mex files. For a list of
 the supported compilers for your Matlab version, you can check the
 online docs at mathworks. 
 
+\subsubsection matlabmingw MATLAB and MinGW
+
 Unfortunately, MinGW has never been suported by Matlab. Thus I have
 also included a Makefile to generate the mex files outside Matlab. You
 might need to change the \c MATLABROOT path with the root folder of

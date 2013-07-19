@@ -130,8 +130,9 @@ option is automatically adjusted by CMake.
 \subsection instmatlab MATLAB/Octave interface:
 
 Make sure the library is compiled with the MATLAB_COMPATIBLE option
-using ccmake and configure Matlab/Octave to compile mex files. For
-example, in Matlab you can run to check the supported compilers:
+using ccmake. Undex Mac OS they must be shared. Also, configure 
+Matlab/Octave to compile mex files. For example, in Matlab you can run
+to check the supported compilers:
 \verbatim
 >> mex -setup
 \endverbatim
@@ -144,7 +145,6 @@ time, MATLAB/Octave also needs to access to the libraries. For
 example, LD_LIBRARY_PATH must include the folder where the libraries
 are. If the install path is the default, you can execute the
 exportlocalpath.sh script before calling MATLAB.
-
 
 
 <HR>

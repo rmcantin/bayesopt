@@ -93,13 +93,14 @@ void mexFunction(int nlhs, mxArray *plhs[],
   if(nrhs == 5)
     {
       /* Load bounds */
+      mexPrintf("Loading bounds...");
       CHECK0(mxIsDouble(prhs[3]) && !mxIsComplex(prhs[3])
 	     && (mxGetM(prhs[3]) == 1    || mxGetN(prhs[3]) == 1)
 	     && (mxGetM(prhs[3]) == nDim || mxGetN(prhs[3]) == nDim),
 	     "lowerBound must be real row or column vector");
 
       lb = mxGetPr(prhs[3]);
-      mexPrintf("Loading bounds \n");
+
 
       CHECK0(mxIsDouble(prhs[4]) && !mxIsComplex(prhs[4])
 	     && (mxGetM(prhs[4]) == 1    || mxGetN(prhs[4]) == 1)
@@ -107,6 +108,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
 	     "upperBound must be real row or column vector");
 
       ub = mxGetPr(prhs[4]);
+      mexPrintf("done. \n");
     }
   else
     {

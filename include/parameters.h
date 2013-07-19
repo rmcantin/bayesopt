@@ -72,6 +72,7 @@ extern "C" {
     size_t n_inner_iterations;   /**< Maximum inner optimizer evaluations */
     size_t n_init_samples;       /**< Number of samples before optimization */
     size_t n_iter_relearn;       /**< Number of samples before relearn kernel */
+    size_t init_method;   /**< Sampling method for initial set 1-LHS, 2-Sobol (if available), other uniform */
 
     size_t verbose_level;        /**< 1-Error,2-Warning,3-Info. 4-6 log file*/
     char* log_filename;          /**< Log file path (if applicable) */

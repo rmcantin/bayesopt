@@ -21,9 +21,10 @@ SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
-option(BUILD_EXAMPLES "Build examples and demos?" ON)
+option(BAYESOPT_BUILD_EXAMPLES "Build examples and demos?" ON)
 option(BAYESOPT_PYTHON_INTERFACE "Build Python interface?" OFF)
 option(BAYESOPT_MATLAB_COMPATIBLE "Build library compatible with Matlab?" ON)
+option(BAYESOPT_BUILD_SOBOL "Build support for Sobol sequences?" ON)
 
 if(BAYESOPT_PYTHON_INTERFACE)
   INCLUDE(PythonMagic)
@@ -52,6 +53,19 @@ ENDIF(NLOPT MATCHES NLOPT-NOTFOUND)
 
 INCLUDE(UseDoxygen)
 
+
+IF(BAYESOPT_BUILD_SOBOL)
+  ADD_DEFINITIONS(-DUSE_SOBOL)	
+  SET(SOBOL_SRC
+    ./sobol/sobol.cpp
+    ./sobol/sobol_i4.cpp
+    ./sobol/sobol_i8.cpp
+    )
+ELSE(BAYESOPT_BUILD_SOBOL)
+  SET(SOBOL_SRC )
+ENDIF(BAYESOPT_BUILD_SOBOL)
+
+
 SET( BAYESOPT_SRCS
   ./src/bayesoptcont.cpp
   ./src/bayesoptdisc.cpp
@@ -76,9 +90,7 @@ SET( BAYESOPT_SRCS
 SET(UTILS_SRC
   ./utils/parser.cpp
   ./utils/ublas_extra.cpp
-  ./sobol/sobol.cpp
-  ./sobol/sobol_i4.cpp
-  ./sobol/sobol_i8.cpp
+  ${SOBOL_SRC}
   )
 
 SET(WRAPPPERS_SRC 
@@ -100,6 +112,7 @@ INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/include
 
 
 LINK_DIRECTORIES( ${CMAKE_SOURCE_DIR}/lib )
+
 
 IF(BAYESOPT_BUILD_SHARED)
   ADD_LIBRARY(bayesopt SHARED ${BAYESOPT_SRCS}   

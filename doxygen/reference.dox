@@ -71,9 +71,17 @@ represents the number of iterations between recomputing the kernel
 parameters. If it is set to 0, they are only learned after the initial
 set of samples. [Default 0]
 
+\subsection initpar Initialization parameters
+
+\li \b init_method: (unsigned integer value) For continuous
+optimization, we can choose among diferent strategies for the initial
+design (1-Latin Hypercube Sampling, 2-Sobol sequences (if available,
+see \ref mininst), Other-Uniform Sampling).
+
+
 \subsection logpar Logging parameters
 
-\li \b verbose_level: (integer value) Verbose level 0,3 -> warnings,
+\li \b verbose_level: (unsigned integer value) Verbose level 0,3 -> warnings,
 1,4 -> general information, 2,5 -> debug information, any other value
 -> only errors. Levels < 3 send the messages to stdout. Levels > 4
 send them to a log file. [Default 1].

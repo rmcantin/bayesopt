@@ -173,18 +173,6 @@ just need to compile from the command line with:
 
 The most important options/variables are explained in \ref confinst.
 
-\subsection instpythonwin Python interface:
-
-The Python interface has not been tested in \b Windows because getting
-the correct dependencies is highly involved. You might need to
-download and install:
-\li Python (binary and \b sources): http://www.python.org
-\li Numpy: http://new.scipy.org/download.html 
-
-Also, read this article about how to link everything:
-http://docs.python.org/2/extending/windows.html#building-on-windows
-
-
 \subsection instmatlabwin MATLAB/Octave interface:
 
 Make sure the library is compiled with the MATLAB_COMPATIBLE option
@@ -214,15 +202,27 @@ also included a Makefile to generate the mex files outside Matlab. You
 might need to change the \c MATLABROOT path with the root folder of
 your Matlab install and copy the dlls. Then, run \c mingw32-make. Note
 that \c mingw32-make only supports 32 bits libraries, so you need a 32
-bit Matlab install.
+bit version of Matlab. There is a fork of MinGW with 64 bit support
+under development, but it has not been tested here.
+
+\subsection instpythonwin Python interface:
+
+The Python interface has not been tested in \b Windows because getting
+the correct dependencies is highly involved. You might need to
+download and install:
+\li Python (binary and \b sources): http://www.python.org
+\li Numpy: http://new.scipy.org/download.html 
+
+Also, read this article about how to link everything:
+http://docs.python.org/2/extending/windows.html#building-on-windows
 
 
 <HR>
 
 \section confinst Configure the compilation/install
 
-As we have made to select the install path or to add python bindings,
-CMake allows to configure the compilation using some variables. These
+CMake allows to configure the compilation using some variables (see
+for example how to compile the Python module in Linux). These
 variables can be set in Linux/MacOS from the command line with the -D
 flag:
 \verbatim
@@ -233,9 +233,9 @@ For example
 >> cmake -DCMAKE_BUILD_TYPE=Debug .
 \endverbatim
 
-If you use ccmake or CMake for Windows, just modify the value of the
-variable.
-
+If you use ccmake in Linux/MacOS or CMake for Windows, you can access
+to a list of all the variables and their values. Just modify the value
+of the desired variable.
 
 \subsection instshared Compile as shared libraries
 

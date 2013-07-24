@@ -29,7 +29,8 @@ is installed by default in /usr/local/lib/. However, this folder is
 not included by default in the linker, Python or Matlab paths by
 default. This is specially critical when building shared libraries
 (mandatory for Python usage). The script \em exportlocalpaths.sh makes
-sure that the folder is included in all the necessary paths.
+sure that the folder with the libraries is included in all the
+necessary paths.
 
 After that, there are 3 steps that should be follow:
 \li Define the function to optimize.
@@ -40,10 +41,21 @@ parameters and the default set can be found in parameters.h.
 \section params Understanding the parameters
 
 BayesOpt relies on a complex and highly configurable mathematical
-model. Also, the key to nonlinear optimization is to include as much
-knowledge as possible about the target function or about the
-problem. Or, if the knowledge is not available, keep the model as
-general as possible (to avoid bias).
+model. In theory, it should work reasonably well for many problems in
+its default configuration. However, Bayesian optimization shines when
+we can include as much knowledge as possible about the target function
+or about the problem. Or, if the knowledge is not available, keep the
+model as general as possible (to avoid bias). In this part, knowledge
+about Gaussian process or nonparametric models in general might be
+useful. 
+
+For example, with the parameters we can select the kind of kernel,
+mean or surrogate model that we want to use. With the kernel we can
+play with the smoothness of the function and it's derivatives. The
+mean function can be use to model the overall trend (is it flat?
+linear?). If we know the overall signal variance we better use a
+Gaussian process, if we don't, we should use a Student's t process
+instead.
 
 For that reason, the parameters are bundled in a structure or
 dictionary, depending on the API that we use. This is a brief

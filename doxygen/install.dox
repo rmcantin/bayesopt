@@ -109,7 +109,7 @@ want the python interface. The library has been tested with Python 2.6
 and 2.7. The interface relies on Numpy arrays. If we want to select
 the option to compile the Python interface we can just run:
 \verbatim
->> cmake -DBUILD_PYTHON=ON . 
+>> cmake -DBAYESOPT_PYTHON_INTERFACE=ON . 
 \endverbatim
 or 
 \verbatim

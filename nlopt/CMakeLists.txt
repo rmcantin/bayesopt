@@ -124,13 +124,13 @@ SET ( NLOPT_SOURCES
 	stogo/global.cc stogo/linalg.cc stogo/local.cc stogo/stogo.cc stogo/tools.cc stogo/global.h stogo/linalg.h stogo/local.h stogo/stogo_config.h stogo/stogo.h stogo/tools.h 
         )
 
-IF(BUILD_SHARED_LIBS)
-  SET(NLOPT_BUILD_SHARED ON CACHE BOOL "Build NLOPT as a shared library")
-ELSE(BUILD_SHARED_LIBS)
-  SET(NLOPT_BUILD_SHARED OFF CACHE BOOL "Build NLOPT as a shared library")
-ENDIF(BUILD_SHARED_LIBS)
+# IF(BUILD_SHARED_LIBS)
+#   SET(NLOPT_BUILD_SHARED ON CACHE BOOL "Build NLOPT as a shared library")
+# ELSE(BUILD_SHARED_LIBS)
+#   SET(NLOPT_BUILD_SHARED OFF CACHE BOOL "Build NLOPT as a shared library")
+# ENDIF(BUILD_SHARED_LIBS)
 
-#OPTION(NLOPT_BUILD_SHARED "Build NLOPT as a shared library" ON )
+OPTION(NLOPT_BUILD_SHARED "Build NLOPT as a shared library" OFF )
 
 IF(NLOPT_BUILD_SHARED)
   ADD_DEFINITIONS(-DNLOPT_DLL)

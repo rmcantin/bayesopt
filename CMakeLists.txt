@@ -45,14 +45,7 @@ option(BAYESOPT_BUILD_EXAMPLES "Build examples and demos?" ON)
 option(BAYESOPT_PYTHON_INTERFACE "Build Python interface?" OFF)
 option(BAYESOPT_MATLAB_COMPATIBLE "Build library compatible with Matlab?" ON)
 option(BAYESOPT_BUILD_SOBOL "Build support for Sobol sequences?" ON)
-
-if(BAYESOPT_PYTHON_INTERFACE)
-  INCLUDE(PythonMagic)
-  INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
-  SET(BAYESOPT_BUILD_SHARED ON CACHE BOOL "Build shared libraries?" FORCE)
-ELSE()
-  SET(BAYESOPT_BUILD_SHARED OFF CACHE BOOL "Build shared libraries?")
-ENDIF(BAYESOPT_PYTHON_INTERFACE)
+option(BAYESOPT_BUILD_SHARED "Build BayesOpt as a shared library?" OFF)
 
 find_package( Boost REQUIRED )
 if(Boost_FOUND)
@@ -136,35 +129,20 @@ ENDIF(NLOPT_BUILD)
 IF(BAYESOPT_BUILD_SHARED)
   ADD_LIBRARY(bayesopt SHARED ${BAYESOPT_SRCS}   
     ${WRAPPPERS_SRC} ${UTILS_SRC} )
-
-  IF(BAYESOPT_PYTHON_INTERFACE)
-    ADD_LIBRARY(esopt MODULE ${BAYESOPT_SRCS}   
-      ${WRAPPPERS_SRC} ${UTILS_SRC} ./python/bayesopt.cpp)
-    TARGET_LINK_LIBRARIES(esopt
-      ${EXT_LIBS} ${PYTHON_LIBRARIES} )
-  ENDIF(BAYESOPT_PYTHON_INTERFACE)
-
   IF(WIN32)
     ADD_DEFINITIONS(-DBAYESOPT_DLL)	
     # In new versions of CMAKE they use a different system and the
     # symbol is not defined
     ADD_DEFINITIONS(-Dbayesopt_EXPORT )
-  ELSE()
-    IF(BAYESOPT_PYTHON_INTERFACE)
-      # Kind of a hack but it works
-      SET_TARGET_PROPERTIES(esopt PROPERTIES PREFIX "bay" SUFFIX ".so")
-    ENDIF(BAYESOPT_PYTHON_INTERFACE)
   ENDIF()
 ELSE()
   ADD_LIBRARY(bayesopt STATIC ${BAYESOPT_SRCS}   
     ${WRAPPPERS_SRC} ${UTILS_SRC} )
 ENDIF()
 
+
 IF(NLOPT_BUILD)
   add_dependencies(bayesopt nlopt)
-  IF(BAYESOPT_PYTHON_INTERFACE)
-    add_dependencies(esopt nlopt)
-  ENDIF(BAYESOPT_PYTHON_INTERFACE)
 ENDIF(NLOPT_BUILD)
 
 
@@ -192,6 +170,23 @@ INSTALL(
 )
 
 IF(BAYESOPT_PYTHON_INTERFACE)
+  INCLUDE(PythonMagic)
+  INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
+
+  ADD_LIBRARY(esopt MODULE ${BAYESOPT_SRCS}   
+    ${WRAPPPERS_SRC} ${UTILS_SRC} ./python/bayesopt.cpp)
+
+  IF(NLOPT_BUILD)
+    add_dependencies(esopt nlopt)
+  ENDIF(NLOPT_BUILD)
+
+  TARGET_LINK_LIBRARIES(esopt ${EXT_LIBS} ${PYTHON_LIBRARIES} )
+
+  IF(NOT WIN32)
+    # Kind of a hack but it works
+    SET_TARGET_PROPERTIES(esopt PROPERTIES PREFIX "bay" SUFFIX ".so")
+  ENDIF()
+
   INSTALL(
     TARGETS esopt
     LIBRARY DESTINATION lib

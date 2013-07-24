@@ -85,11 +85,10 @@ terminal.
 >> sudo make install
 \endverbatim
 
-\b Important: If you use \b ccmake instead of \b cmake you will access
-a graphical interface to select features such as the include the
-Python and Matlab interfaces, debug/release mode or if you want to use
-shared libraries or not. \b Shared libraries are required to run the
-Python interface.
+\b Important: If you use \b ccmake instead of \b cmake you will access a graphical
+interface to select features such as the include the Python and Matlab interfaces,
+debug/release mode or if you want to use shared libraries or not. More details about how
+to configure it can be found in \ref confinst
 
 \subsubsection docbuild Building the documentation
 
@@ -117,8 +116,10 @@ or
 \endverbatim
 and select the corresponding option.
 
-\b Important: Python requires bayesopt to be a \b shared library. The
-option is automatically adjusted by CMake.
+\b Important: Python requires a special module with shared access and nonstandard
+name. Thus, it will build a separate module called "bayesopt.so". This module can be
+accessible from Python provided that it is in the PYTHONPATH or sys.path. It cannot be
+linked to any executable or other libraries. Use libbayesopt.* instead.
 
 \subsection instmatlab MATLAB/Octave interface:
 
@@ -139,6 +140,10 @@ example, LD_LIBRARY_PATH must include the folder where the libraries
 are. If the install path is the default, you can execute the
 exportlocalpath.sh script before calling MATLAB.
 
+On MacOS there are known issues both in Matlab and Octave about the compiler linking with
+the worng std++ library for different reasons. See:
+\li http://www.mathworks.com/matlabcentral/newsreader/view_thread/291752
+\li https://mailman.cae.wisc.edu/pipermail/octave-maintainers/2012-January/026341.html
 
 <HR>
 

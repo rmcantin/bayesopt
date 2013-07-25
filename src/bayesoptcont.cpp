@@ -100,17 +100,13 @@ namespace bayesopt  {
   {
     
     size_t nSamples = mParameters.n_init_samples;
-    int useLatinBox = 2;
     
     matrixd xPoints(nSamples,mDims);
     vectord yPoints(nSamples);
     vectord sample(mDims);
-    randEngine mtRandom;
     
-    if (useLatinBox == 1)           utils::lhs(xPoints, mtRandom);
-    else if (useLatinBox == 2)           utils::sobol(xPoints, 0);
-    else                utils::uniformSampling(xPoints, mtRandom);
-    
+    utils::samplePoints(xPoints,mParameters.init_method);
+
     for(size_t i = 0; i < nSamples; i++)
       {
 	sample = row(xPoints,i);

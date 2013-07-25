@@ -24,14 +24,15 @@ CC=mingw32-c++
 INCLUDES=-I"$(MATLABROOT)\extern\include" -I"." -I"..\include" -I"..\wrappers"
 LIBS=-L"$(MATLABROOT)\bin\win32" -lmex -lmx -leng -lmat
 FLAGS=-shared -DMATLAB_MEX_FILE -Wl,--export-all-symbols
+BOPT=libbayesopt.dll
 
 all: disc cont
 
 cont:
-	$(CC) $(FLAGS) $(INCLUDES) -o bayesoptcont.mexw32  bayesoptmex.c libbayesopt.dll $(LIBS)
+	$(CC) $(FLAGS) $(INCLUDES) -o bayesoptcont.mexw32  bayesoptmex.c $(BOPT) $(LIBS)
 
 disc:
-	$(CC) $(FLAGS) $(INCLUDES) -o bayesoptdisc.mexw32  bayesoptdiscmex.c libbayesopt.dll $(LIBS)
+	$(CC) $(FLAGS) $(INCLUDES) -o bayesoptdisc.mexw32  bayesoptdiscmex.c $(BOPT) $(LIBS)
 
 
 

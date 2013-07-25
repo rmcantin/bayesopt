@@ -23,7 +23,7 @@ clear all, close all
 addpath('testfunctions')
 
 params.n_iterations = 300;
-params.n_init_iterations = 50;
+params.n_init_samples = 50;
 params.crit_name = 'cEI';
 params.surr_name = 'sGaussianProcessNormal';
 params.noise = 0.005;

@@ -26,12 +26,14 @@
 
 #include "randgen.hpp"
 #include "indexvector.hpp"
-#include "sobol.hpp"
+#if defined (USE_SOBOL)
+#  include "sobol.hpp"
+#endif
 
 namespace bayesopt
 {
   namespace utils
-  {
+  {      
     
     /** \brief Modify an array using ramdom permutations.
      *
@@ -82,6 +84,7 @@ namespace bayesopt
      * It uses the external Sobol library. Thus it do not depend on
      * boost random.
      */
+#if defined (USE_SOBOL)
     template<class M>
     int sobol(M& result, long long int seed)
     {
@@ -99,6 +102,7 @@ namespace bayesopt
 	}
       return 0;
     }
+#endif
 
     /** \brief Uniform hypercube sampling
      * It is used to generate a set of uniformly distributed
@@ -119,6 +123,30 @@ namespace bayesopt
 
       return 0;
     }
+
+    /** \brief Selects the sampling method.  */
+    template<class M>
+    int samplePoints(M& xPoints, int method)
+    {
+      randEngine mtRandom;
+
+      if (method == 1) 
+	lhs(xPoints, mtRandom);
+      else 
+	if (method == 2)
+	  {
+#if defined (USE_SOBOL)
+	    sobol(xPoints, 0);
+#else
+	    lhs(xPoints, mtRandom);
+#endif
+	  }
+	else
+	  uniformSampling(xPoints, mtRandom);
+
+      return 0;
+    }
+
 
   } //namespace utils
 

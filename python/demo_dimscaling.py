@@ -41,9 +41,12 @@ params = bayesopt.initialize_params()
 
 # We decided to change some of them
 params['n_init_samples'] = 150
+params['n_iter_relearn'] = 20
 #params['noise'] = 0.01
-#params['kernel_name'] = "kMaternISO3"
-params['surr_name'] = "sStudentTProcessJef"
+params['kernel_name'] = "kMaternISO3"
+params['kernel_hp_mean'] = [1]
+params['kernel_hp_std'] = [5]
+params['surr_name'] = "sStudentTProcessNIG"
 
 dim = 20
 lb = np.ones((dim,))*0

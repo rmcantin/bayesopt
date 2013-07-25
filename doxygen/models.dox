@@ -1,4 +1,5 @@
 /*! \page modelopt Models and functions
+\tableofcontents
 
 This library was originally developed for as part of a robotics
 research project \cite MartinezCantin09AR \cite MartinezCantin07RSS,
@@ -175,7 +176,7 @@ functions. For example:
 
 "cHedge(cSum(cEI,cDistance),cLCB,cPOI,cOptimisticSampling)"
 
-\subsection learnmod Methods for learning the kernel parameters  
+\section learnmod Methods for learning the kernel parameters  
 
 As commented before, we consider that the prior of the kernel
 hyperparameters \f$\theta\f$ --if available-- is independent of other
@@ -217,5 +218,28 @@ default, we add a normal prior on the kernel hyperparameters. However,
 if the variance of the prior \a hp_std is invalid (<=0), then we
 assume no prior. Since we assume that the hyperparameters are independent,
 we can apply priors selectively only to a small set.
+
+\section initdes Initial design methods
+
+In order to build a suitable surrogate function, we a need a
+preliminar set of samples. In Bayesian optimization this is typically
+performed using alternative experimental design criteria. In this
+first step, usually the main criteria is space filling. Thus, we have
+implemented the subsequent designs:
+
+\li Latin hypercube sampling: Each dimension of the space is divided
+in several intervals. Samples are then taken according to a
+generalization of the Latin square
+scheme. http://en.wikipedia.org/wiki/Latin_hypercube_sampling
+
+\li Sobol sequences: It is a set of quasi-random low-discrepancy
+sequences. Thus the space is sampled more evenly than with uniform
+sampling. http://en.wikipedia.org/wiki/Sobol_sequence
+
+\li Uniform sampling: The search space is sampled uniformly.
+
+Note: Since we do not assume any struture in the set of discrete
+points during discrete optimization, only uniform sampling of the
+discrete set is available in that case.
 
 */

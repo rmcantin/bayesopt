@@ -157,7 +157,7 @@ cdef double callback(unsigned int n, const_double_ptr x,
     x_np = np.zeros(n)
     for i in range(0,n):
         x_np[i] = <double>x[i]
-        result = (<object>func_data)(x_np)
+    result = (<object>func_data)(x_np)
     return result
 
 

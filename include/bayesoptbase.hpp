@@ -96,6 +96,13 @@ namespace bayesopt {
      */
     virtual vectord getFinalResult() = 0;
 
+    /** 
+     * Once the optimization has been perfomed, return the value of
+     * the optimal point.
+     */
+    double getMinimumValue()
+    { return mGP->getValueAtMinimum(); };
+
 
     /** 
      * \brief Function that defines the actual function to be optimized.

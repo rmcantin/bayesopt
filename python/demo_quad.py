@@ -66,9 +66,9 @@ print "Seconds", clock() - start
 print "OO implementation"
 bo_test = BayesOptTest()
 bo_test.params = params
-bo_test.n = n
-bo_test.lb = lb
-bo_test.ub = ub
+bo_test.n_dim = n
+bo_test.lower_bound = lb
+bo_test.upper_bound = ub
 
 start = clock()
 mvalue, x_out, error = bo_test.optimize()

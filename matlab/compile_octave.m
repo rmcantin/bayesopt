@@ -1,3 +1,25 @@
+% 
+% -------------------------------------------------------------------------
+%    This file is part of BayesOpt, an efficient C++ library for 
+%    Bayesian optimization.
+%
+%    Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+%
+%    BayesOpt is free software: you can redistribute it and/or modify it 
+%    under the terms of the GNU General Public License as published by
+%    the Free Software Foundation, either version 3 of the License, or
+%    (at your option) any later version.
+%
+%    BayesOpt is distributed in the hope that it will be useful, but 
+%    WITHOUT ANY WARRANTY; without even the implied warranty of
+%    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%    GNU General Public License for more details.
+%
+%    You should have received a copy of the GNU General Public License
+%    along with BayesOpt.  If not, see <http://www.gnu.org/licenses/>.
+% ------------------------------------------------------------------------
+%
+
 % You can also change ../lib for the correspoding install path
 % Octave
 mkoctfile -L../lib -lbayesopt -lnlopt -I../include -I../wrappers ...
@@ -6,23 +28,3 @@ mkoctfile -L../lib -lbayesopt -lnlopt -I../include -I../wrappers ...
 mkoctfile -L../lib -lbayesopt -lnlopt -I../include -I../wrappers ...
     --mex --output bayesoptdisc.mex bayesoptdiscmex.c
 
-%     if exist('../lib/libbayesopt.a','file')
-%     disp('Compiling static library');
-%      mkoctfile -L../lib -lbayesopt -lnlopt -I../include -I../wrappers ...
-%         --mex --output bayesoptcont.mex bayesoptmex.c
-
-%     mkoctfile -L../lib -lbayesopt -lnlopt -I../include -I../wrappers ...
-%         --mex --output bayesoptdisc.mex bayesoptdiscmex.c
-% else % TODO: Does not work in MacOS
-%     if (~ismac)
-%         disp('Compiling dynamic library');
-%         mkoctfile -L../lib -l:bayesopt.so -lnlopt -I../include -I../wrappers ...
-%             --mex --output bayesoptcont.mex bayesoptmex.c
-
-%         mkoctfile -L../lib -l:bayesopt.so -lnlopt -I../include -I../wrappers ...
-%             --mex --output bayesoptdisc.mex bayesoptdiscmex.c
-%     else
-%         disp('Dynamic library not supported in MacOS');
-%     end
-% end
-    

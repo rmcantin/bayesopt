@@ -49,8 +49,9 @@ bayesoptcont(fun,n,params,lb,ub)
 toc;
 
 disp('Discrete optimization');
-% The set of points must be nDim x nPoints.
-xset = repmat((ub-lb),1,100) .* rand(n,100) - repmat(lb,1,100);
+% The set of points must be numDimension x numPoints.
+np = 100;
+xset = repmat((ub-lb),1,np) .* rand(n,np) - repmat(lb,1,np);
 
 tic;
 bayesoptdisc(fun,xset, params);

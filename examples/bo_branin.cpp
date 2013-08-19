@@ -22,7 +22,8 @@
 
 #define _USE_MATH_DEFINES
 #include <cmath>
-#include <valarray>
+#include <algorithm>
+//#include <valarray>
 #include "bayesoptcont.hpp"
 
 #ifndef M_PI
@@ -77,7 +78,10 @@ int main(int nargs, char *args[])
   par.n_init_samples = 50;
   par.kernel.hp_mean[0] = 1.0;
   par.kernel.n_hp = 1;
-  par.crit_name = "cHedge(cEI,cLCB,cPOI)";
+  par.crit_name = "cHedge(cLCB,cEI,cPOI)";
+  double cParams[] = {5.0, 1.0, 0.01};
+  std::copy(cParams, cParams+3, par.crit_params);
+  par.n_crit_params = 3;
   
   ExampleBranin branin(2,par);
   vectord result(2);

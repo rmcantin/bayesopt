@@ -25,17 +25,21 @@ import sys
 #Assume default install.
 sys.path.append('/usr/local/lib')
 
+import math
 import numpy as np
 import bayesopt
 
+def quad(x,mu):
+    return ((np.asarray(x) - mu)**2).mean()
+
 def func(x):
-	#print "x", x
-	#~ target = np.ones(len(x))*0.3
-	target = np.arange(1,1+len(x))
-	#print "target", target
-	e = ((np.asarray(x) - target)**2).mean()
-	#print "e", e
-	return e
+    #print "x", x
+    #~ target = np.ones(len(x))*0.3
+    target = np.arange(1,1+len(x))
+    target2 = np.ones(len(x))*10
+    #print "target", target
+    e = quad(x,target)
+    return e
 
 # Initialize the parameters by default
 params = bayesopt.initialize_params()
@@ -55,6 +59,8 @@ ub = np.ones((dim,))*20
 
 mvalue, x_out, error = bayesopt.optimize(func, dim, lb, ub, params)
 
-print "Result", mvalue, x_out, error
+print "Result", mvalue, x_out
 
-print "Optimal", 0, np.arange(1,1+dim)
+print "Global optimal", 0, np.arange(1,1+dim)
+
+print "Distance", math.sqrt(mvalue*dim)

@@ -127,9 +127,10 @@ each iteration of the optimization process. Could be a combination of
 functions like "cHedge(cEI,cLCB,cPOI,cThompsonSampling)". See section
 critmod for the different possibilities. [Default: "cEI]"
 \li \b crit_params, \b n_crit_params: Array with the set of parameters
-for the selected criteria. If there are more than one, the parameters
-are split among them according to the number of parameters required
-for each criterion. [Default: 1, 1]
+for the selected criteria. If there are more than one criterium, the
+parameters are split among them according to the number of parameters
+required for each criterion. If n_crit_params is 0, then the default
+parameter is selected for each criteria. [Default: n_crit_params = 0]
 
 \subsection kernelpar Kernel parameters
 

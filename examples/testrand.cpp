@@ -8,5 +8,5 @@ int main()
   for (int i = 0; i<1000; i++)
     std::cout << sample() << std::endl;
 
-  return 1;
+  return 0;
 }

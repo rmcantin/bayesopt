@@ -44,7 +44,7 @@ namespace bayesopt
     virtual int init(size_t input_dim, ParametricFunction* left, 
 		     ParametricFunction* right) {return 0;};
 
-    virtual void setParameters(const vectord& params) = 0;
+    virtual int setParameters(const vectord& params) = 0;
     virtual vectord getParameters() = 0;
     virtual size_t nParameters() = 0;
 

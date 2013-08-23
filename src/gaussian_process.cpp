@@ -88,7 +88,7 @@ namespace bayesopt
     mAlphaV = mGPY-prod(mMu,mFeatM);
     inplace_solve(mL,mAlphaV,ublas::lower_tag());
 
-    return 1; 
+    return 0; 
   }
 	
 } //namespace bayesopt

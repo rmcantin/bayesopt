@@ -86,7 +86,7 @@ int bayes_optimization(int nDim, eval_func f, void* f_data,
 
   *minf = optimizer.getMinimumValue();
 
-  return 1; /* everything ok*/
+  return 0; /* everything ok*/
 };
 
 int bayes_optimization_disc(int nDim, eval_func f, void* f_data,
@@ -122,5 +122,5 @@ int bayes_optimization_disc(int nDim, eval_func f, void* f_data,
 
   *minf = optimizer.getMinimumValue();
 
-  return 1; /* everything ok*/
+  return 0; /* everything ok*/
 }

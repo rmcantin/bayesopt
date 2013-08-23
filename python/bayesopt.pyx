@@ -180,7 +180,7 @@ def initialize_params():
         "kernel_name" : "kMaternISO3",
         "kernel_hp_mean"  : [1.0],
         "kernel_hp_std": [100.0],
-        "mean_name" : "mOne",
+        "mean_name" : "mConst",
         "mean_coef_mean"     : [1.0],
         "mean_coef_std"   : [1000.0],
         "crit_name" : "cEI",

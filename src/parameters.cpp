@@ -105,7 +105,7 @@ bopt_params initialize_parameters_to_default(void)
   
   mean_parameters mean;
   mean.name = new char[128];
-  strcpy(mean.name,"mOne");
+  strcpy(mean.name,"mConst");
 
   mean.coef_mean[0] = MEAN_MU;
   mean.coef_std[0] = MEAN_SIGMA;
@@ -135,8 +135,7 @@ bopt_params initialize_parameters_to_default(void)
   
   params.crit_name = new char[128];
   strcpy(params.crit_name,"cEI");
-  params.crit_params[0] = 1.0;
-  params.n_crit_params = 1;
+  params.n_crit_params = 0;
 
   params.kernel = kernel;
   params.mean = mean;

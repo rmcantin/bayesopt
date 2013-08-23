@@ -50,15 +50,22 @@ namespace bayesopt
       this->right = right;
       return 0;
     };
-    void setParameters(const vectord &theta) 
+    int setParameters(const vectord &theta) 
     {
       using boost::numeric::ublas::subrange;
 
       size_t n_lhs = left->nParameters();
       size_t n_rhs = right->nParameters();
-      //assert(theta.size() == n_lhs + n_rhs);
+      if (theta.size() != n_lhs + n_rhs)
+	{
+	  FILE_LOG(logERROR) << "Wrong number of mean function parameters"; 
+	  return -1; 
+	}
+
       left->setParameters(subrange(theta,0,n_lhs));
       right->setParameters(subrange(theta,n_lhs,n_lhs+n_rhs));
+
+      return 0;
     };
 
     vectord getParameters() 

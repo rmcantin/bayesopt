@@ -1,3 +1,25 @@
+% 
+% -------------------------------------------------------------------------
+%    This file is part of BayesOpt, an efficient C++ library for 
+%    Bayesian optimization.
+%
+%    Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+%
+%    BayesOpt is free software: you can redistribute it and/or modify it 
+%    under the terms of the GNU General Public License as published by
+%    the Free Software Foundation, either version 3 of the License, or
+%    (at your option) any later version.
+%
+%    BayesOpt is distributed in the hope that it will be useful, but 
+%    WITHOUT ANY WARRANTY; without even the implied warranty of
+%    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%    GNU General Public License for more details.
+%
+%    You should have received a copy of the GNU General Public License
+%    along with BayesOpt.  If not, see <http://www.gnu.org/licenses/>.
+% ------------------------------------------------------------------------
+%
+
 % You can also change ../lib for the correspoding install path
 % MATLAB
 if (ispc)
@@ -25,25 +47,4 @@ else
 
     mex -output bayesoptdisc bayesoptdiscmex.c -L../lib -lbayesopt ...
         -lnlopt -I../include -I../wrappers -I../nlopt/api 
-
-    % if exist('../lib/libbayesopt.a','file')
-    %     disp('Compiling static library');
-    %     mex -output bayesoptcont bayesoptmex.c ../lib/libbayesopt.a ...
-    %     ../lib/libnlopt.a -I../include -I../wrappers -I../nlopt/api 
-
-    %     mex -output bayesoptdisc bayesoptdiscmex.c ../lib/libbayesopt.a ...
-    %         ../lib/libnlopt.a -I../include -I../wrappers -I../nlopt/api 
-    % else
-    %     if exist('../lib/bayesopt.so','file')
-    %         disp('Compiling dynamic library');
-    %         mex -g -output bayesoptcont bayesoptmex.c ../lib/bayesopt.so ...
-    %             -I../include -I../wrappers
-
-    %         mex -g -output bayesoptdisc bayesoptdiscmex.c ../lib/bayesopt.so ...
-    %             -I../include -I../wrappers
-                
-    %     else
-    %         disp('Error: File not found');
-    %     end
-    % end
 end

@@ -55,7 +55,7 @@ namespace bayesopt
       size_t n_rhs = right->nHyperParameters();
       if (theta.size() != n_lhs + n_rhs)
 	{
-	  FILE_LOG(logERROR) << "Wrong number of hyperparameters"; 
+	  FILE_LOG(logERROR) << "Wrong number of kernel hyperparameters"; 
 	  return -1; 
 	}
       left->setHyperParameters(subrange(theta,0,n_lhs));

@@ -96,7 +96,7 @@ namespace bayesopt
     inplace_solve(mL,mAlphaF,ublas::lower_tag());
     mSigma = inner_prod(mAlphaF,mAlphaF)/(n-p);
   
-    return 1;
+    return 0;
   }
 
 } //namespace bayesopt

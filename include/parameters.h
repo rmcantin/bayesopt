@@ -36,14 +36,6 @@ extern "C" {
   /*** Type definitions                                       **/
   /*************************************************************/
   
-  typedef enum {  
-    S_GAUSSIAN_PROCESS,
-    S_GAUSSIAN_PROCESS_ML,
-    S_STUDENT_T_PROCESS_JEFFREYS,
-    S_STUDENT_T_PROCESS_NORMAL_INV_GAMMA,
-    S_ERROR = -1
-  } surrogate_name;
-
   typedef enum {
     L_ML,
     L_MAP,

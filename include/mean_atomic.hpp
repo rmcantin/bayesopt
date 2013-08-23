@@ -43,10 +43,16 @@ namespace bayesopt
       n_inputs = input_dim;
       return 0;
     };
-    void setParameters(const vectord &theta) 
+    int setParameters(const vectord &theta) 
     {
-      //      assert(theta.size() == n_params);
+      if(theta.size() != n_params)
+	{
+	  FILE_LOG(logERROR) << "Wrong number of mean function parameters"; 
+	  return -1; 
+	}
+   
       mParameters = theta;
+      return 0;
     };
     vectord getParameters() {return mParameters;};
     size_t nParameters() {return n_params;};
@@ -68,7 +74,7 @@ namespace bayesopt
     int init(size_t input_dim)
     {
       n_inputs = input_dim;
-      n_params = 0;
+      n_params = 1;
       n_features = 1;
       return 0;
     };
@@ -83,7 +89,7 @@ namespace bayesopt
     int init(size_t input_dim)
     {
       n_inputs = input_dim;
-      n_params = 0;
+      n_params = 1;
       n_features = 1;
       return 0;
     };
@@ -139,11 +145,18 @@ namespace bayesopt
       n_features = input_dim + 1;
       return 0;
     };
-    void setParameters(const vectord& params)
+    int setParameters(const vectord& params)
     { 
+      if(params.size() != n_params)
+	{
+	  FILE_LOG(logERROR) << "Wrong number of mean function parameters"; 
+	  return -1; 
+	}
+
       mConstParam = params(0);
       mParameters = boost::numeric::ublas::project(params, 
 						   boost::numeric::ublas::range(1, params.size())); 
+      return 0;
     };
   
     double getMean (const vectord& x)

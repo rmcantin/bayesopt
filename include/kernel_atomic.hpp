@@ -47,7 +47,7 @@ namespace bayesopt
     {
       if(theta.size() != n_params)
 	{
-	  FILE_LOG(logERROR) << "Wrong number of hyperparameters"; 
+	  FILE_LOG(logERROR) << "Wrong number of kernel hyperparameters"; 
 	  return -1; 
 	}
       params = theta;

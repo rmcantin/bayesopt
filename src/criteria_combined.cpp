@@ -83,15 +83,17 @@ namespace bayesopt
     else
       {
 	int optIndex = update_hedge();
-	name = mCriteriaList[optIndex]->name();
-      
 	if (optIndex >= 0)
 	  {
-	    best = mBestLists[optIndex];
+	    name = mCriteriaList[optIndex]->name();
+      	    best = mBestLists[optIndex];
 	    error_code = 0;
 	  }
 	else
 	  {
+	    name = mCriteriaList[0]->name();
+      	    best = mBestLists[0];
+	    FILE_LOG(logERROR) << "Error updating Hedge algorithm. Selecting " << name;
 	    error_code = optIndex; 
 	  }
 	return true;	
@@ -102,27 +104,25 @@ namespace bayesopt
 
   int GP_Hedge::update_hedge()
   {
-    double max_g = *std::max_element(gain_.begin(),gain_.end());
-    double min_g = *std::min_element(gain_.begin(),gain_.end());
-    double max_l = *std::max_element(loss_.begin(),loss_.end());
-
     // We just care about the differences
+    double max_l = *std::max_element(loss_.begin(),loss_.end());
     loss_ += svectord(loss_.size(),max_l);
 
     // To avoid overflow
-    if (std::abs(max_g) > std::abs(min_g))
-      gain_ -= svectord(gain_.size(),max_g);
-    else
-      gain_ -= svectord(gain_.size(),min_g);
+    double mean_g = std::accumulate(gain_.begin(),gain_.end(),0.0) 
+      / static_cast<double>(gain_.size());
+    gain_ -= svectord(gain_.size(),mean_g);
 
     // Optimal eta according to Shapire
-    max_g = *std::max_element(gain_.begin(),gain_.end());
+    double max_g = *std::max_element(gain_.begin(),gain_.end());
     double eta = (std::min)(10.0,sqrt(2.0*log(3.0)/max_g));
-    std::transform(gain_.begin(), gain_.end(), prob_.begin(),
-		   boost::bind(softmax,_1,eta));       
     
+    // Compute probabilities
+    std::transform(gain_.begin(), gain_.end(), prob_.begin(),
+		   boost::bind(softmax,_1,eta));
+       
     //Normalize
-    double sum_p =std::accumulate(prob_.begin(),prob_.end(),0);
+    double sum_p =std::accumulate(prob_.begin(),prob_.end(),0.0);
     prob_ /= sum_p;
 
     //Update bandits gain

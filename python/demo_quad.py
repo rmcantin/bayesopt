@@ -46,9 +46,10 @@ class BayesOptTest(bayesoptmodule.BayesOptContinuous):
 params = bayesopt.initialize_params()
 params['n_iterations'] = 50
 params['n_init_samples'] = 20
-#params['surr_name'] = "GAUSSIAN_PROCESS_INV_GAMMA_NORMAL"
 params['crit_name'] = "cEI"
 params['kernel_name'] = "kMaternISO3"
+
+
 print "Callback implementation"
 
 n = 5                     # n dimensions
@@ -56,26 +57,25 @@ lb = np.zeros((n,))
 ub = np.ones((n,))
 
 start = clock()
-
 mvalue, x_out, error = bayesopt.optimize(testfunc, n, lb, ub, params)
 
-print "Result", x_out
+print "Result", mvalue, "at", x_out
 print "Seconds", clock() - start
-
+raw_input('Press INTRO to continue')
 
 print "OO implementation"
 bo_test = BayesOptTest()
 bo_test.params = params
-bo_test.n = n
-bo_test.lb = lb
-bo_test.ub = ub
+bo_test.n_dim = n
+bo_test.lower_bound = lb
+bo_test.upper_bound = ub
 
 start = clock()
 mvalue, x_out, error = bo_test.optimize()
 
-print "Result", x_out
+print "Result", mvalue, "at", x_out
 print "Seconds", clock() - start
-
+raw_input('Press INTRO to continue')
 
 print "Callback discrete implementation"
 x_set = np.random.rand(100,n)
@@ -83,7 +83,7 @@ start = clock()
 
 mvalue, x_out, error = bayesopt.optimize_discrete(testfunc, x_set, params)
 
-print "Result", x_out
+print "Result", mvalue, "at", x_out
 print "Seconds", clock() - start
 
 value = np.array([testfunc(i) for i in x_set])

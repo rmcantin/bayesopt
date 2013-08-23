@@ -84,7 +84,9 @@ int bayes_optimization(int nDim, eval_func f, void* f_data,
 
   std::copy(result.begin(), result.end(), x);
 
-  return 1; /* everything ok*/
+  *minf = optimizer.getMinimumValue();
+
+  return 0; /* everything ok*/
 };
 
 int bayes_optimization_disc(int nDim, eval_func f, void* f_data,
@@ -118,5 +120,7 @@ int bayes_optimization_disc(int nDim, eval_func f, void* f_data,
 
   std::copy(result.begin(), result.end(), x);
 
-  return 1; /* everything ok*/
+  *minf = optimizer.getMinimumValue();
+
+  return 0; /* everything ok*/
 }

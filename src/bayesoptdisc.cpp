@@ -68,7 +68,7 @@ namespace bayesopt
 	FILE_LOG(logINFO) << "Best found at: " << mGP->getPointAtMinimum() ; 
 	FILE_LOG(logINFO) << "Best outcome: " <<  mGP->getValueAtMinimum() ;    
       }
-    return 1;
+    return 0;
   }
 
 
@@ -112,7 +112,7 @@ namespace bayesopt
 	      }
 	  }  
       }
-    return 1;
+    return 0;
   } // sampleInitialPoints
   
 
@@ -133,7 +133,7 @@ namespace bayesopt
 	    min = current;
 	  }
       }
-    return 1;
+    return 0;
   }
 
 }  // namespace bayesopt

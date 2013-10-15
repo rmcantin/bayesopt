@@ -25,7 +25,6 @@
 #define  _BAYESOPTCONT_HPP_
 
 #include "boundingbox.hpp"
-#include "inneroptimization.hpp"
 #include "bayesoptbase.hpp"
 
 namespace bayesopt  {
@@ -33,13 +32,14 @@ namespace bayesopt  {
   /** \addtogroup BayesOpt */
   /**@{*/
 
+  class InnerOptimization;
+
   /**
    * \brief Bayesian optimization using different non-parametric
    * processes as distributions over surrogate functions. The
    * exploration spaces is assumed to be continous and box-bounded.
    */
-  class BAYESOPT_API ContinuousModel: //public InnerOptimization, 
-			      public BayesOptBase
+  class BAYESOPT_API ContinuousModel: public BayesOptBase
   {
   public:
    

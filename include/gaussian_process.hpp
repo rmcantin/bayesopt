@@ -53,6 +53,8 @@ namespace bayesopt
      */	
     ProbabilityDistribution* prediction(const vectord &query);
 
+    double getSignalVariance() { return mSigma; };
+
   private:
 
     /** 
@@ -81,6 +83,7 @@ namespace bayesopt
     int precomputePrediction();
 
   private:
+    double mSigma;                ///< Signal variance
     vectord mAlphaV;              ///< Precomputed L\y
     GaussianDistribution* d_;     ///< Pointer to distribution function
   };

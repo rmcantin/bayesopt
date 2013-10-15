@@ -29,7 +29,7 @@ namespace bayesopt
 
   StudentTProcessJeffreys::StudentTProcessJeffreys(size_t dim, 
 						   bopt_params params):
-    HierarchicalGaussianProcess(dim, params)
+    HierarchicalGaussianProcess(dim, params), mSigma(params.sigma_s)
   {
     d_ = new StudentTDistribution();
   }  // Constructor
@@ -54,7 +54,7 @@ namespace bayesopt
   ProbabilityDistribution* 
   StudentTProcessJeffreys::prediction(const vectord &query )
   {
-    double kq = (*mKernel)(query, query);;
+    double kq = computeSelfCorrelation(query);
     vectord kn = computeCrossCorrelation(query);
     vectord phi = mMean->getFeatures(query);
   

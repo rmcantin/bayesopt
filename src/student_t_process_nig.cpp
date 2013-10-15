@@ -61,7 +61,7 @@ namespace bayesopt
 
   ProbabilityDistribution* StudentTProcessNIG::prediction(const vectord &query)
   {
-    double kq = (*mKernel)(query, query);;
+    double kq = computeSelfCorrelation(query);
     vectord kn = computeCrossCorrelation(query);
     vectord phi = mMean->getFeatures(query);
   

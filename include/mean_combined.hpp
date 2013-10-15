@@ -26,7 +26,7 @@
 #define  _MEAN_COMBINED_HPP_
 
 #include <boost/numeric/ublas/vector_proxy.hpp>
-#include "kernel_functors.hpp"
+#include "mean_functors.hpp"
 
 namespace bayesopt
 {

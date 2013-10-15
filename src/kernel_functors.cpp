@@ -1,5 +1,6 @@
 #include "log.hpp"
 #include "parser.hpp"
+#include "ublas_extra.hpp"
 #include "kernel_functors.hpp"
 #include "kernel_atomic.hpp"
 #include "kernel_combined.hpp"
@@ -74,4 +75,133 @@ namespace bayesopt
 
   };
 
+
+  //////////////////////////////////////////////////////////////////////
+
+  KernelModel::KernelModel(size_t dim, bopt_params parameters)
+  {
+    int errorK = setKernel(parameters.kernel,dim);
+    if (errorK)
+      {
+	FILE_LOG(logERROR) << "Error initializing nonparametric process.";
+	exit(EXIT_FAILURE);
+      }
+  }
+
+  Kernel* KernelModel::getKernel()
+  {
+    return mKernel.get();
+  }
+
+  int KernelModel::setKernel (const vectord &thetav, 
+			      const vectord &stheta,
+			      std::string k_name, 
+			      size_t dim)
+  {
+    mKernel.reset(mKFactory.create(k_name, dim));
+    int error = setKernelPrior(thetav,stheta);
+    
+    if (mKernel == NULL || error)   return -1;
+
+    return mKernel->setHyperParameters(thetav);
+  }
+
+  int KernelModel::setKernel (kernel_parameters kernel, 
+			      size_t dim)
+  {
+    size_t n = kernel.n_hp;
+    vectord th = utils::array2vector(kernel.hp_mean,n);
+    vectord sth = utils::array2vector(kernel.hp_std,n);
+    int error = setKernel(th, sth, kernel.name, dim);
+    return 0;
+  };
+
+  int KernelModel::setKernelPrior (const vectord &theta, 
+				   const vectord &s_theta)
+  {
+    size_t n_theta = theta.size();
+    for (size_t i = 0; i<n_theta; ++i)
+      {
+	boost::math::normal n(theta(i),s_theta(i));
+	priorKernel.push_back(n);
+      }
+    return 0;
+  };
+
+  int KernelModel::computeCorrMatrix(const vecOfvec& XX, matrixd& corrMatrix, 
+				     double nugget)
+  {
+    assert(corrMatrix.size1() == XX.size());
+    assert(corrMatrix.size2() == XX.size());
+    const size_t nSamples = XX.size();
+  
+    for (size_t ii=0; ii< nSamples; ++ii)
+      {
+	for (size_t jj=0; jj < ii; ++jj)
+	  {
+	    corrMatrix(ii,jj) = (*mKernel)(XX[ii], XX[jj]);
+	    corrMatrix(jj,ii) = corrMatrix(ii,jj);
+	  }
+	corrMatrix(ii,ii) = (*mKernel)(XX[ii],XX[ii]) + nugget;
+      }
+    return 0;
+  }
+
+  int KernelModel::computeDerivativeCorrMatrix(const vecOfvec& XX, 
+					       matrixd& corrMatrix,
+					       int dth_index)
+  {
+    assert(corrMatrix.size1() == XX.size());
+    assert(corrMatrix.size2() == XX.size());
+    const size_t nSamples = XX.size();
+   
+    for (size_t ii=0; ii< nSamples; ++ii)
+      {
+	for (size_t jj=0; jj < ii; ++jj)
+	  {
+	    corrMatrix(ii,jj) = mKernel->gradient(XX[ii],XX[jj], 
+						  dth_index);
+	    corrMatrix(jj,ii) = corrMatrix(ii,jj);
+	  }
+	corrMatrix(ii,ii) = mKernel->gradient(XX[ii],XX[ii],dth_index);
+      }
+    return 0;
+  }
+
+
+
+  vectord KernelModel::computeCrossCorrelation(const vecOfvec& XX, 
+					       const vectord &query)
+  {
+    vectord knx(XX.size());
+
+    std::vector<vectord>::const_iterator x_it  = XX.begin();
+    std::vector<vectord>::const_iterator x_end = XX.end();
+    vectord::iterator k_it = knx.begin();
+    while(x_it != x_end)
+      {
+	*k_it++ = (*mKernel)(*x_it++, query);
+      }
+    
+    return knx;
+  }
+
+  double KernelModel::computeSelfCorrelation(const vectord& query)
+  {
+    return (*mKernel)(query,query);
+  }
+  
+  double KernelModel::kernelLogPrior()
+  {
+    double prior = 0.0;
+    vectord th = mKernel->getHyperParameters();
+    for(size_t i = 0; i<th.size();++i)
+      {
+	if (priorKernel[i].standard_deviation() > 0)
+	  {
+	    prior += log(boost::math::pdf(priorKernel[i],th(i)));
+	  }
+      }
+    return prior;
+  }
 } //namespace bayesopt

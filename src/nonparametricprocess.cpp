@@ -41,8 +41,8 @@ namespace bayesopt
 {
   
   NonParametricProcess::NonParametricProcess(size_t dim, bopt_params parameters):
-    mSigma(parameters.sigma_s), dim_(dim), mRegularizer(parameters.noise),
-    mMinIndex(0), mMaxIndex(0)
+    dim_(dim), mRegularizer(parameters.noise),
+    mMinIndex(0), mMaxIndex(0), mKernel(dim, parameters)
   { 
     kOptimizer = new OptimizeKernel(this);
 
@@ -57,9 +57,8 @@ namespace bayesopt
       }
     kOptimizer->setLimits(1e-10,100.);
     setLearnType(parameters.l_type);
-    int errorK = setKernel(parameters.kernel,dim);
     int errorM = setMean(parameters.mean,dim);
-    if (errorK || errorM)
+    if (errorM)
       {
 	FILE_LOG(logERROR) << "Error initializing nonparametric process.";
 	exit(EXIT_FAILURE);
@@ -103,12 +102,12 @@ namespace bayesopt
     int error = -1;
     if (learnTheta)
       {
-	vectord optimalTheta = mKernel->getHyperParameters();
+	vectord optimalTheta = mKernel.getHyperParameters();
 	
 	FILE_LOG(logDEBUG) << "Computing kernel parameters. Seed: " 
 			   << optimalTheta;
 	kOptimizer->run(optimalTheta);
-	error = mKernel->setHyperParameters(optimalTheta);
+	error = mKernel.setHyperParameters(optimalTheta);
 
 	if (error)
 	  {
@@ -145,7 +144,7 @@ namespace bayesopt
     assert( mGPXX[1].size() == Xnew.size() );
 
     const vectord newK = computeCrossCorrelation(Xnew);
-    double selfCorrelation = (*mKernel)(Xnew, Xnew) + mRegularizer;
+    double selfCorrelation = computeSelfCorrelation(Xnew) + mRegularizer;
   
     addSample(Xnew,Ynew);
     addNewPointToCholesky(newK,selfCorrelation);
@@ -214,43 +213,7 @@ namespace bayesopt
     return mGPY[last];
   }
     
-  int NonParametricProcess::setKernel (const vectord &thetav, 
-				       const vectord &stheta,
-				       std::string k_name, 
-				       size_t dim)
-  {
-    mKernel.reset(mKFactory.create(k_name, dim));
-    int error = setKernelPrior(thetav,stheta);
-    
-    if (mKernel == NULL || error)   return -1;
-
-    return mKernel->setHyperParameters(thetav);
-  }
-
-  int NonParametricProcess::setKernel (kernel_parameters kernel, 
-				       size_t dim)
-  {
-    size_t n = kernel.n_hp;
-    vectord th = utils::array2vector(kernel.hp_mean,n);
-    vectord sth = utils::array2vector(kernel.hp_std,n);
-    int error = setKernel(th, sth, kernel.name, dim);
-    return 0;
-  };
-
-  int NonParametricProcess::setKernelPrior (const vectord &theta, 
-					    const vectord &s_theta)
-  {
-    size_t n_theta = theta.size();
-    for (size_t i = 0; i<n_theta; ++i)
-      {
-	boost::math::normal n(theta(i),s_theta(i));
-	priorKernel.push_back(n);
-      }
-    return 0;
-  };
-
-
-
+  
   int NonParametricProcess::setMean (const vectord &muv,
 				     const vectord &smu,
 				     std::string m_name,
@@ -322,21 +285,12 @@ namespace bayesopt
 
   double NonParametricProcess::negativeLogPrior()
   {
-    double prior = 0.0;
-    vectord th = mKernel->getHyperParameters();
-    for(size_t i = 0; i<th.size();++i)
-      {
-	if (priorKernel[i].standard_deviation() > 0)
-	  {
-	    prior -= log(boost::math::pdf(priorKernel[i],th(i)));
-	  }
-      }
-    return prior;
+    return -mKernel.kernelLogPrior();
   }
 
   double NonParametricProcess::evaluateKernelParams(const vectord& query)
   { 
-    int error = mKernel->setHyperParameters(query);
+    int error = mKernel.setHyperParameters(query);
     if (error) 
       {
 	FILE_LOG(logERROR) << "Problem optimizing kernel parameters."; 
@@ -384,20 +338,7 @@ namespace bayesopt
 
   int NonParametricProcess::computeCorrMatrix(matrixd& corrMatrix)
   {
-    assert(corrMatrix.size1() == mGPXX.size());
-    assert(corrMatrix.size2() == mGPXX.size());
-    const size_t nSamples = mGPXX.size();
-  
-    for (size_t ii=0; ii< nSamples; ++ii)
-      {
-	for (size_t jj=0; jj < ii; ++jj)
-	  {
-	    corrMatrix(ii,jj) = (*mKernel)(mGPXX[ii], mGPXX[jj]);
-	    corrMatrix(jj,ii) = corrMatrix(ii,jj);
-	  }
-	corrMatrix(ii,ii) = (*mKernel)(mGPXX[ii],mGPXX[ii]) + mRegularizer;
-      }
-    return 0;
+    return mKernel.computeCorrMatrix(mGPXX,corrMatrix,mRegularizer);
   }
 
 
@@ -406,16 +347,7 @@ namespace bayesopt
   {
     const size_t nSamples = mGPXX.size();
     matrixd corrMatrix(nSamples,nSamples);
-  
-    for (size_t ii=0; ii< nSamples; ++ii)
-      {
-	for (size_t jj=0; jj < ii; ++jj)
-	  {
-	    corrMatrix(ii,jj) = (*mKernel)(mGPXX[ii], mGPXX[jj]);
-	    corrMatrix(jj,ii) = corrMatrix(ii,jj);
-	  }
-	corrMatrix(ii,ii) = (*mKernel)(mGPXX[ii],mGPXX[ii]) + mRegularizer;
-      }
+    int error = mKernel.computeCorrMatrix(mGPXX,corrMatrix,mRegularizer);
     return corrMatrix;
   }
 
@@ -423,36 +355,19 @@ namespace bayesopt
   {
     const size_t nSamples = mGPXX.size();
     matrixd corrMatrix(nSamples,nSamples);
-  
-    for (size_t ii=0; ii< nSamples; ++ii)
-      {
-	for (size_t jj=0; jj < ii; ++jj)
-	  {
-	    corrMatrix(ii,jj) = mKernel->gradient(mGPXX[ii],mGPXX[jj], 
-						  dth_index);
-	    corrMatrix(jj,ii) = corrMatrix(ii,jj);
-	  }
-	corrMatrix(ii,ii) = mKernel->gradient(mGPXX[ii],mGPXX[ii],dth_index);
-      }
+    int error = mKernel.computeDerivativeCorrMatrix(mGPXX,corrMatrix,dth_index);
     return corrMatrix;
   }
 
 
-
   vectord NonParametricProcess::computeCrossCorrelation(const vectord &query)
   {
-    vectord knx(mGPXX.size());
-
-    std::vector<vectord>::const_iterator x_it  = mGPXX.begin();
-    std::vector<vectord>::const_iterator x_end = mGPXX.end();
-    vectord::iterator k_it = knx.begin();
-    while(x_it != x_end)
-      {
-	*k_it++ = (*mKernel)(*x_it++, query);
-      }
-    
-    return knx;
+    return mKernel.computeCrossCorrelation(mGPXX,query);
   }
 
+  double NonParametricProcess::computeSelfCorrelation(const vectord& query)
+  {
+    return mKernel.computeSelfCorrelation(query);
+  }
 
 } //namespace bayesopt

@@ -30,7 +30,7 @@ namespace bayesopt
   namespace ublas = boost::numeric::ublas;
 
   GaussianProcess::GaussianProcess(size_t dim, bopt_params params):
-    NonParametricProcess(dim, params)
+    NonParametricProcess(dim, params), mSigma(params.sigma_s)
   {
     d_ = new GaussianDistribution();
   }  // Constructor
@@ -65,7 +65,7 @@ namespace bayesopt
 
   ProbabilityDistribution* GaussianProcess::prediction(const vectord &query)
   {
-    const double kq = (*mKernel)(query, query);
+    const double kq = computeSelfCorrelation(query);
     const vectord kn = computeCrossCorrelation(query);
     
 

@@ -25,6 +25,8 @@
 #define  _KERNEL_FUNCTORS_HPP_
 
 #include <map>
+#include <boost/scoped_ptr.hpp>
+#include <boost/math/distributions/normal.hpp> 
 #include "parameters.h"
 #include "specialtypes.hpp"
 
@@ -81,6 +83,53 @@ namespace bayesopt
   private:
     typedef Kernel* (*create_func_definition)();
     std::map<std::string , KernelFactory::create_func_definition> registry;
+  };
+
+
+  class KernelModel
+  {
+  public:
+    KernelModel(size_t dim, bopt_params parameters);
+    virtual ~KernelModel() {};
+
+    Kernel* getKernel();
+    
+    inline int setHyperParameters(const vectord &theta)
+    { 
+      mKernel->setHyperParameters(theta);
+      return 0;
+    };
+    
+    inline vectord getHyperParameters(){return mKernel->getHyperParameters();};
+    inline size_t nHyperParameters(){return mKernel->nHyperParameters();};
+
+    /** 
+     * \brief Select kernel (covariance function) for the surrogate process.
+     * @param thetav kernel parameters (mean)
+     * @param stheta kernel parameters (std)
+     * @param k_name kernel name
+     * @return error_code
+     */
+    int setKernel (const vectord &thetav, const vectord &stheta, 
+		   std::string k_name, size_t dim);
+
+    /** Wrapper of setKernel for C kernel structure */
+    int setKernel (kernel_parameters kernel, size_t dim);
+
+    int computeCorrMatrix(const vecOfvec& XX, matrixd& corrMatrix, double nugget);
+    int computeDerivativeCorrMatrix(const vecOfvec& XX, matrixd& corrMatrix, int dth_index);
+    vectord computeCrossCorrelation(const vecOfvec& XX, const vectord &query);
+    double computeSelfCorrelation(const vectord& query);
+    double kernelLogPrior();
+
+  private:
+    /** Set prior (Gaussian) for kernel hyperparameters */
+    int setKernelPrior (const vectord &theta, const vectord &s_theta);
+
+    boost::scoped_ptr<Kernel> mKernel;            ///< Pointer to kernel function
+    std::vector<boost::math::normal> priorKernel; ///< Prior of kernel parameters
+    KernelFactory mKFactory;
+
   };
 
   //@}

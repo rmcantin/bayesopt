@@ -27,7 +27,6 @@
 #define __NONPARAMETRICPROCESS_HPP__
 
 #include <boost/scoped_ptr.hpp>
-#include <boost/math/distributions/normal.hpp> 
 #include "ublas_extra.hpp"
 #include "kernel_functors.hpp"
 #include "mean_functors.hpp"
@@ -103,24 +102,9 @@ namespace bayesopt
     inline vectord getPointAtMinimum() { return mGPXX[mMinIndex]; };
     inline double getValueAtMinimum() { return mGPY(mMinIndex); };
     inline size_t getNSamples() { return mGPY.size(); };
-    inline double getSignalVariance() { return mSigma; };
+    
+    virtual double getSignalVariance() = 0;
   
-    // Kernel function
-    /** 
-     * \brief Select kernel (covariance function) for the surrogate process.
-     * @param thetav kernel parameters (mean)
-     * @param stheta kernel parameters (std)
-     * @param k_name kernel name
-     * @return error_code
-     */
-    int setKernel (const vectord &thetav, const vectord &stheta, 
-		   std::string k_name, size_t dim);
-
-    /** Wrapper of setKernel for C kernel structure */
-    int setKernel (kernel_parameters kernel, size_t dim);
-
-    /** Set prior (Gaussian) for kernel hyperparameters */
-    int setKernelPrior (const vectord &theta, const vectord &s_theta);
 
     /** Sets the kind of learning methodology for kernel hyperparameters */
     inline void setLearnType(learning_type l_type) { mLearnType = l_type; };
@@ -173,18 +157,6 @@ namespace bayesopt
      */
     virtual int precomputePrediction() = 0;
 
-    /**
-     * Computes the negative score of the data using cross validation.
-     * @return negative score
-     */
-    double negativeCrossValidation();
-
-    /** 
-     * \brief Computes the negative log prior of the hyperparameters.
-     * @return value negative log prior
-     */
-    double negativeLogPrior();
-
 
     /** 
      * Computes the Cholesky decomposition of the Correlation (Kernel
@@ -206,6 +178,20 @@ namespace bayesopt
     matrixd computeCorrMatrix();
     matrixd computeDerivativeCorrMatrix(int dth_index);
     vectord computeCrossCorrelation(const vectord &query);
+    double computeSelfCorrelation(const vectord& query);
+
+  private:
+    /**
+     * Computes the negative score of the data using cross validation.
+     * @return negative score
+     */
+    double negativeCrossValidation();
+
+    /** 
+     * \brief Computes the negative log prior of the hyperparameters.
+     * @return value negative log prior
+     */
+    double negativeLogPrior();
 
     inline void checkBoundsY( size_t i )
     {
@@ -215,7 +201,6 @@ namespace bayesopt
 
 
   protected:
-    double mSigma;                                           ///< Signal variance
     vecOfvec mGPXX;                                              ///< Data inputs
     vectord mGPY;                                                ///< Data values
     
@@ -223,22 +208,21 @@ namespace bayesopt
     vectord mMu;                 ///< Mean of the parameters of the mean function
     vectord mS_Mu;    ///< Variance of the params of the mean function W=mS_Mu*I
 
-    boost::scoped_ptr<Kernel> mKernel;            ///< Pointer to kernel function
     boost::scoped_ptr<ParametricFunction> mMean;    ///< Pointer to mean function
 
     matrixd mL;             ///< Cholesky decomposition of the Correlation matrix
     size_t dim_;
     learning_type mLearnType;
+    KernelModel mKernel;
 
   private:
     const double mRegularizer;   ///< Std of the obs. model (also used as nugget)
-    std::vector<boost::math::normal> priorKernel; ///< Prior of kernel parameters
     size_t mMinIndex, mMaxIndex;	
-    KernelFactory mKFactory;
     MeanFactory mPFactory;
 
     //TODO: might be unnecesary
     vectord mMeanV;                           ///< Mean value at the input points
+
     InnerOptimization* kOptimizer;
   };
 

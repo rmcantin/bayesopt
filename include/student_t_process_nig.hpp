@@ -56,6 +56,7 @@ namespace bayesopt
      */	
     ProbabilityDistribution* prediction(const vectord &query);
 
+    double getSignalVariance() { return mSigmaMap; };
 
   private:
 

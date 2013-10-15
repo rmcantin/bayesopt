@@ -30,7 +30,7 @@ namespace bayesopt
   namespace ublas = boost::numeric::ublas;
 
   GaussianProcessML::GaussianProcessML(size_t dim, bopt_params params):
-    HierarchicalGaussianProcess(dim, params)
+    HierarchicalGaussianProcess(dim, params), mSigma(params.sigma_s)
   {
     d_ = new GaussianDistribution();
   }  // Constructor
@@ -54,7 +54,7 @@ namespace bayesopt
 
   ProbabilityDistribution* GaussianProcessML::prediction( const vectord &query )
   {
-    double kq = (*mKernel)(query, query);;
+    double kq = computeSelfCorrelation(query);
     vectord kn = computeCrossCorrelation(query);
     vectord phi = mMean->getFeatures(query);
   

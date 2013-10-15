@@ -25,23 +25,27 @@
 #include "randgen.hpp"
 #include "log.hpp"
 #include "bayesoptcont.hpp"
+#include "optimizecriteria.hpp"
 
 namespace bayesopt  {
   
   ContinuousModel::ContinuousModel():
     BayesOptBase(), mBB(NULL)
   { 
-    setAlgorithm(DIRECT);
+    cOptimizer = new OptimizeCriteria(this);
+    cOptimizer->setAlgorithm(DIRECT);
   } // Def Constructor
 
   ContinuousModel::ContinuousModel(size_t dim, bopt_params parameters):
     BayesOptBase(dim,parameters), mBB(NULL)
   { 
-    setAlgorithm(DIRECT);
+    cOptimizer = new OptimizeCriteria(this);
+    cOptimizer->setAlgorithm(DIRECT);
   } // Constructor
 
   ContinuousModel::~ContinuousModel()
   {
+    delete cOptimizer;
     if (mBB != NULL)
       delete mBB;
   } // Default destructor
@@ -67,6 +71,10 @@ namespace bayesopt  {
   int ContinuousModel::setBoundingBox(const vectord &lowerBound,
 			      const vectord &upperBound)
   {
+    // We don't change the bounds of the inner optimization because,
+    // thanks to this bounding box model, everything is mapped to the
+    // unit hypercube, thus the default inner optimization are just
+    // right.
     if (mBB != NULL)
       delete mBB;
     

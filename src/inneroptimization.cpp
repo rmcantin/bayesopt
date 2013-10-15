@@ -42,20 +42,27 @@ namespace bayesopt
       }
   }
 
+  InnerOptimization::InnerOptimization()
+  { 
+    alg = DIRECT;    mDown = 0.;    mUp = 1.;
+  };
 
-  int InnerOptimization::innerOptimize(vectord &Xnext)
+
+  int InnerOptimization::run(vectord &Xnext)
   {   
     void *objPointer = static_cast<void *>(this);
     int n = static_cast<int>(Xnext.size());
     int error;
 
     assert(objPointer != NULL);
-    error = innerOptimize(&Xnext(0), n, objPointer);
+    error = send_to_nlopt_optimize(&Xnext(0), n, objPointer);
 
     return error;
-  } // innerOptimize (uBlas)
+  } // run (uBlas)
 
-  int InnerOptimization::innerOptimize(double* x, int n, void* objPointer)
+
+
+  int InnerOptimization::send_to_nlopt_optimize(double* x, int n, void* objPointer)
   {
     double u[128], l[128];
     double fmin = 1;
@@ -119,7 +126,7 @@ namespace bayesopt
     ierror = static_cast<int>(errortype);
     return ierror;
 
-  } // innerOptimize (C array)
+  } // send_to_nlopt_optimize (C array)
 
 
 }// namespace bayesopt

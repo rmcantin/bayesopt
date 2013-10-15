@@ -49,7 +49,7 @@ namespace NLOPT_WPR
     void *objPointer = my_func_data;
     InnerOptimization* OPTIMIZER = static_cast<InnerOptimization*>(objPointer);
     
-    return OPTIMIZER->innerEvaluate(sharedN);
+    return OPTIMIZER->evaluate(sharedN);
   } /* evaluate_criteria_nlopt */
 
 
@@ -69,7 +69,7 @@ namespace NLOPT_WPR
     
     ublas::vector<double> vgrad = ublas::zero_vector<double>(n);
 
-    double f =  OPTIMIZER->innerEvaluate(sharedN,vgrad);
+    double f =  OPTIMIZER->evaluate(sharedN,vgrad);
   
     if ((grad) && (grad != NULL) )
       for (unsigned int i=0;i<n;i++)

@@ -1,6 +1,6 @@
-/** \file student_t_process.hpp
-    \brief Student's t process with Jeffreys hyperprior 
-           on mean and signal variance parameters. */
+/** \file FullBayesProcess.hpp
+    \brief Implementes a fully Bayesian nonparametric process with a 
+    sampling distribution over kernel parameters. */
 /*
 -------------------------------------------------------------------------
    This file is part of BayesOpt, an efficient C++ library for 
@@ -24,27 +24,24 @@
 */
 
 
-#ifndef  _STUDENT_T_PROCESS_HPP_
-#define  _STUDENT_T_PROCESS_HPP_
+#ifndef  _FULL_BAYES_PROCESS_HPP_
+#define  _FULL_BAYES_PROCESS_HPP_
 
-#include "student_t_distribution.hpp"
-#include "hierarchical_gaussian_process.hpp"
- 
 namespace bayesopt
 {
-  
+
   /** \addtogroup  NonParametricProcesses */
   /**@{*/
 
+
   /**
-   * \brief Student's t process with Jeffreys hyperprior 
-   *        on mean and signal variance parameters.
+   * \brief Full Bayesian NonParametric process.
    */
-  class StudentTProcess: public HierarchicalGaussianProcess
+  class FullBayesProcess: public HierarchicalGaussianProcess
   {
   public:
-    StudentTProcess(size_t dim, bopt_params params);
-    virtual ~StudentTProcess();
+    FullBayesProcess(size_t dim, bopt_params params);
+    virtual ~FullBayesProcess();
 
     /** 
      * \brief Function that returns the prediction of the GP for a query point
@@ -60,8 +57,6 @@ namespace bayesopt
 
     /** 
      * \brief Computes the negative log likelihood and its gradient of the data.
-     * 
-     *
      * @return value negative log likelihood
      */
     double negativeLogLikelihood();
@@ -74,14 +69,11 @@ namespace bayesopt
     int precomputePrediction();
 
   private:
-    double mMu, mSig;                   //!< GP posterior parameters
-
-    //! Precomputed GP prediction operations
-    vectord mUInvR;     
-    vectord mInvRy;         
-    double mUInvRUDelta;
-    StudentTDistribution* d_;
+    std::vector<NonParametricProcess*>   gps_;
+    vectord                          weights_;
+    //    MultivariateDistribution* d_;      //!< Predictive distributions
   };
+
 
   /**@}*/
 

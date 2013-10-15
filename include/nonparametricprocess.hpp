@@ -31,9 +31,8 @@
 #include "ublas_extra.hpp"
 #include "kernel_functors.hpp"
 #include "mean_functors.hpp"
-#include "inneroptimization.hpp"	
 #include "prob_distribution.hpp"
-
+#include "inneroptimization.hpp"
 
 namespace bayesopt
 {
@@ -44,11 +43,10 @@ namespace bayesopt
    */
   /**@{*/
 
-
   /**
    * \brief Abstract class to implement non-parametric processes
    */
-  class BAYESOPT_API NonParametricProcess: public InnerOptimization
+  class BAYESOPT_API NonParametricProcess
   {
   public:
     NonParametricProcess(size_t dim, bopt_params parameters);
@@ -143,6 +141,15 @@ namespace bayesopt
     /** Wrapper of setMean for the C structure */
     int setMean (mean_parameters mean, size_t dim);
 
+    /** 
+     * \brief Computes the score (eg:likelihood) of the kernel
+     * parameters.
+     * @param query set of parameters.
+     * @return score
+     */
+    double evaluateKernelParams(const vectord& query);
+
+
   protected:
     /** 
      * \brief Computes the negative log likelihood of the data for all
@@ -167,7 +174,7 @@ namespace bayesopt
     virtual int precomputePrediction() = 0;
 
     /**
-     * Computes the negative score of the data using cross correlation.
+     * Computes the negative score of the data using cross validation.
      * @return negative score
      */
     double negativeCrossValidation();
@@ -178,24 +185,19 @@ namespace bayesopt
      */
     double negativeLogPrior();
 
-    /** 
-     * \brief Wrapper to the function that computes the score of the
-     * parameters.
-     * @param query set of parameters.
-     * @return score
-     */
-    double innerEvaluate(const vectord& query);
-
 
     /** 
-     * Computes the inverse of the Correlation (Kernel or Gram) matrix  
+     * Computes the Cholesky decomposition of the Correlation (Kernel
+     * or Gram) matrix 
      * @return error code
      */
-    int computeInverseCorrelation();
-    int addNewPointToInverse(const vectord& correlation,
-			     double selfcorrelation);
-
     int computeCholeskyCorrelation();
+
+    /** 
+     * Adds a new point to the Cholesky decomposition of the Correlation 
+     * matrix.
+     * @return error code
+     */
     int addNewPointToCholesky(const vectord& correlation,
 			      double selfcorrelation);
 
@@ -213,30 +215,31 @@ namespace bayesopt
 
 
   protected:
-    const double mRegularizer;   ///< Std of the obs. model (also used as nugget)
     double mSigma;                                           ///< Signal variance
     vecOfvec mGPXX;                                              ///< Data inputs
     vectord mGPY;                                                ///< Data values
     
-    vectord mMeanV;                           ///< Mean value at the input points
     matrixd mFeatM;           ///< Value of the mean features at the input points
     vectord mMu;                 ///< Mean of the parameters of the mean function
     vectord mS_Mu;    ///< Variance of the params of the mean function W=mS_Mu*I
 
-    std::vector<boost::math::normal> priorKernel; ///< Prior of kernel parameters
     boost::scoped_ptr<Kernel> mKernel;            ///< Pointer to kernel function
     boost::scoped_ptr<ParametricFunction> mMean;    ///< Pointer to mean function
 
-    // TODO: Choose one
     matrixd mL;             ///< Cholesky decomposition of the Correlation matrix
-    covMatrix mInvR;                              ///< Inverse Correlation matrix
     size_t dim_;
     learning_type mLearnType;
 
   private:
+    const double mRegularizer;   ///< Std of the obs. model (also used as nugget)
+    std::vector<boost::math::normal> priorKernel; ///< Prior of kernel parameters
     size_t mMinIndex, mMaxIndex;	
     KernelFactory mKFactory;
     MeanFactory mPFactory;
+
+    //TODO: might be unnecesary
+    vectord mMeanV;                           ///< Mean value at the input points
+    InnerOptimization* kOptimizer;
   };
 
   /**@}*/

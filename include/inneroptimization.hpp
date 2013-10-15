@@ -27,7 +27,7 @@
 #define __INNEROPTIMIZATION_HPP__
 
 #include "dll_stuff.h"
-#include "specialtypes.hpp"
+#include "optimization.hpp"
 
 namespace bayesopt {
 
@@ -36,32 +36,23 @@ namespace bayesopt {
     DIRECT,    ///< Global optimization
     LBFGS,     ///< Local, derivative based
     BOBYQA,    ///< Local, derivative free
-    COMBINED   ///< Global exploration, local refinement
+    COMBINED   ///< Global exploration, local refinement (hand tuned)
   } innerOptAlgorithms;
 
 
-  class BAYESOPT_API InnerOptimization
+  class InnerOptimization: public Optimization
   {
   public:
-    InnerOptimization()
-      { 
-	alg = DIRECT;    mDown = 0.;    mUp = 1.;
-      };
-
+    InnerOptimization();
     virtual ~InnerOptimization(){};
 
-    /** 
-     * Set the optimization algorithm
-     * 
-     * @param newAlg 
-     */
+    /** Sets the optimization algorithm  */
     void setAlgorithm(innerOptAlgorithms newAlg)
     { alg = newAlg; }
 
     /** 
      * Limits of the hypercube. 
      * Currently, it assumes that all dimensions have the same limits.
-     * 
      * @param down 
      * @param up 
      */
@@ -72,40 +63,40 @@ namespace bayesopt {
 
     /** 
      * Compute the inner optimization algorithm
-     * 
      * @param Xnext input: initial guess, output: result
-     * 
      * @return error_code
      */
-    int innerOptimize(vectord &Xnext);
-    int innerOptimize(double* x, int n, void* objPointer);	
-
+    int run(vectord &Xnext);
+    
 
     /** 
-     * Virtual function to be overriden by the actual function to be evaluated
-     * 
+     * Dummy function to be overriden by the actual function to be
+     * evaluated.  
+     * Note: it is not pure virtual because we might want
+     * to use the other evaluate method
      * @param query input point
-     * 
      * @return function value at query point
      */
-    virtual double innerEvaluate(const vectord& query) 
+    virtual double evaluate(const vectord& query) 
     {return 0.0;};
 
 
     /** 
-     * Virtual function to be overriden by the actual function to be evaluated
-     * 
+     * Dummy function to be overriden by the actual function to be evaluated
+     * Note: it is not pure virtual because we might want
+     * to use the other evaluate method
      * @param query input point
      * @param grad output gradient at query point
-     * 
      * @return function value at query point
      */
-    virtual double innerEvaluate(const vectord& query, 
+    virtual double evaluate(const vectord& query, 
 				 vectord& grad) 
     {return 0.0;};
 
 
-  protected:
+  private:
+
+    int send_to_nlopt_optimize(double* x, int n, void* objPointer);	
 
     innerOptAlgorithms alg;
     double mDown, mUp;

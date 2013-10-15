@@ -38,7 +38,7 @@ namespace bayesopt  {
    * processes as distributions over surrogate functions. The
    * exploration spaces is assumed to be continous and box-bounded.
    */
-  class BAYESOPT_API ContinuousModel: public InnerOptimization, 
+  class BAYESOPT_API ContinuousModel: //public InnerOptimization, 
 			      public BayesOptBase
   {
   public:
@@ -117,8 +117,8 @@ namespace bayesopt  {
      * @return negative criteria (Expected Improvement, LCB,
      * I-optimality, etc.).
      */	
-    double innerEvaluate( const vectord &query )
-    {  return evaluateCriteria(query); }; 
+    //double evaluate( const vectord &query )
+    //{  return evaluateCriteria(query); }; 
 
     
     /** 
@@ -141,11 +141,12 @@ namespace bayesopt  {
      * @return error code
      */
     inline int findOptimal(vectord &xOpt)
-    { return innerOptimize(xOpt); };
+    { return cOptimizer->run(xOpt); };
 
 
-  protected:
+  private:
     utils::BoundingBox<vectord> *mBB;      ///< Bounding Box (input space limits)
+    InnerOptimization* cOptimizer;
   };
   
   /**@}*/

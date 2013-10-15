@@ -3,7 +3,7 @@
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2012 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
    under the terms of the GNU General Public License as published by
@@ -88,19 +88,19 @@ void mexFunction(int nlhs, mxArray *plhs[],
     {
       params = mxCreateStructMatrix(1,1,0,NULL);
     }
-
   parameters = load_parameters(params);
 
   if(nrhs == 5)
     {
       /* Load bounds */
+      mexPrintf("Loading bounds...");
       CHECK0(mxIsDouble(prhs[3]) && !mxIsComplex(prhs[3])
 	     && (mxGetM(prhs[3]) == 1    || mxGetN(prhs[3]) == 1)
 	     && (mxGetM(prhs[3]) == nDim || mxGetN(prhs[3]) == nDim),
 	     "lowerBound must be real row or column vector");
 
       lb = mxGetPr(prhs[3]);
-      mexPrintf("Loading bounds \n");
+
 
       CHECK0(mxIsDouble(prhs[4]) && !mxIsComplex(prhs[4])
 	     && (mxGetM(prhs[4]) == 1    || mxGetN(prhs[4]) == 1)
@@ -108,11 +108,12 @@ void mexFunction(int nlhs, mxArray *plhs[],
 	     "upperBound must be real row or column vector");
 
       ub = mxGetPr(prhs[4]);
+      mexPrintf("done. \n");
     }
   else
     {
-      lb = mxCalloc(nDim,sizeof(double));
-      ub = mxCalloc(nDim,sizeof(double));
+      lb = (double*)(mxCalloc(nDim,sizeof(double)));
+      ub = (double*)(mxCalloc(nDim,sizeof(double)));
 	 
 
       

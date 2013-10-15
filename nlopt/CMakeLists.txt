@@ -124,7 +124,13 @@ SET ( NLOPT_SOURCES
 	stogo/global.cc stogo/linalg.cc stogo/local.cc stogo/stogo.cc stogo/tools.cc stogo/global.h stogo/linalg.h stogo/local.h stogo/stogo_config.h stogo/stogo.h stogo/tools.h 
         )
 
-OPTION(NLOPT_BUILD_SHARED "Build NLOPT as a shared library" ON )
+# IF(BUILD_SHARED_LIBS)
+#   SET(NLOPT_BUILD_SHARED ON CACHE BOOL "Build NLOPT as a shared library")
+# ELSE(BUILD_SHARED_LIBS)
+#   SET(NLOPT_BUILD_SHARED OFF CACHE BOOL "Build NLOPT as a shared library")
+# ENDIF(BUILD_SHARED_LIBS)
+
+OPTION(NLOPT_BUILD_SHARED "Build NLOPT as a shared library" OFF )
 
 IF(NLOPT_BUILD_SHARED)
   ADD_DEFINITIONS(-DNLOPT_DLL)
@@ -134,7 +140,7 @@ ELSE(NLOPT_BUILD_SHARED)
   ADD_LIBRARY (nlopt STATIC ${NLOPT_SOURCES} )
 ENDIF(NLOPT_BUILD_SHARED)
 
-IF((BUILD_SHARED_LIBS OR MATLAB_COMPATIBLE) AND NOT WIN32)
+IF((BAYESOPT_BUILD_SHARED OR BAYESOPT_MATLAB_COMPATIBLE) AND NOT WIN32)
   SET_TARGET_PROPERTIES(nlopt PROPERTIES COMPILE_FLAGS "-fPIC")
 ENDIF()
 

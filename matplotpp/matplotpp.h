@@ -4,6 +4,10 @@ License: Gnu Public license (GPL) v3
 Author: Yuichi Katori (yuichi.katori@gmail.com)
 Project:MATPLOT++ (MATLAB-like plotting tool in C++).
 Version:0.3.13
+
+Modified: Ruben Martinez-Cantin (2013)
+    - Fixed std namespace issue
+    - Fixed bugs
 ****************************************************************************/
 
 #include <GL/glut.h>

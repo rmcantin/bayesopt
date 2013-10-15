@@ -4,7 +4,7 @@
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2012 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
    under the terms of the GNU General Public License as published by
@@ -25,8 +25,9 @@
 #ifndef  _DLL_STUFF_HPP_
 #define  _DLL_STUFF_HPP_
 
+
 /* WINDOWS DLLs stuff */
-#if defined (_WIN32) && defined (BAYESOPT_DLL)
+#if defined (BAYESOPT_DLL) && (defined(_WIN32) || defined(__WIN32__)) && !defined(__LCC__)
   #if defined(bayesopt_EXPORTS)
     #define  BAYESOPT_API __declspec(dllexport)
   #else

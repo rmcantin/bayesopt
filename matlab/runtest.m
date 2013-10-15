@@ -23,14 +23,14 @@ clear all, close all
 addpath('testfunctions')
 
 params.n_iterations = 100;
-params.n_init_iterations = 50;
+params.n_init_samples = 5;
 params.crit_name = 'cEI';
 params.surr_name = 'sGaussianProcessNormal';
 params.noise = 0.005;
 params.kernel_name = 'kMaternISO3';
 params.kernel_hp_mean = [0.5];
 params.kernel_hp_std = [10];
-params.verbose_level = 0;
+params.verbose_level = 1;
 params.log_filename = 'matbopt.log';
 
 % n = 5;
@@ -45,12 +45,13 @@ fun = 'branin';
 
 disp('Continuous optimization');
 tic;
-bayesopt(fun,n,params,lb,ub)
+bayesoptcont(fun,n,params,lb,ub)
 toc;
 
 disp('Discrete optimization');
-% The set of points must be nDim x nPoints.
-xset = repmat((ub-lb),1,100) .* rand(n,100) - repmat(lb,1,100);
+% The set of points must be numDimension x numPoints.
+np = 100;
+xset = repmat((ub-lb),1,np) .* rand(n,np) - repmat(lb,1,np);
 
 tic;
 bayesoptdisc(fun,xset, params);

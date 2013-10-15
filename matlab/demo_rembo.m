@@ -23,7 +23,7 @@ clear all, close all
 addpath('testfunctions')
 
 params.n_iterations = 300;
-params.n_init_iterations = 50;
+params.n_init_samples = 50;
 params.crit_name = 'cEI';
 params.surr_name = 'sGaussianProcessNormal';
 params.noise = 0.005;
@@ -53,7 +53,7 @@ for i=1:nreembo
     disp('Continuous optimization');
     MATRIX_A = randn(nh,n);
     tic;
-    result = bayesopt(fun,n,params,lb,ub);
+    result = bayesoptcont(fun,n,params,lb,ub);
     toc;
 
     values(i) = braninhighdim(result);

@@ -20,6 +20,7 @@
 ------------------------------------------------------------------------
 */
 
+#include <cstdlib>
 #include "log.hpp"
 #include "bayesoptbase.hpp"
 
@@ -86,7 +87,7 @@ namespace bayesopt
     if (mGP == NULL) 
       {
 	FILE_LOG(logERROR) << "Error setting the surrogate function"; 
-	return -1;
+	exit(EXIT_FAILURE);
       } 
     return 0;
   } // setSurrogateModel
@@ -94,19 +95,27 @@ namespace bayesopt
   int BayesOptBase::setCriteria()
   {
     mCrit.reset(mCFactory.create(mParameters.crit_name,mGP.get()));
-    if ((mCrit == NULL) || (mCrit->nParameters() != mParameters.n_crit_params))
+    if (mCrit == NULL)
       {
 	FILE_LOG(logERROR) << "Error in criterium"; 
-	if (mCrit->nParameters() != mParameters.n_crit_params)
+	exit(EXIT_FAILURE);
+      }
+    
+    if (mCrit->nParameters() != mParameters.n_crit_params)
+      {
+	if (mParameters.n_crit_params != 0)
 	  {
 	    FILE_LOG(logERROR) << "Expected " << mCrit->nParameters() 
 			       << " parameters. Got " 
 			       << mParameters.n_crit_params << " instead.";
 	  }
-	return -1;
+	FILE_LOG(logINFO) << "Usign default parameters for criteria.";
+	return 0;
       }
+      
+    // If we have the correct number of parameters.
     vectord critParams = utils::array2vector(mParameters.crit_params,
-					     mParameters.n_crit_params);
+					       mParameters.n_crit_params);
     mCrit->setParameters(critParams);
     return 0;
   } // setCriteria

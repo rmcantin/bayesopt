@@ -31,8 +31,9 @@
 #include <math.h>
 #include <mex.h>
 
-#include "parameters.h"
 #include "bayesoptwpr.h"
+#include "parameters.h"
+
 
 #define CHECK0(cond, msg) if (!(cond)) mexErrMsgTxt(msg);
 
@@ -107,13 +108,10 @@ static void struct_size(const mxArray *s, const char *name, size_t *result)
 static void struct_string(const mxArray *s, const char *name, char* result)
 {
   mxArray *val = mxGetField(s, 0, name);
-  char *valstr;
 
   if (val) {
     if( mxIsChar(val) ) {
-      if ( mxGetString(val, result, 1+(mxGetM(val) * mxGetN(val)))) {
-	  mexErrMsgTxt("Error loading string.");
-	}
+      result = mxArrayToString(val);
     } else {
       mexErrMsgTxt("Method name must be a string");
     }
@@ -177,7 +175,6 @@ static bopt_params load_parameters(const mxArray* params)
   
   /* See parameters.h for the available options */
   
-  char log_str[100], k_s_str[100];
   char l_str[100];
   size_t n_hp_test, n_coef_test;
 
@@ -190,10 +187,11 @@ static bopt_params load_parameters(const mxArray* params)
   struct_size(params,"n_inner_iterations", &parameters.n_inner_iterations);
   struct_size(params, "n_init_samples", &parameters.n_init_samples);
   struct_size(params, "n_iter_relearn", &parameters.n_iter_relearn);
+  struct_size(params, "init_method", &parameters.init_method);
   
   struct_size(params, "verbose_level", &parameters.verbose_level);
   struct_string(params, "log_filename", parameters.log_filename);
-
+  
   struct_string(params, "surr_name", parameters.surr_name);
 
   struct_value(params, "sigma_s", &parameters.sigma_s);

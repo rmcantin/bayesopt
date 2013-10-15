@@ -1,3 +1,4 @@
+
 /*
 -------------------------------------------------------------------------
    This file is part of BayesOpt, an efficient C++ library for 
@@ -22,6 +23,7 @@
 
 
 #include <cstdio>
+#include <cstdlib>
 #include "nonparametricprocess.hpp"
 #include "log.hpp"
 #include "cholesky.hpp"
@@ -55,8 +57,13 @@ namespace bayesopt
       }
     kOptimizer->setLimits(1e-10,100.);
     setLearnType(parameters.l_type);
-    setKernel(parameters.kernel,dim);
-    setMean(parameters.mean,dim);
+    int errorK = setKernel(parameters.kernel,dim);
+    int errorM = setMean(parameters.mean,dim);
+    if (errorK || errorM)
+      {
+	FILE_LOG(logERROR) << "Error initializing nonparametric process.";
+	exit(EXIT_FAILURE);
+      }
   }
 
   NonParametricProcess::~NonParametricProcess()
@@ -101,24 +108,31 @@ namespace bayesopt
 	FILE_LOG(logDEBUG) << "Computing kernel parameters. Seed: " 
 			   << optimalTheta;
 	kOptimizer->run(optimalTheta);
-	mKernel->setHyperParameters(optimalTheta);
+	error = mKernel->setHyperParameters(optimalTheta);
+
+	if (error)
+	  {
+	    FILE_LOG(logERROR) << "Error updating kernel parameters.";
+	    exit(EXIT_FAILURE);
+	  }   
+
 	FILE_LOG(logDEBUG) << "Final kernel parameters: " << optimalTheta;	
       }
 
     error = computeCholeskyCorrelation();
 
-    if (error < 0)
+    if (error)
       {
 	FILE_LOG(logERROR) << "Error computing the correlation matrix";
-	return error;
+	exit(EXIT_FAILURE);
       }   
 
     error = precomputePrediction(); 
 
-    if (error < 0)
+    if (error)
       {
 	FILE_LOG(logERROR) << "Error pre-computing the prediction distribution";
-	return error;
+	exit(EXIT_FAILURE);
       }   
 
     return 0; 
@@ -140,7 +154,7 @@ namespace bayesopt
     if (error < 0)
       {
 	FILE_LOG(logERROR) << "Error pre-computing the prediction distribution";
-	return error;
+	exit(EXIT_FAILURE);
       }   
 
     return 0; 
@@ -210,8 +224,7 @@ namespace bayesopt
     
     if (mKernel == NULL || error)   return -1;
 
-    mKernel->setHyperParameters(thetav);
-    return 0;
+    return mKernel->setHyperParameters(thetav);
   }
 
   int NonParametricProcess::setKernel (kernel_parameters kernel, 
@@ -244,13 +257,24 @@ namespace bayesopt
 				     size_t dim)
   {
     mMean.reset(mPFactory.create(m_name,dim));
-    mMu = muv; mS_Mu = smu;
+    if ("mZero" == m_name) 
+      {
+	mMu = zvectord(1);
+	mS_Mu = svectord(1,1e-10);
+      }
+    else if("mOne" == m_name) 
+      {
+	mMu = svectord(1,1.0);
+	mS_Mu = svectord(1,1e-10);
+      }
+    else
+      {
+	mMu = muv; mS_Mu = smu;
+      }
 
     if (mMean == NULL) 	return -1; 
 
-    //TODO: This might be unnecesary
-    mMean->setParameters(muv);
-    return 0;
+    return mMean->setParameters(mMu);
   }
 
   int NonParametricProcess::setMean (mean_parameters mean, size_t dim)
@@ -312,7 +336,13 @@ namespace bayesopt
 
   double NonParametricProcess::evaluateKernelParams(const vectord& query)
   { 
-    mKernel->setHyperParameters(query);
+    int error = mKernel->setHyperParameters(query);
+    if (error) 
+      {
+	FILE_LOG(logERROR) << "Problem optimizing kernel parameters."; 
+	exit(EXIT_FAILURE);	
+      }
+
     double result;
     switch(mLearnType)
       {
@@ -336,7 +366,7 @@ namespace bayesopt
     vectord newK(correlation);
     utils::append(newK, selfcorrelation);
     utils::cholesky_add_row(mL,newK);
-    return 1;
+    return 0;
   }
 
 
@@ -367,7 +397,7 @@ namespace bayesopt
 	  }
 	corrMatrix(ii,ii) = (*mKernel)(mGPXX[ii],mGPXX[ii]) + mRegularizer;
       }
-    return 1;
+    return 0;
   }
 
 

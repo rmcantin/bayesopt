@@ -1,5 +1,5 @@
-% BAYESOPT Optimization (minimization) of target function using bayesian
-% optimization.
+% BAYESOPTCONT Optimization (minimization) of continuous target function 
+% using Bayesian optimization.
 %
 % Usage: [xmin, fmin] = bayesopt(@function_handler, nDimensions, params)
 %        [xmin, fmin] = bayesopt(@function_handler, nDimensions, params,
@@ -9,21 +9,13 @@
 %        [xmin, fmin] = bayesopt('function_name', nDimensions, params,
 %                                lowerBound, upperBound) 
 %
-%        [xmin, fmin] = bayesoptdisc(@function_handler, validset, params)
-%        [xmin, fmin] = bayesoptdisc('function_name', validset, params)
-%
-%
 % nDimensions is the number of dimensions (d) of the query vector.
 %
-% Params is a struct which have the same fields as the C/C++ interface 
+% params is a struct which have the same fields as the C/C++ interface 
 %   (see include/parameters.h)
 %
 % lowerBound and upperBound should be a d x 1 or 1 x d vectors with
 %      the lower and upper bound for each component. (optional, default 0-1)
-%
-% validset is the set of discrete points for discrete optimization,
-%      stacked in a single matrix. Thus, it must be a d x n matrix.
-%
 % 
 % -------------------------------------------------------------------------
 %    This file is part of BayesOpt, an efficient C++ library for 

@@ -1,3 +1,16 @@
+% BAYESOPTDISC Optimization (minimization) of discrete target function 
+% using Bayesian optimization.
+%
+% Usage: [xmin, fmin] = bayesoptdisc(@function_handler, validset, params)
+%        [xmin, fmin] = bayesoptdisc('function_name', validset, params)
+%
+%
+% params is a struct which have the same fields as the C/C++ interface 
+%   (see include/parameters.h)
+%
+% validset is the set of discrete points for discrete optimization,
+%      stacked in a single matrix. Thus, it must be a d x n matrix.
+%
 % 
 % -------------------------------------------------------------------------
 %    This file is part of BayesOpt, an efficient C++ library for 
@@ -19,12 +32,4 @@
 %    along with BayesOpt.  If not, see <http://www.gnu.org/licenses/>.
 % ------------------------------------------------------------------------
 %
-
-% You can also change ../lib for the correspoding install path
-% Octave
-mkoctfile -L../lib -lbayesopt -lnlopt -I../include -I../wrappers ...
-    --mex --output bayesoptcont.mex bayesoptmex.c
-
-mkoctfile -L../lib -lbayesopt -lnlopt -I../include -I../wrappers ...
-    --mex --output bayesoptdisc.mex bayesoptdiscmex.c
 

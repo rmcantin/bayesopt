@@ -20,6 +20,7 @@
 ------------------------------------------------------------------------
 */
 
+#include <cstdlib>
 #include <boost/math/special_functions/fpclassify.hpp>
 #include <boost/numeric/ublas/banded.hpp>
 #include "log.hpp"
@@ -79,7 +80,7 @@ namespace bayesopt
     if ((boost::math::isnan(yPred)) || (boost::math::isnan(sPred)))
       {
 	FILE_LOG(logERROR) << "Error in prediction. NaN found.";
-	throw 1;
+	exit(EXIT_FAILURE);
       }
 					
 
@@ -153,14 +154,15 @@ namespace bayesopt
     if ((boost::math::isnan(mWMap(0))) || (boost::math::isnan(mSigmaMap)))
       {
 	FILE_LOG(logERROR) << "Error in precomputed prediction. NaN found.";
-	throw 1;
+	return -1;
       }
 
 
     if (dof <= 0)  
       {
-	FILE_LOG(logERROR) << "ERROR: Incorrect alpha. Dof invalid.";
-	dof = 1;
+	FILE_LOG(logERROR) << "ERROR: Incorrect alpha. Dof invalid."
+			   << "Forcing Dof <= num of points.";
+	dof = n;
       }
 
     d_->setDof(dof);  

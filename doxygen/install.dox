@@ -1,14 +1,18 @@
 /*! \page install Installing BayesOpt
 \tableofcontents
 
-The core of BayesOpt uses standard C/C++ code (C++98) and it can be
-compiled in different platforms and used from different languages
-thanks to the wrappers provided.
+The core of BayesOpt uses standard C/C++ code (C++98) so it can be
+compiled from many C++ compilers (gcc, clang, MSVC...). The library
+also include wrappers for Python, Matlab and Octave interfaces which requires
+extra dependencies or compilation steps. Note that the
+Python or Matlab/Octave interfaces are not included by default.
 
 \section unixinst Installing in Linux/MacOS:
 
-The compilation is very similar in any *nix system. Note that the
-Python or Matlab interfaces are not included by default.
+The compilation is very similar in any *nix system. Following these
+instructions, the library will be compiled using the default
+configuration. You can modify that easily as explained in 
+\ref confinst
 
 \subsection getDepend Getting dependencies:
 
@@ -39,7 +43,7 @@ If you want the Python interface:
 >> sudo apt-get install python-dev python-numpy
 \endverbatim
 
-If you want the Octave interface:
+If you want the Octave interface (note that the \a octave package does not include all the necessary files):
 \verbatim
 >> sudo apt-get install octave-headers
 \endverbatim
@@ -53,7 +57,7 @@ And for all dependencies:
 This section assumes \b macports is installed. Similar packages can be
 found in \b fink or \b homebrew. For the minimal install, run:
 \verbatim
->> sudo port install boost gcc46 cmake
+>> sudo port install boost gcc47 cmake
 \endverbatim
 
 If you want the Python interface:
@@ -68,12 +72,13 @@ If you want the Octave interface:
 
 Again, for all dependencies:
 \verbatim
->> sudo port install boost python27 py27-numpy gcc46 cmake py27-cython octave
+>> sudo port install boost python27 py27-numpy gcc47 cmake py27-cython octave
 \endverbatim
 
 
 \subsection compile Compile the library:
-In order to compile the source code in a *nix system, run this from a terminal.
+In order to compile the source code in a *nix system, run this from a
+terminal.
 \verbatim
 >> cmake . 
 >> make
@@ -81,22 +86,9 @@ In order to compile the source code in a *nix system, run this from a terminal.
 \endverbatim
 
 \b Important: If you use \b ccmake instead of \b cmake you will access a graphical
-interface to select features such as the include the Python and Matlab
-interfaces, debug/release mode or if you want to use shared libraries
-or not. \b Shared libraries are required to run the Python interface.
-
-\subsubsection instpath Install the library in a different path
-
-CMake allows to select the install path during compilation. You just
-need to change the CMAKE_INSTALL_PREFIX variable.  This can be done
-directly from the command line with the -D option, like this:
-
-\verbatim
->> cmake -DCMAKE_INSTALL_PREFIX=/your/desired/path .
-\endverbatim
-
-or if you use ccmake, just modify the value of the variable with the
-corresponding path.
+interface to select features such as the include the Python and Matlab interfaces,
+debug/release mode or if you want to use shared libraries or not. More details about how
+to configure it can be found in \ref confinst
 
 \subsubsection docbuild Building the documentation
 
@@ -107,6 +99,8 @@ documentation right after compiling the code by running.
 \endverbatim
 Thid documentation will appear in the "doc" subdirectory.
 
+
+
 \subsection instpython Python interface:
 
 Both Python development files (Python.h) and Numpy are needed if you
@@ -114,18 +108,25 @@ want the python interface. The library has been tested with Python 2.6
 and 2.7. The interface relies on Numpy arrays. If we want to select
 the option to compile the Python interface we can just run:
 \verbatim
->> ccmake . 
->> make
->> sudo make install
+>> cmake -DBAYESOPT_PYTHON_INTERFACE=ON . 
 \endverbatim
+or 
+\verbatim
+>> ccmake . 
+\endverbatim
+and select the corresponding option.
 
-\b Important: Python requires bayesopt to be a \b shared library.
+\b Important: Python requires a special module with shared access and nonstandard
+name. Thus, it will build a separate module called "bayesopt.so". This module can be
+accessible from Python provided that it is in the PYTHONPATH or sys.path. It cannot be
+linked to any executable or other libraries. Use libbayesopt.* instead.
 
 \subsection instmatlab MATLAB/Octave interface:
 
 Make sure the library is compiled with the MATLAB_COMPATIBLE option
-using ccmake and configure Matlab/Octave to compile mex files. For
-example, in Matlab you can run to check the supported compilers:
+using ccmake. Undex Mac OS they must be shared. Also, configure 
+Matlab/Octave to compile mex files. For example, in Matlab you can run
+to check the supported compilers:
 \verbatim
 >> mex -setup
 \endverbatim
@@ -139,7 +140,10 @@ example, LD_LIBRARY_PATH must include the folder where the libraries
 are. If the install path is the default, you can execute the
 exportlocalpath.sh script before calling MATLAB.
 
-
+On MacOS there are known issues both in Matlab and Octave about the compiler linking with
+the worng std++ library for different reasons. See:
+\li http://www.mathworks.com/matlabcentral/newsreader/view_thread/291752
+\li https://mailman.cae.wisc.edu/pipermail/octave-maintainers/2012-January/026341.html
 
 <HR>
 
@@ -159,7 +163,7 @@ compilation. Just make sure the headers are on the include path. You
 can also add an entry named BOOST_ROOT in CMake with the corresponding
 path to the library.
 
-\li MinGW: http://www.mingw.org
+\li MinGW(optional): http://www.mingw.org
 
 If you do not have a C++ compiler, we recomend MinGW+MSYS. Then, you
 just need to compile from the command line with:
@@ -167,17 +171,7 @@ just need to compile from the command line with:
 >> mingw32-make
 \endverbatim
 
-\subsection instpythonwin Python interface:
-
-The Python interface has not been tested in \b Windows because getting
-the correct dependencies is highly involved. You might need to
-download and install:
-\li Python (binary and \b sources): http://www.python.org
-\li Numpy: http://new.scipy.org/download.html 
-
-Also, read this article about how to link everything:
-http://docs.python.org/2/extending/windows.html#building-on-windows
-
+The most important options/variables are explained in \ref confinst.
 
 \subsection instmatlabwin MATLAB/Octave interface:
 
@@ -195,6 +189,88 @@ If bayesopt or nlopt are compiled as \b shared libraries, then, at run
 time, MATLAB/Octave also needs to access to the libraries. You can
 modify the PATH variable or copy the dll files in the same bolder as
 the generated mexfile.
+
+\b Important: It is strongly recommended to compile bayesopt with
+exactly the same compiler that was select for mex files. For a list of
+the supported compilers for your Matlab version, you can check the
+online docs at mathworks. 
+
+\subsubsection matlabmingw MATLAB and MinGW
+
+Unfortunately, MinGW has never been suported by Matlab. Thus I have
+also included a Makefile to generate the mex files outside Matlab. You
+might need to change the \c MATLABROOT path with the root folder of
+your Matlab install and copy the dlls. Then, run \c mingw32-make. Note
+that \c mingw32-make only supports 32 bits libraries, so you need a 32
+bit version of Matlab. There is a fork of MinGW with 64 bit support
+under development, but it has not been tested here.
+
+\subsection instpythonwin Python interface:
+
+The Python interface has not been tested in \b Windows because getting
+the correct dependencies is highly involved. You might need to
+download and install:
+\li Python (binary and \b sources): http://www.python.org
+\li Numpy: http://new.scipy.org/download.html 
+
+Also, read this article about how to link everything:
+http://docs.python.org/2/extending/windows.html#building-on-windows
+
+
+<HR>
+
+\section confinst Configure the compilation/install
+
+CMake allows to configure the compilation using some variables (see
+for example how to compile the Python module in Linux). These
+variables can be set in Linux/MacOS from the command line with the -D
+flag:
+\verbatim
+>> cmake -DVARIABLE=VALUE .
+\endverbatim
+For example
+\verbatim
+>> cmake -DCMAKE_BUILD_TYPE=Debug .
+\endverbatim
+
+If you use ccmake in Linux/MacOS or CMake for Windows, you can access
+to a list of all the variables and their values. Just modify the value
+of the desired variable.
+
+\subsection instshared Compile as shared libraries
+
+We can select if we want BayesOpt and NLOPT compiled as shared libraries
+\verbatim
+BAYESOPT_BUILD_SHARED=ON 
+NLOPT_BUILD_SHARED=ON
+\endverbatim
+In this case, we also need to force rebuild NLOPT (by default it is
+not compiled if it is found in the system).
+
+\subsection instpath Install the library in a different path
+
+CMake allows to select the install path before compilation
+compilation. You just need to change the CMAKE_INSTALL_PREFIX
+variable.
+\verbatim
+CMAKE_INSTALL_PREFIX=/your/desired/path
+\endverbatim
+
+
+\subsection mininst Minimal installation (fast compilation)
+
+Sobol sequences can be used to for the initial design (see \ref
+initpar). In many cases, the performance is similar to latin hypercube
+sampling, however including the Sobol components increases
+considerably the library size and the compilation time. Thus, it can
+be removed from compilation:
+\verbatim
+BAYESOPT_BUILD_SOBOL=OFF
+\endverbatim
+Similarly, we can avoid to compile the example files and demos:
+\verbatim
+BAYESOPT_BUILD_EXAMPLES=OFF
+\endverbatim
 
 
  */

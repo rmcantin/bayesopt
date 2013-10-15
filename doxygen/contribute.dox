@@ -70,4 +70,13 @@ which generates the file \c python/bayesopt.cpp, which can be directly
 used in the library. Python would only find the library if it is
 called exactly \c bayesopt.so
 
+\section relsoft Related software
+
+\li Spearmint (Python): A library based on \cite Snoek2012. It is more oriented to cluster computing https://github.com/JasperSnoek/spearmint
+\li Hyperopt (Python): A library mainly based on \cite Bergstra2011. It uses different models for the surrogate model https://github.com/jaberg/hyperopt
+\li Perk (Fortran+Shell): A library for surrogate modelling. It was mainly used in \cite Santner03. http://www.stat.osu.edu/~comp_exp/book.html
+\li SUMO (Matlab): A library for surrogate modelling. Its main purpose it is not optimization but it also includes the Expected Imporvement algorithm. http://www.sumowiki.intec.ugent.be/Main_Page
+\li GPML (Matlab): The most popular library for Gaussian Process. BayesOpt uses some of its design principles. http://www.gaussianprocess.org/gpml/code/matlab/doc/
+\li NLOPT (C-Many languages): One of the best libraries for general purpose nonlinear optimization. http://ab-initio.mit.edu/wiki/index.php/NLopt
+
 */

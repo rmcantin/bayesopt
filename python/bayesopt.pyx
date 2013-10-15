@@ -52,9 +52,11 @@ cdef extern from "parameters.h":
     ctypedef struct bopt_params:
         unsigned int n_iterations, n_inner_iterations,
         unsigned int n_init_samples, n_iter_relearn,
+        unsigned int init_method
         unsigned int verbose_level
         char* log_filename
         char* surr_name
+        double sigma_s
         double noise
         double alpha, beta
         learning_type l_type
@@ -94,55 +96,59 @@ cdef bopt_params dict2structparams(dict dparams):
     params = initialize_parameters_to_default()
 
     params.n_iterations = dparams.get('n_iterations',params.n_iterations)
+    params.n_inner_iterations = dparams.get('n_inner_iterations',
+                                            params.n_inner_iterations)
     params.n_init_samples = dparams.get('n_init_samples',params.n_init_samples)
-    params.verbose_level = dparams.get('verbose_level',params.verbose_level)
+    params.n_iter_relearn = dparams.get('n_iter_relearn',params.n_iter_relearn)
+    params.init_method = dparams.get('init_method',params.init_method)
 
+    params.verbose_level = dparams.get('verbose_level',params.verbose_level)
     logname = dparams.get('log_filename',params.log_filename)
     params.log_filename = logname
 
     sname = dparams.get('surr_name',params.surr_name)
     params.surr_name = sname;
+    params.sigma_s = dparams.get('sigma_s',params.sigma_s)
+    params.noise = dparams.get('noise',params.noise)
+    params.alpha = dparams.get('alpha',params.alpha)
+    params.beta = dparams.get('beta',params.beta)
 
     learning = dparams.get('learning_type', None)
     if learning is not None:
         params.l_type = str2learn(learning)
 
+    params.epsilon = dparams.get('epsilon',params.epsilon)
 
-    params.alpha = dparams.get('alpha',params.alpha)
-    params.beta = dparams.get('beta',params.beta)
-    params.noise = dparams.get('noise',params.noise)
+    kname = dparams.get('kernel_name',params.kernel.name)
+    params.kernel.name = kname;
 
-    theta = dparams.get('theta',None)
-    stheta = dparams.get('s_theta',None)
+    theta = dparams.get('kernel_hp_mean',None)
+    stheta = dparams.get('kernel_hp_std',None)
     if theta is not None and stheta is not None:
         params.kernel.n_hp = len(theta)
         for i in range(0,params.kernel.n_hp):
             params.kernel.hp_mean[i] = theta[i]
             params.kernel.hp_std[i] = stheta[i]
 
+    mname = dparams.get('mean_name',params.mean.name)
+    params.mean.name = mname
 
-    mu = dparams.get('mu',None)
-    smu = dparams.get('s_mu',None)
+    mu = dparams.get('mean_coef_mean',None)
+    smu = dparams.get('mean_coef_std',None)
     if mu is not None and smu is not None:
         params.mean.n_coef = len(mu)
         for i in range(0,params.mean.n_coef):
             params.mean.coef_mean[i] = mu[i]
             params.mean.coef_std[i] = smu[i]
 
+    cname = dparams.get('crit_name',params.crit_name)
+    params.crit_name = cname
+
     cp = dparams.get('crit_params',None)
     if cp is not None:
         params.n_crit_params = len(cp)
         for i in range(0,params.n_crit_params):
             params.crit_params[i] = cp[i]
-
-    kname = dparams.get('kernel_name',params.kernel.name)
-    params.kernel.name = kname;
-
-    mname = dparams.get('mean_name',params.mean.name)
-    params.mean.name = mname
-
-    cname = dparams.get('crit_name',params.crit_name)
-    params.crit_name = cname
 
     return params
 
@@ -151,7 +157,7 @@ cdef double callback(unsigned int n, const_double_ptr x,
     x_np = np.zeros(n)
     for i in range(0,n):
         x_np[i] = <double>x[i]
-        result = (<object>func_data)(x_np)
+    result = (<object>func_data)(x_np)
     return result
 
 
@@ -160,7 +166,8 @@ def initialize_params():
         "n_iterations"   : 300,
         "n_inner_iterations" : 500,
         "n_init_samples" : 30,
-        "n_iter_relearn" : 30,
+        "n_iter_relearn" : 0,
+        "init_method" : 1,
         "verbose_level"  : 1,
         "log_filename"   : "bayesopt.log" ,
         "surr_name" : "sGaussianProcess" ,
@@ -172,10 +179,10 @@ def initialize_params():
         "epsilon" : 0.0,
         "kernel_name" : "kMaternISO3",
         "kernel_hp_mean"  : [1.0],
-        "kernel_hp_std": [1.0],
-        "mean_name" : "mOne",
+        "kernel_hp_std": [100.0],
+        "mean_name" : "mConst",
         "mean_coef_mean"     : [1.0],
-        "mean_coef_std"   : [1.0],
+        "mean_coef_std"   : [1000.0],
         "crit_name" : "cEI",
         "crit_params" : [1.0],
         }

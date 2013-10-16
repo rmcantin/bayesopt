@@ -130,7 +130,7 @@ namespace bayesopt
     // Update surrogate model
     if ((mParameters.n_iter_relearn > 0) && 
 	((ii + 1) % mParameters.n_iter_relearn == 0))
-      mGP->fullUpdateSurrogateModel(xNext,yNext); 
+      mGP->fitSurrogateModel(xNext,yNext); 
     else
       mGP->updateSurrogateModel(xNext,yNext); 
     

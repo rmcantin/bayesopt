@@ -26,14 +26,14 @@
 #define __OPTIMIZEKERNEL_HPP__
 
 #include "inneroptimization.hpp"
-#include "nonparametricprocess.hpp"
+#include "empiricalbayesprocess.hpp"
 
 namespace bayesopt {
 
   class OptimizeKernel: public InnerOptimization
   {
   public:
-    explicit OptimizeKernel(NonParametricProcess* npp):
+    explicit OptimizeKernel(EmpiricalBayesProcess* npp):
       InnerOptimization(), npp_(npp) {};
     virtual ~OptimizeKernel(){};
 
@@ -43,7 +43,7 @@ namespace bayesopt {
     }
     
   private:
-    NonParametricProcess* npp_;
+    EmpiricalBayesProcess* npp_;
   };
 
 }

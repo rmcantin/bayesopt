@@ -26,13 +26,12 @@
 
 #include "boundingbox.hpp"
 #include "bayesoptbase.hpp"
+#include "inneroptimization.hpp"
 
 namespace bayesopt  {
 
   /** \addtogroup BayesOpt */
   /**@{*/
-
-  class InnerOptimization;
 
   /**
    * \brief Bayesian optimization using different non-parametric

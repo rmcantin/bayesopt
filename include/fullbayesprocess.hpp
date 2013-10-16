@@ -37,7 +37,7 @@ namespace bayesopt
   /**
    * \brief Full Bayesian NonParametric process.
    */
-  class FullBayesProcess: public HierarchicalGaussianProcess
+  class FullBayesProcess: public NonParametricProcess
   {
   public:
     FullBayesProcess(size_t dim, bopt_params params);

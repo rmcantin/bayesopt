@@ -31,7 +31,6 @@
 #include "kernel_functors.hpp"
 #include "mean_functors.hpp"
 #include "prob_distribution.hpp"
-#include "inneroptimization.hpp"
 
 namespace bayesopt
 {
@@ -69,12 +68,14 @@ namespace bayesopt
 		 		 
     /** 
      * \brief Computes the initial surrogate model. 
-     * It also estimates the kernel parameters by MAP or ML. This
+     * It also updates the kernel parameters estimation. This
      * function is hightly inefficient.  Use it only at the begining.
      * @return error code
      */
-    int fitInitialSurrogate(bool learnTheta = true);
-  
+    int fitSurrogateModel();
+    virtual int updateKernelParameters() = 0;
+    int precomputeSurrogate();
+
     /** 
      * \brief Sequential update of the surrogate model by adding a new point.
      *  Add new point efficiently using Matrix Decomposition Lemma 
@@ -82,16 +83,14 @@ namespace bayesopt
      *  rows to the Cholesky decomposition.
      * @return error code
      */   
-    int updateSurrogateModel( const vectord &Xnew,
-			      double Ynew);
+    int updateSurrogateModel( const vectord &Xnew, double Ynew);
 
     /** 
      * \brief Full update of the surrogate model by adding a new point.
      *  It recomputes the kernel hyperparameters and full covariance matrix.
      * @return error code
      */   
-    int fullUpdateSurrogateModel( const vectord &Xnew,
-				  double Ynew);
+    int fitSurrogateModel( const vectord &Xnew, double Ynew);
 
 
     // Getters and setters
@@ -125,31 +124,8 @@ namespace bayesopt
     /** Wrapper of setMean for the C structure */
     int setMean (mean_parameters mean, size_t dim);
 
-    /** 
-     * \brief Computes the score (eg:likelihood) of the kernel
-     * parameters.
-     * @param query set of parameters.
-     * @return score
-     */
-    double evaluateKernelParams(const vectord& query);
-
 
   protected:
-    /** 
-     * \brief Computes the negative log likelihood of the data for all
-     * the parameters.
-     * @return value negative log likelihood
-     */
-    virtual double negativeTotalLogLikelihood() = 0;
-
-
-    /** 
-     * \brief Computes the negative log likelihood of the data for the
-     * kernel hyperparameters.
-     * @return value negative log likelihood
-     */
-    virtual double negativeLogLikelihood() = 0;
-
     /** 
      * \brief Precompute some values of the prediction that do not
      * depends on the query.
@@ -157,7 +133,30 @@ namespace bayesopt
      */
     virtual int precomputePrediction() = 0;
 
+    //TODO: Refactorize from KernelModel
+    int computeCorrMatrix(matrixd& corrMatrix);
+    matrixd computeCorrMatrix();
+    matrixd computeDerivativeCorrMatrix(int dth_index);
+    vectord computeCrossCorrelation(const vectord &query);
+    double computeSelfCorrelation(const vectord& query);
 
+    vecOfvec mGPXX;                                              ///< Data inputs
+    vectord mGPY;                                                ///< Data values
+    
+    boost::scoped_ptr<ParametricFunction> mMean;    ///< Pointer to mean function
+    matrixd mFeatM;           ///< Value of the mean features at the input points
+    vectord mMu;                 ///< Mean of the parameters of the mean function
+    vectord mS_Mu;    ///< Variance of the params of the mean function W=mS_Mu*I
+
+    matrixd mL;             ///< Cholesky decomposition of the Correlation matrix
+    size_t dim_;
+    learning_type mLearnType;
+    KernelModel mKernel;
+
+    //TODO: might be unnecesary
+    vectord mMeanV;                           ///< Mean value at the input points
+
+  private:
     /** 
      * Computes the Cholesky decomposition of the Correlation (Kernel
      * or Gram) matrix 
@@ -174,56 +173,16 @@ namespace bayesopt
 			      double selfcorrelation);
 
 
-    int computeCorrMatrix(matrixd& corrMatrix);
-    matrixd computeCorrMatrix();
-    matrixd computeDerivativeCorrMatrix(int dth_index);
-    vectord computeCrossCorrelation(const vectord &query);
-    double computeSelfCorrelation(const vectord& query);
-
-  private:
-    /**
-     * Computes the negative score of the data using cross validation.
-     * @return negative score
-     */
-    double negativeCrossValidation();
-
-    /** 
-     * \brief Computes the negative log prior of the hyperparameters.
-     * @return value negative log prior
-     */
-    double negativeLogPrior();
-
     inline void checkBoundsY( size_t i )
     {
       if ( mGPY(mMinIndex) > mGPY(i) )       mMinIndex = i;
       else if ( mGPY(mMaxIndex) < mGPY(i) )  mMaxIndex = i;
     };
 
-
-  protected:
-    vecOfvec mGPXX;                                              ///< Data inputs
-    vectord mGPY;                                                ///< Data values
-    
-    matrixd mFeatM;           ///< Value of the mean features at the input points
-    vectord mMu;                 ///< Mean of the parameters of the mean function
-    vectord mS_Mu;    ///< Variance of the params of the mean function W=mS_Mu*I
-
-    boost::scoped_ptr<ParametricFunction> mMean;    ///< Pointer to mean function
-
-    matrixd mL;             ///< Cholesky decomposition of the Correlation matrix
-    size_t dim_;
-    learning_type mLearnType;
-    KernelModel mKernel;
-
-  private:
     const double mRegularizer;   ///< Std of the obs. model (also used as nugget)
     size_t mMinIndex, mMaxIndex;	
     MeanFactory mPFactory;
 
-    //TODO: might be unnecesary
-    vectord mMeanV;                           ///< Mean value at the input points
-
-    InnerOptimization* kOptimizer;
   };
 
   /**@}*/

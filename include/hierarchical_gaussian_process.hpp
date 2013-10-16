@@ -26,7 +26,7 @@
 #ifndef __HIERARCHICAL_GAUSSIAN_PROCESS_HPP__
 #define __HIERARCHICAL_GAUSSIAN_PROCESS_HPP__
 
-#include "nonparametricprocess.hpp"
+#include "empiricalbayesprocess.hpp"
 
 
 namespace bayesopt
@@ -38,7 +38,7 @@ namespace bayesopt
   /**
    * \brief Virtual class for hierarchical Gaussian processes.
    */
-  class HierarchicalGaussianProcess: public NonParametricProcess
+  class HierarchicalGaussianProcess: public EmpiricalBayesProcess
   {
   public:
     HierarchicalGaussianProcess(size_t dim, bopt_params params);

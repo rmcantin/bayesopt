@@ -28,7 +28,6 @@
 #include "log.hpp"
 #include "cholesky.hpp"
 #include "ublas_extra.hpp"
-#include "optimizekernel.hpp"	
 
 #include "gaussian_process.hpp"
 #include "gaussian_process_ml.hpp"
@@ -44,18 +43,6 @@ namespace bayesopt
     dim_(dim), mRegularizer(parameters.noise),
     mMinIndex(0), mMaxIndex(0), mKernel(dim, parameters)
   { 
-    kOptimizer = new OptimizeKernel(this);
-
-    //TODO: Generalize
-    if (parameters.l_type == L_ML)
-      {
-	kOptimizer->setAlgorithm(BOBYQA);    // local search to avoid underfitting
-      }
-    else
-      {
-	kOptimizer->setAlgorithm(COMBINED);
-      }
-    kOptimizer->setLimits(1e-10,100.);
     setLearnType(parameters.l_type);
     int errorM = setMean(parameters.mean,dim);
     if (errorM)
@@ -66,9 +53,7 @@ namespace bayesopt
   }
 
   NonParametricProcess::~NonParametricProcess()
-  {
-    delete kOptimizer;
-  }
+  {}
 
 
   NonParametricProcess* NonParametricProcess::create(size_t dim, 
@@ -97,29 +82,18 @@ namespace bayesopt
   };
 
 
-  int NonParametricProcess::fitInitialSurrogate(bool learnTheta)
+  int NonParametricProcess::fitSurrogateModel()
+  {
+    int error = updateKernelParameters();
+    error += precomputeSurrogate();
+    return error;
+  };
+
+
+  int NonParametricProcess::precomputeSurrogate()
   {
     int error = -1;
-    if (learnTheta)
-      {
-	vectord optimalTheta = mKernel.getHyperParameters();
-	
-	FILE_LOG(logDEBUG) << "Computing kernel parameters. Seed: " 
-			   << optimalTheta;
-	kOptimizer->run(optimalTheta);
-	error = mKernel.setHyperParameters(optimalTheta);
-
-	if (error)
-	  {
-	    FILE_LOG(logERROR) << "Error updating kernel parameters.";
-	    exit(EXIT_FAILURE);
-	  }   
-
-	FILE_LOG(logDEBUG) << "Final kernel parameters: " << optimalTheta;	
-      }
-
     error = computeCholeskyCorrelation();
-
     if (error)
       {
 	FILE_LOG(logERROR) << "Error computing the correlation matrix";
@@ -127,15 +101,14 @@ namespace bayesopt
       }   
 
     error = precomputePrediction(); 
-
     if (error)
       {
 	FILE_LOG(logERROR) << "Error pre-computing the prediction distribution";
 	exit(EXIT_FAILURE);
       }   
 
-    return 0; 
-  } // fitInitialSurrogate
+    return error; 
+  } // fitSurrogateModel
 
 
   int NonParametricProcess::updateSurrogateModel( const vectord &Xnew,
@@ -160,13 +133,13 @@ namespace bayesopt
   } // updateSurrogateModel
 
 
-  int NonParametricProcess::fullUpdateSurrogateModel( const vectord &Xnew,
-						      double Ynew)
+  int NonParametricProcess::fitSurrogateModel( const vectord &Xnew,
+					       double Ynew)
   {
     assert( mGPXX[1].size() == Xnew.size() );
     addSample(Xnew,Ynew);
-    return fitInitialSurrogate();
-  } // fullUpdateSurrogateModel
+    return fitSurrogateModel();
+  } // fitSurrogateModel
 
 
   //////////////////////////////////////////////////////////////////////////////
@@ -247,72 +220,6 @@ namespace bayesopt
     vectord smu = utils::array2vector(mean.coef_std,n_mu);
     return setMean(vmu, smu, mean.name, dim);
   };
-
-
-  double NonParametricProcess::negativeCrossValidation()
-  {
-    // This is highly ineffient implementation for comparison purposes.
-    size_t n = mGPXX.size();
-    size_t last = n-1;
-    int error = 0;
-    double sum = 0.0;
-    vecOfvec tempXX(mGPXX);
-    vectord tempY(mGPY);
-    vectord tempM(mMeanV);
-    matrixd tempF(mFeatM);
-    for(size_t i = 0; i<n; ++i)
-      {
-	vectord x = mGPXX[0];  double y = mGPY(0);
-	double m = mMeanV(0);
-
-	mGPXX.erase(mGPXX.begin()); 
-	utils::erase(mGPY,mGPY.begin());
-	utils::erase(mMeanV,mMeanV.begin());
-	utils::erase_column(mFeatM,0);
-
-	fitInitialSurrogate(false);
-	ProbabilityDistribution* pd = prediction(x);
-	sum += log(pd->pdf(y));
-	mGPXX.push_back(x);     
-	mGPY.resize(mGPY.size()+1);  mGPY(mGPY.size()-1) = y;
-	mMeanV.resize(mGPY.size());  mMeanV(mGPY.size()-1) = m;
-	mFeatM.resize(mFeatM.size1(),mFeatM.size2()+1);  
-	mFeatM = tempF;
-      }
-      std::cout << "End" << mGPY.size();
-    return -sum;
-  }
-
-  double NonParametricProcess::negativeLogPrior()
-  {
-    return -mKernel.kernelLogPrior();
-  }
-
-  double NonParametricProcess::evaluateKernelParams(const vectord& query)
-  { 
-    int error = mKernel.setHyperParameters(query);
-    if (error) 
-      {
-	FILE_LOG(logERROR) << "Problem optimizing kernel parameters."; 
-	exit(EXIT_FAILURE);	
-      }
-
-    double result;
-    switch(mLearnType)
-      {
-      case L_ML:
-	result = negativeTotalLogLikelihood(); break;
-      case L_MAP:
-	result = negativeLogLikelihood()+negativeLogPrior();
-	break;
-      case L_LOO:
-	result = negativeCrossValidation(); break;
-      default:
-	FILE_LOG(logERROR) << "Learning type not supported";
-      }	  
-    return result;
-  }
-
 
   int NonParametricProcess::addNewPointToCholesky(const vectord& correlation,
 						  double selfcorrelation)

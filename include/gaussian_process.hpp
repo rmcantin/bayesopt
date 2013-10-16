@@ -26,7 +26,7 @@
 #define  _GAUSSIAN_PROCESS_HPP_
 
 #include "gauss_distribution.hpp"
-#include "nonparametricprocess.hpp"
+#include "empiricalbayesprocess.hpp"
 
 
 namespace bayesopt
@@ -38,7 +38,7 @@ namespace bayesopt
   /**
    * \brief Standard zero mean gaussian process with noisy observations.
    */
-  class GaussianProcess: public NonParametricProcess
+  class GaussianProcess: public EmpiricalBayesProcess
   {
   public:
     GaussianProcess(size_t dim, bopt_params params);

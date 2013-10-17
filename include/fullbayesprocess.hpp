@@ -40,6 +40,8 @@ namespace bayesopt
   class FullBayesProcess: public NonParametricProcess
   {
   public:
+    static const size_t N_PROC = 10;
+
     FullBayesProcess(size_t dim, bopt_params params);
     virtual ~FullBayesProcess();
 
@@ -52,25 +54,16 @@ namespace bayesopt
      */	
     ProbabilityDistribution* prediction(const vectord &query);
 
-
-  private:
-
     /** 
-     * \brief Computes the negative log likelihood and its gradient of the data.
-     * @return value negative log likelihood
-     */
-    double negativeLogLikelihood();
-
-    /** 
-     * \brief Precompute some values of the prediction that do not depends on
-     * the query
+     * \brief Updates the kernel parameters acording with a point
+     * estimate (ML, MAP, etc.)
      * @return error code
      */
-    int precomputePrediction();
+    int updateKernelParameters();
 
   private:
-    std::vector<NonParametricProcess*>   gps_;
-    vectord                          weights_;
+    std::vector<NonParametricProcess*>   mVProc;
+    vectord                            mWeights;
     //    MultivariateDistribution* d_;      //!< Predictive distributions
   };
 

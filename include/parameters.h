@@ -37,9 +37,11 @@ extern "C" {
   /*************************************************************/
   
   typedef enum {
+    L_FIXED,
     L_ML,
     L_MAP,
     L_LOO,
+    L_BAYES,
     L_ERROR = -1
   } learning_type;
 

@@ -20,6 +20,7 @@
 ------------------------------------------------------------------------
 */
 
+#include "log.hpp"
 #include "fullbayesprocess.hpp"
 
 namespace bayesopt
@@ -28,15 +29,42 @@ namespace bayesopt
   namespace ublas = boost::numeric::ublas; 
 
   FullBayesProcess::FullBayesProcess(size_t dim, bopt_params params):
+    NonParametricProcess(dim,params),mWeights(N_PROC)
   {
-    size_t n = 10;
+    double w = 1.0/static_cast<double>(N_PROC);
+    mWeights = svectord(n,w);
 
-    double w = 1.0/static_cast<double>(n);
-    weights_ = svectord(n,w);
+    bopt_params newParams = params;
+    newParams.learning_type = L_FIXED;
+    size_t nhp = params.kernel.n_hp;
+    matrixd kTheta(nhp,N_PROC);
+    randEngine reng(200u);
+    lhs(kTheta,reng);
 
-    for (size_t ii = 0; ii < n; ++ii)
-      {
-	
+    for (size_t ii = 0; ii < N_PROC; ++ii)
+      { 
+	vectord th = column(kTheta,ii);
+	std::copy(th.begin(),th.end(),newParams.kernel.hp_mean);
+	mVProc.push_back(NonParametricProcess::create(dim,newParams));
       }
     
-  }
+  };
+
+  FullBayesProcess::~FullBayesProcess(){};
+
+  ProbabilityDistribution* FullBayesProcess::prediction(const vectord &query);
+  {
+    //Sum of Gaussians!
+  };
+
+  int FullBayesProcess::updateKernelParameters()
+  {
+    double sum = 0.0;
+    for (size_t ii = 0; ii < N_PROC; ++ii)
+      { 
+	double lik = mVProc.evaluateKernelParams();
+	mWeights(ii) *= lik;
+	sum += mWeights(ii);
+      }
+    mWeights /= sum;  //Normalization
+  };

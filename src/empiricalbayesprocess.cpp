@@ -32,6 +32,12 @@ namespace bayesopt
   EmpiricalBayesProcess::EmpiricalBayesProcess(size_t dim, bopt_params parameters):
     NonParametricProcess(dim,parameters)
   { 
+    if (mLearnType == L_BAYES)
+      {
+	FILE_LOG(logERROR) << "Empirical Bayes model and full Bayes learning are incompatible.";
+	trow(1);
+      }
+
     kOptimizer = new OptimizeKernel(this);
 
     //TODO: Generalize
@@ -54,43 +60,65 @@ namespace bayesopt
 
   int EmpiricalBayesProcess::updateKernelParameters()
   {
-    int error = -1;
-    vectord optimalTheta = mKernel.getHyperParameters();
-
-    FILE_LOG(logDEBUG) << "Computing kernel parameters. Seed: " 
-		       << optimalTheta;
-
-    kOptimizer->run(optimalTheta);
-    error = mKernel.setHyperParameters(optimalTheta);
-
-    if (error)
+    if (mLearnType == L_FIXED)
       {
-	FILE_LOG(logERROR) << "Error updating kernel parameters.";
-	exit(EXIT_FAILURE);
-      }   
+	FILE_LOG(logDEBUG) << "Fixed hyperparameters. Not learning";
+	return 0;
+      }
+    else
+      {
+	int error = -1;
+	vectord optimalTheta = mKernel.getHyperParameters();
+	
+	FILE_LOG(logDEBUG) << "Computing kernel parameters. Seed: " 
+			   << optimalTheta;
 
-    FILE_LOG(logDEBUG) << "Final kernel parameters: " << optimalTheta;	
-    return error;
+	kOptimizer->run(optimalTheta);
+	error = mKernel.setHyperParameters(optimalTheta);
+
+	if (error)
+	  {
+	    FILE_LOG(logERROR) << "Error updating kernel parameters.";
+	    exit(EXIT_FAILURE);
+	  }   
+
+	FILE_LOG(logDEBUG) << "Final kernel parameters: " << optimalTheta;	
+	return error;
+      }
   };
 
   double EmpiricalBayesProcess::evaluateKernelParams(const vectord& query)
   { 
-    int error = mKernel.setHyperParameters(query);
-    if (error) 
+    if (mLearnType == L_FIXED)
       {
-	FILE_LOG(logERROR) << "Problem optimizing kernel parameters."; 
-	exit(EXIT_FAILURE);	
+	FILE_LOG(logERROR) << "Fixed hyperparameters should not change.";
+	return -1;
       }
-
+    else
+      {
+	int error = mKernel.setHyperParameters(query);
+	if (error) 
+	  {
+	    FILE_LOG(logERROR) << "Problem optimizing kernel parameters."; 
+	    exit(EXIT_FAILURE);	
+	  }
+	return evaluateKernelParams();
+      }
+  };
+  
+  double EmpiricalBayesProcess::evaluateKernelParams()
+  { 
     double result;
     switch(mLearnType)
       {
       case L_ML:
 	result = negativeTotalLogLikelihood(); break;
+      case L_FIXED:
+	result = negativeLogLikelihood(); break;
       case L_MAP:
-	// It is a minus because the prior is the positive and we want the negative.
-	result = negativeLogLikelihood()-mKernel.kernelLogPrior();
-	break;
+	// It is a minus because the prior is the positive and we want
+	// the negative.
+	result = negativeLogLikelihood()-mKernel.kernelLogPrior(); break;
       case L_LOO:
 	result = negativeCrossValidation(); break;
       default:

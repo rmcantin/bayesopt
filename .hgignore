@@ -11,6 +11,7 @@ nlopt/config.h
 GTAGS
 GPATH
 GRTAGS
+GSYMS
 syntax:glob
 *.a
 *.o

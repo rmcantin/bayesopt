@@ -55,15 +55,28 @@ namespace bayesopt
      */	
     virtual ProbabilityDistribution* prediction(const vectord &query) = 0;
 		 		 
+    /** 
+     * \brief Updates the kernel parameters acording with a point
+     * estimate (ML, MAP, etc.)
+     * @return error code
+     */
     int updateKernelParameters();
 
     /** 
-     * \brief Computes the score (eg:likelihood) of the kernel
+     * \brief Updates and computes the score (eg:likelihood) of the kernel
      * parameters.
      * @param query set of parameters.
      * @return score
      */
     double evaluateKernelParams(const vectord& query);
+
+    /** 
+     * \brief Computes the score (eg:likelihood) of the current kernel
+     * parameters.
+     * @param query set of parameters.
+     * @return score
+     */
+    double evaluateKernelParams();
 
 
   protected:

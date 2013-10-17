@@ -50,6 +50,10 @@ namespace bayesopt {
     void setAlgorithm(innerOptAlgorithms newAlg)
     { alg = newAlg; }
 
+    /** Sets the optimization algorithm  */
+    void setMaxEvals(size_t meval)
+    { maxEvals = meval; }
+
     /** 
      * Limits of the hypercube. 
      * Currently, it assumes that all dimensions have the same limits.
@@ -100,6 +104,7 @@ namespace bayesopt {
 
     innerOptAlgorithms alg;
     double mDown, mUp;
+    size_t maxEvals;
   };
 
 }//namespace bayesopt

@@ -41,6 +41,7 @@ namespace bayesopt  {
   { 
     cOptimizer = new OptimizeCriteria(this);
     cOptimizer->setAlgorithm(DIRECT);
+    cOptimizer->setMaxEvals(parameters.n_inner_iterations);
   } // Constructor
 
   ContinuousModel::~ContinuousModel()

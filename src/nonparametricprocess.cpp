@@ -138,6 +138,7 @@ namespace bayesopt
   {
     assert( mGPXX[1].size() == Xnew.size() );
     addSample(Xnew,Ynew);
+    FILE_LOG(logDEBUG) << "Retraining model parameters";
     return fitSurrogateModel();
   } // fitSurrogateModel
 

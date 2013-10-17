@@ -44,7 +44,7 @@ namespace bayesopt
 
   InnerOptimization::InnerOptimization()
   { 
-    alg = DIRECT;    mDown = 0.;    mUp = 1.;
+    alg = DIRECT;    mDown = 0.;    mUp = 1.;    maxEvals = MAX_INNER_EVALUATIONS;
   };
 
 
@@ -66,19 +66,25 @@ namespace bayesopt
   {
     double u[128], l[128];
     double fmin = 1;
-    int maxf = MAX_INNER_EVALUATIONS*n;    
+    int maxf = maxEvals*n;    
     int ierror;
 
-    for (int i = 0; i < n; ++i) {
-      l[i] = mDown;	u[i] = mUp;
-      // What if x is undefined?
-      if (x[i] < l[i] || x[i] > u[i])
-	x[i]=(l[i]+u[i])/2.0;
-    }
-
+    for (int i = 0; i < n; ++i) 
+      {
+	l[i] = mDown;	
+	u[i] = mUp;
+      
+	if (x[i] < l[i] || x[i] > u[i])
+	  {
+	    x[i]=(l[i]+u[i])/2.0;  
+	    //nlopt requires x to have a valid initial value even for algorithms that do
+	    //not need it
+	  }
+      }
+    
     nlopt_opt opt;
     double (*fpointer)(unsigned int, const double *, double *, void *);
-    double coef = 0.8;  //Percentaje of resources used in local optimization
+    double coef;  //Percentaje of resources used in local optimization
 
     /* algorithm and dims */
     if (alg == LBFGS)                                     //Require gradient
@@ -86,7 +92,10 @@ namespace bayesopt
     else                                           //Do not require gradient
       fpointer = &(NLOPT_WPR::evaluate_nlopt);
 
-    if (alg == COMBINED)  coef = 0.8;
+    if (alg == COMBINED)  
+      coef = 0.8;
+    else
+      coef = 1.0;
 
     switch(alg)
       {

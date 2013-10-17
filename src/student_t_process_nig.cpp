@@ -142,7 +142,7 @@ namespace bayesopt
     matrixd KK = computeCorrMatrix();
     matrixd WW = zmatrixd(p,p);  //TODO: diagonal matrix
     utils::addToDiagonal(WW,mInvVarW);
-    matrixd FW = prod(trans(mFeatM),WW);
+    const matrixd FW = prod(trans(mFeatM),WW);
     KK += prod(FW,mFeatM);
     matrixd BB(n,n);
     utils::cholesky_decompose(KK,BB);

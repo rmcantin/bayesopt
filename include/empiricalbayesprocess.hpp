@@ -1,6 +1,6 @@
-/** \file fullbayesprocess.hpp
-    \brief Implementes a fully Bayesian nonparametric process with a 
-    sampling distribution over kernel parameters. */
+/** \file empiricalbayesprocess.hpp
+    \brief Implementes a empirical Bayesian nonparametric process with a 
+    ML, MAP or similar estimate of kernel parameters. */
 /*
 -------------------------------------------------------------------------
    This file is part of BayesOpt, an efficient C++ library for 
@@ -24,8 +24,11 @@
 */
 
 
-#ifndef  _FULL_BAYES_PROCESS_HPP_
-#define  _FULL_BAYES_PROCESS_HPP_
+#ifndef  _EMPIRICAL_BAYES_PROCESS_HPP_
+#define  _EMPIRICAL_BAYES_PROCESS_HPP_
+
+#include "nonparametricprocess.hpp"
+#include "inneroptimization.hpp"
 
 namespace bayesopt
 {
@@ -35,13 +38,13 @@ namespace bayesopt
 
 
   /**
-   * \brief Full Bayesian NonParametric process.
+   * \brief Empirical Bayesian NonParametric process.
    */
-  class FullBayesProcess: public NonParametricProcess
+  class EmpiricalBayesProcess: public NonParametricProcess
   {
   public:
-    FullBayesProcess(size_t dim, bopt_params params);
-    virtual ~FullBayesProcess();
+    EmpiricalBayesProcess(size_t dim, bopt_params parameters);
+    virtual ~EmpiricalBayesProcess();
 
     /** 
      * \brief Function that returns the prediction of the GP for a query point
@@ -50,34 +53,49 @@ namespace bayesopt
      * @param query in the hypercube [0,1] to evaluate the Gaussian process
      * @return pointer to the probability distribution.
      */	
-    ProbabilityDistribution* prediction(const vectord &query);
-
-
-  private:
+    virtual ProbabilityDistribution* prediction(const vectord &query) = 0;
+		 		 
+    int updateKernelParameters();
 
     /** 
-     * \brief Computes the negative log likelihood and its gradient of the data.
+     * \brief Computes the score (eg:likelihood) of the kernel
+     * parameters.
+     * @param query set of parameters.
+     * @return score
+     */
+    double evaluateKernelParams(const vectord& query);
+
+
+  protected:
+    /** 
+     * \brief Computes the negative log likelihood of the data for all
+     * the parameters.
      * @return value negative log likelihood
      */
-    double negativeLogLikelihood();
+    virtual double negativeTotalLogLikelihood() = 0;
+
 
     /** 
-     * \brief Precompute some values of the prediction that do not depends on
-     * the query
-     * @return error code
+     * \brief Computes the negative log likelihood of the data for the
+     * kernel hyperparameters.
+     * @return value negative log likelihood
      */
-    int precomputePrediction();
+    virtual double negativeLogLikelihood() = 0;
 
   private:
-    std::vector<NonParametricProcess*>   gps_;
-    vectord                          weights_;
-    //    MultivariateDistribution* d_;      //!< Predictive distributions
+    /**
+     * Computes the negative score of the data using cross validation.
+     * @return negative score
+     */
+    double negativeCrossValidation();
+
+  private:
+    InnerOptimization* kOptimizer;
   };
 
-
   /**@}*/
-
+  
 } //namespace bayesopt
 
-
 #endif
+

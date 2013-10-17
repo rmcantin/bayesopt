@@ -7,6 +7,10 @@ Makefile
 cmake_install.cmake
 Doxyfile
 install_manifest.txt
+nlopt/config.h
+GTAGS
+GPATH
+GRTAGS
 syntax:glob
 *.a
 *.o

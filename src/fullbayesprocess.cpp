@@ -29,14 +29,28 @@ namespace bayesopt
   namespace ublas = boost::numeric::ublas; 
 
   FullBayesProcess::FullBayesProcess(size_t dim, bopt_params params):
-    NonParametricProcess(dim,params),mWeights(N_PROC)
+    NonParametricProcess(dim,params),mGeneralParams(params),mWeights(N_PROC)
+  {
+    initializeKernelParameters();
+  };
+
+  FullBayesProcess::~FullBayesProcess(){};
+
+  ProbabilityDistribution* FullBayesProcess::prediction(const vectord &query);
+  {
+    //Sum of Gaussians?
+  };
+
+  int FullBayesProcess::initializeKernelParameters()
   {
     double w = 1.0/static_cast<double>(N_PROC);
     mWeights = svectord(n,w);
 
-    bopt_params newParams = params;
+    //All the inner processes share the same parameters except the
+    //kernel paramenters and the learning type.
+    bopt_params newParams = mGeneralParams;
     newParams.learning_type = L_FIXED;
-    size_t nhp = params.kernel.n_hp;
+    size_t nhp = mGeneralParams.kernel.n_hp;
     matrixd kTheta(nhp,N_PROC);
     randEngine reng(200u);
     lhs(kTheta,reng);
@@ -45,17 +59,12 @@ namespace bayesopt
       { 
 	vectord th = column(kTheta,ii);
 	std::copy(th.begin(),th.end(),newParams.kernel.hp_mean);
-	mVProc.push_back(NonParametricProcess::create(dim,newParams));
+	mVProc.push_back(NonParametricProcess::create(dim_,newParams));
       }
     
-  };
 
-  FullBayesProcess::~FullBayesProcess(){};
-
-  ProbabilityDistribution* FullBayesProcess::prediction(const vectord &query);
-  {
-    //Sum of Gaussians!
-  };
+    return 0;
+  }
 
   int FullBayesProcess::updateKernelParameters()
   {

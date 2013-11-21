@@ -23,9 +23,9 @@
 #include "mixture_distribution.hpp"
 
 MixtureDistribution::MixtureDistribution(size_t n):
-  ProbabilityDistribution()
+  ProbabilityDistribution(),mPD(n,NULL),mW(n)
 {
-  
+  //TODO: Fix this hack
 };
 
 MixtureDistribution::~MixtureDistribution(){};

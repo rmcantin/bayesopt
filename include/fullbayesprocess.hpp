@@ -64,7 +64,8 @@ namespace bayesopt
   private:
     std::vector<NonParametricProcess*>   mVProc;
     vectord                            mWeights;
-    //    MultivariateDistribution* d_;      //!< Predictive distributions
+    
+    MixtureDistribution* d_;      //!< Predictive distributions
   };
 
 

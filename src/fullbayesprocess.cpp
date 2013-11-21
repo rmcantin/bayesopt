@@ -31,15 +31,46 @@ namespace bayesopt
   FullBayesProcess::FullBayesProcess(size_t dim, bopt_params params):
     NonParametricProcess(dim,params),mGeneralParams(params),mWeights(N_PROC)
   {
+    d_ = new MixtureDistribution(N_PROC);
     initializeKernelParameters();
   };
 
-  FullBayesProcess::~FullBayesProcess(){};
+  FullBayesProcess::~FullBayesProcess()
+  {
+    delete d_;
+  };
 
   ProbabilityDistribution* FullBayesProcess::prediction(const vectord &query);
   {
-    //Sum of Gaussians?
-  };
+    for(size_t i=0;i<N_PROC;++i)
+      {
+	ProbabilityDistribution* pd = mVProc[i]->prediction(query);
+	d_.setComponent(i,pd,mWeights(i))
+      }
+  }
+
+  int FullBayesProcess::precomputePrediction()
+  {
+    updateKernelParameters()
+    for(size_t i=0;i<N_PROC;++i)
+      {
+	mVProc[i]->precomputePrediction();
+      }
+  }
+
+
+  //   MixtureDistribution* dist(N_PROC);
+
+  //   for (size_t ii = 0; ii < N_PROC; ++ii)
+  //     { 
+	
+  // 	vectord th = column(kTheta,ii);
+  // 	std::copy(th.begin(),th.end(),newParams.kernel.hp_mean);
+  // 	mVProc.push_back(NonParametricProcess::create(dim_,newParams));
+  //     }
+    
+  //   //Sum of Gaussians?
+  // };
 
   int FullBayesProcess::initializeKernelParameters()
   {
@@ -62,7 +93,6 @@ namespace bayesopt
 	mVProc.push_back(NonParametricProcess::create(dim_,newParams));
       }
     
-
     return 0;
   }
 
@@ -71,7 +101,7 @@ namespace bayesopt
     double sum = 0.0;
     for (size_t ii = 0; ii < N_PROC; ++ii)
       { 
-	double lik = mVProc.evaluateKernelParams();
+	double lik = mVProc[ii]->evaluateKernelParams();
 	mWeights(ii) *= lik;
 	sum += mWeights(ii);
       }

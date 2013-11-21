@@ -34,6 +34,14 @@ public:
   MixtureDistribution(size_t n);
   virtual ~MixtureDistribution();
 
+  void setComponent(size_t i, ProbabilityDistribution* d)
+  { mPD[i] = d;};
+  
+  void setComponent(size_t i, ProbabilityDistribution* d,
+		    double w);
+  {mPD[i] = d;  mW[i] = w;};
+
+  void setWeights(const vectord& w) {mW = w;};
   /** 
    * \brief Probability density function
    * @param x query point

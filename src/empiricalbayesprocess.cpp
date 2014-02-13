@@ -35,7 +35,7 @@ namespace bayesopt
     if (mLearnType == L_BAYES)
       {
 	FILE_LOG(logERROR) << "Empirical Bayes model and full Bayes learning are incompatible.";
-	trow(1);
+	throw 1;
       }
 
     kOptimizer = new OptimizeKernel(this);
@@ -70,7 +70,7 @@ namespace bayesopt
 	int error = -1;
 	vectord optimalTheta = mKernel.getHyperParameters();
 	
-	FILE_LOG(logDEBUG) << "Computing kernel parameters. Seed: " 
+	FILE_LOG(logDEBUG) << "Computing kernel parameters. Initial: " 
 			   << optimalTheta;
 
 	kOptimizer->run(optimalTheta);

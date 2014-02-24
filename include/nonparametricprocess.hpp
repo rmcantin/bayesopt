@@ -95,9 +95,7 @@ namespace bayesopt
     inline vectord getPointAtMinimum() { return mGPXX[mMinIndex]; };
     inline double getValueAtMinimum() { return mGPY(mMinIndex); };
     inline size_t getNSamples() { return mGPY.size(); };
-    
-    virtual double getSignalVariance() = 0;
-  
+    inline double getSignalVariance() { return mSigma; };
 
     /** Sets the kind of learning methodology for kernel hyperparameters */
     inline void setLearnType(learning_type l_type) { mLearnType = l_type; };
@@ -144,6 +142,7 @@ namespace bayesopt
     vectord mMu;                 ///< Mean of the parameters of the mean function
     vectord mS_Mu;    ///< Variance of the params of the mean function W=mS_Mu*I
 
+    double mSigma;                                   //!< GP posterior parameters
     matrixd mL;             ///< Cholesky decomposition of the Correlation matrix
     size_t dim_;
     learning_type mLearnType;

@@ -56,8 +56,6 @@ namespace bayesopt
      */	
     ProbabilityDistribution* prediction(const vectord &query);
 
-    double getSignalVariance() { return mSigmaMap; };
-
   private:
 
     /** 
@@ -75,7 +73,6 @@ namespace bayesopt
 
   private:
     vectord mWMap;                      //!< GP posterior parameters
-    double mSigmaMap;                   //!< GP posterior parameters
     double mAlpha, mBeta;
     vectord mW0;
     vectord mInvVarW;

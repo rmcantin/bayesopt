@@ -74,7 +74,7 @@ namespace bayesopt
     inplace_solve(mD,rho,ublas::lower_tag());
     
     double yPred = inner_prod(phi,mWMap) + inner_prod(v,mVf);
-    double sPred = sqrt( mSigmaMap * (kq - inner_prod(v,v) 
+    double sPred = sqrt( mSigma * (kq - inner_prod(v,v) 
 				   + inner_prod(rho,rho)));
 
     if ((boost::math::isnan(yPred)) || (boost::math::isnan(sPred)))
@@ -147,11 +147,11 @@ namespace bayesopt
     matrixd BB(n,n);
     utils::cholesky_decompose(KK,BB);
     inplace_solve(BB,v0,ublas::lower_tag());
-    mSigmaMap = (mBeta/mAlpha + inner_prod(v0,v0))/(n+2*mAlpha);
+    mSigma = (mBeta/mAlpha + inner_prod(v0,v0))/(n+2*mAlpha);
     
     int dof = static_cast<int>(n+2*mAlpha);
     
-    if ((boost::math::isnan(mWMap(0))) || (boost::math::isnan(mSigmaMap)))
+    if ((boost::math::isnan(mWMap(0))) || (boost::math::isnan(mSigma)))
       {
 	FILE_LOG(logERROR) << "Error in precomputed prediction. NaN found.";
 	return -1;

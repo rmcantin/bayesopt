@@ -38,10 +38,10 @@ namespace bayesopt
   GaussianProcessNormal::GaussianProcessNormal(size_t dim, 
 					 bopt_params params):
     HierarchicalGaussianProcess(dim,params),
-    mSigma(params.sigma_s), 
     mW0(params.mean.n_coef), mInvVarW(params.mean.n_coef), 
     mD(params.mean.n_coef,params.mean.n_coef)
   {  
+    mSigma = params.sigma_s;
     mW0 = utils::array2vector(params.mean.coef_mean,params.mean.n_coef);
     for (size_t ii = 0; ii < params.mean.n_coef; ++ii)
       {

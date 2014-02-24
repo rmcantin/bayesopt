@@ -78,19 +78,13 @@ namespace bayesopt
 
     /** 
      * \brief Sequential update of the surrogate model by adding a new point.
-     *  Add new point efficiently using Matrix Decomposition Lemma 
-     *  for the inversion of the correlation matrix or adding new 
-     *  rows to the Cholesky decomposition.
+     *  Add new point efficiently using Matrix Decomposition Lemma for the
+     *  inversion of the correlation matrix or adding new rows to the
+     *  Cholesky decomposition.  If retrain is true, it recomputes the
+     *  kernel hyperparameters and computes a full covariance matrix.
      * @return error code
      */   
-    int updateSurrogateModel( const vectord &Xnew, double Ynew);
-
-    /** 
-     * \brief Full update of the surrogate model by adding a new point.
-     *  It recomputes the kernel hyperparameters and full covariance matrix.
-     * @return error code
-     */   
-    int fitSurrogateModel( const vectord &Xnew, double Ynew);
+    int updateSurrogateModel(const vectord &Xnew, double Ynew, bool retrain);
 
 
     // Getters and setters
@@ -140,6 +134,8 @@ namespace bayesopt
     vectord computeCrossCorrelation(const vectord &query);
     double computeSelfCorrelation(const vectord& query);
 
+
+  protected:
     vecOfvec mGPXX;                                              ///< Data inputs
     vectord mGPY;                                                ///< Data values
     

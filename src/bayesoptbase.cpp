@@ -128,12 +128,10 @@ namespace bayesopt
     double yNext = evaluateSampleInternal(xNext);
 
     // Update surrogate model
-    if ((mParameters.n_iter_relearn > 0) && 
-	((ii + 1) % mParameters.n_iter_relearn == 0))
-      mGP->fitSurrogateModel(xNext,yNext); 
-    else
-      mGP->updateSurrogateModel(xNext,yNext); 
+    bool retrain = ((mParameters.n_iter_relearn > 0) && 
+		    ((ii + 1) % mParameters.n_iter_relearn == 0));
     
+    mGP->updateSurrogateModel(xNext,yNext,retrain); 
     plotStepData(ii,xNext,yNext);
     return 0;
   }

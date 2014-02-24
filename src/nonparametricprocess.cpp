@@ -112,35 +112,33 @@ namespace bayesopt
 
 
   int NonParametricProcess::updateSurrogateModel( const vectord &Xnew,
-						  double Ynew)
+						  double Ynew, bool retrain)
   {
     assert( mGPXX[1].size() == Xnew.size() );
 
-    const vectord newK = computeCrossCorrelation(Xnew);
-    double selfCorrelation = computeSelfCorrelation(Xnew) + mRegularizer;
-  
-    addSample(Xnew,Ynew);
-    addNewPointToCholesky(newK,selfCorrelation);
-
-    int error = precomputePrediction(); 
-    if (error < 0)
+    if (retrain)
       {
-	FILE_LOG(logERROR) << "Error pre-computing the prediction distribution";
-	exit(EXIT_FAILURE);
-      }   
+	addSample(Xnew,Ynew);
+	FILE_LOG(logDEBUG) << "Retraining model parameters";
+	return fitSurrogateModel();	
+      }
+    else
+      {
+	const vectord newK = computeCrossCorrelation(Xnew);
+	double selfCorrelation = computeSelfCorrelation(Xnew) + mRegularizer;
+	addSample(Xnew,Ynew);
+	addNewPointToCholesky(newK,selfCorrelation);
 
-    return 0; 
+	int error = precomputePrediction(); 
+	if (error < 0)
+	  {
+	    FILE_LOG(logERROR) << "Error pre-computing the prediction distribution";
+	    exit(EXIT_FAILURE);
+	  }   
+	return error; 
+      }
+    return 0; //JIC
   } // updateSurrogateModel
-
-
-  int NonParametricProcess::fitSurrogateModel( const vectord &Xnew,
-					       double Ynew)
-  {
-    assert( mGPXX[1].size() == Xnew.size() );
-    addSample(Xnew,Ynew);
-    FILE_LOG(logDEBUG) << "Retraining model parameters";
-    return fitSurrogateModel();
-  } // fitSurrogateModel
 
 
   //////////////////////////////////////////////////////////////////////////////

@@ -95,10 +95,7 @@ namespace bayesopt
     Kernel* getKernel();
     
     inline int setHyperParameters(const vectord &theta)
-    { 
-      mKernel->setHyperParameters(theta);
-      return 0;
-    };
+    { return mKernel->setHyperParameters(theta); };
     
     inline vectord getHyperParameters(){return mKernel->getHyperParameters();};
     inline size_t nHyperParameters(){return mKernel->nHyperParameters();};

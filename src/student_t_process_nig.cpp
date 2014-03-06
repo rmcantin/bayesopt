@@ -63,7 +63,7 @@ namespace bayesopt
   {
     double kq = computeSelfCorrelation(query);
     vectord kn = computeCrossCorrelation(query);
-    vectord phi = mMean->getFeatures(query);
+    vectord phi = mMean.getMeanFunc()->getFeatures(query);
   
     vectord v(kn);
     inplace_solve(mL,v,ublas::lower_tag());
@@ -93,14 +93,14 @@ namespace bayesopt
   {
     matrixd KK = computeCorrMatrix();
     const size_t n = KK.size1();
-    const size_t p = mMean->nFeatures();
+    const size_t p = mMean.getMeanFunc()->nFeatures();
     const size_t nalpha = (n+2*mAlpha);
 
-    vectord v0 = mData.mY - prod(trans(mFeatM),mW0);
+    vectord v0 = mData.mY - prod(trans(mMean.mFeatM),mW0);
     matrixd WW = zmatrixd(p,p);  //TODO: diagonal matrix
     utils::addToDiagonal(WW,mInvVarW);
-    matrixd FW = prod(trans(mFeatM),WW);
-    KK += prod(FW,mFeatM);
+    matrixd FW = prod(trans(mMean.mFeatM),WW);
+    KK += prod(FW,mMean.mFeatM);
     matrixd BB(n,n);
     utils::cholesky_decompose(KK,BB);
     inplace_solve(BB,v0,ublas::lower_tag());
@@ -118,9 +118,9 @@ namespace bayesopt
   int StudentTProcessNIG::precomputePrediction()
   {
     size_t n = mData.getNSamples();
-    size_t p = mMean->nFeatures();
+    size_t p = mMean.getMeanFunc()->nFeatures();
 
-    mKF = trans(mFeatM);
+    mKF = trans(mMean.mFeatM);
     inplace_solve(mL,mKF,ublas::lower_tag());
     //TODO: make one line
     matrixd DD(p,p);
@@ -130,20 +130,20 @@ namespace bayesopt
 
     vectord vn = mData.mY;
     inplace_solve(mL,vn,ublas::lower_tag());
-    mWMap = prod(mFeatM,vn) + utils::ublas_elementwise_prod(mInvVarW,mW0);
+    mWMap = prod(mMean.mFeatM,vn) + utils::ublas_elementwise_prod(mInvVarW,mW0);
     utils::cholesky_solve(mD,mWMap,ublas::lower());
 
-    mVf = mData.mY - prod(trans(mFeatM),mWMap);
+    mVf = mData.mY - prod(trans(mMean.mFeatM),mWMap);
     inplace_solve(mL,mVf,ublas::lower_tag());
 
-    vectord v0 = mData.mY - prod(trans(mFeatM),mW0);
+    vectord v0 = mData.mY - prod(trans(mMean.mFeatM),mW0);
     //TODO: check for "cheaper" version
     //matrixd KK = prod(mL,trans(mL));
     matrixd KK = computeCorrMatrix();
     matrixd WW = zmatrixd(p,p);  //TODO: diagonal matrix
     utils::addToDiagonal(WW,mInvVarW);
-    const matrixd FW = prod(trans(mFeatM),WW);
-    KK += prod(FW,mFeatM);
+    const matrixd FW = prod(trans(mMean.mFeatM),WW);
+    KK += prod(FW,mMean.mFeatM);
     matrixd BB(n,n);
     utils::cholesky_decompose(KK,BB);
     inplace_solve(BB,v0,ublas::lower_tag());

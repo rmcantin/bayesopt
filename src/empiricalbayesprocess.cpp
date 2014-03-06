@@ -136,7 +136,7 @@ namespace bayesopt
     int error = 0;
     double sum = 0.0;
 
-    matrixd tempF(mFeatM);
+    matrixd tempF(mMean.mFeatM);
 
     // Data point used for cross validation
     vectord x(n);
@@ -150,13 +150,11 @@ namespace bayesopt
       {
 	// Take the first element
 	y = mData.getSample(0,x);
-	double m = mMeanV(0);
 
 	// Remove it for cross validation
 	mData.mX.erase(mData.mX.begin()); 
 	utils::erase(mData.mY,mData.mY.begin());
-	utils::erase(mMeanV,mMeanV.begin());
-	utils::erase_column(mFeatM,0);
+	utils::erase_column(mMean.mFeatM,0);
 
 	// Compute the cross validation
 	precomputeSurrogate();
@@ -165,9 +163,8 @@ namespace bayesopt
 
 	//Paste it back at the end
 	mData.addSample(x,y);
-	mMeanV.resize(mData.getNSamples());  mMeanV(mData.mY.size()-1) = m;
-	mFeatM.resize(mFeatM.size1(),mFeatM.size2()+1);  
-	mFeatM = tempF;
+	mMean.mFeatM.resize(mMean.mFeatM.size1(),mMean.mFeatM.size2()+1);  
+	mMean.mFeatM = tempF;
       }
     std::cout << "End" << mData.getNSamples();
     return -sum;   //Because we are minimizing.

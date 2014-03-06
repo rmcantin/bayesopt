@@ -57,7 +57,7 @@ namespace bayesopt
   {
     double kq = computeSelfCorrelation(query);
     vectord kn = computeCrossCorrelation(query);
-    vectord phi = mMean->getFeatures(query);
+    vectord phi = mMean.getMeanFunc()->getFeatures(query);
   
     vectord v(kn);
     inplace_solve(mL,v,ublas::lower_tag());
@@ -78,9 +78,9 @@ namespace bayesopt
   int GaussianProcessML::precomputePrediction()
   {
     size_t n = mData.getNSamples();
-    size_t p = mMean->nFeatures();
+    size_t p = mMean.getMeanFunc()->nFeatures();
 
-    mKF = trans(mFeatM);
+    mKF = trans(mMean.mFeatM);
     inplace_solve(mL,mKF,ublas::lower_tag());
 
     matrixd FKF = prod(trans(mKF),mKF);
@@ -93,7 +93,7 @@ namespace bayesopt
     mWML = prod(Ky,mKF);
     utils::cholesky_solve(mL2,mWML,ublas::lower());
 
-    mAlphaF = mData.mY - prod(mWML,mFeatM);
+    mAlphaF = mData.mY - prod(mWML,mMean.mFeatM);
     inplace_solve(mL,mAlphaF,ublas::lower_tag());
     mSigma = inner_prod(mAlphaF,mAlphaF)/(n-p);
   

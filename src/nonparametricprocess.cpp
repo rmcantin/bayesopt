@@ -41,15 +41,9 @@ namespace bayesopt
   
   NonParametricProcess::NonParametricProcess(size_t dim, bopt_params parameters):
     dim_(dim), mRegularizer(parameters.noise),
-    mKernel(dim, parameters)
+    mKernel(dim, parameters), mMean(dim, parameters)
   { 
     setLearnType(parameters.l_type);
-    int errorM = setMean(parameters.mean,dim);
-    if (errorM)
-      {
-	FILE_LOG(logERROR) << "Error initializing nonparametric process.";
-	exit(EXIT_FAILURE);
-      }
   }
 
   NonParametricProcess::~NonParametricProcess()
@@ -146,59 +140,16 @@ namespace bayesopt
   void NonParametricProcess::setSamples(const matrixd &x, const vectord &y)
   {
     mData.setSamples(x,y);
-    mMeanV = (*mMean)(mData.mX);
-    mFeatM = mMean->getAllFeatures(mData.mX);
+    mMean.setPoints(mData.mX);  //Because it expects a vecOfvec instead of a matrixd
   }
 
   void NonParametricProcess::addSample(const vectord &x, double y)
   {
-    using boost::numeric::ublas::column;
-
     mData.addSample(x,y);
-    mMeanV.resize(mMeanV.size()+1);  
-    mMeanV(mMeanV.size()-1) = mMean->getMean(x);
-
-    vectord feat = mMean->getFeatures(x);
-    mFeatM.resize(feat.size(),mFeatM.size2()+1);  
-    column(mFeatM,mFeatM.size2()-1) = feat;
-
+    mMean.addNewPoint(x);
   };
 
   
-  int NonParametricProcess::setMean (const vectord &muv,
-				     const vectord &smu,
-				     std::string m_name,
-				     size_t dim)
-  {
-    mMean.reset(mPFactory.create(m_name,dim));
-    if ("mZero" == m_name) 
-      {
-	mMu = zvectord(1);
-	mS_Mu = svectord(1,1e-10);
-      }
-    else if("mOne" == m_name) 
-      {
-	mMu = svectord(1,1.0);
-	mS_Mu = svectord(1,1e-10);
-      }
-    else
-      {
-	mMu = muv; mS_Mu = smu;
-      }
-
-    if (mMean == NULL) 	return -1; 
-
-    return mMean->setParameters(mMu);
-  }
-
-  int NonParametricProcess::setMean (mean_parameters mean, size_t dim)
-  {
-    size_t n_mu = mean.n_coef;
-    vectord vmu = utils::array2vector(mean.coef_mean,n_mu);
-    vectord smu = utils::array2vector(mean.coef_std,n_mu);
-    return setMean(vmu, smu, mean.name, dim);
-  };
-
   int NonParametricProcess::addNewPointToCholesky(const vectord& correlation,
 						  double selfcorrelation)
   {

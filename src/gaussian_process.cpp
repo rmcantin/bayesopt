@@ -57,7 +57,7 @@ namespace bayesopt
     matrixd L(n,n);
     utils::cholesky_decompose(K,L);
 
-    vectord alpha(mData.mY-prod(mMu,mFeatM));
+    vectord alpha(mData.mY-mMean.muTimesFeat());
     inplace_solve(L,alpha,ublas::lower_tag());
     double loglik = ublas::inner_prod(alpha,alpha)/(2*mSigma) + 
       utils::log_trace(L);
@@ -72,7 +72,7 @@ namespace bayesopt
 
     vectord vd(kn);
     inplace_solve(mL,vd,ublas::lower_tag());
-    double basisPred = ublas::inner_prod(mMu,mMean->getFeatures(query));
+    double basisPred = mMean.muTimesFeat(query);
     double yPred = basisPred + ublas::inner_prod(vd,mAlphaV);
     double sPred = sqrt(mSigma*(kq - ublas::inner_prod(vd,vd)));
     
@@ -86,7 +86,7 @@ namespace bayesopt
     const size_t n = mData.getNSamples();
   
     mAlphaV.resize(n,false);
-    mAlphaV = mData.mY-prod(mMu,mFeatM);
+    mAlphaV = mData.mY-mMean.muTimesFeat();
     inplace_solve(mL,mAlphaV,ublas::lower_tag());
 
     return 0; 

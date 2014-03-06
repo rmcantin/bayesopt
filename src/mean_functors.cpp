@@ -1,5 +1,6 @@
 #include "log.hpp"
 #include "parser.hpp"
+#include "ublas_extra.hpp"
 #include "mean_functors.hpp"
 #include "mean_atomic.hpp"
 #include "mean_combined.hpp"
@@ -52,6 +53,58 @@ namespace bayesopt
       }
     return mFunc;
 
+  };
+
+  //////////////////////////////////////////////////////////////////////
+
+  MeanModel::MeanModel(size_t dim, bopt_params parameters)
+  {
+    int error = setMean(parameters.mean,dim);
+    if (error)
+      {
+	FILE_LOG(logERROR) << "Error initializing nonparametric process.";
+	exit(EXIT_FAILURE);
+      }
+  }
+
+  ParametricFunction* MeanModel::getMeanFunc()
+  {
+    return mMean.get();
+  }
+
+
+  int MeanModel::setMean (const vectord &muv,
+				     const vectord &smu,
+				     std::string m_name,
+				     size_t dim)
+  {
+    mMean.reset(mPFactory.create(m_name,dim));
+    if ("mZero" == m_name) 
+      {
+	mMu = zvectord(1);
+	mS_Mu = svectord(1,1e-10);
+      }
+    else if("mOne" == m_name) 
+      {
+	mMu = svectord(1,1.0);
+	mS_Mu = svectord(1,1e-10);
+      }
+    else
+      {
+	mMu = muv; mS_Mu = smu;
+      }
+
+    if (mMean == NULL) 	return -1; 
+
+    return mMean->setParameters(mMu);
+  }
+
+  int MeanModel::setMean (mean_parameters mean, size_t dim)
+  {
+    size_t n_mu = mean.n_coef;
+    vectord vmu = utils::array2vector(mean.coef_mean,n_mu);
+    vectord smu = utils::array2vector(mean.coef_std,n_mu);
+    return setMean(vmu, smu, mean.name, dim);
   };
 
 }//namespace bayesopt

@@ -26,7 +26,6 @@
 #ifndef __NONPARAMETRICPROCESS_HPP__
 #define __NONPARAMETRICPROCESS_HPP__
 
-#include <boost/scoped_ptr.hpp>
 #include "ublas_extra.hpp"
 #include "kernel_functors.hpp"
 #include "mean_functors.hpp"
@@ -95,6 +94,52 @@ namespace bayesopt
     size_t mMinIndex, mMaxIndex;	
   };
 
+  /** \brief Nonparametric process model conditional to the existence of a value for kernel parameters */
+  // class ConditionalProcess
+  // {
+  // public:
+  //   ConditionalProcess(Dataset* data, bopt_params parameters){};
+  //   virtual ~ConditionalProcess(){};
+
+  //   /** 
+  //    * \brief Factory model generator for surrogate models
+  //    * @param parameters (process name, noise, priors, etc.)
+  //    * @return pointer to the corresponding derivate class (surrogate model)
+  //    */
+  //   static ConditionalProcess* create(Dataset* data, bopt_params parameters);
+
+  //   /** 
+  //    * \brief Function that returns the prediction of the GP for a query point
+  //    * in the hypercube [0,1].
+  //    * 
+  //    * @param query in the hypercube [0,1] to evaluate the Gaussian process
+  //    * @return pointer to the probability distribution.
+  //    */	
+  //   virtual ProbabilityDistribution* prediction(const vectord &query) = 0;
+
+  //   /** 
+  //    * \brief Computes the initial surrogate model. 
+  //    * It also updates the kernel parameters estimation. This
+  //    * function is hightly inefficient.  Use it only at the begining.
+  //    * @return error code
+  //    */
+  //   int fitSurrogateModel();
+  //   int precomputeSurrogate();
+
+  //   /** 
+  //    * \brief Sequential update of the surrogate model by adding a new point.
+  //    *  Add new point efficiently using Matrix Decomposition Lemma for the
+  //    *  inversion of the correlation matrix or adding new rows to the
+  //    *  Cholesky decomposition.  If retrain is true, it recomputes the
+  //    *  kernel hyperparameters and computes a full covariance matrix.
+  //    * @return error code
+  //    */   
+  //   int updateSurrogateModel(const vectord &Xnew, double Ynew);
+
+  // };
+
+    
+
   /**
    * \brief Abstract class to implement non-parametric processes
    */
@@ -153,23 +198,6 @@ namespace bayesopt
     /** Sets the kind of learning methodology for kernel hyperparameters */
     inline void setLearnType(learning_type l_type) { mLearnType = l_type; };
 
-
-    /** 
-     * \brief Select the parametric part of the surrogate process.
-     * 
-     * @param muv mean function parameters
-     * @param smu std function parameters
-     * @param m_name mean function name
-     * @param dim number of input dimensions
-     * @return error_code
-     */
-    int setMean (const vectord &muv, const vectord &smu, 
-		 std::string m_name, size_t dim);
-
-    /** Wrapper of setMean for the C structure */
-    int setMean (mean_parameters mean, size_t dim);
-
-
   protected:
     /** 
      * \brief Precompute some values of the prediction that do not
@@ -189,19 +217,12 @@ namespace bayesopt
   protected:
     Dataset mData;
     
-    boost::scoped_ptr<ParametricFunction> mMean;    ///< Pointer to mean function
-    matrixd mFeatM;           ///< Value of the mean features at the input points
-    vectord mMu;                 ///< Mean of the parameters of the mean function
-    vectord mS_Mu;    ///< Variance of the params of the mean function W=mS_Mu*I
-
     double mSigma;                                   //!< GP posterior parameters
     matrixd mL;             ///< Cholesky decomposition of the Correlation matrix
     size_t dim_;
     learning_type mLearnType;
     KernelModel mKernel;
-
-    //TODO: might be unnecesary
-    vectord mMeanV;                           ///< Mean value at the input points
+    MeanModel mMean;
 
   private:
     /** 
@@ -221,9 +242,9 @@ namespace bayesopt
 
 
     const double mRegularizer;   ///< Std of the obs. model (also used as nugget)
-    MeanFactory mPFactory;
-
   };
+
+
 
   /**@}*/
   

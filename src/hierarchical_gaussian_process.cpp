@@ -49,13 +49,13 @@ namespace bayesopt
     matrixd L2(p,p);
     utils::cholesky_decompose(FKF,L2);
 
-    vectord Ky(mGPY);
+    vectord Ky(mData.mY);
     inplace_solve(L,Ky,ublas::lower_tag());
 
     vectord wML = prod(Ky,KF);
     utils::cholesky_solve(L2,wML,ublas::lower());
 
-    vectord alpha = mGPY - prod(wML,mFeatM);
+    vectord alpha = mData.mY - prod(wML,mFeatM);
     inplace_solve(L,alpha,ublas::lower_tag());
     double sigma = ublas::inner_prod(alpha,alpha)/(n-p);
 

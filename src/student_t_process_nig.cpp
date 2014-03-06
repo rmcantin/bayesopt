@@ -96,7 +96,7 @@ namespace bayesopt
     const size_t p = mMean->nFeatures();
     const size_t nalpha = (n+2*mAlpha);
 
-    vectord v0 = mGPY - prod(trans(mFeatM),mW0);
+    vectord v0 = mData.mY - prod(trans(mFeatM),mW0);
     matrixd WW = zmatrixd(p,p);  //TODO: diagonal matrix
     utils::addToDiagonal(WW,mInvVarW);
     matrixd FW = prod(trans(mFeatM),WW);
@@ -117,7 +117,7 @@ namespace bayesopt
 
   int StudentTProcessNIG::precomputePrediction()
   {
-    size_t n = mGPXX.size();
+    size_t n = mData.getNSamples();
     size_t p = mMean->nFeatures();
 
     mKF = trans(mFeatM);
@@ -128,15 +128,15 @@ namespace bayesopt
     utils::addToDiagonal(DD,mInvVarW);
     utils::cholesky_decompose(DD,mD);
 
-    vectord vn = mGPY;
+    vectord vn = mData.mY;
     inplace_solve(mL,vn,ublas::lower_tag());
     mWMap = prod(mFeatM,vn) + utils::ublas_elementwise_prod(mInvVarW,mW0);
     utils::cholesky_solve(mD,mWMap,ublas::lower());
 
-    mVf = mGPY - prod(trans(mFeatM),mWMap);
+    mVf = mData.mY - prod(trans(mFeatM),mWMap);
     inplace_solve(mL,mVf,ublas::lower_tag());
 
-    vectord v0 = mGPY - prod(trans(mFeatM),mW0);
+    vectord v0 = mData.mY - prod(trans(mFeatM),mW0);
     //TODO: check for "cheaper" version
     //matrixd KK = prod(mL,trans(mL));
     matrixd KK = computeCorrMatrix();

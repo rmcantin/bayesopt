@@ -77,7 +77,7 @@ namespace bayesopt
 
   int GaussianProcessML::precomputePrediction()
   {
-    size_t n = mGPXX.size();
+    size_t n = mData.getNSamples();
     size_t p = mMean->nFeatures();
 
     mKF = trans(mFeatM);
@@ -87,13 +87,13 @@ namespace bayesopt
     mL2 = FKF;
     utils::cholesky_decompose(FKF,mL2);
 
-    vectord Ky(mGPY);
+    vectord Ky(mData.mY);
     inplace_solve(mL,Ky,ublas::lower_tag());
 
     mWML = prod(Ky,mKF);
     utils::cholesky_solve(mL2,mWML,ublas::lower());
 
-    mAlphaF = mGPY - prod(mWML,mFeatM);
+    mAlphaF = mData.mY - prod(mWML,mFeatM);
     inplace_solve(mL,mAlphaF,ublas::lower_tag());
     mSigma = inner_prod(mAlphaF,mAlphaF)/(n-p);
   

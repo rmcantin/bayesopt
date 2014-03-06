@@ -73,7 +73,7 @@ void DISPLAY(){
       ++state_ii;
       GLOBAL_MODEL->stepOptimization(state_ii); 
       vectord last(1);
-      double res = GLOBAL_MODEL->getSurrogateModel()->getLastSample(last);
+      double res = GLOBAL_MODEL->getSurrogateModel()->getData()->getLastSample(last);
       ly.push_back(res);
       lx.push_back(last(0));
 	  
@@ -172,10 +172,10 @@ int main(int nargs, char *args[])
   GLOBAL_MODEL = opt;
   opt->initializeOptimization();
   vectord last(1);
-  size_t n_points = GLOBAL_MODEL->getSurrogateModel()->getNSamples();
+  size_t n_points = GLOBAL_MODEL->getSurrogateModel()->getData()->getNSamples();
   for (size_t i = 0; i<n_points;++i)
     {
-      double res = GLOBAL_MODEL->getSurrogateModel()->getSample(i,last);
+      double res = GLOBAL_MODEL->getSurrogateModel()->getData()->getSample(i,last);
       ly.push_back(res);
       lx.push_back(last(0));
     }

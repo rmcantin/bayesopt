@@ -131,35 +131,46 @@ namespace bayesopt
   double EmpiricalBayesProcess::negativeCrossValidation()
   {
     // This is highly ineffient implementation for comparison purposes.
-    size_t n = mGPXX.size();
+    size_t n = mData.getNSamples();
     size_t last = n-1;
     int error = 0;
     double sum = 0.0;
-    vecOfvec tempXX(mGPXX);
-    vectord tempY(mGPY);
-    vectord tempM(mMeanV);
+
     matrixd tempF(mFeatM);
+
+    // Data point used for cross validation
+    vectord x(n);
+    double y;
+
+    // We take the first element, use it for validation and then paste
+    // it at the end. Thus, after every iteration, the first element
+    // is different and, at the end, all the elements should have
+    // rotated.
     for(size_t i = 0; i<n; ++i)
       {
-	vectord x = mGPXX[0];  double y = mGPY(0);
+	// Take the first element
+	y = mData.getSample(0,x);
 	double m = mMeanV(0);
 
-	mGPXX.erase(mGPXX.begin()); 
-	utils::erase(mGPY,mGPY.begin());
+	// Remove it for cross validation
+	mData.mX.erase(mData.mX.begin()); 
+	utils::erase(mData.mY,mData.mY.begin());
 	utils::erase(mMeanV,mMeanV.begin());
 	utils::erase_column(mFeatM,0);
 
+	// Compute the cross validation
 	precomputeSurrogate();
 	ProbabilityDistribution* pd = prediction(x);
 	sum += log(pd->pdf(y));
-	mGPXX.push_back(x);     
-	mGPY.resize(mGPY.size()+1);  mGPY(mGPY.size()-1) = y;
-	mMeanV.resize(mGPY.size());  mMeanV(mGPY.size()-1) = m;
+
+	//Paste it back at the end
+	mData.addSample(x,y);
+	mMeanV.resize(mData.getNSamples());  mMeanV(mData.mY.size()-1) = m;
 	mFeatM.resize(mFeatM.size1(),mFeatM.size2()+1);  
 	mFeatM = tempF;
       }
-      std::cout << "End" << mGPY.size();
-    return -sum;
+    std::cout << "End" << mData.getNSamples();
+    return -sum;   //Because we are minimizing.
   }
 
 } // namespace bayesopt

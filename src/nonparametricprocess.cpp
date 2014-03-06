@@ -41,7 +41,7 @@ namespace bayesopt
   
   NonParametricProcess::NonParametricProcess(size_t dim, bopt_params parameters):
     dim_(dim), mRegularizer(parameters.noise),
-    mMinIndex(0), mMaxIndex(0), mKernel(dim, parameters)
+    mKernel(dim, parameters)
   { 
     setLearnType(parameters.l_type);
     int errorM = setMean(parameters.mean,dim);
@@ -114,7 +114,7 @@ namespace bayesopt
   int NonParametricProcess::updateSurrogateModel( const vectord &Xnew,
 						  double Ynew, bool retrain)
   {
-    assert( mGPXX[1].size() == Xnew.size() );
+    assert( Dataset.mX[1].size() == Xnew.size() );
 
     if (retrain)
       {
@@ -145,24 +145,16 @@ namespace bayesopt
   //// Getters and Setters
   void NonParametricProcess::setSamples(const matrixd &x, const vectord &y)
   {
-    mGPY = y;
-    for (size_t i=0; i<x.size1(); ++i)
-      {
-	mGPXX.push_back(row(x,i));
-	checkBoundsY(i);
-      } 
-    mMeanV = (*mMean)(mGPXX);
-    mFeatM = mMean->getAllFeatures(mGPXX);
+    mData.setSamples(x,y);
+    mMeanV = (*mMean)(mData.mX);
+    mFeatM = mMean->getAllFeatures(mData.mX);
   }
 
   void NonParametricProcess::addSample(const vectord &x, double y)
   {
     using boost::numeric::ublas::column;
 
-    mGPXX.push_back(x);
-    mGPY.resize(mGPY.size()+1);  mGPY(mGPY.size()-1) = y;
-    checkBoundsY(mGPY.size()-1);
-
+    mData.addSample(x,y);
     mMeanV.resize(mMeanV.size()+1);  
     mMeanV(mMeanV.size()-1) = mMean->getMean(x);
 
@@ -172,19 +164,6 @@ namespace bayesopt
 
   };
 
-  double NonParametricProcess::getSample(size_t index, vectord &x)
-  {
-    x = mGPXX[index];
-    return mGPY(index);
-  }
-
-  double NonParametricProcess::getLastSample(vectord &x)
-  {
-    size_t last = mGPY.size()-1;
-    x = mGPXX[last];
-    return mGPY[last];
-  }
-    
   
   int NonParametricProcess::setMean (const vectord &muv,
 				     const vectord &smu,
@@ -232,7 +211,7 @@ namespace bayesopt
 
   int NonParametricProcess::computeCholeskyCorrelation()
   {
-    size_t nSamples = mGPXX.size();
+    size_t nSamples = mData.getNSamples();
     mL.resize(nSamples,nSamples);
   
     //  const matrixd K = computeCorrMatrix();
@@ -244,31 +223,31 @@ namespace bayesopt
 
   int NonParametricProcess::computeCorrMatrix(matrixd& corrMatrix)
   {
-    return mKernel.computeCorrMatrix(mGPXX,corrMatrix,mRegularizer);
+    return mKernel.computeCorrMatrix(mData.mX,corrMatrix,mRegularizer);
   }
 
 
 
   matrixd NonParametricProcess::computeCorrMatrix()
   {
-    const size_t nSamples = mGPXX.size();
+    const size_t nSamples = mData.getNSamples();
     matrixd corrMatrix(nSamples,nSamples);
-    int error = mKernel.computeCorrMatrix(mGPXX,corrMatrix,mRegularizer);
+    int error = mKernel.computeCorrMatrix(mData.mX,corrMatrix,mRegularizer);
     return corrMatrix;
   }
 
   matrixd NonParametricProcess::computeDerivativeCorrMatrix(int dth_index)
   {
-    const size_t nSamples = mGPXX.size();
+    const size_t nSamples = mData.getNSamples();
     matrixd corrMatrix(nSamples,nSamples);
-    int error = mKernel.computeDerivativeCorrMatrix(mGPXX,corrMatrix,dth_index);
+    int error = mKernel.computeDerivativeCorrMatrix(mData.mX,corrMatrix,dth_index);
     return corrMatrix;
   }
 
 
   vectord NonParametricProcess::computeCrossCorrelation(const vectord &query)
   {
-    return mKernel.computeCrossCorrelation(mGPXX,query);
+    return mKernel.computeCrossCorrelation(mData.mX,query);
   }
 
   double NonParametricProcess::computeSelfCorrelation(const vectord& query)

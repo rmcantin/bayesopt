@@ -353,7 +353,7 @@ namespace bayesopt
     double operator()(const vectord &x)
     { 
       vectord x2(x.size());
-      mProc->getLastSample(x2);
+      mProc->getData()->getLastSample(x2);
       return mW*norm_2(x-x2);
     };
     std::string name() {return "cDistance";};

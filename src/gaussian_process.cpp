@@ -57,7 +57,7 @@ namespace bayesopt
     matrixd L(n,n);
     utils::cholesky_decompose(K,L);
 
-    vectord alpha(mGPY-prod(mMu,mFeatM));
+    vectord alpha(mData.mY-prod(mMu,mFeatM));
     inplace_solve(L,alpha,ublas::lower_tag());
     double loglik = ublas::inner_prod(alpha,alpha)/(2*mSigma) + 
       utils::log_trace(L);
@@ -83,10 +83,10 @@ namespace bayesopt
 
   int GaussianProcess::precomputePrediction()
   {
-    const size_t n = mGPY.size();
+    const size_t n = mData.getNSamples();
   
     mAlphaV.resize(n,false);
-    mAlphaV = mGPY-prod(mMu,mFeatM);
+    mAlphaV = mData.mY-prod(mMu,mFeatM);
     inplace_solve(mL,mAlphaV,ublas::lower_tag());
 
     return 0; 

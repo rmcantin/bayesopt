@@ -41,6 +41,60 @@ namespace bayesopt
    */
   /**@{*/
 
+  /** \brief Dataset model to deal with the vector (real) based datasets */
+  class Dataset
+  {
+  public:
+    Dataset():  
+      mMinIndex(0), mMaxIndex(0) 
+    {};
+
+
+    Dataset(const matrixd& x, const vectord& y):
+      mMinIndex(0), mMaxIndex(0)
+    {
+      setSamples(x,y);
+    };
+
+    virtual ~Dataset(){};
+
+    void setSamples(const matrixd &x, const vectord &y)
+    {
+      mY = y;
+      for (size_t i=0; i<x.size1(); ++i)
+	{
+	  mX.push_back(row(x,i));
+	  checkBoundsY(i);
+	} 
+    };
+  
+    void addSample(const vectord &x, double y)
+    {
+      mX.push_back(x);
+      mY.resize(mY.size()+1);  mY(mY.size()-1) = y;
+      checkBoundsY(mY.size()-1);
+    }
+
+    inline double getSample(size_t index, vectord &x)
+    { x = mX[index];  return mY(index);  }
+
+    inline double getLastSample(vectord &x)
+    { size_t last = mY.size()-1; return getSample(last, x); }
+
+    inline vectord getPointAtMinimum() { return mX[mMinIndex]; };
+    inline double getValueAtMinimum() { return mY(mMinIndex); };
+    inline size_t getNSamples() { return mY.size(); };
+    inline void checkBoundsY( size_t i )
+    {
+      if ( mY(mMinIndex) > mY(i) )       mMinIndex = i;
+      else if ( mY(mMaxIndex) < mY(i) )  mMaxIndex = i;
+    };
+
+    vecOfvec mX;                                         ///< Data inputs
+    vectord mY;                                          ///< Data values
+    size_t mMinIndex, mMaxIndex;	
+  };
+
   /**
    * \brief Abstract class to implement non-parametric processes
    */
@@ -90,11 +144,10 @@ namespace bayesopt
     // Getters and setters
     void setSamples(const matrixd &x, const vectord &y);
     void addSample(const vectord &x, double y);
-    double getSample(size_t index, vectord &x);
-    double getLastSample(vectord &x);
-    inline vectord getPointAtMinimum() { return mGPXX[mMinIndex]; };
-    inline double getValueAtMinimum() { return mGPY(mMinIndex); };
-    inline size_t getNSamples() { return mGPY.size(); };
+    Dataset* getData(){return &mData;}
+
+    inline vectord getPointAtMinimum() { return mData.getPointAtMinimum(); };
+    inline double getValueAtMinimum() { return mData.getValueAtMinimum(); };
     inline double getSignalVariance() { return mSigma; };
 
     /** Sets the kind of learning methodology for kernel hyperparameters */
@@ -134,8 +187,7 @@ namespace bayesopt
 
 
   protected:
-    vecOfvec mGPXX;                                              ///< Data inputs
-    vectord mGPY;                                                ///< Data values
+    Dataset mData;
     
     boost::scoped_ptr<ParametricFunction> mMean;    ///< Pointer to mean function
     matrixd mFeatM;           ///< Value of the mean features at the input points
@@ -168,14 +220,7 @@ namespace bayesopt
 			      double selfcorrelation);
 
 
-    inline void checkBoundsY( size_t i )
-    {
-      if ( mGPY(mMinIndex) > mGPY(i) )       mMinIndex = i;
-      else if ( mGPY(mMaxIndex) < mGPY(i) )  mMaxIndex = i;
-    };
-
     const double mRegularizer;   ///< Std of the obs. model (also used as nugget)
-    size_t mMinIndex, mMaxIndex;	
     MeanFactory mPFactory;
 
   };

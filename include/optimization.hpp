@@ -39,6 +39,41 @@ namespace bayesopt {
     virtual double evaluate(const vectord& query) = 0;
   };
 
+  class DiscreteOptimization: public Optimization
+  {
+  public:
+    DiscreteOptimization(){};
+    DiscreteOptimization(vecOfvec *validSet): 
+      mInputSet(validSet){};
+    virtual ~DiscreteOptimization(){};
+
+    void setValidSet(vecOfvec* input)
+    { mInputSet = input; }
+
+    int run(vectord& result)
+    {
+      double current, min;
+  
+      result = *mInputSet->begin();
+      min = evaluate(result);
+  
+      for(vecOfvecIterator it = mInputSet->begin();
+	  it != mInputSet->end(); ++it)
+	{
+	  current = evaluate(*it);
+	  if (current < min)
+	    {
+	      result = *it;  
+	      min = current;
+	    }
+	}
+      return 0;
+    }
+
+  protected:
+    vecOfvec* mInputSet;               ///< List of input points
+  };
+
 }
 
 

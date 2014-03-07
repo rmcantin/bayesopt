@@ -88,16 +88,13 @@ namespace bayesopt
       }
   }
 
-  Kernel* KernelModel::getKernel()
-  {
-    return mKernel.get();
-  }
-
   int KernelModel::setKernel (const vectord &thetav, 
 			      const vectord &stheta,
 			      std::string k_name, 
 			      size_t dim)
   {
+    KernelFactory mKFactory;
+
     mKernel.reset(mKFactory.create(k_name, dim));
     int error = setKernelPrior(thetav,stheta);
     
@@ -168,28 +165,6 @@ namespace bayesopt
     return 0;
   }
 
-
-
-  vectord KernelModel::computeCrossCorrelation(const vecOfvec& XX, 
-					       const vectord &query)
-  {
-    vectord knx(XX.size());
-
-    std::vector<vectord>::const_iterator x_it  = XX.begin();
-    std::vector<vectord>::const_iterator x_end = XX.end();
-    vectord::iterator k_it = knx.begin();
-    while(x_it != x_end)
-      {
-	*k_it++ = (*mKernel)(*x_it++, query);
-      }
-    
-    return knx;
-  }
-
-  double KernelModel::computeSelfCorrelation(const vectord& query)
-  {
-    return (*mKernel)(query,query);
-  }
   
   double KernelModel::kernelLogPrior()
   {

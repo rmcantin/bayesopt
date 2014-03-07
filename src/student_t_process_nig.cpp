@@ -63,7 +63,7 @@ namespace bayesopt
   {
     double kq = computeSelfCorrelation(query);
     vectord kn = computeCrossCorrelation(query);
-    vectord phi = mMean.getMeanFunc()->getFeatures(query);
+    vectord phi = mMean.getFeatures(query);
   
     vectord v(kn);
     inplace_solve(mL,v,ublas::lower_tag());

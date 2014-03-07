@@ -59,11 +59,12 @@ namespace bayesopt
     size_t n_inputs;
   };
 
+
+
   template <typename KernelType> Kernel * create_func()
   {
     return new KernelType();
   }
-
 
   /** 
    * \brief Factory model for kernel functions
@@ -94,11 +95,10 @@ namespace bayesopt
 
     Kernel* getKernel();
     
-    inline int setHyperParameters(const vectord &theta)
-    { return mKernel->setHyperParameters(theta); };
-    
-    inline vectord getHyperParameters(){return mKernel->getHyperParameters();};
-    inline size_t nHyperParameters(){return mKernel->nHyperParameters();};
+    int setHyperParameters(const vectord &theta);
+    vectord getHyperParameters();
+    size_t nHyperParameters();
+
 
     /** 
      * \brief Select kernel (covariance function) for the surrogate process.
@@ -116,6 +116,9 @@ namespace bayesopt
     int computeCorrMatrix(const vecOfvec& XX, matrixd& corrMatrix, double nugget);
     int computeDerivativeCorrMatrix(const vecOfvec& XX, matrixd& corrMatrix, int dth_index);
     vectord computeCrossCorrelation(const vecOfvec& XX, const vectord &query);
+    void computeCrossCorrelation(const vecOfvec& XX, 
+				 const vectord &query,
+				 vectord& knx);
     double computeSelfCorrelation(const vectord& query);
     double kernelLogPrior();
 
@@ -125,9 +128,41 @@ namespace bayesopt
 
     boost::scoped_ptr<Kernel> mKernel;            ///< Pointer to kernel function
     std::vector<boost::math::normal> priorKernel; ///< Prior of kernel parameters
-    KernelFactory mKFactory;
-
   };
+
+  inline Kernel* KernelModel::getKernel()
+  { return mKernel.get();  }
+
+  inline int KernelModel::setHyperParameters(const vectord &theta)
+  { return mKernel->setHyperParameters(theta); };
+    
+  inline vectord KernelModel::getHyperParameters()
+  {return mKernel->getHyperParameters();};
+  
+  inline size_t KernelModel::nHyperParameters()
+  {return mKernel->nHyperParameters();};
+
+  inline vectord KernelModel::computeCrossCorrelation(const vecOfvec& XX, 
+						      const vectord &query)
+  {
+    vectord knx(XX.size());
+    computeCrossCorrelation(XX,query,knx);
+    return knx;
+  }
+
+  inline void KernelModel::computeCrossCorrelation(const vecOfvec& XX, 
+						   const vectord &query,
+						   vectord& knx)
+  {
+    std::vector<vectord>::const_iterator x_it  = XX.begin();
+    vectord::iterator k_it = knx.begin();
+    while(x_it != XX.end())
+      {	*k_it++ = (*mKernel)(*x_it++, query); }
+  }
+
+
+  inline double KernelModel::computeSelfCorrelation(const vectord& query)
+  { return (*mKernel)(query,query); }
 
   //@}
 

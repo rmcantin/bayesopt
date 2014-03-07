@@ -65,7 +65,7 @@ namespace bayesopt
 
 
     virtual size_t nFeatures() = 0;
-    virtual vectord getFeatures(const vectord& x) = 0;  
+    virtual vectord getFeatures(const vectord& x) = 0;
     virtual matrixd getAllFeatures(const vecOfvec& x)
     {
       size_t nf = nFeatures();
@@ -119,31 +119,20 @@ namespace bayesopt
     virtual ~MeanModel() {};
 
     ParametricFunction* getMeanFunc();
-    
-    inline int setParameters(const vectord &theta)
-    { return mMean->setParameters(theta); };
-    
-    inline vectord getParameters(){return mMean->getParameters();};
-    inline size_t nParameters(){return mMean->nParameters();};
+   
+    int setParameters(const vectord &theta);
+    vectord getParameters();
+    size_t nParameters();
 
-    inline void setPoints(const vecOfvec &x)
-    { mFeatM = mMean->getAllFeatures(x); };
+    vectord getFeatures(const vectord& x);  
+    void getFeatures(const vectord& x, vectord& kx);  
+    size_t nFeatures();
 
-    inline void addNewPoint(const vectord &x)
-    { 
-      using boost::numeric::ublas::column;
+    void setPoints(const vecOfvec &x);
+    void addNewPoint(const vectord &x);
 
-      vectord feat = mMean->getFeatures(x);
-      mFeatM.resize(feat.size(),mFeatM.size2()+1);  
-      column(mFeatM,mFeatM.size2()-1) = feat;
-    }
-
-    inline vectord muTimesFeat()
-    {  return boost::numeric::ublas::prod(mMu,mFeatM); }
-    
-    inline double muTimesFeat(const vectord& x)
-    { return boost::numeric::ublas::inner_prod(mMu,mMean->getFeatures(x));}
-
+    vectord muTimesFeat();
+    double muTimesFeat(const vectord& x);
 
     /** 
      * \brief Select the parametric part of the surrogate process.
@@ -167,9 +156,46 @@ namespace bayesopt
     vectord mS_Mu;    ///< Variance of the params of the mean function W=mS_Mu*I
 
     boost::scoped_ptr<ParametricFunction> mMean;    ///< Pointer to mean function   
-    MeanFactory mPFactory;
-
   };
+
+
+
+  inline ParametricFunction* MeanModel::getMeanFunc()
+  { return mMean.get(); }
+
+  inline int MeanModel::setParameters(const vectord &theta)
+  { return mMean->setParameters(theta); };
+    
+  inline vectord MeanModel::getParameters(){return mMean->getParameters();};
+  inline size_t MeanModel::nParameters(){return mMean->nParameters();};
+
+  inline vectord MeanModel::getFeatures(const vectord& x) 
+  { return mMean->getFeatures(x); }
+
+  inline void MeanModel::getFeatures(const vectord& x, vectord& kx)
+  { kx = mMean->getFeatures(x); }  
+
+  inline size_t MeanModel::nFeatures()
+  { return mMean->nFeatures(); }  
+
+  inline void MeanModel::setPoints(const vecOfvec &x)
+  { mFeatM = mMean->getAllFeatures(x); };
+
+  inline void MeanModel::addNewPoint(const vectord &x)
+  { 
+    using boost::numeric::ublas::column;
+    
+    mFeatM.resize(mFeatM.size1(),mFeatM.size2()+1);  
+    column(mFeatM,mFeatM.size2()-1) = mMean->getFeatures(x);
+  }
+
+  inline vectord MeanModel::muTimesFeat()
+  {  return boost::numeric::ublas::prod(mMu,mFeatM); }
+    
+  inline double MeanModel::muTimesFeat(const vectord& x)
+  { return boost::numeric::ublas::inner_prod(mMu,mMean->getFeatures(x));}
+
+
 
   //@}
 

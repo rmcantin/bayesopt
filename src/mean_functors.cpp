@@ -67,18 +67,15 @@ namespace bayesopt
       }
   }
 
-  ParametricFunction* MeanModel::getMeanFunc()
-  {
-    return mMean.get();
-  }
-
-
   int MeanModel::setMean (const vectord &muv,
 				     const vectord &smu,
 				     std::string m_name,
 				     size_t dim)
   {
+    MeanFactory mPFactory;
+
     mMean.reset(mPFactory.create(m_name,dim));
+
     if ("mZero" == m_name) 
       {
 	mMu = zvectord(1);

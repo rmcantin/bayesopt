@@ -44,101 +44,50 @@ namespace bayesopt
   class Dataset
   {
   public:
-    Dataset():  
-      mMinIndex(0), mMaxIndex(0) 
-    {};
+    Dataset();
+    Dataset(const matrixd& x, const vectord& y);
+    virtual ~Dataset();
 
+    void setSamples(const matrixd &x, const vectord &y);
+    void addSample(const vectord &x, double y);
+    double getSample(size_t index, vectord &x);
+    double getLastSample(vectord &x);
 
-    Dataset(const matrixd& x, const vectord& y):
-      mMinIndex(0), mMaxIndex(0)
-    {
-      setSamples(x,y);
-    };
-
-    virtual ~Dataset(){};
-
-    void setSamples(const matrixd &x, const vectord &y)
-    {
-      mY = y;
-      for (size_t i=0; i<x.size1(); ++i)
-	{
-	  mX.push_back(row(x,i));
-	  checkBoundsY(i);
-	} 
-    };
-  
-    void addSample(const vectord &x, double y)
-    {
-      mX.push_back(x);
-      mY.resize(mY.size()+1);  mY(mY.size()-1) = y;
-      checkBoundsY(mY.size()-1);
-    }
-
-    inline double getSample(size_t index, vectord &x)
-    { x = mX[index];  return mY(index);  }
-
-    inline double getLastSample(vectord &x)
-    { size_t last = mY.size()-1; return getSample(last, x); }
-
-    inline vectord getPointAtMinimum() { return mX[mMinIndex]; };
-    inline double getValueAtMinimum() { return mY(mMinIndex); };
-    inline size_t getNSamples() { return mY.size(); };
-    inline void checkBoundsY( size_t i )
-    {
-      if ( mY(mMinIndex) > mY(i) )       mMinIndex = i;
-      else if ( mY(mMaxIndex) < mY(i) )  mMaxIndex = i;
-    };
+    vectord getPointAtMinimum();
+    double getValueAtMinimum();
+    size_t getNSamples();
+    void checkBoundsY( size_t i );
 
     vecOfvec mX;                                         ///< Data inputs
     vectord mY;                                          ///< Data values
+
+  private:
     size_t mMinIndex, mMaxIndex;	
   };
 
-  /** \brief Nonparametric process model conditional to the existence of a value for kernel parameters */
-  // class ConditionalProcess
-  // {
-  // public:
-  //   ConditionalProcess(Dataset* data, bopt_params parameters){};
-  //   virtual ~ConditionalProcess(){};
 
-  //   /** 
-  //    * \brief Factory model generator for surrogate models
-  //    * @param parameters (process name, noise, priors, etc.)
-  //    * @return pointer to the corresponding derivate class (surrogate model)
-  //    */
-  //   static ConditionalProcess* create(Dataset* data, bopt_params parameters);
+  //// Inline methods
+  inline double Dataset::getSample(size_t index, vectord &x)
+  { 
+    x = mX[index];  
+    return mY(index);  
+  }
 
-  //   /** 
-  //    * \brief Function that returns the prediction of the GP for a query point
-  //    * in the hypercube [0,1].
-  //    * 
-  //    * @param query in the hypercube [0,1] to evaluate the Gaussian process
-  //    * @return pointer to the probability distribution.
-  //    */	
-  //   virtual ProbabilityDistribution* prediction(const vectord &query) = 0;
+  inline double Dataset::getLastSample(vectord &x)
+  { 
+    size_t last = mY.size()-1; 
+    return getSample(last, x); 
+  }
 
-  //   /** 
-  //    * \brief Computes the initial surrogate model. 
-  //    * It also updates the kernel parameters estimation. This
-  //    * function is hightly inefficient.  Use it only at the begining.
-  //    * @return error code
-  //    */
-  //   int fitSurrogateModel();
-  //   int precomputeSurrogate();
+  inline vectord Dataset::getPointAtMinimum() { return mX[mMinIndex]; };
+  inline double Dataset::getValueAtMinimum() { return mY(mMinIndex); };
+  inline size_t Dataset::getNSamples() { return mY.size(); };
+  inline void Dataset::checkBoundsY( size_t i )
+  {
+    if ( mY(mMinIndex) > mY(i) )       mMinIndex = i;
+    else if ( mY(mMaxIndex) < mY(i) )  mMaxIndex = i;
+  };
 
-  //   /** 
-  //    * \brief Sequential update of the surrogate model by adding a new point.
-  //    *  Add new point efficiently using Matrix Decomposition Lemma for the
-  //    *  inversion of the correlation matrix or adding new rows to the
-  //    *  Cholesky decomposition.  If retrain is true, it recomputes the
-  //    *  kernel hyperparameters and computes a full covariance matrix.
-  //    * @return error code
-  //    */   
-  //   int updateSurrogateModel(const vectord &Xnew, double Ynew);
-
-  // };
-
-    
 
   /**
    * \brief Abstract class to implement non-parametric processes
@@ -189,14 +138,14 @@ namespace bayesopt
     // Getters and setters
     void setSamples(const matrixd &x, const vectord &y);
     void addSample(const vectord &x, double y);
-    Dataset* getData(){return &mData;}
+    Dataset* getData() {return &mData;}
 
-    inline vectord getPointAtMinimum() { return mData.getPointAtMinimum(); };
-    inline double getValueAtMinimum() { return mData.getValueAtMinimum(); };
-    inline double getSignalVariance() { return mSigma; };
+    vectord getPointAtMinimum() { return mData.getPointAtMinimum(); };
+    double getValueAtMinimum() { return mData.getValueAtMinimum(); };
+    double getSignalVariance() { return mSigma; };
 
     /** Sets the kind of learning methodology for kernel hyperparameters */
-    inline void setLearnType(learning_type l_type) { mLearnType = l_type; };
+    void setLearnType(learning_type l_type) { mLearnType = l_type; };
 
   protected:
     /** 
@@ -244,7 +193,29 @@ namespace bayesopt
     const double mRegularizer;   ///< Std of the obs. model (also used as nugget)
   };
 
+  //// Inline methods
+  inline int NonParametricProcess::computeCorrMatrix(matrixd& corrMatrix)
+  {
+    return mKernel.computeCorrMatrix(mData.mX,corrMatrix,mRegularizer);
+  }
 
+  inline  matrixd NonParametricProcess::computeCorrMatrix()
+  {
+    const size_t nSamples = mData.getNSamples();
+    matrixd corrMatrix(nSamples,nSamples);
+    int error = mKernel.computeCorrMatrix(mData.mX,corrMatrix,mRegularizer);
+    return corrMatrix;
+  }
+
+  inline vectord NonParametricProcess::computeCrossCorrelation(const vectord &query)
+  {
+    return mKernel.computeCrossCorrelation(mData.mX,query);
+  }
+
+  inline  double NonParametricProcess::computeSelfCorrelation(const vectord& query)
+  {
+    return mKernel.computeSelfCorrelation(query);
+  }
 
   /**@}*/
   

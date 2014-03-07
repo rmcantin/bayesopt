@@ -126,12 +126,8 @@ namespace bayesopt  {
      * @param query point to evaluate in [0,1] hypercube
      * @return actual return value of the target function
      */
-    inline double evaluateSampleInternal( const vectord &query )
-    { 
-      vectord unnormalizedQuery = mBB->unnormalizeVector(query);
-      return evaluateSample(unnormalizedQuery);
-    }; // evaluateSampleInternal
-
+    double evaluateSampleInternal( const vectord &query );
+    
     /** 
      * \brief Wrapper of the innerOptimization class to find the optimal
      * point acording to the criteria.
@@ -139,9 +135,7 @@ namespace bayesopt  {
      * @param xOpt optimal point
      * @return error code
      */
-    inline int findOptimal(vectord &xOpt)
-    { return cOptimizer->run(xOpt); };
-
+    int findOptimal(vectord &xOpt);
 
   private:
     utils::BoundingBox<vectord> *mBB;      ///< Bounding Box (input space limits)
@@ -149,6 +143,18 @@ namespace bayesopt  {
   };
   
   /**@}*/
+
+
+  inline double ContinuousModel::evaluateSampleInternal( const vectord &query )
+  { 
+    vectord unnormalizedQuery = mBB->unnormalizeVector(query);
+    return evaluateSample(unnormalizedQuery);
+  }; // evaluateSampleInternal
+
+  inline int ContinuousModel::findOptimal(vectord &xOpt)
+  { return cOptimizer->run(xOpt); };
+
+
 
 }  //namespace bayesopt
 

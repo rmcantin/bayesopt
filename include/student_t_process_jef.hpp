@@ -73,12 +73,13 @@ namespace bayesopt
 
   private:
     vectord mWML;           //!< GP ML parameters
-    
+    vectord mKn;
     /// Precomputed GP prediction operations
     vectord mAlphaF;
     matrixd mKF, mL2;
 
     StudentTDistribution* d_;      //!< Predictive distributions
+    clock_t timer;
   };
 
   /**@}*/

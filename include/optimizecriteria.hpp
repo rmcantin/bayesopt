@@ -38,9 +38,7 @@ namespace bayesopt {
     virtual ~OptimizeCriteria(){};
 
     double evaluate(const vectord& query)
-    {
-      return model_->evaluateCriteria(query);
-    }
+    {  return model_->evaluateCriteria(query);  }
     
   private:
     ContinuousModel* model_;

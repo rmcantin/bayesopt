@@ -17,7 +17,7 @@
 -----------------------------------------------------------------------------
 */
 
-
+#include <ctime>
 #include "cholesky.hpp"
 #include "trace_ublas.hpp"
 #include "student_t_process_jef.hpp"
@@ -31,6 +31,7 @@ namespace bayesopt
 						   bopt_params params):
     HierarchicalGaussianProcess(dim, params)
   {
+    timer = 0;
     mSigma = params.sigma_s;
     d_ = new StudentTDistribution();
   }  // Constructor
@@ -39,6 +40,7 @@ namespace bayesopt
 
   StudentTProcessJeffreys::~StudentTProcessJeffreys()
   {
+    std::cout << "Time in pred:" << (double)(timer) / (double)CLOCKS_PER_SEC << std::endl;
     delete d_;
   } // Default destructor
 
@@ -55,30 +57,35 @@ namespace bayesopt
   ProbabilityDistribution* 
   StudentTProcessJeffreys::prediction(const vectord &query )
   {
+    clock_t start = clock();
     double kq = computeSelfCorrelation(query);
-    vectord kn = computeCrossCorrelation(query);
-    vectord phi = mMean.getMeanFunc()->getFeatures(query);
+    //    vectord kn = computeCrossCorrelation(query);
+    mKernel.computeCrossCorrelation(mData.mX,query,mKn);
+    vectord phi = mMean.getFeatures(query);
   
-    vectord v(kn);
-    inplace_solve(mL,v,ublas::lower_tag());
+    //    vectord v(mKn);
+    inplace_solve(mL,mKn,ublas::lower_tag());
 
-    vectord rq = phi - prod(v,mKF);
+    vectord rho = phi - prod(mKn,mKF);
 
-    vectord rho(rq);
+    //    vectord rho(rq);
     inplace_solve(mL2,rho,ublas::lower_tag());
     
-    double yPred = inner_prod(phi,mWML) + inner_prod(v,mAlphaF);
-    double sPred = sqrt( mSigma * (kq - inner_prod(v,v) 
+    double yPred = inner_prod(phi,mWML) + inner_prod(mKn,mAlphaF);
+    double sPred = sqrt( mSigma * (kq - inner_prod(mKn,mKn) 
 				   + inner_prod(rho,rho)));
 
     d_->setMeanAndStd(yPred,sPred);
+    timer += clock() - start;
     return d_;
   }
 
   int StudentTProcessJeffreys::precomputePrediction()
   {
     size_t n = mData.getNSamples();
-    size_t p = mMean.getMeanFunc()->nFeatures();
+    size_t p = mMean.nFeatures();
+
+    mKn.resize(n);
 
     mKF = trans(mMean.mFeatM);
     inplace_solve(mL,mKF,ublas::lower_tag());

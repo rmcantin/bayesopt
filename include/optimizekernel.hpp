@@ -30,11 +30,11 @@
 
 namespace bayesopt {
 
-  class OptimizeKernel: public InnerOptimization
+  class OptimizeKernel: public NLOPT_Optimization
   {
   public:
     explicit OptimizeKernel(EmpiricalBayesProcess* npp):
-      InnerOptimization(), npp_(npp) {};
+      NLOPT_Optimization(), npp_(npp) {};
     virtual ~OptimizeKernel(){};
 
     double evaluate(const vectord& query)

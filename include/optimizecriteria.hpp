@@ -30,12 +30,26 @@
 
 namespace bayesopt {
 
-  class OptimizeCriteria: public InnerOptimization
+  class OptimizeCriteria: public NLOPT_Optimization
   {
   public:
-    explicit OptimizeCriteria(ContinuousModel* model):
-      InnerOptimization(), model_(model) {};
+    explicit OptimizeCriteria(Criteria* crit):
+      NLOPT_Optimization(), mCrit(crit) {};
     virtual ~OptimizeCriteria(){};
+
+    double evaluate(const vectord& query)
+    {  return (*mCrit)(query);  }
+    
+  private:
+    Criteria* mCrit;
+  };
+
+  class OptimizeCriteriaRestricted: public NLOPT_Optimization
+  {
+  public:
+    explicit OptimizeCriteriaRestricted(ContinuousModel* model):
+      NLOPT_Optimization(), model_(model) {};
+    virtual ~OptimizeCriteriaRestricted(){};
 
     double evaluate(const vectord& query)
     {  return model_->evaluateCriteria(query);  }
@@ -43,6 +57,7 @@ namespace bayesopt {
   private:
     ContinuousModel* model_;
   };
+
 
 }
 

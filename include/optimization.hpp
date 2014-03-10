@@ -43,8 +43,10 @@ namespace bayesopt {
   {
   public:
     DiscreteOptimization(){};
+
     DiscreteOptimization(vecOfvec *validSet): 
       mInputSet(validSet){};
+
     virtual ~DiscreteOptimization(){};
 
     void setValidSet(vecOfvec* input)

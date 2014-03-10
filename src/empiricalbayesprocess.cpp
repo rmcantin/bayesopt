@@ -38,7 +38,7 @@ namespace bayesopt
 	throw 1;
       }
 
-    kOptimizer = new OptimizeKernel(this);
+    kOptimizer = new NLOPT_Optimization(this);
 
     //TODO: Generalize
     if (parameters.l_type == L_ML)

@@ -40,7 +40,7 @@ namespace bayesopt
   /**
    * \brief Empirical Bayesian NonParametric process.
    */
-  class EmpiricalBayesProcess: public NonParametricProcess
+  class EmpiricalBayesProcess: public NonParametricProcess, RBOptimizable
   {
   public:
     EmpiricalBayesProcess(size_t dim, bopt_params parameters);
@@ -69,6 +69,7 @@ namespace bayesopt
      * @return score
      */
     double evaluateKernelParams(const vectord& query);
+    double evaluate(const vectord &x) {return evaluateKernelParams(x);}
 
     /** 
      * \brief Computes the score (eg:likelihood) of the current kernel
@@ -103,7 +104,7 @@ namespace bayesopt
     double negativeCrossValidation();
 
   private:
-    InnerOptimization* kOptimizer;
+    NLOPT_Optimization* kOptimizer;
   };
 
   /**@}*/

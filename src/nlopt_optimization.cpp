@@ -42,9 +42,8 @@ namespace bayesopt
       }
   }
 
-  NLOPT_Optimization::NLOPT_Optimization(RBOptimizable* rbo)
+  NLOPT_Optimization::NLOPT_Optimization()
   { 
-    rbobj = rbo;
     alg = DIRECT;    mDown = 0.;    mUp = 1.;    maxEvals = MAX_INNER_EVALUATIONS;
   };
 

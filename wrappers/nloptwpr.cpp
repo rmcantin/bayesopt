@@ -32,8 +32,8 @@ namespace NLOPT_WPR
 {
 
   namespace ublas = boost::numeric::ublas;
-  using bayesopt::InnerOptimization;
-
+  using bayesopt::RBOptimizable;
+  using bayesopt::RGBOptimizable;
 
   double evaluate_nlopt (unsigned int n, const double *x,
 			 double *grad, void *my_func_data)
@@ -47,7 +47,7 @@ namespace NLOPT_WPR
     
     // This is not very clever... but works!
     void *objPointer = my_func_data;
-    InnerOptimization* OPTIMIZER = static_cast<InnerOptimization*>(objPointer);
+    RBOptimizable* OPTIMIZER = static_cast<RBOptimizable*>(objPointer);
     
     return OPTIMIZER->evaluate(sharedN);
   } /* evaluate_criteria_nlopt */
@@ -65,12 +65,11 @@ namespace NLOPT_WPR
     
     // This is not very clever... but works!
     void *objPointer = my_func_data;
-    InnerOptimization* OPTIMIZER = static_cast<InnerOptimization*>(objPointer);
+    RGBOptimizable* OPTIMIZER = static_cast<RGBOptimizable*>(objPointer);
     
-    ublas::vector<double> vgrad = ublas::zero_vector<double>(n);
 
+    ublas::vector<double> vgrad = ublas::zero_vector<double>(n);
     double f =  OPTIMIZER->evaluate(sharedN,vgrad);
-  
     if ((grad) && (grad != NULL) )
       for (unsigned int i=0;i<n;i++)
 	grad[i] = vgrad(i);

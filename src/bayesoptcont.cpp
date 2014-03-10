@@ -25,21 +25,23 @@
 #include "randgen.hpp"
 #include "log.hpp"
 #include "bayesoptcont.hpp"
-#include "optimizecriteria.hpp"
+//#include "optimizecriteria.hpp"
 
 namespace bayesopt  {
   
   ContinuousModel::ContinuousModel():
     BayesOptBase(), mBB(NULL)
   { 
-    cOptimizer = new OptimizeCriteria(this);
+    if (mCrit == NULL)    throw(-1);
+    cOptimizer = new NLOPT_Optimization(mCrit.get());
     cOptimizer->setAlgorithm(DIRECT);
   } // Def Constructor
 
   ContinuousModel::ContinuousModel(size_t dim, bopt_params parameters):
     BayesOptBase(dim,parameters), mBB(NULL)
   { 
-    cOptimizer = new OptimizeCriteria(this);
+    if (mCrit == NULL)    throw(-1);
+    cOptimizer = new NLOPT_Optimization(mCrit.get());
     cOptimizer->setAlgorithm(DIRECT);
     cOptimizer->setMaxEvals(parameters.n_inner_iterations);
   } // Constructor

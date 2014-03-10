@@ -23,11 +23,12 @@
 */
 
 
-#ifndef __INNEROPTIMIZATION_HPP__
-#define __INNEROPTIMIZATION_HPP__
+#ifndef __NLOPT_OPTIMIZATION_HPP__
+#define __NLOPT_OPTIMIZATION_HPP__
 
 #include "dll_stuff.h"
 #include "optimizable.hpp"
+#include "nlopt.hpp"
 //#include "optimization.hpp"
 
 namespace bayesopt {
@@ -38,13 +39,13 @@ namespace bayesopt {
     LBFGS,     ///< Local, derivative based
     BOBYQA,    ///< Local, derivative free
     COMBINED   ///< Global exploration, local refinement (hand tuned)
-  } innerOptAlgorithms;
+  } OptAlgorithms;
 
 
-  class NLOPT_Optimization //: public Optimization
+  class NLOPT_Optimization: //: public Optimization
   {
   public:
-    NLOPT_Optimization(RBOptimizable* rbo);
+    NLOPT_Optimization();
     virtual ~NLOPT_Optimization(){};
 
     /** Sets the optimization algorithm  */
@@ -53,10 +54,8 @@ namespace bayesopt {
     /** Sets the optimization algorithm  */
     void setMaxEvals(size_t meval);
 
-    /** Limits of the hypercube. 
-     * Currently, it assumes that all dimensions have the same limits.
-     */
-    void setLimits(double down, double up);
+    /** Limits of the hypercube. */
+    void setLimits(const vectord& down, const vectord& up);
 
     /** Compute the inner optimization algorithm
      * @param Xnext input: initial guess, output: result
@@ -64,6 +63,7 @@ namespace bayesopt {
      */
     int run(vectord &Xnext);
     
+    double evaluate(const std::vector<double> &x, std::vector<double> &grad, void *data);
 
     /** Dummy function to be overriden by the actual function to be
      * evaluated.  
@@ -87,12 +87,13 @@ namespace bayesopt {
 
   private:
 
-    int send_to_nlopt_optimize(double* x, int n, void* objPointer);	
+    //int send_to_nlopt_optimize(double* x, int n, void* objPointer);	
 
     RBOptimizable *rbobj;
 
     innerOptAlgorithms alg;
-    double mDown, mUp;
+    vectord mDown;
+    vectord mUp;
     size_t maxEvals;
   };
 
@@ -106,6 +107,13 @@ namespace bayesopt {
   inline void NLOPT_Optimization::setLimits(double down, double up)
   { mDown = down;   mUp = up; }
 
+  inline double NLOPT_Optimization::evaluate(const std::vector<double> &x, std::vector<double> &grad, void *data)
+  { 
+    vectord query(x.size());
+    std::copy(x.begin(),x.end(),query.begin);
+    NLOPT_Optimization* ptr = static_cast<void *>(data)
+    return ptr->rbobj->evaluate(query); 
+  }
 
 }//namespace bayesopt
 

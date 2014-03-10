@@ -25,6 +25,7 @@
 #define  _CRITERIA_FUNCTORS_HPP_
 
 #include <algorithm>
+#include "optimizable.hpp"
 #include "nonparametricprocess.hpp"
 
 namespace bayesopt
@@ -39,7 +40,7 @@ namespace bayesopt
   /**
    * \brief Abstract interface for criteria functors.
    */
-  class Criteria
+  class Criteria: public RBOptimizable
   {
   public:
     virtual ~Criteria() {};
@@ -48,6 +49,7 @@ namespace bayesopt
 		     const std::vector<Criteria*>& list) { return 0; };
 
     virtual bool requireComparison() = 0;
+    double evaluate(const vectord &x) {return (*this)(x);}
     virtual double operator()(const vectord &x) = 0;
     virtual std::string name() = 0;
     virtual int setParameters(const vectord &params) = 0;

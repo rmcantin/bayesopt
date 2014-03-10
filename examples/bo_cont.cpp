@@ -88,7 +88,7 @@ int main(int nargs, char *args[])
   par.l_type = L_ML;
   par.n_iterations = 200;       // Number of iterations
   par.n_init_samples = 50;
-  par.verbose_level = 0;
+  par.verbose_level = 2;
   /*******************************************/
 
   clock_t start, end;

@@ -139,7 +139,7 @@ namespace bayesopt  {
 
   private:
     utils::BoundingBox<vectord> *mBB;      ///< Bounding Box (input space limits)
-    InnerOptimization* cOptimizer;
+    NLOPT_Optimization* cOptimizer;
   };
   
   /**@}*/

@@ -43,10 +43,3 @@ if(OPENGL_FOUND AND GLUT_FOUND)
   add_dependencies(bo_display bayesopt)
   TARGET_LINK_LIBRARIES(bo_display bayesopt ${GLUT_LIBRARY} ${OPENGL_LIBRARY})
 endif()
-
-
-#Test for random number generator
-#ADD_EXECUTABLE(randtest ./testrand.cpp)
-
-#Test for parsers
-#ADD_EXECUTABLE(parsetest ../utils/parser.cpp ./testparser.cpp)

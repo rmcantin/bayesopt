@@ -39,17 +39,20 @@ namespace NLOPT_WPR
 			 double *grad, void *my_func_data)
 
   {
-    double xcopy[128];
-    for (unsigned int i=0;i<n;i++)
-      xcopy[i] = x[i];
-    ublas::array_adaptor<double> shared(n, xcopy);
-    ublas::vector<double, ublas::array_adaptor<double> > sharedN(n, shared); 
-    
+    // double xcopy[128];
+    // for (unsigned int i=0;i<n;i++)
+    //   xcopy[i] = x[i];
+    // ublas::array_adaptor<double> shared(n, xcopy);
+    // ublas::vector<double, ublas::array_adaptor<double> > sharedN(n, shared); 
+
+    ublas::vector<double> vx(n);
+    std::copy(x,x+n,vx.begin());
+
     // This is not very clever... but works!
     void *objPointer = my_func_data;
     RBOptimizable* OPTIMIZER = static_cast<RBOptimizable*>(objPointer);
     
-    return OPTIMIZER->evaluate(sharedN);
+    return OPTIMIZER->evaluate(vx);
   } /* evaluate_criteria_nlopt */
 
 
@@ -57,11 +60,8 @@ namespace NLOPT_WPR
 			      double *grad, void *my_func_data)
 
   {
-    double xcopy[128];
-    for (unsigned int i=0;i<n;i++)
-      xcopy[i] = x[i];
-    ublas::array_adaptor<double> shared(n, xcopy);
-    ublas::vector<double, ublas::array_adaptor<double> > sharedN(n, shared); 
+    ublas::vector<double> vx(n);
+    std::copy(x,x+n,vx.begin());
     
     // This is not very clever... but works!
     void *objPointer = my_func_data;
@@ -69,7 +69,7 @@ namespace NLOPT_WPR
     
 
     ublas::vector<double> vgrad = ublas::zero_vector<double>(n);
-    double f =  OPTIMIZER->evaluate(sharedN,vgrad);
+    double f =  OPTIMIZER->evaluate(vx,vgrad);
     if ((grad) && (grad != NULL) )
       for (unsigned int i=0;i<n;i++)
 	grad[i] = vgrad(i);

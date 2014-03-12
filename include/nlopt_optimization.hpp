@@ -26,10 +26,9 @@
 #ifndef __NLOPT_OPTIMIZATION_HPP__
 #define __NLOPT_OPTIMIZATION_HPP__
 
-#include "dll_stuff.h"
 #include "optimizable.hpp"
 #include "nlopt.hpp"
-//#include "optimization.hpp"
+
 
 namespace bayesopt {
 

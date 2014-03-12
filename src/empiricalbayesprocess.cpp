@@ -24,7 +24,7 @@
 
 #include "empiricalbayesprocess.hpp"
 #include "log.hpp"
-#include "optimizekernel.hpp"	
+//#include "optimizekernel.hpp"	
 
 
 namespace bayesopt

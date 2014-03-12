@@ -106,7 +106,6 @@ SET(UTILS_SRC
   )
 
 SET(WRAPPPERS_SRC 
-  ./wrappers/nloptwpr.cpp
   ./wrappers/bayesoptwpr.cpp
   )
 

@@ -86,32 +86,34 @@ namespace bayesopt {
      * @return error_code
      */
     int run(vectord &Xnext);
-    
 
-    /** Dummy function to be overriden by the actual function to be
-     * evaluated.  
-     * Note: it is not pure virtual because we might want
-     * to use the other evaluate method
-     * @param query input point
-     * @return function value at query point
-     */
-    //    virtual double evaluate(const vectord& query) = 0;
+    /** 
+     * Wrapper of inner optimization to be evaluated by NLOPT
+     * 
+     * @param n # of dimensions
+     * @param x input point
+     * @param grad (NOT USED. Only for compatibily with NLOPT template, see evaluate_nlopt_grad)
+     * @param my_func_data pointer to the NLOPT_Optimization object
+     * 
+     * @return function evaluation
+     */  
+    static double evaluate_nlopt (unsigned int n, const double *x,
+				  double *grad, void *my_func_data);
 
-    /** Dummy function to be overriden by the actual function to be evaluated
-     * Note: it is not pure virtual because we might want
-     * to use the other evaluate method
-     * @param query input point
-     * @param grad output gradient at query point
-     * @return function value at query point
-     */
-    // virtual double evaluate(const vectord& query, 
-    // 				 vectord& grad)  {return 0.0;};
-
+    /** 
+     * Wrapper of inner optimization to be evaluated by NLOPT
+     * 
+     * @param n # of dimensions
+     * @param x input point
+     * @param grad returns gradient evaluation
+     * @param my_func_data pointer to the NLOPT_Optimization object
+     * 
+     * @return function evaluation
+     */  
+    static double evaluate_nlopt_grad (unsigned int n, const double *x,
+				       double *grad, void *my_func_data);
 
   private:
-
-    //    int send_to_nlopt_optimize(double* x, int n, void* objPointer);	
-    // TODO: Consider adding a container object to avoid casting to and from a polymorphic object
     RBOptimizableWrapper *rbobj;
     RGBOptimizableWrapper *rgbobj;
 

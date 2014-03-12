@@ -79,7 +79,6 @@ namespace bayesopt
     matrixd mKF, mL2;
 
     StudentTDistribution* d_;      //!< Predictive distributions
-    clock_t timer;
   };
 
   /**@}*/

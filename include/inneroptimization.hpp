@@ -41,11 +41,33 @@ namespace bayesopt {
   } innerOptAlgorithms;
 
 
+  class RBOptimizableWrapper
+  {
+  public:
+    explicit RBOptimizableWrapper(RBOptimizable* rbo): rbo_(rbo){};
+    virtual ~RBOptimizableWrapper(){};
+    double evaluate(const vectord& query){return rbo_->evaluate(query);}
+  private:
+    RBOptimizable* rbo_;
+  };
+
+  class RGBOptimizableWrapper
+  {
+  public:
+    explicit RGBOptimizableWrapper(RGBOptimizable* rgbo): rgbo_(rgbo){};
+    virtual ~RGBOptimizableWrapper(){};
+    double evaluate(const vectord& query, vectord& grad){return rgbo_->evaluate(query,grad);}
+  private:
+    RGBOptimizable* rgbo_;
+  };
+
+
   class NLOPT_Optimization //: public Optimization
   {
   public:
-    NLOPT_Optimization(RBOptimizable* rbo);
-    virtual ~NLOPT_Optimization(){};
+    NLOPT_Optimization(RBOptimizable* rbo, size_t dim);
+    NLOPT_Optimization(RGBOptimizable* rgbo, size_t dim);
+    virtual ~NLOPT_Optimization();
 
     /** Sets the optimization algorithm  */
     void setAlgorithm(innerOptAlgorithms newAlg);
@@ -53,9 +75,10 @@ namespace bayesopt {
     /** Sets the optimization algorithm  */
     void setMaxEvals(size_t meval);
 
-    /** Limits of the hypercube. 
-     * Currently, it assumes that all dimensions have the same limits.
-     */
+    /** Limits of the hypercube. */
+    void setLimits(const vectord& down, const vectord& up);
+
+    /** Limits of the hypercube assuming that all dimensions have the same limits. */
     void setLimits(double down, double up);
 
     /** Compute the inner optimization algorithm
@@ -87,12 +110,13 @@ namespace bayesopt {
 
   private:
 
-    int send_to_nlopt_optimize(double* x, int n, void* objPointer);	
-
-    RBOptimizable *rbobj;
+    //    int send_to_nlopt_optimize(double* x, int n, void* objPointer);	
+    // TODO: Consider adding a container object to avoid casting to and from a polymorphic object
+    RBOptimizableWrapper *rbobj;
+    RGBOptimizableWrapper *rgbobj;
 
     innerOptAlgorithms alg;
-    double mDown, mUp;
+    vectord mDown, mUp;
     size_t maxEvals;
   };
 
@@ -103,10 +127,16 @@ namespace bayesopt {
   inline void NLOPT_Optimization::setMaxEvals(size_t meval)
   { maxEvals = meval; }
 
-  inline void NLOPT_Optimization::setLimits(double down, double up)
+  inline void NLOPT_Optimization::setLimits(const vectord& down, const vectord& up)
   { mDown = down;   mUp = up; }
 
-
+  inline void NLOPT_Optimization::setLimits(double down, double up)
+  { 
+    for(size_t i = 0; i<mDown.size();++i) 
+      {
+	mDown(i) = down; mUp(i) = up;
+      }
+  };
 }//namespace bayesopt
 
 #endif

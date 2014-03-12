@@ -38,7 +38,8 @@ namespace bayesopt
 	throw 1;
       }
 
-    kOptimizer = new NLOPT_Optimization(this);
+    size_t nhp = mKernel.nHyperParameters();
+    kOptimizer = new NLOPT_Optimization(this,nhp);
 
     //TODO: Generalize
     if (parameters.l_type == L_ML)
@@ -49,7 +50,7 @@ namespace bayesopt
       {
 	kOptimizer->setAlgorithm(COMBINED);
       }
-    kOptimizer->setLimits(1e-10,100.);
+    kOptimizer->setLimits(svectord(nhp,1e-10),svectord(nhp,100.));
   }
 
   EmpiricalBayesProcess::~EmpiricalBayesProcess()

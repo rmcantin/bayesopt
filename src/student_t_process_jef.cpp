@@ -17,7 +17,6 @@
 -----------------------------------------------------------------------------
 */
 
-#include <ctime>
 #include "cholesky.hpp"
 #include "trace_ublas.hpp"
 #include "student_t_process_jef.hpp"
@@ -31,7 +30,6 @@ namespace bayesopt
 						   bopt_params params):
     HierarchicalGaussianProcess(dim, params)
   {
-    timer = 0;
     mSigma = params.sigma_s;
     d_ = new StudentTDistribution();
   }  // Constructor
@@ -40,7 +38,6 @@ namespace bayesopt
 
   StudentTProcessJeffreys::~StudentTProcessJeffreys()
   {
-    std::cout << "Time in pred:" << (double)(timer) / (double)CLOCKS_PER_SEC << std::endl;
     delete d_;
   } // Default destructor
 
@@ -76,7 +73,6 @@ namespace bayesopt
 				   + inner_prod(rho,rho)));
 
     d_->setMeanAndStd(yPred,sPred);
-    timer += clock() - start;
     return d_;
   }
 

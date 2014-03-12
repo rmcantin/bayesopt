@@ -33,7 +33,7 @@ namespace bayesopt  {
     BayesOptBase(), mBB(NULL)
   { 
     if (mCrit == NULL)    throw(-1);
-    cOptimizer = new NLOPT_Optimization(mCrit.get());
+    cOptimizer = new NLOPT_Optimization(mCrit.get(),1);
     cOptimizer->setAlgorithm(DIRECT);
   } // Def Constructor
 
@@ -41,7 +41,7 @@ namespace bayesopt  {
     BayesOptBase(dim,parameters), mBB(NULL)
   { 
     if (mCrit == NULL)    throw(-1);
-    cOptimizer = new NLOPT_Optimization(mCrit.get());
+    cOptimizer = new NLOPT_Optimization(mCrit.get(),dim);
     cOptimizer->setAlgorithm(DIRECT);
     cOptimizer->setMaxEvals(parameters.n_inner_iterations);
   } // Constructor

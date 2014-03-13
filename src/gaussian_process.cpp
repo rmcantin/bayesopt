@@ -81,15 +81,13 @@ namespace bayesopt
   }
 
 
-  int GaussianProcess::precomputePrediction()
+  void GaussianProcess::precomputePrediction()
   {
     const size_t n = mData.getNSamples();
   
     mAlphaV.resize(n,false);
     mAlphaV = mData.mY-mMean.muTimesFeat();
     inplace_solve(mL,mAlphaV,ublas::lower_tag());
-
-    return 0; 
   }
 	
 } //namespace bayesopt

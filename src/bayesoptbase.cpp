@@ -83,7 +83,7 @@ namespace bayesopt
   int BayesOptBase::setSurrogateModel()
   {
     // Configure Surrogate and Criteria Functions
-    mGP.reset(NonParametricProcess::create(mDims,mParameters));
+    mGP.reset(BayesianRegressor::create(mDims,mParameters));
     if (mGP == NULL) 
       {
 	FILE_LOG(logERROR) << "Error setting the surrogate function"; 

@@ -41,7 +41,7 @@ namespace bayesopt
   {
   public:
     virtual ~AtomicCriteria(){};
-    virtual int init(NonParametricProcess* proc)
+    virtual int init(BayesianRegressor* proc)
     { 
       mProc = proc;
       return 0;
@@ -56,7 +56,7 @@ namespace bayesopt
   {
   public:
     virtual ~ExpectedImprovement(){};
-    int init(NonParametricProcess* proc)
+    int init(BayesianRegressor* proc)
     { 
       mProc = proc;
       mExp = 1;
@@ -88,7 +88,7 @@ namespace bayesopt
   {
   public:
     virtual ~BiasedExpectedImprovement(){};
-    int init(NonParametricProcess* proc)
+    int init(BayesianRegressor* proc)
     { 
       mProc = proc;
       mBias = 0.01;
@@ -122,7 +122,7 @@ namespace bayesopt
   {
   public:
     virtual ~LowerConfidenceBound(){};
-    int init(NonParametricProcess* proc)
+    int init(BayesianRegressor* proc)
     { 
       mProc = proc;
       mBeta = 1.0;
@@ -151,7 +151,7 @@ namespace bayesopt
   {
   public:
     virtual ~ProbabilityOfImprovement(){};
-    int init(NonParametricProcess* proc)
+    int init(BayesianRegressor* proc)
     { 
       mProc = proc;
       mEpsilon = 0.01;
@@ -261,7 +261,7 @@ namespace bayesopt
   {
   public:
     virtual ~AnnealedExpectedImprovement(){};
-    int init(NonParametricProcess* proc)
+    int init(BayesianRegressor* proc)
     { 
       mProc = proc;
       reset();
@@ -298,7 +298,7 @@ namespace bayesopt
   {
   public:
     virtual ~AnnealedLowerConfindenceBound(){};
-    int init(NonParametricProcess* proc)
+    int init(BayesianRegressor* proc)
     { 
       mProc = proc;
       reset();
@@ -336,7 +336,7 @@ namespace bayesopt
   class InputDistance: public AtomicCriteria
   {
   public:
-    int init(NonParametricProcess* proc)
+    int init(BayesianRegressor* proc)
     { 
       mProc = proc;
       mW = 1;

@@ -96,7 +96,7 @@ namespace bayesopt
    * @return criteria pointer
    */
   Criteria* CriteriaFactory::create(std::string name,
-				    NonParametricProcess* proc)
+				    BayesianRegressor* proc)
   {
     Criteria *cFunc;
     std::string os;

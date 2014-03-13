@@ -76,7 +76,7 @@ namespace bayesopt
     return d_;
   }
 
-  int StudentTProcessJeffreys::precomputePrediction()
+  void StudentTProcessJeffreys::precomputePrediction()
   {
     size_t n = mData.getNSamples();
     size_t p = mMean.nFeatures();
@@ -101,7 +101,6 @@ namespace bayesopt
     mSigma = inner_prod(mAlphaF,mAlphaF)/(n-p);
     
     d_->setDof(n-p);  
-    return 0;
   }
 
 } //namespace bayesopt

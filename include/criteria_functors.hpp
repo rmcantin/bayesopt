@@ -24,9 +24,10 @@
 #ifndef  _CRITERIA_FUNCTORS_HPP_
 #define  _CRITERIA_FUNCTORS_HPP_
 
+#include <map>
 #include <algorithm>
 #include "optimizable.hpp"
-#include "nonparametricprocess.hpp"
+#include "bayesianregressor.hpp"
 
 namespace bayesopt
 {
@@ -44,8 +45,8 @@ namespace bayesopt
   {
   public:
     virtual ~Criteria() {};
-    virtual int init(NonParametricProcess *proc) { return 0; };
-    virtual int init(NonParametricProcess *proc, 
+    virtual int init(BayesianRegressor *proc) { return 0; };
+    virtual int init(BayesianRegressor *proc, 
 		     const std::vector<Criteria*>& list) { return 0; };
 
     virtual bool requireComparison() = 0;
@@ -61,7 +62,7 @@ namespace bayesopt
 			     std::string& name,
 			     int& error_code) { assert(false); return false; };
   protected:
-    NonParametricProcess *mProc;
+    BayesianRegressor *mProc;
   };
 
 
@@ -84,8 +85,8 @@ namespace bayesopt
     CriteriaFactory ();
     virtual ~CriteriaFactory () {};
   
-    //Criteria* create(criterium_name name, NonParametricProcess* proc);
-    Criteria* create(std::string name, NonParametricProcess* proc);
+    //Criteria* create(criterium_name name, BayesianRegressor* proc);
+    Criteria* create(std::string name, BayesianRegressor* proc);
     
   private:
     typedef Criteria* (*create_func_definition)();

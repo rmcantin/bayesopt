@@ -75,7 +75,7 @@ namespace bayesopt
     return d_;
   }
 
-  int GaussianProcessML::precomputePrediction()
+  void GaussianProcessML::precomputePrediction()
   {
     size_t n = mData.getNSamples();
     size_t p = mMean.getMeanFunc()->nFeatures();
@@ -96,8 +96,6 @@ namespace bayesopt
     mAlphaF = mData.mY - prod(mWML,mMean.mFeatM);
     inplace_solve(mL,mAlphaF,ublas::lower_tag());
     mSigma = inner_prod(mAlphaF,mAlphaF)/(n-p);
-  
-    return 0;
   }
 
 } //namespace bayesopt

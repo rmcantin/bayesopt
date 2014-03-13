@@ -113,7 +113,7 @@ namespace bayesopt
 
 
 
-  int GaussianProcessNormal::precomputePrediction()
+  void GaussianProcessNormal::precomputePrediction()
   {
     size_t n = mData.getNSamples();
     size_t p = mMean.getMeanFunc()->nFeatures();
@@ -134,12 +134,11 @@ namespace bayesopt
     mVf = mData.mY - prod(trans(mMean.mFeatM),mWMap);
     inplace_solve(mL,mVf,ublas::lower_tag());
 
-    if (boost::math::isnan(mWMap(0)))
+    if ((boost::math::isnan(mWMap(0))) || (boost::math::isnan(mSigma)))
       {
 	FILE_LOG(logERROR) << "Error in precomputed prediction. NaN found.";
-	return -1;
+	throw std::runtime_error("Error in precomputed prediction. NaN found.");
       }
-    return 0;
   }
 
 } //namespace bayesopt

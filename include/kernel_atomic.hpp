@@ -43,16 +43,16 @@ namespace bayesopt
       n_inputs = input_dim;
       return 0;
     };
-    int setHyperParameters(const vectord &theta) 
+    void setHyperParameters(const vectord &theta) 
     {
       if(theta.size() != n_params)
 	{
 	  FILE_LOG(logERROR) << "Wrong number of kernel hyperparameters"; 
-	  return -1; 
+	  throw std::invalid_argument("Wrong number of kernel hyperparameters");
 	}
       params = theta;
-      return 0;
     };
+
     vectord getHyperParameters() {return params;};
     size_t nHyperParameters() {return n_params;};
 

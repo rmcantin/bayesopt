@@ -115,7 +115,7 @@ namespace bayesopt
 
 
 
-  int StudentTProcessNIG::precomputePrediction()
+  void StudentTProcessNIG::precomputePrediction()
   {
     size_t n = mData.getNSamples();
     size_t p = mMean.getMeanFunc()->nFeatures();
@@ -154,19 +154,18 @@ namespace bayesopt
     if ((boost::math::isnan(mWMap(0))) || (boost::math::isnan(mSigma)))
       {
 	FILE_LOG(logERROR) << "Error in precomputed prediction. NaN found.";
-	return -1;
+	throw std::runtime_error("Error in precomputed prediction. NaN found.");
       }
 
 
     if (dof <= 0)  
       {
+	dof = n;
 	FILE_LOG(logERROR) << "ERROR: Incorrect alpha. Dof invalid."
 			   << "Forcing Dof <= num of points.";
-	dof = n;
       }
 
     d_->setDof(dof);  
-    return 0;
   }
 
 } //namespace bayesopt

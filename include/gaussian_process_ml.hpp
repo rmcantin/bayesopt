@@ -64,12 +64,10 @@ namespace bayesopt
      */
     double negativeLogLikelihood();
 
-    /** 
-     * \brief Precompute some values of the prediction that do not depends on
+    /** Precompute some values of the prediction that do not depends on
      * the query
-     * @return error code
      */
-    int precomputePrediction();
+    void precomputePrediction();
 
   private:
     vectord mWML;           //!< GP ML parameters

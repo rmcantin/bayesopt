@@ -46,7 +46,7 @@ namespace bayesopt
     sampleUniform( mtRandom, realUniformDist(0,1))
   {};
 
-  int GP_Hedge::init(NonParametricProcess *proc, 
+  int GP_Hedge::init(BayesianRegressor *proc, 
 		     const std::vector<Criteria*>& list) 
   { 
     mProc = proc;

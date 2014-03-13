@@ -47,21 +47,19 @@ namespace bayesopt
       this->right = right;
       return 0;
     };
-    int setHyperParameters(const vectord &theta) 
+    void setHyperParameters(const vectord &theta) 
     {
       using boost::numeric::ublas::subrange;
-      int error = 0;
 
       size_t n_lhs = left->nHyperParameters();
       size_t n_rhs = right->nHyperParameters();
       if (theta.size() != n_lhs + n_rhs)
 	{
 	  FILE_LOG(logERROR) << "Wrong number of kernel hyperparameters"; 
-	  return -1; 
+	  throw std::invalid_argument("Wrong number of kernel hyperparameters");
 	}
-      error += left->setHyperParameters(subrange(theta,0,n_lhs));
-      error += right->setHyperParameters(subrange(theta,n_lhs,n_lhs+n_rhs));
-      return error;
+      left->setHyperParameters(subrange(theta,0,n_lhs));
+      right->setHyperParameters(subrange(theta,n_lhs,n_lhs+n_rhs));
     };
 
     vectord getHyperParameters() 

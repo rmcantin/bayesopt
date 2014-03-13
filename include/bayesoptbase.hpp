@@ -25,6 +25,7 @@
 #ifndef  _BAYESOPTBASE_HPP_
 #define  _BAYESOPTBASE_HPP_
 
+#include <boost/scoped_ptr.hpp>
 #include "criteria_functors.hpp"
 
 /**
@@ -153,7 +154,7 @@ namespace bayesopt {
     };
 
     
-    inline NonParametricProcess* getSurrogateModel()
+    inline BayesianRegressor* getSurrogateModel()
     { return mGP.get(); };
 
     int setSurrogateModel();    
@@ -211,7 +212,7 @@ namespace bayesopt {
 
 
   protected:
-    boost::scoped_ptr<NonParametricProcess> mGP;  ///< Pointer to surrogate model
+    boost::scoped_ptr<BayesianRegressor> mGP;  ///< Pointer to surrogate model
     boost::scoped_ptr<Criteria> mCrit;                    ///< Metacriteria model
     bopt_params mParameters;                        ///< Configuration parameters
     size_t mDims;                                       ///< Number of dimensions

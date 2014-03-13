@@ -1,0 +1,186 @@
+/** \file bayesianregressor.hpp 
+    \brief Abstract module for a Bayesian regressor */
+/*
+-------------------------------------------------------------------------
+   This file is part of BayesOpt, an efficient C++ library for 
+   Bayesian optimization.
+
+   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+ 
+   BayesOpt is free software: you can redistribute it and/or modify it 
+   under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   BayesOpt is distributed in the hope that it will be useful, but 
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with BayesOpt.  If not, see <http://www.gnu.org/licenses/>.
+------------------------------------------------------------------------
+*/
+
+
+#ifndef __BAYESIANREGRESSOR_HPP__
+#define __BAYESIANREGRESSOR_HPP__
+
+#include "dll_stuff.h"
+#include "ublas_extra.hpp"
+#include "prob_distribution.hpp"
+#include "mean_functors.hpp"
+
+namespace bayesopt
+{
+
+  /** \addtogroup NonParametricProcesses */
+  /**@{*/
+
+  /** \brief Dataset model to deal with the vector (real) based datasets */
+  class Dataset
+  {
+  public:
+    Dataset();
+    Dataset(const matrixd& x, const vectord& y);
+    virtual ~Dataset();
+
+    void setSamples(const matrixd &x, const vectord &y);
+    void addSample(const vectord &x, double y);
+    double getSample(size_t index, vectord &x);
+    double getLastSample(vectord &x);
+
+    vectord getPointAtMinimum();
+    double getValueAtMinimum();
+    size_t getNSamples();
+    void checkBoundsY( size_t i );
+
+    vecOfvec mX;                                         ///< Data inputs
+    vectord mY;                                          ///< Data values
+
+  private:
+    size_t mMinIndex, mMaxIndex;	
+  };
+
+
+  //// Inline methods
+  inline void Dataset::setSamples(const matrixd &x, const vectord &y)
+  {
+    mY = y;
+    for (size_t i=0; i<x.size1(); ++i)
+      {
+	mX.push_back(row(x,i));
+	checkBoundsY(i);
+      } 
+  };
+  
+  inline double Dataset::getSample(size_t index, vectord &x)
+  { x = mX[index];  return mY(index);  }
+
+  inline void Dataset::addSample(const vectord &x, double y)
+  {
+    mX.push_back(x); mY.resize(mY.size()+1);  mY(mY.size()-1) = y;
+    checkBoundsY(mY.size()-1);
+  }
+
+  inline double Dataset::getLastSample(vectord &x)
+  { return getSample(mY.size()-1, x); }
+
+  inline vectord Dataset::getPointAtMinimum() { return mX[mMinIndex]; };
+  inline double Dataset::getValueAtMinimum() { return mY(mMinIndex); };
+  inline size_t Dataset::getNSamples() { return mY.size(); };
+  inline void Dataset::checkBoundsY( size_t i )
+  {
+    if ( mY(mMinIndex) > mY(i) )       mMinIndex = i;
+    else if ( mY(mMaxIndex) < mY(i) )  mMaxIndex = i;
+  };
+
+
+  /**
+   * \brief Abstract class to implement Bayesian regressors
+   */
+  class BAYESOPT_API BayesianRegressor
+  {
+  public:
+    BayesianRegressor(size_t dim, bopt_params parameters);
+    virtual ~BayesianRegressor();
+
+    /** 
+     * \brief Factory model generator for surrogate models
+     * @param parameters (process name, noise, priors, etc.)
+     * @return pointer to the corresponding derivate class (surrogate model)
+     */
+    static BayesianRegressor* create(size_t dim, bopt_params parameters);
+
+    /** 
+     * \brief Function that returns the prediction of the GP for a query point
+     * in the hypercube [0,1].
+     * 
+     * @param query in the hypercube [0,1] to evaluate the Gaussian process
+     * @return pointer to the probability distribution.
+     */	
+    virtual ProbabilityDistribution* prediction(const vectord &query) = 0;
+		 		 
+    /** 
+     * \brief Computes the initial surrogate model and updates the
+     * kernel parameters estimation. 
+     *
+     * This function requires to recompute all covariance matrixes,
+     * inverses, etc.  Use it with precaution.
+     */
+    virtual void fitSurrogateModel() = 0;
+
+    /** 
+     * \brief Sequential update of the surrogate model by adding a new point.
+     *  Add new point efficiently using Matrix Decomposition Lemma for the
+     *  inversion of the correlation matrix or adding new rows to the
+     *  Cholesky decomposition.  If retrain is true, it recomputes the
+     *  kernel hyperparameters and computes a full covariance matrix.
+     */   
+    virtual void updateSurrogateModel(const vectord &Xnew, 
+				      double Ynew, bool retrain) = 0;
+
+
+    // Getters and setters
+    void setSamples(const matrixd &x, const vectord &y);
+    void addSample(const vectord &x, double y);
+    Dataset* getData();
+    vectord getPointAtMinimum();
+    double getValueAtMinimum();
+    double getSignalVariance();
+
+  protected:
+    Dataset mData;  
+    double mSigma;                                   //!< Signal variance
+    size_t dim_;
+    MeanModel mMean;
+  };
+
+  //////////////////////////////////////////////////////////////////////////////
+  //// Inlines
+  inline void BayesianRegressor::setSamples(const matrixd &x, const vectord &y)
+  {
+    mData.setSamples(x,y);
+    mMean.setPoints(mData.mX);  //Because it expects a vecOfvec instead of a matrixd
+  }
+
+  inline void BayesianRegressor::addSample(const vectord &x, double y)
+  {  mData.addSample(x,y);    mMean.addNewPoint(x);  };
+
+  inline Dataset* BayesianRegressor::getData() 
+  {return &mData;}
+
+  inline vectord BayesianRegressor::getPointAtMinimum() 
+  { return mData.getPointAtMinimum(); };
+  
+  inline double BayesianRegressor::getValueAtMinimum() 
+  { return mData.getValueAtMinimum(); };
+
+  inline double BayesianRegressor::getSignalVariance() 
+  { return mSigma; };
+
+  /**@}*/
+  
+} //namespace bayesopt
+
+#endif

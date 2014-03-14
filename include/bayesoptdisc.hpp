@@ -54,19 +54,15 @@ namespace bayesopt
     DiscreteModel( const vecOfvec &validSet, 
 		 bopt_params params);
     
-    /** 
-     * Default destructor
-     */
+    /** Default destructor  */
     virtual ~DiscreteModel();
 
-    /** 
-     * Initialize the optimization process.
-     * @return error_code
-     */
-    int initializeOptimization();
+    /** Initialize the optimization process. */
+    void initializeOptimization();
 
     /** 
-     * Once the optimization has been perfomed, return the optimal point.
+     * Once the optimization has been perfomed, return the optimal
+     * point.
      */
     vectord getFinalResult();
 
@@ -80,10 +76,8 @@ namespace bayesopt
      * @param iteration 
      * @param xNext 
      * @param yNext 
-     * 
-     * @return error code
      */
-    int plotStepData(size_t iteration, const vectord& xNext,
+    void plotStepData(size_t iteration, const vectord& xNext,
 		     double yNext);
 
     /** 

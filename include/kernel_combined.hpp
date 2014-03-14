@@ -40,13 +40,13 @@ namespace bayesopt
   class CombinedKernel : public Kernel
   {
   public:
-    virtual int init(size_t input_dim, Kernel* left, Kernel* right)
+    virtual void init(size_t input_dim, Kernel* left, Kernel* right)
     {
       n_inputs = input_dim;
       this->left = left;
       this->right = right;
-      return 0;
     };
+
     void setHyperParameters(const vectord &theta) 
     {
       using boost::numeric::ublas::subrange;
@@ -98,15 +98,11 @@ namespace bayesopt
   {
   public:
     double operator()(const vectord &x1, const vectord &x2)
-    {
-      return (*left)(x1,x2) + (*right)(x1,x2);
-    };
+    { return (*left)(x1,x2) + (*right)(x1,x2); };
 
     double gradient(const vectord &x1, const vectord &x2,
 		    size_t component)
-    {
-      return left->gradient(x1,x2,component) + right->gradient(x1,x2,component);
-    };
+    { return left->gradient(x1,x2,component) + right->gradient(x1,x2,component); };
   };
 
 
@@ -115,15 +111,12 @@ namespace bayesopt
   {
   public:
     double operator()(const vectord &x1, const vectord &x2)
-    {
-      return (*left)(x1,x2) * (*right)(x1,x2);
-    };
+    { return (*left)(x1,x2) * (*right)(x1,x2); };
 
+    //TODO: Not implemented
     double gradient(const vectord &x1, const vectord &x2,
 		    size_t component)
-    {
-      return 0.0; //TODO: Not implemented
-    };
+    { return 0.0; };
   };
 
   //@}

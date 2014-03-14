@@ -120,7 +120,7 @@ namespace bayesopt
     return 0;
   } // setCriteria
 
-  int BayesOptBase::stepOptimization(size_t ii)
+  void BayesOptBase::stepOptimization(size_t ii)
   {
     vectord xNext(mDims);
     nextPoint(xNext); // Find what is the next point.
@@ -133,7 +133,6 @@ namespace bayesopt
     
     mGP->updateSurrogateModel(xNext,yNext,retrain); 
     plotStepData(ii,xNext,yNext);
-    return 0;
   }
 
   int BayesOptBase::optimize(vectord &bestPoint)
@@ -152,10 +151,8 @@ namespace bayesopt
   } // optimize
   
 
-  int BayesOptBase::nextPoint(vectord &Xnext)
+  void BayesOptBase::nextPoint(vectord &Xnext)
   {
-    int error = 0;
-    
     //Epsilon-Greedy exploration (see Bull 2011)
     if ((mParameters.epsilon > 0.0) && (mParameters.epsilon < 1.0))
       {
@@ -164,33 +161,34 @@ namespace bayesopt
 	FILE_LOG(logINFO) << "Trying random jump with prob:" << result;
 	if (mParameters.epsilon > result)
 	  {
-	    for (size_t i = 0; i <Xnext.size(); ++i)
+	    for (size_t i = 0; i<Xnext.size(); ++i)
 	      {
 		 Xnext(i) = drawSample();
 	      } 
 	    FILE_LOG(logINFO) << "Epsilon-greedy random query!";
-	    return 0;
 	  }
-      }
-
-    if (mCrit->requireComparison())
-      {
-	bool check = false;
-	std::string name;
-
-	mCrit->reset();
-	while (!check)
-	  {
-	    findOptimal(Xnext);
-	    check = mCrit->checkIfBest(Xnext,name,error);
-	  }
-	FILE_LOG(logINFO) << name << " was selected.";
       }
     else
       {
-	findOptimal(Xnext);
+	// GP-Hedge and related algorithms
+	if (mCrit->requireComparison())
+	  {
+	    bool check = false;
+	    std::string name;
+	    
+	    mCrit->reset();
+	    while (!check)
+	      {
+		findOptimal(Xnext);
+		check = mCrit->checkIfBest(Xnext,name);
+	      }
+	    FILE_LOG(logINFO) << name << " was selected.";
+	  }
+	else  // Standard "Bayesian optimization"
+	  {
+	    findOptimal(Xnext);
+	  }
       }
-    return error;
   }
 
 

@@ -43,8 +43,9 @@ namespace bayesopt
   class Kernel
   {
   public:
-    virtual int init(size_t input_dim) {return 0;};
-    virtual int init(size_t input_dim, Kernel* left, Kernel* right) {return 0;};
+    virtual ~Kernel(){};
+    virtual void init(size_t input_dim) {};
+    virtual void init(size_t input_dim, Kernel* left, Kernel* right) {};
 
     virtual void setHyperParameters(const vectord &theta) = 0;
     virtual vectord getHyperParameters() = 0;
@@ -53,7 +54,6 @@ namespace bayesopt
     virtual double operator()( const vectord &x1, const vectord &x2 ) = 0;
     virtual double gradient( const vectord &x1, const vectord &x2,
 			     size_t component ) = 0;
-    virtual ~Kernel(){};
 
   protected:
     size_t n_inputs;

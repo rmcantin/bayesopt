@@ -42,11 +42,12 @@ namespace bayesopt
   public:
     virtual ~AtomicCriteria(){};
     virtual int init(BayesianRegressor* proc)
-    { 
-      mProc = proc;
-      return 0;
-    };
+    { mProc = proc;  return 0;   };
+    // This criteria does not support comparisons!
     bool requireComparison(){ return false; };
+    bool checkIfBest(vectord& xNext,std::string& name)
+    { assert(false); return false; };
+
     virtual double operator()(const vectord &x)  = 0;
   };
 

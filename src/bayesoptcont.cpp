@@ -53,7 +53,7 @@ namespace bayesopt  {
       delete mBB;
   } // Default destructor
 
-  int ContinuousModel::initializeOptimization()
+  void ContinuousModel::initializeOptimization()
   {
     if (mBB == NULL)
       {
@@ -62,7 +62,6 @@ namespace bayesopt  {
 	mBB = new utils::BoundingBox<vectord>(lowerBound,upperBound);
       }
     sampleInitialPoints();
-    return 0;
   }
 
   vectord ContinuousModel::getFinalResult()
@@ -92,19 +91,20 @@ namespace bayesopt  {
 
 
 
-  int ContinuousModel::plotStepData(size_t iteration, const vectord& xNext,
+  void ContinuousModel::plotStepData(size_t iteration, const vectord& xNext,
 			    double yNext)
   {
-    FILE_LOG(logINFO) << "Iteration: " << iteration+1 << " of " 
-		      << mParameters.n_iterations << " | Total samples: " 
-		      << iteration+1+mParameters.n_init_samples ;
-    FILE_LOG(logINFO) << "Query: " << mBB->unnormalizeVector(xNext); ;
-    FILE_LOG(logINFO) << "Query outcome: " << yNext ;
-    FILE_LOG(logINFO) << "Best query: " 
-		      << mBB->unnormalizeVector(mGP->getPointAtMinimum()); 
-    FILE_LOG(logINFO) << "Best outcome: " <<  mGP->getValueAtMinimum();
-    
-    return 0;
+    if(mParameters.verbose_level >0)
+      { 
+	FILE_LOG(logINFO) << "Iteration: " << iteration+1 << " of " 
+			  << mParameters.n_iterations << " | Total samples: " 
+			  << iteration+1+mParameters.n_init_samples ;
+	FILE_LOG(logINFO) << "Query: " << mBB->unnormalizeVector(xNext); ;
+	FILE_LOG(logINFO) << "Query outcome: " << yNext ;
+	FILE_LOG(logINFO) << "Best query: " 
+			  << mBB->unnormalizeVector(mGP->getPointAtMinimum()); 
+	FILE_LOG(logINFO) << "Best outcome: " <<  mGP->getValueAtMinimum();
+      }
   } //plotStepData
 
   int ContinuousModel::sampleInitialPoints()

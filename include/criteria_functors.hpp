@@ -49,7 +49,6 @@ namespace bayesopt
     virtual int init(BayesianRegressor *proc, 
 		     const std::vector<Criteria*>& list) { return 0; };
 
-    virtual bool requireComparison() = 0;
     double evaluate(const vectord &x) {return (*this)(x);}
     virtual double operator()(const vectord &x) = 0;
     virtual std::string name() = 0;
@@ -58,9 +57,12 @@ namespace bayesopt
 
     //Dummy functions.
     virtual void reset() { assert(false); };
-    virtual bool checkIfBest(vectord& xNext,
-			     std::string& name,
-			     int& error_code) { assert(false); return false; };
+
+    // In general, most criteria does not support comparisons!
+    virtual bool requireComparison(){ return false; };
+    virtual bool checkIfBest(vectord& xNext,std::string& name)
+    { assert(false); return false; };
+
   protected:
     BayesianRegressor *mProc;
   };

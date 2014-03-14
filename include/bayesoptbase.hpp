@@ -82,19 +82,13 @@ namespace bayesopt {
      * @see checkReachability
      *
      * @param ii iteration number.
-     * @return 0 if terminate successfully, any other value otherwise
      */  
-    int stepOptimization(size_t ii);
+    void stepOptimization(size_t ii);
 
-    /** 
-     * Initialize the optimization process.
-     * @return error_code
-     */
-    virtual int initializeOptimization() = 0;
+    /** Initialize the optimization process.  */
+    virtual void initializeOptimization() = 0;
 
-    /** 
-     * Once the optimization has been perfomed, return the optimal point.
-     */
+    /** Once the optimization has been perfomed, return the optimal point. */
     virtual vectord getFinalResult() = 0;
 
     /** 
@@ -168,11 +162,9 @@ namespace bayesopt {
      * @param iteration 
      * @param xNext 
      * @param yNext 
-     * 
-     * @return error code
      */
-    virtual int plotStepData(size_t iteration, const vectord& xNext,
-		     double yNext) = 0;
+    virtual void plotStepData(size_t iteration, const vectord& xNext,
+			     double yNext) = 0;
 
 
     /** 
@@ -205,14 +197,13 @@ namespace bayesopt {
      * criteria or metacriteria
      * 
      * @param Xnext next point to evaluate
-     * @return error code
      */
-    int nextPoint( vectord &Xnext );  
+    void nextPoint( vectord &Xnext );  
 
 
 
   protected:
-    boost::scoped_ptr<BayesianRegressor> mGP;  ///< Pointer to surrogate model
+    boost::scoped_ptr<BayesianRegressor> mGP;     ///< Pointer to surrogate model
     boost::scoped_ptr<Criteria> mCrit;                    ///< Metacriteria model
     bopt_params mParameters;                        ///< Configuration parameters
     size_t mDims;                                       ///< Number of dimensions

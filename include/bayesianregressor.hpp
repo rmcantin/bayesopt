@@ -79,7 +79,7 @@ namespace bayesopt
 
   inline void Dataset::addSample(const vectord &x, double y)
   {
-    mX.push_back(x); mY.resize(mY.size()+1);  mY(mY.size()-1) = y;
+    mX.push_back(x); utils::append(mY,y);
     checkBoundsY(mY.size()-1);
   }
 

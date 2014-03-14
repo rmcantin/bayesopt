@@ -38,11 +38,9 @@ namespace bayesopt
   class AtomicKernel : public Kernel
   {
   public:
-    virtual int init(size_t input_dim)
-    {
-      n_inputs = input_dim;
-      return 0;
-    };
+    virtual void init(size_t input_dim)
+    { n_inputs = input_dim; };
+
     void setHyperParameters(const vectord &theta) 
     {
       if(theta.size() != n_params)
@@ -72,35 +70,24 @@ namespace bayesopt
   class ConstKernel: public AtomicKernel
   {
   public:
-    int init(size_t input_dim)
-    {
-      n_params = 1;
-      n_inputs = input_dim;
-      return 0;
-    };
+    void init(size_t input_dim)
+    { n_params = 1; n_inputs = input_dim;  };
 
     double operator()(const vectord &x1, const vectord &x2)
-    {
-      return params(0);
-    };
+    { return params(0); };
 
     double gradient(const vectord &x1, const vectord &x2,
 		    size_t component)
-    {
-      return 0.0;
-    };
+    { return 0.0; };
   };
+
 
   /** \brief Linear kernel. */
   class LinKernel: public AtomicKernel
   {
   public:
-    int init(size_t input_dim)
-    {
-      n_params = 0;
-      n_inputs = input_dim;
-      return 0;
-    };
+    void init(size_t input_dim)
+    { n_params = 0;  n_inputs = input_dim; };
 
     double operator()(const vectord &x1, const vectord &x2)
     {
@@ -108,24 +95,18 @@ namespace bayesopt
       return boost::numeric::ublas::inner_prod(x1,x2); 
     };
 
+    // TODO:
     double gradient(const vectord &x1, const vectord &x2,
 		    size_t component)
-    {
-      assert(false);
-      return 0.0;
-    };
+    { assert(false);  return 0.0;   };
   };
 
   /** \brief Linear kernel. */
   class LinKernelARD: public AtomicKernel
   {
   public:
-    int init(size_t input_dim)
-    {
-      n_params = input_dim;
-      n_inputs = input_dim;
-      return 0;
-    };
+    void init(size_t input_dim)
+    { n_params = input_dim;  n_inputs = input_dim;  };
 
     double operator()(const vectord &x1, const vectord &x2)
     {
@@ -135,11 +116,10 @@ namespace bayesopt
       return boost::numeric::ublas::inner_prod(v1,v2); 
     };
 
+    // TODO:
     double gradient(const vectord &x1, const vectord &x2,
 		    size_t component)
-    {
-      assert(false); return 0.0;
-    };
+    { assert(false); return 0.0;  };
   };
 
 
@@ -188,12 +168,8 @@ namespace bayesopt
   class MaternIso1: public ISOkernel
   {
   public:
-    int init(size_t input_dim)
-    {
-      n_params = 1;
-      n_inputs = input_dim;
-      return 0;
-    };
+    void init(size_t input_dim)
+    { n_params = 1;  n_inputs = input_dim;  };
 
     double operator()(const vectord &x1, const vectord &x2)
     {
@@ -214,12 +190,8 @@ namespace bayesopt
   class MaternARD1: public ARDkernel
   {
   public:
-    int init(size_t input_dim)
-    {
-      n_params = input_dim;
-      n_inputs = input_dim;
-      return 0;
-    };
+    void init(size_t input_dim)
+    { n_params = input_dim; n_inputs = input_dim;  };
 
     double operator()(const vectord &x1, const vectord &x2)
     {
@@ -227,12 +199,10 @@ namespace bayesopt
       return exp(-r);
     };
 
+    //TODO: 
     double gradient(const vectord &x1, const vectord &x2,
 		    size_t component)
-    {
-      assert(false); //TODO: 
-      return 0.0;
-    };
+    { assert(false);  return 0.0;  };
   };
 
 
@@ -240,12 +210,8 @@ namespace bayesopt
   class MaternIso3: public ISOkernel
   {
   public:
-    int init(size_t input_dim)
-    {
-      n_params = 1;
-      n_inputs = input_dim;
-      return 0;
-    };
+    void init(size_t input_dim)
+    { n_params = 1; n_inputs = input_dim;  };
 
     double operator()( const vectord &x1, const vectord &x2)
     {
@@ -267,12 +233,8 @@ namespace bayesopt
   class MaternARD3: public ARDkernel
   {
   public:
-    int init(size_t input_dim)
-    {
-      n_params = input_dim;
-      n_inputs = input_dim;
-      return 0;
-    };
+    void init(size_t input_dim)
+    { n_params = input_dim;  n_inputs = input_dim; };
 
     double operator()( const vectord &x1, const vectord &x2)
     {
@@ -293,12 +255,8 @@ namespace bayesopt
   class MaternIso5: public ISOkernel
   {
   public:
-    int init(size_t input_dim)
-    {
-      n_params = 1;
-      n_inputs = input_dim;
-      return 0;
-    };
+    void init(size_t input_dim)
+    { n_params = 1; n_inputs = input_dim;  };
 
     double operator()( const vectord &x1, const vectord &x2)
     {
@@ -320,12 +278,8 @@ namespace bayesopt
   class MaternARD5: public ARDkernel
   {
   public:
-    int init(size_t input_dim)
-    {
-      n_params = input_dim;
-      n_inputs = input_dim;
-      return 0;
-    };
+    void init(size_t input_dim)
+    { n_params = input_dim;  n_inputs = input_dim; };
 
     double operator()( const vectord &x1, const vectord &x2)
     {
@@ -333,11 +287,11 @@ namespace bayesopt
       double er = exp(-r);
       return (1+r*(1+r/3))*er;
     };
+
+    //TODO:
     double gradient( const vectord &x1, const vectord &x2,
 		     size_t component)
-    {    
-      assert(false); return 0.0;
-    };
+    { assert(false); return 0.0; };
   };
 
   /** Polynomial covariance function*/
@@ -346,23 +300,19 @@ namespace bayesopt
   public:
     Polynomial(){ mExp = 1; };
 
-    int init(size_t input_dim)
-    {
-      n_params = 2;
-      n_inputs = input_dim;
-      return 0;
-    };
+    void init(size_t input_dim)
+    { n_params = 2;  n_inputs = input_dim;  };
 
     double operator()( const vectord &x1, const vectord &x2)
     {
       double xx = boost::numeric::ublas::inner_prod(x1,x2); 
       return params(0)*params(0) * (params(1)+xx)*mExp;
     };
+
+    //TODO:
     double gradient( const vectord &x1, const vectord &x2,
 		     size_t component)
-    {    
-      assert(false); return 0.0;
-    };
+    { assert(false); return 0.0; };
   protected:
     size_t mExp;
   };
@@ -370,19 +320,16 @@ namespace bayesopt
   class Polynomial2: public Polynomial { public: Polynomial2(){ mExp = 2;};};
   class Polynomial3: public Polynomial { public: Polynomial3(){ mExp = 3;};};
   class Polynomial4: public Polynomial { public: Polynomial4(){ mExp = 4;};};
-  class Polynomial5: public Polynomial { public: Polynomial5(){mExp = 5;};};
-  class Polynomial6: public Polynomial { public: Polynomial6(){mExp = 6;};};
+  class Polynomial5: public Polynomial { public: Polynomial5(){ mExp = 5;};};
+  class Polynomial6: public Polynomial { public: Polynomial6(){ mExp = 6;};};
+  class Polynomial7: public Polynomial { public: Polynomial7(){ mExp = 7;};};
 
   /** \brief Square exponential (Gaussian) kernel. Isotropic version. */
   class SEIso: public ISOkernel
   {
   public:
-    int init(size_t input_dim)
-    {
-      n_params = 1;
-      n_inputs = input_dim;
-      return 0;
-    };
+    void init(size_t input_dim)
+    { n_params = 1; n_inputs = input_dim;  };
 
     double operator()( const vectord &x1, const vectord &x2)
     {
@@ -390,6 +337,7 @@ namespace bayesopt
       double k = rl*rl;
       return exp(-k/2);
     };
+
     double gradient(const vectord &x1, const vectord &x2,
 		    size_t component)
     {
@@ -404,12 +352,8 @@ namespace bayesopt
   class SEArd: public ARDkernel
   {
   public:
-    int init(size_t input_dim)
-    {
-      n_params = input_dim;
-      n_inputs = input_dim;
-      return 0;
-    };
+    void init(size_t input_dim)
+    { n_params = input_dim;  n_inputs = input_dim; };
 
     double operator()( const vectord &x1, const vectord &x2 )
     {
@@ -433,12 +377,8 @@ namespace bayesopt
   class RQIso: public ISOkernel
   {
   public:
-    int init(size_t input_dim)
-    {
-      n_params = 2;
-      n_inputs = input_dim;
-      return 0;
-    };
+    void init(size_t input_dim)
+    { n_params = 2; n_inputs = input_dim; };
 
     double operator()( const vectord &x1, const vectord &x2)
     {
@@ -446,11 +386,11 @@ namespace bayesopt
       double k = rl*rl/(2*params(1));
       return pow(1+k,-params(1));
     };
+
+    // TODO:
     double gradient(const vectord &x1, const vectord &x2,
 		    size_t component)
-    {
-      assert(false); return 0.0;
-    };
+    { assert(false); return 0.0;  };
   };
 
   //@}

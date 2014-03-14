@@ -43,11 +43,10 @@ namespace bayesopt
   DiscreteModel::~DiscreteModel()
   {} // Default destructor
 
-  int DiscreteModel::initializeOptimization()
+  void DiscreteModel::initializeOptimization()
   {
     mDims = mInputSet[0].size();    
     sampleInitialPoints();
-    return 0;
   }
 
   vectord DiscreteModel::getFinalResult()
@@ -55,8 +54,8 @@ namespace bayesopt
     return mGP->getPointAtMinimum();
   }
   
-  int DiscreteModel::plotStepData(size_t iteration, const vectord& xNext,
-				double yNext)
+  void DiscreteModel::plotStepData(size_t iteration, const vectord& xNext,
+				   double yNext)
   {
     if(mParameters.verbose_level >0)
       { 
@@ -68,7 +67,6 @@ namespace bayesopt
 	FILE_LOG(logINFO) << "Best found at: " << mGP->getPointAtMinimum() ; 
 	FILE_LOG(logINFO) << "Best outcome: " <<  mGP->getValueAtMinimum() ;    
       }
-    return 0;
   }
 
 

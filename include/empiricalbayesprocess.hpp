@@ -27,7 +27,7 @@
 #ifndef  _EMPIRICAL_BAYES_PROCESS_HPP_
 #define  _EMPIRICAL_BAYES_PROCESS_HPP_
 
-#include "nonparametricprocess.hpp"
+#include "kernelregressor.hpp"
 #include "inneroptimization.hpp"
 
 namespace bayesopt
@@ -40,10 +40,11 @@ namespace bayesopt
   /**
    * \brief Empirical Bayesian NonParametric process.
    */
-  class EmpiricalBayesProcess: public NonParametricProcess, RBOptimizable
+  class EmpiricalBayesProcess: public KernelRegressor, RBOptimizable
   {
   public:
-    EmpiricalBayesProcess(size_t dim, bopt_params parameters);
+    EmpiricalBayesProcess(size_t dim, bopt_params parameters,
+			  Dataset& data);
     virtual ~EmpiricalBayesProcess();
 
     /** 

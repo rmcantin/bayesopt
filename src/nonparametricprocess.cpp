@@ -20,73 +20,66 @@
 ------------------------------------------------------------------------
 */
 
-
-#include <cstdio>
-#include <cstdlib>
 #include <stdexcept>
-#include <boost/lexical_cast.hpp>
-
-#include "nonparametricprocess.hpp"
 
 #include "log.hpp"
-#include "ublas_extra.hpp"
+
+#include "gaussian_process.hpp"
+#include "gaussian_process_ml.hpp"
+#include "gaussian_process_normal.hpp"
+#include "student_t_process_jef.hpp"
+#include "student_t_process_nig.hpp"
+
+#include "nonparametricprocess.hpp"
 
 
 namespace bayesopt
 {
-  NonParametricProcess::NonParametricProcess(size_t dim, bopt_params parameters):
-    BayesianRegressor(dim,parameters), mRegularizer(parameters.noise),
-    mKernel(dim, parameters)
-  { 
-    setLearnType(parameters.l_type);
-  }
+
+  Dataset::Dataset(): mMinIndex(0), mMaxIndex(0) {};
+
+  Dataset::Dataset(const matrixd& x, const vectord& y):
+    mMinIndex(0), mMaxIndex(0)
+  {
+    setSamples(x,y);
+  };
+
+  Dataset::~Dataset(){};
+
+
+  ///////////////////////////////////////////////////////////////////////////
+  NonParametricProcess::NonParametricProcess(size_t dim, bopt_params parameters, 
+					     Dataset& data):
+    mData(data), dim_(dim), mMean(dim, parameters)
+  {}
 
   NonParametricProcess::~NonParametricProcess(){}
 
 
-
-  void NonParametricProcess::updateSurrogateModel( const vectord &Xnew,
-						  double Ynew, bool retrain)
+  NonParametricProcess* NonParametricProcess::create(size_t dim, 
+						     bopt_params parameters, 
+						     Dataset& data)
   {
-    assert( mData.mX[1].size() == Xnew.size() );
+    NonParametricProcess* s_ptr;
 
-    if (retrain)
-      {
-	FILE_LOG(logDEBUG) << "Retraining model parameters";
-	addSample(Xnew,Ynew);
-	fitSurrogateModel();	
-      }
+    std::string name = parameters.surr_name;
+
+    if (!name.compare("sGaussianProcess"))
+      s_ptr = new GaussianProcess(dim,parameters,data);
+    else  if(!name.compare("sGaussianProcessML"))
+      s_ptr = new GaussianProcessML(dim,parameters,data);
+    else  if(!name.compare("sGaussianProcessNormal"))
+      s_ptr = new GaussianProcessNormal(dim,parameters,data);
+    else if (!name.compare("sStudentTProcessJef"))
+      s_ptr = new StudentTProcessJeffreys(dim,parameters,data); 
+    else if (!name.compare("sStudentTProcessNIG"))
+      s_ptr = new StudentTProcessNIG(dim,parameters,data); 
     else
       {
-	const vectord newK = computeCrossCorrelation(Xnew);
-	double selfCorrelation = computeSelfCorrelation(Xnew) + mRegularizer;
-	addSample(Xnew,Ynew);
-	addNewPointToCholesky(newK,selfCorrelation);
-	precomputePrediction(); 
+	FILE_LOG(logERROR) << "Error: surrogate function not supported.";
+	throw std::invalid_argument("surrogate function not supported");
       }
-  } // updateSurrogateModel
-
-
-  void NonParametricProcess::computeCholeskyCorrelation()
-  {
-    size_t nSamples = mData.getNSamples();
-    mL.resize(nSamples,nSamples);
-  
-    //  const matrixd K = computeCorrMatrix();
-    matrixd K(nSamples,nSamples);
-    computeCorrMatrix(K);
-    size_t line_error = utils::cholesky_decompose(K,mL);
-    if (line_error) 
-      throw std::runtime_error("Cholesky decomposition error at line " + 
-			       boost::lexical_cast<std::string>(line_error));
-  }
-
-  matrixd NonParametricProcess::computeDerivativeCorrMatrix(int dth_index)
-  {
-    const size_t nSamples = mData.getNSamples();
-    matrixd corrMatrix(nSamples,nSamples);
-    mKernel.computeDerivativeCorrMatrix(mData.mX,corrMatrix,dth_index);
-    return corrMatrix;
-  }
+    return s_ptr;
+  };
 
 } //namespace bayesopt

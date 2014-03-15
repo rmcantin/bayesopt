@@ -47,7 +47,7 @@ namespace bayesopt
 	delete mCriteriaList[i];
       }
     };
-    virtual int init(BayesianRegressor *proc, 
+    virtual int init(NonParametricProcess *proc, 
 		     const std::vector<Criteria*>& list) 
     { 
       mProc = proc;
@@ -93,7 +93,7 @@ namespace bayesopt
 
 
   protected:
-    BayesianRegressor* mProc;
+    NonParametricProcess* mProc;
     std::vector<Criteria*> mCriteriaList;
   };
 
@@ -150,7 +150,7 @@ namespace bayesopt
   public:
     GP_Hedge();
     virtual ~GP_Hedge() {};
-    int init(BayesianRegressor *proc, 
+    int init(NonParametricProcess *proc, 
 	     const std::vector<Criteria*>& list);
 
     bool requireComparison(){ return true; };

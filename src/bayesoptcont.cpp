@@ -66,7 +66,7 @@ namespace bayesopt  {
 
   vectord ContinuousModel::getFinalResult()
   {
-    return mBB->unnormalizeVector(mGP->getPointAtMinimum());
+    return mBB->unnormalizeVector(getPointAtMinimum());
   }
 
 
@@ -102,8 +102,8 @@ namespace bayesopt  {
 	FILE_LOG(logINFO) << "Query: " << mBB->unnormalizeVector(xNext); ;
 	FILE_LOG(logINFO) << "Query outcome: " << yNext ;
 	FILE_LOG(logINFO) << "Best query: " 
-			  << mBB->unnormalizeVector(mGP->getPointAtMinimum()); 
-	FILE_LOG(logINFO) << "Best outcome: " <<  mGP->getValueAtMinimum();
+			  << mBB->unnormalizeVector(getPointAtMinimum()); 
+	FILE_LOG(logINFO) << "Best outcome: " <<  getValueAtMinimum();
       }
   } //plotStepData
 
@@ -124,7 +124,7 @@ namespace bayesopt  {
 	yPoints(i) = evaluateSampleInternal(sample);
       }
     
-    mGP->setSamples(xPoints,yPoints);
+    setSamples(xPoints,yPoints);
     mGP->fitSurrogateModel();
     
     // For logging purpose

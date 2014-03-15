@@ -37,12 +37,12 @@ namespace bayesopt
   /**
    * \brief Full Bayesian NonParametric process.
    */
-  class FullBayesProcess: public NonParametricProcess
+  class FullBayesProcess: public KernelRegressor
   {
   public:
     static const size_t N_PROC = 10;
 
-    FullBayesProcess(size_t dim, bopt_params params);
+    FullBayesProcess(size_t dim, bopt_params params, Dataset& data);
     virtual ~FullBayesProcess();
 
     /** 
@@ -61,7 +61,7 @@ namespace bayesopt
     void updateKernelParameters();
 
   private:
-    std::vector<NonParametricProcess*>   mVProc;
+    std::vector<KernelRegressor*>   mVProc;
     vectord                            mWeights;
     
     MixtureDistribution* d_;      //!< Predictive distributions

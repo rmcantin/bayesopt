@@ -28,8 +28,8 @@ namespace bayesopt
 
   namespace ublas = boost::numeric::ublas; 
 
-  FullBayesProcess::FullBayesProcess(size_t dim, bopt_params params):
-    NonParametricProcess(dim,params),mGeneralParams(params),mWeights(N_PROC)
+  FullBayesProcess::FullBayesProcess(size_t dim, bopt_params params, Dataset& data):
+    KernelRegressor(dim,params,data),mGeneralParams(params),mWeights(N_PROC)
   {
     d_ = new MixtureDistribution(N_PROC);
     initializeKernelParameters();
@@ -66,7 +66,7 @@ namespace bayesopt
 	
   // 	vectord th = column(kTheta,ii);
   // 	std::copy(th.begin(),th.end(),newParams.kernel.hp_mean);
-  // 	mVProc.push_back(NonParametricProcess::create(dim_,newParams));
+  // 	mVProc.push_back(KernelRegressor::create(dim_,newParams));
   //     }
     
   //   //Sum of Gaussians?
@@ -90,7 +90,7 @@ namespace bayesopt
       { 
 	vectord th = column(kTheta,ii);
 	std::copy(th.begin(),th.end(),newParams.kernel.hp_mean);
-	mVProc.push_back(BayesianRegressor::create(dim_,newParams));
+	mVProc.push_back(NonParametricProcess::create(dim_,newParams));
       }
     
     return 0;

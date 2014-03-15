@@ -41,7 +41,7 @@ namespace bayesopt
   class HierarchicalGaussianProcess: public EmpiricalBayesProcess
   {
   public:
-    HierarchicalGaussianProcess(size_t dim, bopt_params params);
+    HierarchicalGaussianProcess(size_t dim, bopt_params params, Dataset& data);
     virtual ~HierarchicalGaussianProcess() {};
 
   protected:

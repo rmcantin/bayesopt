@@ -42,7 +42,7 @@ namespace bayesopt
   class GaussianProcessML: public HierarchicalGaussianProcess
   {
   public:
-    GaussianProcessML(size_t dim, bopt_params params);
+    GaussianProcessML(size_t dim, bopt_params params, Dataset& data);
     virtual ~GaussianProcessML();
 
     /** 

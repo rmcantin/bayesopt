@@ -137,8 +137,7 @@ namespace bayesopt  {
 
   inline double ContinuousModel::evaluateSampleInternal( const vectord &query )
   { 
-    vectord unnormalizedQuery = mBB->unnormalizeVector(query);
-    return evaluateSample(unnormalizedQuery);
+    return evaluateSample(mBB->unnormalizeVector(query));
   }; // evaluateSampleInternal
 
   inline int ContinuousModel::findOptimal(vectord &xOpt)

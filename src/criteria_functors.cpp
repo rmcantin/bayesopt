@@ -49,7 +49,7 @@ namespace bayesopt
 
   /// Factory method for criterion functions.
   // Criteria* CriteriaFactory::create(criterium_name name,
-  // 				    NonParametricProcess* proc)
+  // 				    KernelRegressor* proc)
   // {
   //   Criteria* c_ptr;
   //   std::vector<Criteria*> list;
@@ -96,7 +96,7 @@ namespace bayesopt
    * @return criteria pointer
    */
   Criteria* CriteriaFactory::create(std::string name,
-				    BayesianRegressor* proc)
+				    NonParametricProcess* proc)
   {
     Criteria *cFunc;
     std::string os;

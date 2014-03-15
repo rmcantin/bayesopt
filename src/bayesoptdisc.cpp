@@ -51,7 +51,7 @@ namespace bayesopt
 
   vectord DiscreteModel::getFinalResult()
   {
-    return mGP->getPointAtMinimum();
+    return getPointAtMinimum();
   }
   
   void DiscreteModel::plotStepData(size_t iteration, const vectord& xNext,
@@ -64,8 +64,8 @@ namespace bayesopt
 			  << iteration+1+mParameters.n_init_samples ;
 	FILE_LOG(logINFO) << "Trying point at: " << xNext ;
 	FILE_LOG(logINFO) << "Current outcome: " << yNext ;
-	FILE_LOG(logINFO) << "Best found at: " << mGP->getPointAtMinimum() ; 
-	FILE_LOG(logINFO) << "Best outcome: " <<  mGP->getValueAtMinimum() ;    
+	FILE_LOG(logINFO) << "Best found at: " << getPointAtMinimum() ; 
+	FILE_LOG(logINFO) << "Best outcome: " <<  getValueAtMinimum() ;    
       }
   }
 
@@ -86,7 +86,7 @@ namespace bayesopt
       {
 	xPoint = perms[i];
 	yPoint = evaluateSample(xPoint);
-	mGP->addSample(xPoint,yPoint);
+	addSample(xPoint,yPoint);
       }
 
     mGP->fitSurrogateModel();

@@ -36,8 +36,9 @@ namespace bayesopt
   namespace ublas = boost::numeric::ublas; 
   
   GaussianProcessNormal::GaussianProcessNormal(size_t dim, 
-					 bopt_params params):
-    HierarchicalGaussianProcess(dim,params),
+					       bopt_params params, 
+					       Dataset& data):
+    HierarchicalGaussianProcess(dim,params,data),
     mW0(params.mean.n_coef), mInvVarW(params.mean.n_coef), 
     mD(params.mean.n_coef,params.mean.n_coef)
   {  

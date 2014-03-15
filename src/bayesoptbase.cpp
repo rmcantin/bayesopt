@@ -41,7 +41,7 @@ namespace bayesopt
     __init__();
   }
 
-  int BayesOptBase::__init__()
+  void BayesOptBase::__init__()
   { 
     // Configure logging
     size_t verbose = mParameters.verbose_level;
@@ -71,37 +71,32 @@ namespace bayesopt
 	static_cast<size_t>(ceil(0.1*mParameters.n_iterations));
 
     // Configure Surrogate and Criteria Functions
+    
     setSurrogateModel();
     setCriteria();
 
-    return 0;
+    // mData.reset(new Dataset());
+    // mGP->setData(mData.get());
   } // __init__
 
   BayesOptBase::~BayesOptBase()
   {} // Default destructor
 
-  int BayesOptBase::setSurrogateModel()
+  void BayesOptBase::setSurrogateModel()
   {
-    // Configure Surrogate and Criteria Functions
-    mGP.reset(BayesianRegressor::create(mDims,mParameters));
-    if (mGP == NULL) 
-      {
-	FILE_LOG(logERROR) << "Error setting the surrogate function"; 
-	exit(EXIT_FAILURE);
-      } 
-    return 0;
+    mGP.reset(NonParametricProcess::create(mDims,mParameters,mData));
   } // setSurrogateModel
 
-  int BayesOptBase::setCriteria()
+  void BayesOptBase::setCriteria()
   {
     mCrit.reset(mCFactory.create(mParameters.crit_name,mGP.get()));
-    if (mCrit == NULL)
-      {
-	FILE_LOG(logERROR) << "Error in criterium"; 
-	exit(EXIT_FAILURE);
-      }
     
-    if (mCrit->nParameters() != mParameters.n_crit_params)
+    if (mCrit->nParameters() == mParameters.n_crit_params)
+      {
+	mCrit->setParameters(utils::array2vector(mParameters.crit_params,
+					       mParameters.n_crit_params));
+      }
+    else // If the number of paramerters is different, use default.
       {
 	if (mParameters.n_crit_params != 0)
 	  {
@@ -110,14 +105,7 @@ namespace bayesopt
 			       << mParameters.n_crit_params << " instead.";
 	  }
 	FILE_LOG(logINFO) << "Usign default parameters for criteria.";
-	return 0;
       }
-      
-    // If we have the correct number of parameters.
-    vectord critParams = utils::array2vector(mParameters.crit_params,
-					       mParameters.n_crit_params);
-    mCrit->setParameters(critParams);
-    return 0;
   } // setCriteria
 
   void BayesOptBase::stepOptimization(size_t ii)
@@ -131,6 +119,7 @@ namespace bayesopt
     bool retrain = ((mParameters.n_iter_relearn > 0) && 
 		    ((ii + 1) % mParameters.n_iter_relearn == 0));
     
+    addSample(xNext,yNext);
     mGP->updateSurrogateModel(xNext,yNext,retrain); 
     plotStepData(ii,xNext,yNext);
   }

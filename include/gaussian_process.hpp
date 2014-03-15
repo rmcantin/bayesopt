@@ -41,7 +41,7 @@ namespace bayesopt
   class GaussianProcess: public EmpiricalBayesProcess
   {
   public:
-    GaussianProcess(size_t dim, bopt_params params);
+    GaussianProcess(size_t dim, bopt_params params, Dataset& data);
     virtual ~GaussianProcess();
 
     /** 

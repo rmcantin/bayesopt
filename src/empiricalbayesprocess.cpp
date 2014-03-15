@@ -29,8 +29,9 @@
 
 namespace bayesopt
 {
-  EmpiricalBayesProcess::EmpiricalBayesProcess(size_t dim, bopt_params parameters):
-    NonParametricProcess(dim,parameters)
+  EmpiricalBayesProcess::EmpiricalBayesProcess(size_t dim, bopt_params parameters, 
+					       Dataset& data):
+    KernelRegressor(dim,parameters,data)
   { 
     if (mLearnType == L_BAYES)
       {

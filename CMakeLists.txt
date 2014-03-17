@@ -122,8 +122,8 @@ INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/include
 LINK_DIRECTORIES( ${CMAKE_SOURCE_DIR}/lib )
 
 IF(NLOPT_BUILD)
-  ADD_SUBDIRECTORY(nlopt)
-  include_directories(${CMAKE_SOURCE_DIR}/nlopt/api)
+  ADD_SUBDIRECTORY(nlopt2)
+  include_directories(${CMAKE_SOURCE_DIR}/nlopt2/api)
   SET(EXT_LIBS nlopt)
 ELSE(NLOPT_BUILD)
   SET(EXT_LIBS ${NLOPT})

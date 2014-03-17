@@ -73,7 +73,6 @@ namespace bayesopt
   int DiscreteModel::sampleInitialPoints()
   {
     size_t nSamples = mParameters.n_init_samples;
-    double yPoint;
     randEngine rng;
     vecOfvec perms = mInputSet;
     
@@ -81,11 +80,11 @@ namespace bayesopt
     // the same point is not selected twice
     utils::randomPerms(perms,rng);
     
-    vectord xPoint(mInputSet[0].size());
+    // vectord xPoint(mInputSet[0].size());
     for(size_t i = 0; i < nSamples; i++)
       {
-	xPoint = perms[i];
-	yPoint = evaluateSample(xPoint);
+	const vectord xPoint = perms[i];
+	const double yPoint = evaluateSample(xPoint);
 	addSample(xPoint,yPoint);
       }
 
@@ -98,7 +97,8 @@ namespace bayesopt
 	double ymin = (std::numeric_limits<double>::max)();
 	for(size_t i = 0; i < nSamples; i++)
 	  {
-	    yPoint = mGP->getData()->getSample(i,xPoint);
+	    const double yPoint = mGP->getData()->getSampleY(i);
+	    const vectord xPoint = mGP->getData()->getSampleX(i);
 	    FILE_LOG(logDEBUG) << xPoint ;
 	  
 	    if (mParameters.verbose_level > 1)

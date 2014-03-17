@@ -48,12 +48,14 @@ namespace bayesopt
 
     void setSamples(const matrixd &x, const vectord &y);
     void addSample(const vectord &x, double y);
-    double getSample(size_t index, vectord &x);
-    double getLastSample(vectord &x);
+    double getSampleY(size_t index) const;
+    vectord getSampleX(size_t index) const;
+    double getLastSampleY() const;
+    vectord getLastSampleX() const;
 
-    vectord getPointAtMinimum();
-    double getValueAtMinimum();
-    size_t getNSamples();
+    vectord getPointAtMinimum() const;
+    double getValueAtMinimum() const;
+    size_t getNSamples() const;
     void checkBoundsY( size_t i );
 
     vecOfvec mX;                                         ///< Data inputs
@@ -75,21 +77,28 @@ namespace bayesopt
       } 
   };
   
-  inline double Dataset::getSample(size_t index, vectord &x)
-  { x = mX[index];  return mY(index);  }
-
   inline void Dataset::addSample(const vectord &x, double y)
   {
     mX.push_back(x); utils::append(mY,y);
     checkBoundsY(mY.size()-1);
   }
 
-  inline double Dataset::getLastSample(vectord &x)
-  { return getSample(mY.size()-1, x); }
+  inline double Dataset::getSampleY(size_t index) const
+  { return mY(index);  }
 
-  inline vectord Dataset::getPointAtMinimum() { return mX[mMinIndex]; };
-  inline double Dataset::getValueAtMinimum() { return mY(mMinIndex); };
-  inline size_t Dataset::getNSamples() { return mY.size(); };
+  inline vectord Dataset::getSampleX(size_t index) const
+  { return mX[index];  }
+
+  inline double Dataset::getLastSampleY() const
+  { return mY(mY.size()-1); }
+
+  inline vectord Dataset::getLastSampleX() const
+  { return mX[mX.size()-1]; }
+
+
+  inline vectord Dataset::getPointAtMinimum() const { return mX[mMinIndex]; };
+  inline double Dataset::getValueAtMinimum() const { return mY(mMinIndex); };
+  inline size_t Dataset::getNSamples() const { return mY.size(); };
   inline void Dataset::checkBoundsY( size_t i )
   {
     if ( mY(mMinIndex) > mY(i) )       mMinIndex = i;
@@ -103,7 +112,7 @@ namespace bayesopt
   class BAYESOPT_API NonParametricProcess
   {
   public:
-    NonParametricProcess(size_t dim, bopt_params parameters, Dataset& data);
+    NonParametricProcess(size_t dim, bopt_params parameters, const Dataset& data);
     virtual ~NonParametricProcess();
 
     /** 
@@ -112,7 +121,7 @@ namespace bayesopt
      * @return pointer to the corresponding derivate class (surrogate model)
      */
     static NonParametricProcess* create(size_t dim, bopt_params parameters,
-					Dataset& data);
+					const Dataset& data);
 
     /** 
      * \brief Function that returns the prediction of the GP for a query point
@@ -148,11 +157,11 @@ namespace bayesopt
     void addSample(const vectord &x, double y);
     //    void setData(Dataset* data);
     double getValueAtMinimum();
-    Dataset* getData();
+    const Dataset* getData();
     double getSignalVariance();
 
   protected:
-    Dataset& mData;  
+    const Dataset& mData;  
     double mSigma;                                   //!< Signal variance
     size_t dim_;
     MeanModel mMean;
@@ -175,7 +184,7 @@ namespace bayesopt
   { return mData.getValueAtMinimum(); };
 
 
-  inline Dataset* NonParametricProcess::getData() 
+  inline const Dataset* NonParametricProcess::getData()
   {return &mData;}
 
   inline double NonParametricProcess::getSignalVariance() 

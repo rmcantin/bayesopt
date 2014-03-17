@@ -28,7 +28,7 @@ namespace bayesopt
 
   StudentTProcessJeffreys::StudentTProcessJeffreys(size_t dim, 
 						   bopt_params params, 
-						   Dataset& data):
+						   const Dataset& data):
     HierarchicalGaussianProcess(dim, params, data)
   {
     mSigma = params.sigma_s;

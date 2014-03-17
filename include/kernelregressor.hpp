@@ -46,7 +46,7 @@ namespace bayesopt
   class KernelRegressor: public NonParametricProcess
   {
   public:
-    KernelRegressor(size_t dim, bopt_params parameters, Dataset& data);
+    KernelRegressor(size_t dim, bopt_params parameters, const Dataset& data);
     virtual ~KernelRegressor();
 
     /** 

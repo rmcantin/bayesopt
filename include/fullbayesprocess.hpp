@@ -42,7 +42,7 @@ namespace bayesopt
   public:
     static const size_t N_PROC = 10;
 
-    FullBayesProcess(size_t dim, bopt_params params, Dataset& data);
+    FullBayesProcess(size_t dim, bopt_params params, const Dataset& data);
     virtual ~FullBayesProcess();
 
     /** 

@@ -42,7 +42,7 @@ namespace bayesopt
   class GaussianProcessNormal: public HierarchicalGaussianProcess
   {
   public:
-    GaussianProcessNormal(size_t dim, bopt_params params, Dataset& data);
+    GaussianProcessNormal(size_t dim, bopt_params params, const Dataset& data);
     virtual ~GaussianProcessNormal();
 
     /** 

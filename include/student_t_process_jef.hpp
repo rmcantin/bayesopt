@@ -42,7 +42,7 @@ namespace bayesopt
   class StudentTProcessJeffreys: public HierarchicalGaussianProcess
   {
   public:
-    StudentTProcessJeffreys(size_t dim, bopt_params params, Dataset& data);
+    StudentTProcessJeffreys(size_t dim, bopt_params params, const Dataset& data);
     virtual ~StudentTProcessJeffreys();
 
     /** 

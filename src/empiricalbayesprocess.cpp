@@ -30,7 +30,7 @@
 namespace bayesopt
 {
   EmpiricalBayesProcess::EmpiricalBayesProcess(size_t dim, bopt_params parameters, 
-					       Dataset& data):
+					       const Dataset& data):
     KernelRegressor(dim,parameters,data)
   { 
     if (mLearnType == L_BAYES)
@@ -102,16 +102,15 @@ namespace bayesopt
   double EmpiricalBayesProcess::negativeCrossValidation()
   {
     // This is highly ineffient implementation for comparison purposes.
-    size_t n = mData.getNSamples();
+    Dataset data(mData);
+
+    size_t n = data.getNSamples();
     size_t last = n-1;
     int error = 0;
     double sum = 0.0;
 
     matrixd tempF(mMean.mFeatM);
 
-    // Data point used for cross validation
-    vectord x(n);
-    double y;
 
     // We take the first element, use it for validation and then paste
     // it at the end. Thus, after every iteration, the first element
@@ -120,11 +119,12 @@ namespace bayesopt
     for(size_t i = 0; i<n; ++i)
       {
 	// Take the first element
-	y = mData.getSample(0,x);
+	const double y = data.getSampleY(0);
+	const vectord x = data.getSampleX(0);
 
 	// Remove it for cross validation
-	mData.mX.erase(mData.mX.begin()); 
-	utils::erase(mData.mY,mData.mY.begin());
+	data.mX.erase(data.mX.begin()); 
+	utils::erase(data.mY,data.mY.begin());
 	utils::erase_column(mMean.mFeatM,0);
 
 	// Compute the cross validation
@@ -134,11 +134,11 @@ namespace bayesopt
 	sum += log(pd->pdf(y));
 
 	//Paste it back at the end
-	mData.addSample(x,y);
+	data.addSample(x,y);
 	mMean.mFeatM.resize(mMean.mFeatM.size1(),mMean.mFeatM.size2()+1);  
 	mMean.mFeatM = tempF;
       }
-    std::cout << "End" << mData.getNSamples();
+    std::cout << "End" << data.getNSamples();
     return -sum;   //Because we are minimizing.
   }
 

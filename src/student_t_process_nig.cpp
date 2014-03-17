@@ -36,7 +36,7 @@ namespace bayesopt
   namespace ublas = boost::numeric::ublas; 
   
   StudentTProcessNIG::StudentTProcessNIG(size_t dim, bopt_params params, 
-					 Dataset& data):
+					 const Dataset& data):
     HierarchicalGaussianProcess(dim,params,data),
     mAlpha(params.alpha), mBeta (params.beta), 
     mW0(params.mean.n_coef), mInvVarW(params.mean.n_coef), 

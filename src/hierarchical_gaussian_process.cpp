@@ -29,7 +29,7 @@ namespace bayesopt
 
   HierarchicalGaussianProcess::HierarchicalGaussianProcess(size_t dim, 
 							   bopt_params params, 
-							   Dataset& data):
+							   const Dataset& data):
     EmpiricalBayesProcess(dim, params, data) {};
 
   double HierarchicalGaussianProcess::negativeTotalLogLikelihood()

@@ -35,7 +35,7 @@
 namespace bayesopt
 {
   KernelRegressor::KernelRegressor(size_t dim, bopt_params parameters,
-				   Dataset& data):
+				   const Dataset& data):
     NonParametricProcess(dim,parameters,data), mRegularizer(parameters.noise),
     mKernel(dim, parameters)
   { 
@@ -53,15 +53,14 @@ namespace bayesopt
 
     if (retrain)
       {
-	FILE_LOG(logDEBUG) << "Retraining model parameters";
-	addSample(Xnew,Ynew);
+	//addSample(Xnew,Ynew);
 	fitSurrogateModel();	
       }
     else
       {
-	addSample(Xnew,Ynew);
+	//	addSample(Xnew,Ynew);
 	vectord newK = computeCrossCorrelation(Xnew);
-	newK(newK.size()) += mRegularizer;
+	newK(newK.size()-1) += mRegularizer;   // We add it to the last element
 	utils::cholesky_add_row(mL,newK);
 	//double selfCorrelation = computeSelfCorrelation(Xnew) + mRegularizer;
 	//addNewPointToCholesky(newK,selfCorrelation);

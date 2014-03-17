@@ -29,8 +29,8 @@ namespace bayesopt
 
   namespace ublas = boost::numeric::ublas;
 
-  GaussianProcess::GaussianProcess(size_t dim, bopt_params params):
-    EmpiricalBayesProcess(dim, params)
+  GaussianProcess::GaussianProcess(size_t dim, bopt_params params, Dataset& data):
+    EmpiricalBayesProcess(dim, params, data)
   {
     mSigma = params.sigma_s;
     d_ = new GaussianDistribution();
@@ -81,15 +81,13 @@ namespace bayesopt
   }
 
 
-  int GaussianProcess::precomputePrediction()
+  void GaussianProcess::precomputePrediction()
   {
     const size_t n = mData.getNSamples();
   
     mAlphaV.resize(n,false);
     mAlphaV = mData.mY-mMean.muTimesFeat();
     inplace_solve(mL,mAlphaV,ublas::lower_tag());
-
-    return 0; 
   }
 	
 } //namespace bayesopt

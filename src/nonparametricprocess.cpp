@@ -1,4 +1,3 @@
-
 /*
 -------------------------------------------------------------------------
    This file is part of BayesOpt, an efficient C++ library for 
@@ -21,19 +20,17 @@
 ------------------------------------------------------------------------
 */
 
+#include <stdexcept>
 
-#include <cstdio>
-#include <cstdlib>
-#include "nonparametricprocess.hpp"
 #include "log.hpp"
-#include "cholesky.hpp"
-#include "ublas_extra.hpp"
 
 #include "gaussian_process.hpp"
 #include "gaussian_process_ml.hpp"
 #include "gaussian_process_normal.hpp"
 #include "student_t_process_jef.hpp"
 #include "student_t_process_nig.hpp"
+
+#include "nonparametricprocess.hpp"
 
 
 namespace bayesopt
@@ -49,164 +46,40 @@ namespace bayesopt
 
   Dataset::~Dataset(){};
 
-  void Dataset::setSamples(const matrixd &x, const vectord &y)
-  {
-    mY = y;
-    for (size_t i=0; i<x.size1(); ++i)
-      {
-	mX.push_back(row(x,i));
-	checkBoundsY(i);
-      } 
-  };
-  
-  void Dataset::addSample(const vectord &x, double y)
-  {
-    mX.push_back(x);
-    mY.resize(mY.size()+1);  mY(mY.size()-1) = y;
-    checkBoundsY(mY.size()-1);
-  }
-
-  
 
   ///////////////////////////////////////////////////////////////////////////
-  NonParametricProcess::NonParametricProcess(size_t dim, bopt_params parameters):
-    dim_(dim), mRegularizer(parameters.noise),
-    mKernel(dim, parameters), mMean(dim, parameters)
-  { 
-    setLearnType(parameters.l_type);
-  }
-
-  NonParametricProcess::~NonParametricProcess()
+  NonParametricProcess::NonParametricProcess(size_t dim, bopt_params parameters, 
+					     Dataset& data):
+    mData(data), dim_(dim), mMean(dim, parameters)
   {}
+
+  NonParametricProcess::~NonParametricProcess(){}
 
 
   NonParametricProcess* NonParametricProcess::create(size_t dim, 
-						     bopt_params parameters)
+						     bopt_params parameters, 
+						     Dataset& data)
   {
     NonParametricProcess* s_ptr;
 
     std::string name = parameters.surr_name;
 
     if (!name.compare("sGaussianProcess"))
-      s_ptr = new GaussianProcess(dim,parameters);
+      s_ptr = new GaussianProcess(dim,parameters,data);
     else  if(!name.compare("sGaussianProcessML"))
-      s_ptr = new GaussianProcessML(dim,parameters);
+      s_ptr = new GaussianProcessML(dim,parameters,data);
     else  if(!name.compare("sGaussianProcessNormal"))
-      s_ptr = new GaussianProcessNormal(dim,parameters);
+      s_ptr = new GaussianProcessNormal(dim,parameters,data);
     else if (!name.compare("sStudentTProcessJef"))
-      s_ptr = new StudentTProcessJeffreys(dim,parameters); 
+      s_ptr = new StudentTProcessJeffreys(dim,parameters,data); 
     else if (!name.compare("sStudentTProcessNIG"))
-      s_ptr = new StudentTProcessNIG(dim,parameters); 
+      s_ptr = new StudentTProcessNIG(dim,parameters,data); 
     else
       {
 	FILE_LOG(logERROR) << "Error: surrogate function not supported.";
-	return NULL;
+	throw std::invalid_argument("surrogate function not supported");
       }
     return s_ptr;
   };
-
-
-  int NonParametricProcess::fitSurrogateModel()
-  {
-    int error = updateKernelParameters();
-    error += precomputeSurrogate();
-    return error;
-  };
-
-
-  int NonParametricProcess::precomputeSurrogate()
-  {
-    int error = -1;
-    error = computeCholeskyCorrelation();
-    if (error)
-      {
-	FILE_LOG(logERROR) << "Error computing the correlation matrix";
-	exit(EXIT_FAILURE);
-      }   
-
-    error = precomputePrediction(); 
-    if (error)
-      {
-	FILE_LOG(logERROR) << "Error pre-computing the prediction distribution";
-	exit(EXIT_FAILURE);
-      }   
-
-    return error; 
-  } // fitSurrogateModel
-
-
-  int NonParametricProcess::updateSurrogateModel( const vectord &Xnew,
-						  double Ynew, bool retrain)
-  {
-    assert( mData.mX[1].size() == Xnew.size() );
-
-    if (retrain)
-      {
-	addSample(Xnew,Ynew);
-	FILE_LOG(logDEBUG) << "Retraining model parameters";
-	return fitSurrogateModel();	
-      }
-    else
-      {
-	const vectord newK = computeCrossCorrelation(Xnew);
-	double selfCorrelation = computeSelfCorrelation(Xnew) + mRegularizer;
-	addSample(Xnew,Ynew);
-	addNewPointToCholesky(newK,selfCorrelation);
-
-	int error = precomputePrediction(); 
-	if (error < 0)
-	  {
-	    FILE_LOG(logERROR) << "Error pre-computing the prediction distribution";
-	    exit(EXIT_FAILURE);
-	  }   
-	return error; 
-      }
-    return 0; //JIC
-  } // updateSurrogateModel
-
-
-  //////////////////////////////////////////////////////////////////////////////
-  //// Getters and Setters
-  void NonParametricProcess::setSamples(const matrixd &x, const vectord &y)
-  {
-    mData.setSamples(x,y);
-    mMean.setPoints(mData.mX);  //Because it expects a vecOfvec instead of a matrixd
-  }
-
-  void NonParametricProcess::addSample(const vectord &x, double y)
-  {
-    mData.addSample(x,y);
-    mMean.addNewPoint(x);
-  };
-
-  
-  int NonParametricProcess::addNewPointToCholesky(const vectord& correlation,
-						  double selfcorrelation)
-  {
-    vectord newK(correlation);
-    utils::append(newK, selfcorrelation);
-    utils::cholesky_add_row(mL,newK);
-    return 0;
-  }
-
-
-  int NonParametricProcess::computeCholeskyCorrelation()
-  {
-    size_t nSamples = mData.getNSamples();
-    mL.resize(nSamples,nSamples);
-  
-    //  const matrixd K = computeCorrMatrix();
-    matrixd K(nSamples,nSamples);
-    computeCorrMatrix(K);
-    return utils::cholesky_decompose(K,mL);
-  }
-
-  matrixd NonParametricProcess::computeDerivativeCorrMatrix(int dth_index)
-  {
-    const size_t nSamples = mData.getNSamples();
-    matrixd corrMatrix(nSamples,nSamples);
-    int error = mKernel.computeDerivativeCorrMatrix(mData.mX,corrMatrix,dth_index);
-    return corrMatrix;
-  }
 
 } //namespace bayesopt

@@ -233,9 +233,10 @@ namespace bayesopt
      *
      * \param M original matrix
      * \param inverse inverse of M
+     * \return nonzero if decompositon fails (the value ist 1 + the numer of the failing row)
      */
     template < class Min, class Mout >
-    int
+    size_t
     inverse_cholesky(const Min& M, Mout& inverse)
     {
       typedef typename Mout::value_type value_type;
@@ -258,13 +259,11 @@ namespace bayesopt
      * \param TRIA type of lower triangular output matrix
      * \param A square symmetric positive definite input matrix (only the lower triangle is accessed)
      * \param L lower triangular output matrix 
-     * \return nonzero if decompositon fails (the value ist 1 + the numer of the failing row)
      */
     template < class TRIA, class VECTOR >
-    size_t cholesky_add_row(TRIA& L, const VECTOR& v)
+    void cholesky_add_row(TRIA& L, const VECTOR& v)
     {
       using namespace ublas;
-
       typedef typename TRIA::value_type T;
   
       assert( L.size1() == L.size2() );
@@ -284,9 +283,7 @@ namespace bayesopt
       L_j = v(n-1) - inner_prod(project (row(L, n-1), range(0,n-1)), 
 				project (row(L,n-1), range(0,n-1)));
       L(n-1,n-1) = sqrt(L_j);
-
-
-      return 0;      
+      return;      
     }
 
   } //namespace utils

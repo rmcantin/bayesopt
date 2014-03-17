@@ -41,7 +41,7 @@ namespace bayesopt
   class GaussianProcess: public EmpiricalBayesProcess
   {
   public:
-    GaussianProcess(size_t dim, bopt_params params);
+    GaussianProcess(size_t dim, bopt_params params, Dataset& data);
     virtual ~GaussianProcess();
 
     /** 
@@ -73,12 +73,10 @@ namespace bayesopt
      */
     double negativeLogLikelihood();
 
-    /** 
-     * \brief Precompute some values of the prediction that do not depends on
-     * the query
-     * @return error code
+    /** Precompute some values of the prediction that do not depends
+     *	on the query
      */
-    int precomputePrediction();
+    void precomputePrediction();
 
   private:
     vectord mAlphaV;              ///< Precomputed L\y

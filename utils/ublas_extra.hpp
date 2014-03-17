@@ -30,7 +30,7 @@ namespace bayesopt
   namespace utils
   {
     template<class V, class D>
-    int append(V& vect, D element)
+    void append(V& vect, D element)
     {
       typedef typename V::value_type VD;
       assert(typeid(VD) == typeid(D));
@@ -39,10 +39,10 @@ namespace bayesopt
       const size_t size = vect.size();
       vect.resize(size+1,true);
       vect(size) = element;
-      return 0;
     };
+
     template<class V, class I>
-    int erase(V& vect, I begin)
+    void erase(V& vect, I begin)
     {
       typedef typename V::iterator VI;
       assert(typeid(VI) == typeid(I));
@@ -52,22 +52,20 @@ namespace bayesopt
 	  *it = *(it+1); 
 	}
       vect.resize(vect.size()-1);
-      return 0;
     };
 
     template<class M>
-    int erase_column(M& mat, size_t pos)
+    void erase_column(M& mat, size_t pos)
     {
       for(size_t i = pos; i < mat.size2()-1; ++i)
 	{
 	  column(mat,i) = column(mat,i+1);
 	}
       mat.resize(mat.size1(),mat.size2()-1);
-      return 0;
     };
 
     template<class M, class V>
-    int addToDiagonal(M& mat, const V& vec)
+    void addToDiagonal(M& mat, const V& vec)
     {
       assert(mat.size1()==mat.size2());
       assert(mat.size1()==vec.size());
@@ -76,7 +74,6 @@ namespace bayesopt
 	{
 	  mat(ii,ii) += vec(ii);
 	}
-      return 0;
     }
 
     boost::numeric::ublas::vector<double> array2vector(const double array[], 

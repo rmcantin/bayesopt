@@ -40,28 +40,26 @@ namespace bayesopt
   class CombinedKernel : public Kernel
   {
   public:
-    virtual int init(size_t input_dim, Kernel* left, Kernel* right)
+    virtual void init(size_t input_dim, Kernel* left, Kernel* right)
     {
       n_inputs = input_dim;
       this->left = left;
       this->right = right;
-      return 0;
     };
-    int setHyperParameters(const vectord &theta) 
+
+    void setHyperParameters(const vectord &theta) 
     {
       using boost::numeric::ublas::subrange;
-      int error = 0;
 
       size_t n_lhs = left->nHyperParameters();
       size_t n_rhs = right->nHyperParameters();
       if (theta.size() != n_lhs + n_rhs)
 	{
 	  FILE_LOG(logERROR) << "Wrong number of kernel hyperparameters"; 
-	  return -1; 
+	  throw std::invalid_argument("Wrong number of kernel hyperparameters");
 	}
-      error += left->setHyperParameters(subrange(theta,0,n_lhs));
-      error += right->setHyperParameters(subrange(theta,n_lhs,n_lhs+n_rhs));
-      return error;
+      left->setHyperParameters(subrange(theta,0,n_lhs));
+      right->setHyperParameters(subrange(theta,n_lhs,n_lhs+n_rhs));
     };
 
     vectord getHyperParameters() 
@@ -100,15 +98,11 @@ namespace bayesopt
   {
   public:
     double operator()(const vectord &x1, const vectord &x2)
-    {
-      return (*left)(x1,x2) + (*right)(x1,x2);
-    };
+    { return (*left)(x1,x2) + (*right)(x1,x2); };
 
     double gradient(const vectord &x1, const vectord &x2,
 		    size_t component)
-    {
-      return left->gradient(x1,x2,component) + right->gradient(x1,x2,component);
-    };
+    { return left->gradient(x1,x2,component) + right->gradient(x1,x2,component); };
   };
 
 
@@ -117,15 +111,12 @@ namespace bayesopt
   {
   public:
     double operator()(const vectord &x1, const vectord &x2)
-    {
-      return (*left)(x1,x2) * (*right)(x1,x2);
-    };
+    { return (*left)(x1,x2) * (*right)(x1,x2); };
 
+    //TODO: Not implemented
     double gradient(const vectord &x1, const vectord &x2,
 		    size_t component)
-    {
-      return 0.0; //TODO: Not implemented
-    };
+    { return 0.0; };
   };
 
   //@}

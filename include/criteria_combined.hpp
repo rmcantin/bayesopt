@@ -104,7 +104,6 @@ namespace bayesopt
   public:
     virtual ~SumCriteria() {};
   
-    bool requireComparison(){ return false; };
     double operator()(const vectord &x)  
     {
       double sum = 0.0;
@@ -126,7 +125,6 @@ namespace bayesopt
   public:
     virtual ~ProdCriteria() {};
   
-    bool requireComparison(){ return false; };
     double operator()(const vectord &x)  
     {
       double prod = 1.0;
@@ -159,7 +157,7 @@ namespace bayesopt
     double operator()(const vectord &x) { return (*mCurrentCriterium)(x); };
 
     void reset();
-    bool checkIfBest(vectord& best, std::string& name,int& error_code);
+    bool checkIfBest(vectord& best, std::string& name);
     std::string name() {return "cHedge";};
   protected:
     int update_hedge();

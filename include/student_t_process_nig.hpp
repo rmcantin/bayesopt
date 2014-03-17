@@ -44,7 +44,7 @@ namespace bayesopt
   class StudentTProcessNIG: public HierarchicalGaussianProcess
   {
   public:
-    StudentTProcessNIG(size_t dim, bopt_params params);
+    StudentTProcessNIG(size_t dim, bopt_params params, Dataset& data);
     virtual ~StudentTProcessNIG();
 
     /** 
@@ -64,12 +64,10 @@ namespace bayesopt
      */
     double negativeLogLikelihood();
 
-    /** 
-     * \brief Precompute some values of the prediction that do not depends on
-     * the query
-     * @return error code
+    /** Precompute some values of the prediction that do not depends
+     *	on the query
      */
-    int precomputePrediction();
+    void precomputePrediction();
 
   private:
     vectord mWMap;                      //!< GP posterior parameters

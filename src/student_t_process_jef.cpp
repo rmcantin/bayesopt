@@ -27,8 +27,9 @@ namespace bayesopt
   namespace ublas = boost::numeric::ublas; 
 
   StudentTProcessJeffreys::StudentTProcessJeffreys(size_t dim, 
-						   bopt_params params):
-    HierarchicalGaussianProcess(dim, params)
+						   bopt_params params, 
+						   Dataset& data):
+    HierarchicalGaussianProcess(dim, params, data)
   {
     mSigma = params.sigma_s;
     d_ = new StudentTDistribution();
@@ -76,7 +77,7 @@ namespace bayesopt
     return d_;
   }
 
-  int StudentTProcessJeffreys::precomputePrediction()
+  void StudentTProcessJeffreys::precomputePrediction()
   {
     size_t n = mData.getNSamples();
     size_t p = mMean.nFeatures();
@@ -101,7 +102,6 @@ namespace bayesopt
     mSigma = inner_prod(mAlphaF,mAlphaF)/(n-p);
     
     d_->setDof(n-p);  
-    return 0;
   }
 
 } //namespace bayesopt

@@ -43,17 +43,17 @@ namespace bayesopt
   class Kernel
   {
   public:
-    virtual int init(size_t input_dim) {return 0;};
-    virtual int init(size_t input_dim, Kernel* left, Kernel* right) {return 0;};
+    virtual ~Kernel(){};
+    virtual void init(size_t input_dim) {};
+    virtual void init(size_t input_dim, Kernel* left, Kernel* right) {};
 
-    virtual int setHyperParameters(const vectord &theta) = 0;
+    virtual void setHyperParameters(const vectord &theta) = 0;
     virtual vectord getHyperParameters() = 0;
     virtual size_t nHyperParameters() = 0;
 
     virtual double operator()( const vectord &x1, const vectord &x2 ) = 0;
     virtual double gradient( const vectord &x1, const vectord &x2,
 			     size_t component ) = 0;
-    virtual ~Kernel(){};
 
   protected:
     size_t n_inputs;
@@ -95,7 +95,7 @@ namespace bayesopt
 
     Kernel* getKernel();
     
-    int setHyperParameters(const vectord &theta);
+    void setHyperParameters(const vectord &theta);
     vectord getHyperParameters();
     size_t nHyperParameters();
 
@@ -105,26 +105,25 @@ namespace bayesopt
      * @param thetav kernel parameters (mean)
      * @param stheta kernel parameters (std)
      * @param k_name kernel name
-     * @return error_code
      */
-    int setKernel (const vectord &thetav, const vectord &stheta, 
+    void setKernel (const vectord &thetav, const vectord &stheta, 
 		   std::string k_name, size_t dim);
 
     /** Wrapper of setKernel for C kernel structure */
-    int setKernel (kernel_parameters kernel, size_t dim);
+    void setKernel (kernel_parameters kernel, size_t dim);
 
-    int computeCorrMatrix(const vecOfvec& XX, matrixd& corrMatrix, double nugget);
-    int computeDerivativeCorrMatrix(const vecOfvec& XX, matrixd& corrMatrix, int dth_index);
+    void computeCorrMatrix(const vecOfvec& XX, matrixd& corrMatrix, double nugget);
+    void computeDerivativeCorrMatrix(const vecOfvec& XX, matrixd& corrMatrix, 
+				    int dth_index);
     vectord computeCrossCorrelation(const vecOfvec& XX, const vectord &query);
-    void computeCrossCorrelation(const vecOfvec& XX, 
-				 const vectord &query,
+    void computeCrossCorrelation(const vecOfvec& XX, const vectord &query,
 				 vectord& knx);
     double computeSelfCorrelation(const vectord& query);
     double kernelLogPrior();
 
   private:
     /** Set prior (Gaussian) for kernel hyperparameters */
-    int setKernelPrior (const vectord &theta, const vectord &s_theta);
+    void setKernelPrior (const vectord &theta, const vectord &s_theta);
 
     boost::scoped_ptr<Kernel> mKernel;            ///< Pointer to kernel function
     std::vector<boost::math::normal> priorKernel; ///< Prior of kernel parameters
@@ -133,8 +132,8 @@ namespace bayesopt
   inline Kernel* KernelModel::getKernel()
   { return mKernel.get();  }
 
-  inline int KernelModel::setHyperParameters(const vectord &theta)
-  { return mKernel->setHyperParameters(theta); };
+  inline void KernelModel::setHyperParameters(const vectord &theta)
+  { mKernel->setHyperParameters(theta); };
     
   inline vectord KernelModel::getHyperParameters()
   {return mKernel->getHyperParameters();};
@@ -163,6 +162,17 @@ namespace bayesopt
 
   inline double KernelModel::computeSelfCorrelation(const vectord& query)
   { return (*mKernel)(query,query); }
+
+  inline void KernelModel::setKernelPrior (const vectord &theta, 
+					   const vectord &s_theta)
+  {
+    for (size_t i = 0; i<theta.size(); ++i)
+      {
+	boost::math::normal n(theta(i),s_theta(i));
+	priorKernel.push_back(n);
+      }
+  };
+
 
   //@}
 

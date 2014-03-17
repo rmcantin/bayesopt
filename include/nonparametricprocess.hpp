@@ -1,5 +1,5 @@
 /** \file nonparametricprocess.hpp 
-    \brief Nonparametric process abstract module */
+    \brief Abstract module for a Bayesian regressor */
 /*
 -------------------------------------------------------------------------
    This file is part of BayesOpt, an efficient C++ library for 
@@ -23,21 +23,19 @@
 */
 
 
-#ifndef __NONPARAMETRICPROCESS_HPP__
-#define __NONPARAMETRICPROCESS_HPP__
+#ifndef __BAYESIANREGRESSOR_HPP__
+#define __BAYESIANREGRESSOR_HPP__
 
+#include <boost/scoped_ptr.hpp>
+#include "dll_stuff.h"
 #include "ublas_extra.hpp"
-#include "kernel_functors.hpp"
-#include "mean_functors.hpp"
 #include "prob_distribution.hpp"
+#include "mean_functors.hpp"
 
 namespace bayesopt
 {
 
-  /** \addtogroup NonParametricProcesses 
-   *  \brief Set of nonparametric processes (Gaussian process, Student's
-   *  t process, etc.) for surrogate modelling
-   */
+  /** \addtogroup NonParametricProcesses */
   /**@{*/
 
   /** \brief Dataset model to deal with the vector (real) based datasets */
@@ -67,17 +65,27 @@ namespace bayesopt
 
 
   //// Inline methods
+  inline void Dataset::setSamples(const matrixd &x, const vectord &y)
+  {
+    mY = y;
+    for (size_t i=0; i<x.size1(); ++i)
+      {
+	mX.push_back(row(x,i));
+	checkBoundsY(i);
+      } 
+  };
+  
   inline double Dataset::getSample(size_t index, vectord &x)
-  { 
-    x = mX[index];  
-    return mY(index);  
+  { x = mX[index];  return mY(index);  }
+
+  inline void Dataset::addSample(const vectord &x, double y)
+  {
+    mX.push_back(x); utils::append(mY,y);
+    checkBoundsY(mY.size()-1);
   }
 
   inline double Dataset::getLastSample(vectord &x)
-  { 
-    size_t last = mY.size()-1; 
-    return getSample(last, x); 
-  }
+  { return getSample(mY.size()-1, x); }
 
   inline vectord Dataset::getPointAtMinimum() { return mX[mMinIndex]; };
   inline double Dataset::getValueAtMinimum() { return mY(mMinIndex); };
@@ -90,12 +98,12 @@ namespace bayesopt
 
 
   /**
-   * \brief Abstract class to implement non-parametric processes
+   * \brief Abstract class to implement Bayesian regressors
    */
   class BAYESOPT_API NonParametricProcess
   {
   public:
-    NonParametricProcess(size_t dim, bopt_params parameters);
+    NonParametricProcess(size_t dim, bopt_params parameters, Dataset& data);
     virtual ~NonParametricProcess();
 
     /** 
@@ -103,7 +111,8 @@ namespace bayesopt
      * @param parameters (process name, noise, priors, etc.)
      * @return pointer to the corresponding derivate class (surrogate model)
      */
-    static NonParametricProcess* create(size_t dim, bopt_params parameters);
+    static NonParametricProcess* create(size_t dim, bopt_params parameters,
+					Dataset& data);
 
     /** 
      * \brief Function that returns the prediction of the GP for a query point
@@ -115,14 +124,13 @@ namespace bayesopt
     virtual ProbabilityDistribution* prediction(const vectord &query) = 0;
 		 		 
     /** 
-     * \brief Computes the initial surrogate model. 
-     * It also updates the kernel parameters estimation. This
-     * function is hightly inefficient.  Use it only at the begining.
-     * @return error code
+     * \brief Computes the initial surrogate model and updates the
+     * kernel parameters estimation. 
+     *
+     * This function requires to recompute all covariance matrixes,
+     * inverses, etc.  Use it with precaution.
      */
-    int fitSurrogateModel();
-    virtual int updateKernelParameters() = 0;
-    int precomputeSurrogate();
+    virtual void fitSurrogateModel() = 0;
 
     /** 
      * \brief Sequential update of the surrogate model by adding a new point.
@@ -130,92 +138,48 @@ namespace bayesopt
      *  inversion of the correlation matrix or adding new rows to the
      *  Cholesky decomposition.  If retrain is true, it recomputes the
      *  kernel hyperparameters and computes a full covariance matrix.
-     * @return error code
      */   
-    int updateSurrogateModel(const vectord &Xnew, double Ynew, bool retrain);
+    virtual void updateSurrogateModel(const vectord &Xnew, 
+				      double Ynew, bool retrain) = 0;
 
 
     // Getters and setters
     void setSamples(const matrixd &x, const vectord &y);
     void addSample(const vectord &x, double y);
-    Dataset* getData() {return &mData;}
-
-    vectord getPointAtMinimum() { return mData.getPointAtMinimum(); };
-    double getValueAtMinimum() { return mData.getValueAtMinimum(); };
-    double getSignalVariance() { return mSigma; };
-
-    /** Sets the kind of learning methodology for kernel hyperparameters */
-    void setLearnType(learning_type l_type) { mLearnType = l_type; };
+    //    void setData(Dataset* data);
+    double getValueAtMinimum();
+    Dataset* getData();
+    double getSignalVariance();
 
   protected:
-    /** 
-     * \brief Precompute some values of the prediction that do not
-     * depends on the query.
-     * @return error code
-     */
-    virtual int precomputePrediction() = 0;
-
-    //TODO: Refactorize from KernelModel
-    int computeCorrMatrix(matrixd& corrMatrix);
-    matrixd computeCorrMatrix();
-    matrixd computeDerivativeCorrMatrix(int dth_index);
-    vectord computeCrossCorrelation(const vectord &query);
-    double computeSelfCorrelation(const vectord& query);
-
-
-  protected:
-    Dataset mData;
-    
-    double mSigma;                                   //!< GP posterior parameters
-    matrixd mL;             ///< Cholesky decomposition of the Correlation matrix
+    Dataset& mData;  
+    double mSigma;                                   //!< Signal variance
     size_t dim_;
-    learning_type mLearnType;
-    KernelModel mKernel;
     MeanModel mMean;
-
-  private:
-    /** 
-     * Computes the Cholesky decomposition of the Correlation (Kernel
-     * or Gram) matrix 
-     * @return error code
-     */
-    int computeCholeskyCorrelation();
-
-    /** 
-     * Adds a new point to the Cholesky decomposition of the Correlation 
-     * matrix.
-     * @return error code
-     */
-    int addNewPointToCholesky(const vectord& correlation,
-			      double selfcorrelation);
-
-
-    const double mRegularizer;   ///< Std of the obs. model (also used as nugget)
   };
 
-  //// Inline methods
-  inline int NonParametricProcess::computeCorrMatrix(matrixd& corrMatrix)
+  //////////////////////////////////////////////////////////////////////////////
+  //// Inlines
+  inline void NonParametricProcess::setSamples(const matrixd &x, const vectord &y)
   {
-    return mKernel.computeCorrMatrix(mData.mX,corrMatrix,mRegularizer);
+    mMean.setPoints(mData.mX);  //Because it expects a vecOfvec instead of a matrixd
   }
 
-  inline  matrixd NonParametricProcess::computeCorrMatrix()
-  {
-    const size_t nSamples = mData.getNSamples();
-    matrixd corrMatrix(nSamples,nSamples);
-    int error = mKernel.computeCorrMatrix(mData.mX,corrMatrix,mRegularizer);
-    return corrMatrix;
-  }
+  inline void NonParametricProcess::addSample(const vectord &x, double y)
+  {  mMean.addNewPoint(x);  };
 
-  inline vectord NonParametricProcess::computeCrossCorrelation(const vectord &query)
-  {
-    return mKernel.computeCrossCorrelation(mData.mX,query);
-  }
+  // inline void NonParametricProcess::setData(Dataset* data)
+  // {mData = data;}
 
-  inline  double NonParametricProcess::computeSelfCorrelation(const vectord& query)
-  {
-    return mKernel.computeSelfCorrelation(query);
-  }
+  inline double NonParametricProcess::getValueAtMinimum() 
+  { return mData.getValueAtMinimum(); };
+
+
+  inline Dataset* NonParametricProcess::getData() 
+  {return &mData;}
+
+  inline double NonParametricProcess::getSignalVariance() 
+  { return mSigma; };
 
   /**@}*/
   

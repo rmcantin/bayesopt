@@ -42,7 +42,7 @@ namespace bayesopt
   class GaussianProcessML: public HierarchicalGaussianProcess
   {
   public:
-    GaussianProcessML(size_t dim, bopt_params params);
+    GaussianProcessML(size_t dim, bopt_params params, Dataset& data);
     virtual ~GaussianProcessML();
 
     /** 
@@ -64,12 +64,10 @@ namespace bayesopt
      */
     double negativeLogLikelihood();
 
-    /** 
-     * \brief Precompute some values of the prediction that do not depends on
+    /** Precompute some values of the prediction that do not depends on
      * the query
-     * @return error code
      */
-    int precomputePrediction();
+    void precomputePrediction();
 
   private:
     vectord mWML;           //!< GP ML parameters

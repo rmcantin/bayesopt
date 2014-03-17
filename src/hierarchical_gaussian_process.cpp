@@ -28,8 +28,9 @@ namespace bayesopt
   namespace ublas = boost::numeric::ublas;
 
   HierarchicalGaussianProcess::HierarchicalGaussianProcess(size_t dim, 
-							   bopt_params params):
-    EmpiricalBayesProcess(dim, params) {};
+							   bopt_params params, 
+							   Dataset& data):
+    EmpiricalBayesProcess(dim, params, data) {};
 
   double HierarchicalGaussianProcess::negativeTotalLogLikelihood()
   {

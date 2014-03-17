@@ -42,9 +42,7 @@ namespace bayesopt  {
   {
   public:
    
-    /** 
-     * Default constructor
-     */
+    /** Default constructor */
     ContinuousModel();
 
     /** 
@@ -54,29 +52,23 @@ namespace bayesopt  {
      */
     ContinuousModel(size_t dim, bopt_params params);
 
-    /** 
-     * Default destructor
-     * 
-     * @return 
-     */
+    /**  Default destructor  */
     virtual ~ContinuousModel();
   
-    /** 
-     * Initialize the optimization process.
-     * @return error_code
-     */
-    int initializeOptimization();
+    /** Initialize the optimization process.  */
+    void initializeOptimization();
 
     /** 
-     * Once the optimization has been perfomed, return the optimal point.
+     * Once the optimization has been perfomed, return the optimal
+     * point.
      */
     vectord getFinalResult();
 
     /** 
      * \brief Sets the bounding box. 
      *
-     * @param lowerBound vector with the lower bounds of the hypercube 
-     * @param upperBound vector with the upper bounds of the hypercube 
+     * @param lowerBound vector with the lower bounds of the hypercube
+     * @param upperBound vector with the upper bounds of the hypercube
      * 
      * @return 0 if terminate successfully, nonzero otherwise
      */
@@ -92,11 +84,9 @@ namespace bayesopt  {
      * @param iteration iteration number 
      * @param xNext next point
      * @param yNext function value at next point
-     * 
-     * @return error code
      */
-    int plotStepData(size_t iteration, const vectord& xNext,
-		     double yNext);
+    void plotStepData(size_t iteration, const vectord& xNext,
+		      double yNext);
 
     /** \brief Sample a set of points to initialize the surrogate function.
      * It uses pure random sampling or uniform Latin Hypercube sampling.
@@ -147,8 +137,7 @@ namespace bayesopt  {
 
   inline double ContinuousModel::evaluateSampleInternal( const vectord &query )
   { 
-    vectord unnormalizedQuery = mBB->unnormalizeVector(query);
-    return evaluateSample(unnormalizedQuery);
+    return evaluateSample(mBB->unnormalizeVector(query));
   }; // evaluateSampleInternal
 
   inline int ContinuousModel::findOptimal(vectord &xOpt)

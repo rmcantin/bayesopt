@@ -1,5 +1,4 @@
-/** \file hierarchical_gaussian_process.hpp 
-    \brief Hierarchical Gaussian process abstract module */
+/**  \file bayesoptbase.hpp \brief Bayesian optimization module */
 /*
 -------------------------------------------------------------------------
    This file is part of BayesOpt, an efficient C++ library for 
@@ -23,39 +22,25 @@
 */
 
 
-#ifndef __HIERARCHICAL_GAUSSIAN_PROCESS_HPP__
-#define __HIERARCHICAL_GAUSSIAN_PROCESS_HPP__
-
-#include "empiricalbayesprocess.hpp"
+#ifndef  _MCMC_HPP_
+#define  _MCMC_HPP_
 
 
-namespace bayesopt
-{
-  
-  /** \addtogroup NonParametricProcesses */
-  /**@{*/
+namespace bayesopt {
 
-  /**
-   * \brief Virtual class for hierarchical Gaussian processes.
-   */
-  class HierarchicalGaussianProcess: public EmpiricalBayesProcess
+  class MCMCSampler
   {
   public:
-    HierarchicalGaussianProcess(size_t dim, bopt_params params, Dataset& data);
-    virtual ~HierarchicalGaussianProcess() {};
+    MCMCSampler(size_t n_samples = 500);
+    virtual ~MCMCSampler();
 
-  protected:
-    /** 
-     * \brief Computes the negative log likelihood of the data for all
-     * the parameters.
-     * @return value negative log likelihood
-     */
-    double negativeTotalLogLikelihood();
+    newParticle(const vectord& past);
 
-  };
-
-  /**@}*/
+  private:
+    vecOfvec particles;
+  }
 
 } //namespace bayesopt
+
 
 #endif

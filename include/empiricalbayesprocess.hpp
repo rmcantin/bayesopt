@@ -27,7 +27,7 @@
 #ifndef  _EMPIRICAL_BAYES_PROCESS_HPP_
 #define  _EMPIRICAL_BAYES_PROCESS_HPP_
 
-#include "nonparametricprocess.hpp"
+#include "kernelregressor.hpp"
 #include "inneroptimization.hpp"
 
 namespace bayesopt
@@ -40,10 +40,11 @@ namespace bayesopt
   /**
    * \brief Empirical Bayesian NonParametric process.
    */
-  class EmpiricalBayesProcess: public NonParametricProcess, RBOptimizable
+  class EmpiricalBayesProcess: public KernelRegressor, RBOptimizable
   {
   public:
-    EmpiricalBayesProcess(size_t dim, bopt_params parameters);
+    EmpiricalBayesProcess(size_t dim, bopt_params parameters,
+			  Dataset& data);
     virtual ~EmpiricalBayesProcess();
 
     /** 
@@ -58,18 +59,17 @@ namespace bayesopt
     /** 
      * \brief Updates the kernel parameters acording with a point
      * estimate (ML, MAP, etc.)
-     * @return error code
      */
-    int updateKernelParameters();
+    void updateKernelParameters();
 
     /** 
-     * \brief Updates and computes the score (eg:likelihood) of the kernel
-     * parameters.
-     * @param query set of parameters.
+     * \brief Computes the score (eg:likelihood) of the kernel
+     * parameters.  
+     * Warning: To evaluate the score, it is necessary to change the parameters
+     * @param x set of parameters.  
      * @return score
      */
-    double evaluateKernelParams(const vectord& query);
-    double evaluate(const vectord &x) {return evaluateKernelParams(x);}
+    double evaluate(const vectord &x);
 
     /** 
      * \brief Computes the score (eg:likelihood) of the current kernel
@@ -106,6 +106,15 @@ namespace bayesopt
   private:
     NLOPT_Optimization* kOptimizer;
   };
+
+
+
+  inline double EmpiricalBayesProcess::evaluate(const vectord& x)
+  { 
+    mKernel.setHyperParameters(x);
+    return evaluateKernelParams();
+  };
+
 
   /**@}*/
   

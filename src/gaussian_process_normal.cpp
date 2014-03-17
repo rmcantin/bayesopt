@@ -36,8 +36,9 @@ namespace bayesopt
   namespace ublas = boost::numeric::ublas; 
   
   GaussianProcessNormal::GaussianProcessNormal(size_t dim, 
-					 bopt_params params):
-    HierarchicalGaussianProcess(dim,params),
+					       bopt_params params, 
+					       Dataset& data):
+    HierarchicalGaussianProcess(dim,params,data),
     mW0(params.mean.n_coef), mInvVarW(params.mean.n_coef), 
     mD(params.mean.n_coef,params.mean.n_coef)
   {  
@@ -113,7 +114,7 @@ namespace bayesopt
 
 
 
-  int GaussianProcessNormal::precomputePrediction()
+  void GaussianProcessNormal::precomputePrediction()
   {
     size_t n = mData.getNSamples();
     size_t p = mMean.getMeanFunc()->nFeatures();
@@ -134,12 +135,11 @@ namespace bayesopt
     mVf = mData.mY - prod(trans(mMean.mFeatM),mWMap);
     inplace_solve(mL,mVf,ublas::lower_tag());
 
-    if (boost::math::isnan(mWMap(0)))
+    if ((boost::math::isnan(mWMap(0))) || (boost::math::isnan(mSigma)))
       {
 	FILE_LOG(logERROR) << "Error in precomputed prediction. NaN found.";
-	return -1;
+	throw std::runtime_error("Error in precomputed prediction. NaN found.");
       }
-    return 0;
   }
 
 } //namespace bayesopt

@@ -29,8 +29,9 @@
 
 namespace bayesopt
 {
-  EmpiricalBayesProcess::EmpiricalBayesProcess(size_t dim, bopt_params parameters):
-    NonParametricProcess(dim,parameters)
+  EmpiricalBayesProcess::EmpiricalBayesProcess(size_t dim, bopt_params parameters, 
+					       Dataset& data):
+    KernelRegressor(dim,parameters,data)
   { 
     if (mLearnType == L_BAYES)
       {
@@ -59,54 +60,23 @@ namespace bayesopt
   }
 
 
-  int EmpiricalBayesProcess::updateKernelParameters()
+  void EmpiricalBayesProcess::updateKernelParameters()
   {
     if (mLearnType == L_FIXED)
       {
 	FILE_LOG(logDEBUG) << "Fixed hyperparameters. Not learning";
-	return 0;
       }
     else
       {
-	int error = -1;
 	vectord optimalTheta = mKernel.getHyperParameters();
 	
-	FILE_LOG(logDEBUG) << "Computing kernel parameters. Initial: " 
-			   << optimalTheta;
-
+	FILE_LOG(logDEBUG) << "Initial kernel parameters: " << optimalTheta;
 	kOptimizer->run(optimalTheta);
-	error = mKernel.setHyperParameters(optimalTheta);
-
-	if (error)
-	  {
-	    FILE_LOG(logERROR) << "Error updating kernel parameters.";
-	    exit(EXIT_FAILURE);
-	  }   
-
+	mKernel.setHyperParameters(optimalTheta);
 	FILE_LOG(logDEBUG) << "Final kernel parameters: " << optimalTheta;	
-	return error;
       }
   };
 
-  double EmpiricalBayesProcess::evaluateKernelParams(const vectord& query)
-  { 
-    if (mLearnType == L_FIXED)
-      {
-	FILE_LOG(logERROR) << "Fixed hyperparameters should not change.";
-	return -1;
-      }
-    else
-      {
-	int error = mKernel.setHyperParameters(query);
-	if (error) 
-	  {
-	    FILE_LOG(logERROR) << "Problem optimizing kernel parameters."; 
-	    exit(EXIT_FAILURE);	
-	  }
-	return evaluateKernelParams();
-      }
-  };
-  
   double EmpiricalBayesProcess::evaluateKernelParams()
   { 
     double result;
@@ -158,7 +128,8 @@ namespace bayesopt
 	utils::erase_column(mMean.mFeatM,0);
 
 	// Compute the cross validation
-	precomputeSurrogate();
+	computeCholeskyCorrelation();
+	precomputePrediction(); 
 	ProbabilityDistribution* pd = prediction(x);
 	sum += log(pd->pdf(y));
 

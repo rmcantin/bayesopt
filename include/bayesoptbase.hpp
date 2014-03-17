@@ -169,12 +169,8 @@ namespace bayesopt {
      */
     virtual void findOptimal(vectord &xOpt) = 0;
   
-    /** 
-     * \brief Selects the initial set of points to build the surrogate
-     * model.
-     * @return error code
-     */
-    virtual int sampleInitialPoints() = 0;
+    /** Selects the initial set of points to build the surrogate model. */
+    virtual void sampleInitialPoints() = 0;
 
     /** 
      * \brief Selects the next point to evaluate according to a certain

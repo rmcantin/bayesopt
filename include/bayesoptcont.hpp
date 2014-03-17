@@ -88,11 +88,8 @@ namespace bayesopt  {
     void plotStepData(size_t iteration, const vectord& xNext,
 		      double yNext);
 
-    /** \brief Sample a set of points to initialize the surrogate function.
-     * It uses pure random sampling or uniform Latin Hypercube sampling.
-     * @return error code
-     */
-    int sampleInitialPoints();
+    /** Selects the initial set of points to build the surrogate model. */
+    void sampleInitialPoints();
 
 
     /** 

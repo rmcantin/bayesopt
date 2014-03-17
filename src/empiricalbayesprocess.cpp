@@ -79,23 +79,22 @@ namespace bayesopt
 
   double EmpiricalBayesProcess::evaluateKernelParams()
   { 
-    double result;
     switch(mLearnType)
       {
       case L_ML:
-	result = negativeTotalLogLikelihood(); break;
+	return negativeTotalLogLikelihood();
       case L_FIXED:
-	result = negativeLogLikelihood(); break;
+	return negativeLogLikelihood();
       case L_MAP:
 	// It is a minus because the prior is the positive and we want
 	// the negative.
-	result = negativeLogLikelihood()-mKernel.kernelLogPrior(); break;
+	return negativeLogLikelihood()-mKernel.kernelLogPrior();
       case L_LOO:
-	result = negativeCrossValidation(); break;
+	return negativeCrossValidation(); 
       default:
 	FILE_LOG(logERROR) << "Learning type not supported";
+	throw std::invalid_argument("Learning type not supported");
       }	  
-    return result;
   }
 
 

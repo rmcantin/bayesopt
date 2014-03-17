@@ -80,13 +80,8 @@ namespace bayesopt
     void plotStepData(size_t iteration, const vectord& xNext,
 		     double yNext);
 
-    /** 
-     * Sample a set of points to initialize GP fit.
-     * Use pure random sampling or uniform Latin Hypercube sampling
-     * as appeared in Jones 
-     * @return error code
-     */
-    int sampleInitialPoints();
+    /** Selects the initial set of points to build the surrogate model. */
+    void sampleInitialPoints();
 
     /** 
      * \brief Wrapper for the target function normalize in the hypercube

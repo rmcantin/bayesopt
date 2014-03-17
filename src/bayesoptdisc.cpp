@@ -70,7 +70,7 @@ namespace bayesopt
   }
 
 
-  int DiscreteModel::sampleInitialPoints()
+  void DiscreteModel::sampleInitialPoints()
   {
     size_t nSamples = mParameters.n_init_samples;
     randEngine rng;
@@ -110,7 +110,6 @@ namespace bayesopt
 	      }
 	  }  
       }
-    return 0;
   } // sampleInitialPoints
   
 

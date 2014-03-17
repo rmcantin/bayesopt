@@ -107,7 +107,7 @@ namespace bayesopt  {
       }
   } //plotStepData
 
-  int ContinuousModel::sampleInitialPoints()
+  void ContinuousModel::sampleInitialPoints()
   {
     
     size_t nSamples = mParameters.n_init_samples;
@@ -143,7 +143,6 @@ namespace bayesopt  {
 			       << "|Y:" << yPoints(i) << "|Min:" << ymin ;
 	  }  
       }
-    return 0;
   } // sampleInitialPoints
 
 }  //namespace bayesopt

@@ -121,11 +121,9 @@ namespace bayesopt  {
     /** 
      * \brief Wrapper of the innerOptimization class to find the optimal
      * point acording to the criteria.
-     * 
      * @param xOpt optimal point
-     * @return error code
      */
-    int findOptimal(vectord &xOpt);
+    void findOptimal(vectord &xOpt);
 
   private:
     utils::BoundingBox<vectord> *mBB;      ///< Bounding Box (input space limits)
@@ -140,8 +138,8 @@ namespace bayesopt  {
     return evaluateSample(mBB->unnormalizeVector(query));
   }; // evaluateSampleInternal
 
-  inline int ContinuousModel::findOptimal(vectord &xOpt)
-  { return cOptimizer->run(xOpt); };
+  inline void ContinuousModel::findOptimal(vectord &xOpt)
+  { cOptimizer->run(xOpt); };
 
 
 

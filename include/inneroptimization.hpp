@@ -83,9 +83,8 @@ namespace bayesopt {
 
     /** Compute the inner optimization algorithm
      * @param Xnext input: initial guess, output: result
-     * @return error_code
      */
-    int run(vectord &Xnext);
+    void run(vectord &Xnext);
 
     /** 
      * Wrapper of inner optimization to be evaluated by NLOPT
@@ -118,7 +117,7 @@ namespace bayesopt {
     RGBOptimizableWrapper *rgbobj;
 
     innerOptAlgorithms alg;
-    vectord mDown, mUp;
+    std::vector<double> mDown, mUp;
     size_t maxEvals;
   };
 
@@ -130,13 +129,16 @@ namespace bayesopt {
   { maxEvals = meval; }
 
   inline void NLOPT_Optimization::setLimits(const vectord& down, const vectord& up)
-  { mDown = down;   mUp = up; }
+  { 
+    std::copy(down.begin(),down.end(),mDown.begin());
+    std::copy(up.begin(),up.end(),mUp.begin());
+  }
 
   inline void NLOPT_Optimization::setLimits(double down, double up)
   { 
     for(size_t i = 0; i<mDown.size();++i) 
       {
-	mDown(i) = down; mUp(i) = up;
+	mDown[i] = down; mUp[i] = up;
       }
   };
 }//namespace bayesopt

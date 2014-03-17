@@ -64,7 +64,7 @@ protected:
   eval_func mF;
 };
 
-
+//TODO: Add catching for exceptions and transform it to error codes
 
 int bayes_optimization(int nDim, eval_func f, void* f_data,
 		       const double *lb, const double *ub,
@@ -85,7 +85,7 @@ int bayes_optimization(int nDim, eval_func f, void* f_data,
   std::copy(result.begin(), result.end(), x);
 
   *minf = optimizer.getValueAtMinimum();
-
+  
   return 0; /* everything ok*/
 };
 

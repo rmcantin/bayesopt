@@ -166,9 +166,8 @@ namespace bayesopt {
      * @see evaluateCriteria
      *
      * @param xOpt optimal point
-     * @return error code
      */
-    virtual int findOptimal(vectord &xOpt) = 0;
+    virtual void findOptimal(vectord &xOpt) = 0;
   
     /** 
      * \brief Selects the initial set of points to build the surrogate
@@ -188,11 +187,11 @@ namespace bayesopt {
 
 
   protected:
-    Dataset mData;
-    boost::scoped_ptr<NonParametricProcess> mGP;     ///< Pointer to surrogate model
-    boost::scoped_ptr<Criteria> mCrit;                    ///< Metacriteria model
-    bopt_params mParameters;                        ///< Configuration parameters
-    size_t mDims;                                       ///< Number of dimensions
+    Dataset mData;                  ///< Dataset (x-> inputs, y-> labels/output)
+    boost::scoped_ptr<NonParametricProcess> mGP; ///< Pointer to surrogate model
+    boost::scoped_ptr<Criteria> mCrit;                   ///< Metacriteria model
+    bopt_params mParameters;                       ///< Configuration parameters
+    size_t mDims;                                      ///< Number of dimensions
 
   private:
 
@@ -209,8 +208,7 @@ namespace bayesopt {
   /**@}*/
 
   inline void BayesOptBase::setSamples(const matrixd &x, const vectord &y)
-  { mData.setSamples(x,y);  mGP->setSamples(x,y);
-  }
+  { mData.setSamples(x,y);  mGP->setSamples(x,y);  }
 
   inline void BayesOptBase::addSample(const vectord &x, double y)
   {  mData.addSample(x,y); mGP->addSample(x,y);  };
@@ -224,7 +222,7 @@ namespace bayesopt {
   inline double BayesOptBase::evaluateCriteria( const vectord &query )
   {
     if (checkReachability(query))  return (*mCrit)(query);
-    return 0.0;
+    else return 0.0;
   };
 
   inline NonParametricProcess* BayesOptBase::getSurrogateModel()

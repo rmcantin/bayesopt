@@ -114,7 +114,7 @@ namespace bayesopt
   } // sampleInitialPoints
   
 
-  int DiscreteModel::findOptimal(vectord &xOpt)
+  void DiscreteModel::findOptimal(vectord &xOpt)
   {
     double current, min;
   
@@ -131,7 +131,6 @@ namespace bayesopt
 	    min = current;
 	  }
       }
-    return 0;
   }
 
 }  // namespace bayesopt

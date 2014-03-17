@@ -20,7 +20,7 @@
 ------------------------------------------------------------------------
 */
 #include <cmath>
-#include <nlopt.h>
+#include <nlopt.hpp>
 #include "parameters.h"
 #include "log.hpp"
 #include "inneroptimization.hpp"
@@ -41,18 +41,20 @@ namespace bayesopt
       }
   }
 
-  NLOPT_Optimization::NLOPT_Optimization(RBOptimizable* rbo, size_t dim)
+  NLOPT_Optimization::NLOPT_Optimization(RBOptimizable* rbo, size_t dim):
+  mDown(dim),mUp(dim)
   { 
     rbobj = new RBOptimizableWrapper(rbo);       rgbobj = NULL;
     alg = DIRECT;                  maxEvals = MAX_INNER_EVALUATIONS;
-    mDown = zvectord(dim);         mUp = svectord(dim,1.0);  
+    setLimits(zvectord(dim),svectord(dim,1.0));  
   };
 
-  NLOPT_Optimization::NLOPT_Optimization(RGBOptimizable* rgbo, size_t dim)
+  NLOPT_Optimization::NLOPT_Optimization(RGBOptimizable* rgbo, size_t dim):
+  mDown(dim),mUp(dim)
   { 
     rbobj = NULL;             rgbobj = new RGBOptimizableWrapper(rgbo);
     alg = DIRECT;             maxEvals = MAX_INNER_EVALUATIONS;
-    mDown = zvectord(dim);    mUp = svectord(dim,1.0);  
+    setLimits(zvectord(dim),svectord(dim,1.0));  
   };
 
   NLOPT_Optimization::~NLOPT_Optimization()
@@ -61,82 +63,122 @@ namespace bayesopt
     if(rgbobj != NULL) delete rgbobj;
   }
 
-  int NLOPT_Optimization::run(vectord &Xnext)
+  void NLOPT_Optimization::run(vectord &Xnext)
   {   
     assert(mDown.size() == Xnext.size());
     assert(mUp.size() == Xnext.size());
 
-    nlopt_opt opt;
     double (*fpointer)(unsigned int, const double *, double *, void *);
     void *objPointer;
 
-    int n = static_cast<int>(Xnext.size());
+    size_t n = Xnext.size();
     double fmin = 1;
     int maxf1 = maxEvals*n;
     int maxf2 = 0;    // For a second pass
     double coef_local = 0.2;
-    int ierror;
+    //int ierror;
 
+    //    nlopt_opt opt;
+    nlopt::algorithm algo;
     switch(alg)
       {
       case DIRECT: // Pure global. No gradient
-	opt = nlopt_create(NLOPT_GN_DIRECT_L, n); 
+	//	opt = nlopt_create(NLOPT_GN_DIRECT_L, n); 
+	algo = nlopt::GN_DIRECT_L;
 	fpointer = &(NLOPT_Optimization::evaluate_nlopt);
 	objPointer = static_cast<void *>(rbobj);
 	break;
       case COMBINED: // Combined local-global (80% DIRECT -> 20% BOBYQA). No gradient
-	opt = nlopt_create(NLOPT_GN_DIRECT_L, n); 
+	//	opt = nlopt_create(NLOPT_GN_DIRECT_L, n); 
+	algo = nlopt::GN_DIRECT_L;
 	maxf2 = static_cast<int>(static_cast<double>(maxf1)*coef_local);
 	maxf1 -= maxf2;  // That way, the number of evaluations is the same in all methods.
 	fpointer = &(NLOPT_Optimization::evaluate_nlopt);
 	objPointer = static_cast<void *>(rbobj);
 	break;
       case BOBYQA:  // Pure local. No gradient
-	opt = nlopt_create(NLOPT_LN_BOBYQA, n); 
+	//	opt = nlopt_create(NLOPT_LN_BOBYQA, n); 
+	algo = nlopt::LN_BOBYQA;
 	fpointer = &(NLOPT_Optimization::evaluate_nlopt);
 	objPointer = static_cast<void *>(rbobj);
 	break;
       case LBFGS:  // Pure local. Gradient based
-	opt = nlopt_create(NLOPT_LD_LBFGS, n); 	
+	//	opt = nlopt_create(NLOPT_LD_LBFGS, n); 	
+	algo = nlopt::LD_LBFGS;
 	fpointer = &(NLOPT_Optimization::evaluate_nlopt_grad);
 	objPointer = static_cast<void *>(rgbobj);
 	break;
       default: 
 	FILE_LOG(logERROR) << "Algorithm not supported"; 
-	return -1;
+	throw std::invalid_argument("Inner optimization algorithm not supported");
       }
+
+    nlopt::opt opt (algo,n);
 
     if (objPointer == NULL)
       {
 	FILE_LOG(logERROR) << "Wrong object model (gradient/no gradient)"; 
-	return -1;
+	throw std::invalid_argument("Wrong object model (gradient/no gradient)");
       }
 
-    nlopt_set_lower_bounds(opt, &mDown(0));
-    nlopt_set_upper_bounds(opt, &mUp(0));
-    nlopt_set_min_objective(opt, fpointer, objPointer);
-    nlopt_set_maxeval(opt, maxf1) ;
+    std::vector<double> xstd(n);
+    opt.set_lower_bounds(mDown);
+    opt.set_upper_bounds(mUp);
+    opt.set_min_objective(fpointer, objPointer);
+    opt.set_maxeval(maxf1) ;
+    
+    std::copy(Xnext.begin(),Xnext.end(),xstd.begin());
 
-    nlopt_result errortype = nlopt_optimize(opt, &Xnext(0), &fmin);
-    checkNLOPTerror(errortype);
+    try { opt.optimize(xstd, fmin);  }
+    catch (nlopt::roundoff_limited&)
+      {
+	FILE_LOG(logERROR) << "NLOPT Warning: Potential roundoff error. " 
+			   << "In general, this can be ignored.";
+      }
 
+    std::copy(xstd.begin(),xstd.end(),Xnext.begin());
+	
     if (maxf2)
       {
-	nlopt_destroy(opt);  // Destroy previous one
-	opt = nlopt_create(NLOPT_LN_BOBYQA, n); /* algorithm and dims */
-	nlopt_set_lower_bounds(opt, &mDown(0));
-	nlopt_set_upper_bounds(opt, &mUp(0));
-	nlopt_set_min_objective(opt, fpointer, objPointer);
-	nlopt_set_maxeval(opt, maxf2) ;
+	nlopt::opt opt2(nlopt::LN_BOBYQA, n); /* algorithm and dims */
+	opt2.set_lower_bounds(mDown);
+	opt2.set_upper_bounds(mUp);
+	opt2.set_min_objective(fpointer, objPointer);
+	opt2.set_maxeval(maxf2) ;
 	
-	errortype = nlopt_optimize(opt, &Xnext(0), &fmin);
-	checkNLOPTerror(errortype);
+	try { opt2.optimize(xstd, fmin);  }
+	catch (nlopt::roundoff_limited&)
+	  {
+	    FILE_LOG(logERROR) << "NLOPT Warning: Potential roundoff error. " 
+			       << "In general, this can be ignored.";
+	  }
+	std::copy(xstd.begin(),xstd.end(),Xnext.begin());
       }
-      
-    nlopt_destroy(opt);  // Destroy opt
+    // nlopt_set_lower_bounds(opt, &mDown(0));
+    // nlopt_set_upper_bounds(opt, &mUp(0));
+    // nlopt_set_min_objective(opt, fpointer, objPointer);
+    // nlopt_set_maxeval(opt, maxf1) ;
 
-    ierror = static_cast<int>(errortype);
-    return ierror;
+    // nlopt_result errortype = nlopt_optimize(opt, &Xnext(0), &fmin);
+    // checkNLOPTerror(errortype);
+
+    // if (maxf2)
+    //   {
+    // 	nlopt_destroy(opt);  // Destroy previous one
+    // 	opt = nlopt_create(NLOPT_LN_BOBYQA, n); /* algorithm and dims */
+    // 	nlopt_set_lower_bounds(opt, &mDown(0));
+    // 	nlopt_set_upper_bounds(opt, &mUp(0));
+    // 	nlopt_set_min_objective(opt, fpointer, objPointer);
+    // 	nlopt_set_maxeval(opt, maxf2) ;
+	
+    // 	errortype = nlopt_optimize(opt, &Xnext(0), &fmin);
+    // 	checkNLOPTerror(errortype);
+    //   }
+      
+    // nlopt_destroy(opt);  // Destroy opt
+
+    // ierror = static_cast<int>(errortype);
+    // return ierror;
   } // innerOptimize (uBlas)
 
   double NLOPT_Optimization::evaluate_nlopt (unsigned int n, const double *x,

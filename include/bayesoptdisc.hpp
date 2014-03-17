@@ -97,7 +97,7 @@ namespace bayesopt
     inline double evaluateSampleInternal( const vectord &query )
     { return evaluateSample(query); }; 
 
-    int findOptimal(vectord &xOpt);
+    void findOptimal(vectord &xOpt);
 
   protected:
     vecOfvec mInputSet;               ///< List of input points

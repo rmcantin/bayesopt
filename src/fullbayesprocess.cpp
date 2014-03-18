@@ -28,7 +28,7 @@ namespace bayesopt
 
   namespace ublas = boost::numeric::ublas; 
 
-  FullBayesProcess::FullBayesProcess(size_t dim, bopt_params params, const Dataset& data):
+  FullBayesProcess::FullBayesProcess(size_t dim, bopt_params params, const Dataset& data, randEngine& eng):
     KernelRegressor(dim,params,data),mGeneralParams(params),mWeights(N_PROC)
   {
     d_ = new MixtureDistribution(N_PROC);

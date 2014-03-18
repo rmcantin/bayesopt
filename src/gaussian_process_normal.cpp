@@ -37,8 +37,9 @@ namespace bayesopt
   
   GaussianProcessNormal::GaussianProcessNormal(size_t dim, 
 					       bopt_params params, 
-					       const Dataset& data):
-    HierarchicalGaussianProcess(dim,params,data),
+					       const Dataset& data, 
+					       randEngine& eng):
+    HierarchicalGaussianProcess(dim,params,data,eng),
     mW0(params.mean.n_coef), mInvVarW(params.mean.n_coef), 
     mD(params.mean.n_coef,params.mean.n_coef)
   {  
@@ -49,7 +50,7 @@ namespace bayesopt
 	double varii = params.mean.coef_std[ii] * params.mean.coef_std[ii];
 	mInvVarW(ii) = 1/varii;
       }
-     d_ = new GaussianDistribution();
+     d_ = new GaussianDistribution(eng);
   }  // Constructor
 
 

@@ -73,12 +73,11 @@ namespace bayesopt
   void DiscreteModel::sampleInitialPoints()
   {
     size_t nSamples = mParameters.n_init_samples;
-    randEngine rng;
     vecOfvec perms = mInputSet;
     
     // By using random permutations, we guarantee that 
     // the same point is not selected twice
-    utils::randomPerms(perms,rng);
+    utils::randomPerms(perms,mEngine);
     
     // vectord xPoint(mInputSet[0].size());
     for(size_t i = 0; i < nSamples; i++)

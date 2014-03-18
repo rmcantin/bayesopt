@@ -30,8 +30,8 @@
 namespace bayesopt
 {
   EmpiricalBayesProcess::EmpiricalBayesProcess(size_t dim, bopt_params parameters, 
-					       const Dataset& data):
-    KernelRegressor(dim,parameters,data)
+					       const Dataset& data, randEngine& eng):
+    KernelRegressor(dim,parameters,data,eng)
   { 
     if (mLearnType == L_BAYES)
       {

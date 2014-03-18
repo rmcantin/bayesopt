@@ -41,8 +41,8 @@ namespace bayesopt
   {
   public:
     virtual ~AtomicCriteria(){};
-    virtual int init(NonParametricProcess* proc)
-    { mProc = proc;  return 0;   };
+    virtual void init(NonParametricProcess* proc)
+    { mProc = proc; };
     // This criteria does not support comparisons!
     bool requireComparison(){ return false; };
     bool checkIfBest(vectord& xNext,std::string& name)
@@ -57,11 +57,10 @@ namespace bayesopt
   {
   public:
     virtual ~ExpectedImprovement(){};
-    int init(NonParametricProcess* proc)
+    void init(NonParametricProcess* proc)
     { 
       mProc = proc;
       mExp = 1;
-      return 0;
     };
 
     int setParameters(const vectord &params)
@@ -89,12 +88,11 @@ namespace bayesopt
   {
   public:
     virtual ~BiasedExpectedImprovement(){};
-    int init(NonParametricProcess* proc)
+    void init(NonParametricProcess* proc)
     { 
       mProc = proc;
       mBias = 0.01;
       mExp = 1;
-      return 0;
     };
     int setParameters(const vectord &params)
     {
@@ -123,11 +121,10 @@ namespace bayesopt
   {
   public:
     virtual ~LowerConfidenceBound(){};
-    int init(NonParametricProcess* proc)
+    void init(NonParametricProcess* proc)
     { 
       mProc = proc;
       mBeta = 1.0;
-      return 0;
     };
     int setParameters(const vectord &params)
     {
@@ -152,11 +149,10 @@ namespace bayesopt
   {
   public:
     virtual ~ProbabilityOfImprovement(){};
-    int init(NonParametricProcess* proc)
+    void init(NonParametricProcess* proc)
     { 
       mProc = proc;
       mEpsilon = 0.01;
-      return 0;
     };
     int setParameters(const vectord &params)
     {
@@ -217,20 +213,18 @@ namespace bayesopt
   class OptimisticSampling: public AtomicCriteria
   {
   public:
-    OptimisticSampling(): mtRandom(100u) {};
+    OptimisticSampling() {};
     virtual ~OptimisticSampling(){};
     int setParameters(const vectord &params) { return 0; };
     size_t nParameters() {return 0;};
     double operator()( const vectord &x)
     {
       ProbabilityDistribution* d_ = mProc->prediction(x);
-      const double yStar = d_->sample_query(mtRandom);
+      const double yStar = d_->sample_query();
       const double yPred = d_->getMean();
       return (std::min)(yPred,yStar);
     };
     std::string name() {return "cOptimisticSampling";};
-  private:
-    randEngine mtRandom;
   };
 
 
@@ -241,18 +235,16 @@ namespace bayesopt
   class ThompsonSampling: public AtomicCriteria
   {
   public:
-    ThompsonSampling(): mtRandom(100u) {};
+    ThompsonSampling() {};
     virtual ~ThompsonSampling(){};
     int setParameters(const vectord &params) { return 0; };
     size_t nParameters() {return 0;};
     double operator()( const vectord &x)
     {
       ProbabilityDistribution* d_ = mProc->prediction(x);
-      return d_->sample_query(mtRandom);
+      return d_->sample_query();
     };
     std::string name() {return "cThompsonSampling";};
-  private:
-    randEngine mtRandom;
   };
 
 
@@ -262,11 +254,10 @@ namespace bayesopt
   {
   public:
     virtual ~AnnealedExpectedImprovement(){};
-    int init(NonParametricProcess* proc)
+    void init(NonParametricProcess* proc)
     { 
       mProc = proc;
       reset();
-      return 0;
     };
 
     int setParameters(const vectord &params)
@@ -299,11 +290,10 @@ namespace bayesopt
   {
   public:
     virtual ~AnnealedLowerConfindenceBound(){};
-    int init(NonParametricProcess* proc)
+    void init(NonParametricProcess* proc)
     { 
       mProc = proc;
       reset();
-      return 0;
     };
 
     int setParameters(const vectord &params)
@@ -337,11 +327,10 @@ namespace bayesopt
   class InputDistance: public AtomicCriteria
   {
   public:
-    int init(NonParametricProcess* proc)
+    void init(NonParametricProcess* proc)
     { 
       mProc = proc;
       mW = 1;
-      return 0;
     };
     virtual ~InputDistance(){};
     int setParameters(const vectord &params)

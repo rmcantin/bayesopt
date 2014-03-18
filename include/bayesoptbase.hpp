@@ -139,6 +139,7 @@ namespace bayesopt {
     void setSurrogateModel();    
     void  setCriteria();
     bopt_params* getParameters();
+    randEngine& getRandomNumberGenerator();
 
   protected:
     /** 
@@ -172,14 +173,16 @@ namespace bayesopt {
     /** Selects the initial set of points to build the surrogate model. */
     virtual void sampleInitialPoints() = 0;
 
+    /** Sample a single point in the input space. Used for epsilon greedy exploration. */
+    virtual vectord samplePoint() = 0;
+
     /** 
      * \brief Selects the next point to evaluate according to a certain
      * criteria or metacriteria
      * 
-     * @param Xnext next point to evaluate
+     * @return next point to evaluate
      */
-    void nextPoint( vectord &Xnext );  
-
+    vectord nextPoint();  
 
 
   protected:
@@ -188,6 +191,7 @@ namespace bayesopt {
     boost::scoped_ptr<Criteria> mCrit;                   ///< Metacriteria model
     bopt_params mParameters;                       ///< Configuration parameters
     size_t mDims;                                      ///< Number of dimensions
+    randEngine mEngine;                             ///< Random number generator
 
   private:
 
@@ -198,7 +202,6 @@ namespace bayesopt {
     void __init__();
 
     CriteriaFactory mCFactory;
-    randEngine mEngine;
   };
 
   /**@}*/
@@ -226,6 +229,9 @@ namespace bayesopt {
 
   inline bopt_params* BayesOptBase::getParameters() 
   {return &mParameters;};
+
+  inline randEngine& BayesOptBase::getRandomNumberGenerator() 
+  {return mEngine;};
 
 } //namespace bayesopt
 

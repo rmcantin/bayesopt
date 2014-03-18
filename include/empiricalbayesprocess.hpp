@@ -44,7 +44,7 @@ namespace bayesopt
   {
   public:
     EmpiricalBayesProcess(size_t dim, bopt_params parameters,
-			  const Dataset& data);
+			  const Dataset& data, randEngine& eng);
     virtual ~EmpiricalBayesProcess();
 
     /** 

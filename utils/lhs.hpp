@@ -126,10 +126,9 @@ namespace bayesopt
 
     /** \brief Selects the sampling method.  */
     template<class M>
-    int samplePoints(M& xPoints, int method)
+    int samplePoints(M& xPoints, int method,
+		     randEngine& mtRandom)
     {
-      randEngine mtRandom;
-
       if (method == 1) 
 	lhs(xPoints, mtRandom);
       else 

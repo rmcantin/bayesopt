@@ -78,11 +78,14 @@ namespace bayesopt
     double coef_local = 0.2;
     //int ierror;
 
-	// If Xnext is outside the bounding box, maybe it is undefined
-	for (size_t i = 0; i < n; ++i) {
-      if (Xnext(i) < mDown[i] || Xnext(i) > mUp[i])
-		  Xnext(i)=(mDown[i]+mUp[i])/2.0;	
-    }
+    // If Xnext is outside the bounding box, maybe it is undefined
+    for (size_t i = 0; i < n; ++i) 
+      {
+	if (Xnext(i) < mDown[i] || Xnext(i) > mUp[i])
+	  {
+	    Xnext(i)=(mDown[i]+mUp[i])/2.0;
+	  }
+      }
 
     //    nlopt_opt opt;
     nlopt::algorithm algo;

@@ -83,14 +83,16 @@ namespace bayesopt
     /** Selects the initial set of points to build the surrogate model. */
     void sampleInitialPoints();
 
+    /** Sample a single point in the input space. Used for epsilon greedy exploration. */
+    vectord samplePoint();
+
     /** 
      * \brief Wrapper for the target function normalize in the hypercube
      * [0,1]
      * @param query point to evaluate in [0,1] hypercube
      * @return actual return value of the target function
      */
-    inline double evaluateSampleInternal( const vectord &query )
-    { return evaluateSample(query); }; 
+    double evaluateSampleInternal( const vectord &query ); 
 
     void findOptimal(vectord &xOpt);
 
@@ -98,6 +100,17 @@ namespace bayesopt
     vecOfvec mInputSet;               ///< List of input points
 
   };
+
+  inline vectord DiscreteModel::samplePoint()
+  {   
+    randInt sample(mEngine, intUniformDist(0,mInputSet.size()-1));
+    return mInputSet[sample()];
+  };
+
+   
+
+  inline double DiscreteModel::evaluateSampleInternal( const vectord &query )
+  { return evaluateSample(query); }; 
 
 } //namespace bayesopt
 

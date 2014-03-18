@@ -1,7 +1,7 @@
 #include "student_t_distribution.hpp"
 
-StudentTDistribution::StudentTDistribution():
-  d_(2)
+StudentTDistribution::StudentTDistribution(randEngine& eng): 
+  ProbabilityDistribution(eng), d_(2)
 {
   mean_ = 0.0;  std_ = 1.0; dof_ = 2;
 }
@@ -33,10 +33,10 @@ double StudentTDistribution::negativeProbabilityOfImprovement(double min,
 }  // negativeProbabilityOfImprovement
 
 
-double StudentTDistribution::sample_query(randEngine& eng)
+double StudentTDistribution::sample_query()
 { 
   double n = static_cast<double>(dof_);
-  randNFloat normal(eng,normalDist(mean_,std_));
-  randGFloat gamma(eng,gammaDist(n/2.0));
+  randNFloat normal(mtRandom,normalDist(mean_,std_));
+  randGFloat gamma(mtRandom,gammaDist(n/2.0));
   return normal() / sqrt(2*gamma()/n);
 }  // sample_query

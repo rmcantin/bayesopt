@@ -41,12 +41,9 @@ namespace bayesopt
   };
 
   //////////////////////////////////////////////////////////////////////
-  GP_Hedge::GP_Hedge():
-    mtRandom(100u),
-    sampleUniform( mtRandom, realUniformDist(0,1))
-  {};
+  GP_Hedge::GP_Hedge(){};
 
-  int GP_Hedge::init(NonParametricProcess *proc, 
+  void GP_Hedge::init(NonParametricProcess *proc, 
 		     const std::vector<Criteria*>& list) 
   { 
     mProc = proc;
@@ -56,7 +53,6 @@ namespace bayesopt
     gain_ = zvectord(n); 
     prob_ = zvectord(n);
     cumprob_ = zvectord(n);
-    return 0; 
   };
 
   void GP_Hedge::reset()
@@ -118,6 +114,7 @@ namespace bayesopt
     std::partial_sum(prob_.begin(), prob_.end(), cumprob_.begin(), 
 		     std::plus<double>());
 
+    randFloat sampleUniform( *mtRandom, realUniformDist(0,1));
     double u = sampleUniform();
 
     for (size_t i=0; i < cumprob_.size(); ++i)

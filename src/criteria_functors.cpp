@@ -108,7 +108,8 @@ namespace bayesopt
       {
 	FILE_LOG(logERROR) << "Error: Fatal error while parsing "
 			   << "kernel function: " << os 
-			   << " not found" << std::endl;
+			   << " not found";
+	throw std::invalid_argument("Criteria not found " + os);
 	return NULL;
       } 
     cFunc = it->second();

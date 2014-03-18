@@ -47,12 +47,11 @@ namespace bayesopt
 	delete mCriteriaList[i];
       }
     };
-    virtual int init(NonParametricProcess *proc, 
+    virtual void init(NonParametricProcess *proc, 
 		     const std::vector<Criteria*>& list) 
     { 
       mProc = proc;
       mCriteriaList = list;
-      return 0; 
     };
 
     int setParameters(const vectord &theta) 
@@ -150,7 +149,7 @@ namespace bayesopt
   public:
     GP_Hedge();
     virtual ~GP_Hedge() {};
-    int init(NonParametricProcess *proc, 
+    void init(NonParametricProcess *proc, 
 	     const std::vector<Criteria*>& list);
 
     bool requireComparison(){ return true; };
@@ -162,8 +161,6 @@ namespace bayesopt
   protected:
     int update_hedge();
 
-    randEngine mtRandom;
-    randFloat sampleUniform;
     vectord loss_, gain_, prob_, cumprob_;
     Criteria* mCurrentCriterium;
     std::vector<vectord> mBestLists;
@@ -185,7 +182,7 @@ namespace bayesopt
     std::string name() {return "cHedgeRandom";};
   private:
     double computeLoss(const vectord& query)
-    { return mProc->prediction(query)->sample_query(mtRandom); }
+    { return mProc->prediction(query)->sample_query(); }
   };
 
 

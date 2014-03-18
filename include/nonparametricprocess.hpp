@@ -112,7 +112,7 @@ namespace bayesopt
   class BAYESOPT_API NonParametricProcess
   {
   public:
-    NonParametricProcess(size_t dim, bopt_params parameters, const Dataset& data);
+    NonParametricProcess(size_t dim, bopt_params parameters, const Dataset& data, randEngine& eng);
     virtual ~NonParametricProcess();
 
     /** 
@@ -121,7 +121,7 @@ namespace bayesopt
      * @return pointer to the corresponding derivate class (surrogate model)
      */
     static NonParametricProcess* create(size_t dim, bopt_params parameters,
-					const Dataset& data);
+					const Dataset& data, randEngine& eng);
 
     /** 
      * \brief Function that returns the prediction of the GP for a query point

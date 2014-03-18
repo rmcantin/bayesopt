@@ -37,35 +37,19 @@ namespace bayesopt
   KernelRegressor::KernelRegressor(size_t dim, bopt_params parameters,
 				   const Dataset& data, randEngine& eng):
     NonParametricProcess(dim,parameters,data,eng), mRegularizer(parameters.noise),
-    mKernel(dim, parameters)
-  { 
-    setLearnType(parameters.l_type);
-  }
+    mKernel(dim, parameters),mScoreType(parameters.sc_type)
+  { }
 
   KernelRegressor::~KernelRegressor(){}
 
 
 
-  void KernelRegressor::updateSurrogateModel( const vectord &Xnew,
-					      double Ynew, bool retrain)
+  void KernelRegressor::updateSurrogateModel(const vectord &Xnew)
   {
-    assert( mData.mX[1].size() == Xnew.size() );
-
-    if (retrain)
-      {
-	//addSample(Xnew,Ynew);
-	fitSurrogateModel();	
-      }
-    else
-      {
-	//	addSample(Xnew,Ynew);
-	vectord newK = computeCrossCorrelation(Xnew);
-	newK(newK.size()-1) += mRegularizer;   // We add it to the last element
-	utils::cholesky_add_row(mL,newK);
-	//double selfCorrelation = computeSelfCorrelation(Xnew) + mRegularizer;
-	//addNewPointToCholesky(newK,selfCorrelation);
-	precomputePrediction(); 
-      }
+    vectord newK = computeCrossCorrelation(Xnew);
+    newK(newK.size()-1) += mRegularizer;   // We add it to the last element
+    utils::cholesky_add_row(mL,newK);
+    precomputePrediction(); 
   } // updateSurrogateModel
 
 

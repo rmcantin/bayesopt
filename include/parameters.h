@@ -38,12 +38,20 @@ extern "C" {
   
   typedef enum {
     L_FIXED,
-    L_ML,
-    L_MAP,
-    L_LOO,
-    L_BAYES,
+    L_EMPIRICAL,
+    L_DISCRETE,
+    L_MCMC,
     L_ERROR = -1
   } learning_type;
+
+  typedef enum {
+    SC_MTL,
+    SC_ML,
+    SC_MAP,
+    SC_LOOCV,
+    SC_ERROR = -1
+  } score_type;
+
 
   /** Kernel configuration parameters */
   typedef struct {
@@ -66,7 +74,10 @@ extern "C" {
     size_t n_inner_iterations;   /**< Maximum inner optimizer evaluations */
     size_t n_init_samples;       /**< Number of samples before optimization */
     size_t n_iter_relearn;       /**< Number of samples before relearn kernel */
-    size_t init_method;   /**< Sampling method for initial set 1-LHS, 2-Sobol (if available), other uniform */
+
+    /** Sampling method for initial set 1-LHS, 2-Sobol (if available),
+     *  other value-uniformly distributed */
+    size_t init_method;          
 
     size_t verbose_level;        /**< 1-Error,2-Warning,3-Info. 4-6 log file*/
     char* log_filename;          /**< Log file path (if applicable) */
@@ -76,6 +87,7 @@ extern "C" {
     double noise;                /**< Observation noise (and nugget) */
     double alpha;                /**< Inverse Gamma prior for signal var */
     double beta;                 /**< Inverse Gamma prior for signal var*/
+    score_type sc_type;          /**< Score type for kernel hyperparameters (ML,MAP,etc) */
     learning_type l_type;        /**< Type of learning for the kernel params*/
     double epsilon;              /**< For epsilon-greedy exploration */
 
@@ -127,6 +139,13 @@ extern "C" {
 
   /* BAYESOPT_API const char* surrogate2str(surrogate_name name); */
   BAYESOPT_API const char* learn2str(learning_type name);
+
+  /* surrogate_name str2surrogate (const char* name); */
+  BAYESOPT_API score_type str2score(const char* name);
+
+  /* BAYESOPT_API const char* surrogate2str(surrogate_name name); */
+  BAYESOPT_API const char* score2str(score_type name);
+
 
   BAYESOPT_API bopt_params initialize_parameters_to_default(void);
 

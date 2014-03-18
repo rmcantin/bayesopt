@@ -33,17 +33,17 @@ namespace bayesopt
 					       const Dataset& data, randEngine& eng):
     KernelRegressor(dim,parameters,data,eng)
   { 
-    if (mLearnType == L_BAYES)
-      {
-	FILE_LOG(logERROR) << "Empirical Bayes model and full Bayes learning are incompatible.";
-	throw 1;
-      }
+    // if (mLearnType == L_BAYES)
+    //   {
+    // 	FILE_LOG(logERROR) << "Empirical Bayes model and full Bayes learning are incompatible.";
+    // 	throw std::invalid_argument("Trying full Bayes learning for an empirical Bayes model.");
+    //   }
 
     size_t nhp = mKernel.nHyperParameters();
     kOptimizer = new NLOPT_Optimization(this,nhp);
 
     //TODO: Generalize
-    if (parameters.l_type == L_ML)
+    if (parameters.sc_type == SC_ML)
       {
 	kOptimizer->setAlgorithm(BOBYQA);    // local search to avoid underfitting
       }
@@ -62,34 +62,34 @@ namespace bayesopt
 
   void EmpiricalBayesProcess::updateKernelParameters()
   {
-    if (mLearnType == L_FIXED)
-      {
-	FILE_LOG(logDEBUG) << "Fixed hyperparameters. Not learning";
-      }
-    else
-      {
+    // if (mLearnType == L_FIXED)
+    //   {
+    // 	FILE_LOG(logDEBUG) << "Fixed hyperparameters. Not learning";
+    //   }
+    // else
+    //   {
 	vectord optimalTheta = mKernel.getHyperParameters();
 	
 	FILE_LOG(logDEBUG) << "Initial kernel parameters: " << optimalTheta;
 	kOptimizer->run(optimalTheta);
 	mKernel.setHyperParameters(optimalTheta);
 	FILE_LOG(logDEBUG) << "Final kernel parameters: " << optimalTheta;	
-      }
+      // }
   };
 
   double EmpiricalBayesProcess::evaluateKernelParams()
   { 
-    switch(mLearnType)
+    switch(mScoreType)
       {
-      case L_ML:
+      case SC_MTL:
 	return negativeTotalLogLikelihood();
-      case L_FIXED:
+      case SC_ML:
 	return negativeLogLikelihood();
-      case L_MAP:
+      case SC_MAP:
 	// It is a minus because the prior is the positive and we want
 	// the negative.
 	return negativeLogLikelihood()-mKernel.kernelLogPrior();
-      case L_LOO:
+      case SC_LOOCV:
 	return negativeCrossValidation(); 
       default:
 	FILE_LOG(logERROR) << "Learning type not supported";

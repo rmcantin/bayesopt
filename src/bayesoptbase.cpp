@@ -110,16 +110,23 @@ namespace bayesopt
 
   void BayesOptBase::stepOptimization(size_t ii)
   {
-    vectord xNext = nextPoint(); // Find what is the next point.
-    
+    // Find what is the next point.
+    vectord xNext = nextPoint(); 
     double yNext = evaluateSampleInternal(xNext);
+    addSample(xNext,yNext);
 
     // Update surrogate model
     bool retrain = ((mParameters.n_iter_relearn > 0) && 
 		    ((ii + 1) % mParameters.n_iter_relearn == 0));
     
-    addSample(xNext,yNext);
-    mGP->updateSurrogateModel(xNext,yNext,retrain); 
+    if (retrain)  // Full update
+      {
+	mGP->fitSurrogateModel();
+      }
+    else          // Incremental update
+      {
+	mGP->updateSurrogateModel(xNext);
+      } 
     plotStepData(ii,xNext,yNext);
   }
 

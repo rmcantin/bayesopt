@@ -59,26 +59,26 @@ namespace bayesopt
      * \brief Computes the initial surrogate model and updates the
      * kernel parameters estimation. 
      *
-     * This function requires to recompute all covariance matrixes,
-     * inverses, etc.  Use it with precaution.
+     * This function requires to recompute the full Kernel matrix (and
+     * its decomposition).  Use it with precaution.
      */
     void fitSurrogateModel();
 
     /** 
-     * \brief Sequential update of the surrogate model by adding a new point.
-     *  Add new point efficiently using Matrix Decomposition Lemma for the
-     *  inversion of the correlation matrix or adding new rows to the
-     *  Cholesky decomposition.  If retrain is true, it recomputes the
-     *  kernel hyperparameters and computes a full covariance matrix.
+     * \brief Sequential update of the surrogate model by adding a new
+     * row to the Kernel matrix, more precisely, to its Cholesky
+     * decomposition. 
+     * 
+     * It assumes that the kernel hyperparemeters do not change.
      */   
-    void updateSurrogateModel(const vectord &Xnew, double Ynew, bool retrain);
+    void updateSurrogateModel(const vectord &Xnew);
 
 
     // Getters and setters
     double getSignalVariance();
 
     /** Sets the kind of learning methodology for kernel hyperparameters */
-    void setLearnType(learning_type l_type);
+    //void setLearnType(learning_type l_type);
 
   protected:
 
@@ -104,7 +104,8 @@ namespace bayesopt
 
   protected:
     matrixd mL;             ///< Cholesky decomposition of the Correlation matrix
-    learning_type mLearnType;
+    score_type mScoreType;
+    //learning_type mLearnType;
     KernelModel mKernel;
 
   private:
@@ -125,8 +126,8 @@ namespace bayesopt
     precomputePrediction(); 
   };
 
-  inline void KernelRegressor::setLearnType(learning_type l_type) 
-  { mLearnType = l_type; };
+  // inline void KernelRegressor::setLearnType(learning_type l_type) 
+  // { mLearnType = l_type; };
 
   inline void KernelRegressor::computeCorrMatrix(matrixd& corrMatrix)
   { mKernel.computeCorrMatrix(mData.mX,corrMatrix,mRegularizer); }

@@ -20,6 +20,10 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
  */
 
+//For M_PI in windows
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 #include <stdlib.h>
 #include <string.h>
 #include "esch.h"
@@ -57,7 +61,7 @@ typedef struct IndividualStructure {
 } Individual; 
 
 static int CompareIndividuals(void *unused, const void *a_, const void *b_) {
-     (void) unused;
+     //(void) unused;
      const Individual *a = (const Individual *) a_;
      const Individual *b = (const Individual *) b_;
      return a->fitness < b->fitness ? -1 : (a->fitness > b->fitness ? +1 : 0);

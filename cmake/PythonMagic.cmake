@@ -7,7 +7,7 @@ include(FindPythonInterp)
 find_package(PythonLibs 2) # using PYTHON_INCLUDE_PATH instead of PYTHON_INCLUDE_DIR
 if( NOT PYTHON_EXECUTABLE )
   # look specifically for 2.7
-  find_program(PYTHON_EXECUTABLE NAMES python2.7 python27 python PATHS [HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore\\2.7\\InstallPath])
+  find_program(PYTHON_EXECUTABLE NAMES python2.7 python27 python python.exe PATHS [HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore\\2.7\\InstallPath])
 endif()
 
 if( PYTHON_EXECUTABLE )
@@ -21,12 +21,12 @@ if( PYTHON_EXECUTABLE )
     COMMAND ${PYTHON_EXECUTABLE} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)"
     OUTPUT_VARIABLE _python_distpackage OUTPUT_STRIP_TRAILING_WHITESPACE
     RESULT_VARIABLE _python_failed1)
-  execute_process(
-    COMMAND ${PYTHON_EXECUTABLE} -c "from distutils.sysconfig import get_python_lib; from os.path import relpath; print relpath(get_python_lib(1,prefix='${CMAKE_INSTALL_PREFIX}'),'${CMAKE_INSTALL_PREFIX}')"
-    OUTPUT_VARIABLE OPENRAVE_PYTHON_INSTALL_DIR OUTPUT_STRIP_TRAILING_WHITESPACE
-    RESULT_VARIABLE _python_failed2)
+#  execute_process(
+#    COMMAND ${PYTHON_EXECUTABLE} -c "from distutils.sysconfig import get_python_lib; from os.path import relpath; print relpath(get_python_lib(1,prefix='${CMAKE_INSTALL_PREFIX}'),'${CMAKE_INSTALL_PREFIX}')"
+#    OUTPUT_VARIABLE OPENRAVE_PYTHON_INSTALL_DIR OUTPUT_STRIP_TRAILING_WHITESPACE
+#    RESULT_VARIABLE _python_failed2)
 
-  if( ${_python_failed0} EQUAL 0 AND ${_python_failed1} EQUAL 0 AND ${_python_failed2} EQUAL 0 )
+  if( ${_python_failed0} EQUAL 0 AND ${_python_failed1} EQUAL 0 ) #AND ${_python_failed2} EQUAL 0 )
     if( NOT IS_DIRECTORY "${_python_distpackage}/numpy/core/include" )
       if( NOT IS_DIRECTORY "${_python_sitepackage}/numpy/core/include" )
 	FIND_PACKAGE(Numpy REQUIRED)

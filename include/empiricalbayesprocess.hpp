@@ -40,12 +40,12 @@ namespace bayesopt
   /**
    * \brief Empirical Bayesian NonParametric process.
    */
-  class EmpiricalBayesProcess: public KernelRegressor, RBOptimizable
+  class ConditionalBayesProcess: public KernelRegressor, RBOptimizable
   {
   public:
-    EmpiricalBayesProcess(size_t dim, bopt_params parameters,
+    ConditionalBayesProcess(size_t dim, bopt_params parameters,
 			  const Dataset& data);
-    virtual ~EmpiricalBayesProcess();
+    virtual ~ConditionalBayesProcess();
 
     /** 
      * \brief Function that returns the prediction of the GP for a query point
@@ -109,7 +109,7 @@ namespace bayesopt
 
 
 
-  inline double EmpiricalBayesProcess::evaluate(const vectord& x)
+  inline double ConditionalBayesProcess::evaluate(const vectord& x)
   { 
     mKernel.setHyperParameters(x);
     return evaluateKernelParams();

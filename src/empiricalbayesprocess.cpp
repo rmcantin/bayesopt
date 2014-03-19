@@ -29,7 +29,7 @@
 
 namespace bayesopt
 {
-  EmpiricalBayesProcess::EmpiricalBayesProcess(size_t dim, bopt_params parameters, 
+  ConditionalBayesProcess::ConditionalBayesProcess(size_t dim, bopt_params parameters, 
 					       const Dataset& data):
     KernelRegressor(dim,parameters,data)
   { 
@@ -54,13 +54,13 @@ namespace bayesopt
     kOptimizer->setLimits(svectord(nhp,1e-10),svectord(nhp,100.));
   }
 
-  EmpiricalBayesProcess::~EmpiricalBayesProcess()
+  ConditionalBayesProcess::~ConditionalBayesProcess()
   {
     delete kOptimizer;
   }
 
 
-  void EmpiricalBayesProcess::updateKernelParameters()
+  void ConditionalBayesProcess::updateKernelParameters()
   {
     if (mLearnType == L_FIXED)
       {
@@ -77,7 +77,7 @@ namespace bayesopt
       }
   };
 
-  double EmpiricalBayesProcess::evaluateKernelParams()
+  double ConditionalBayesProcess::evaluateKernelParams()
   { 
     switch(mLearnType)
       {
@@ -98,7 +98,7 @@ namespace bayesopt
   }
 
 
-  double EmpiricalBayesProcess::negativeCrossValidation()
+  double ConditionalBayesProcess::negativeCrossValidation()
   {
     // This is highly ineffient implementation for comparison purposes.
     Dataset data(mData);

@@ -1,5 +1,6 @@
-/** \file optimizekernel.hpp 
-    \brief Class to continuous optimize kernel parameters */
+/** \file empiricalbayes.hpp
+    \brief Implementes a empirical Bayesian nonparametric process with a 
+    ML, MAP or similar estimate of kernel parameters. */
 /*
 -------------------------------------------------------------------------
    This file is part of BayesOpt, an efficient C++ library for 
@@ -22,31 +23,24 @@
 ------------------------------------------------------------------------
 */
 
-#ifndef __OPTIMIZEKERNEL_HPP__
-#define __OPTIMIZEKERNEL_HPP__
+#ifndef _EMPIRICAL_BAYES_HPP_
+#define _EMPIRICAL_BAYES_HPP_
 
-#include "inneroptimization.hpp"
-#include "empiricalbayesprocess.hpp"
+namespace bayesopt
+{
 
-namespace bayesopt {
+  /** \addtogroup  LearningMethods */
+  /**@{*/
 
-  class OptimizeKernel: public NLOPT_Optimization
+
+  /**
+   * \brief Empirical Bayesian NonParametric process.
+   */
+  class ConditionalBayesProcess: public KernelRegressor, RBOptimizable
   {
   public:
-    explicit OptimizeKernel(ConditionalBayesProcess* npp):
-      NLOPT_Optimization(), npp_(npp) {};
-    virtual ~OptimizeKernel(){};
+  
 
-    double evaluate(const vectord& query)
-    {
-      return npp_->evaluateKernelParams(query);
-    }
-    
-  private:
-    ConditionalBayesProcess* npp_;
-  };
-
-}
-
+} // namespace bayesopt
 
 #endif

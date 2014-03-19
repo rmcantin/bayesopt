@@ -34,11 +34,39 @@ namespace bayesopt {
     MCMCSampler(size_t n_samples = 500);
     virtual ~MCMCSampler();
 
-    newParticle(const vectord& past);
+    void burnOut(vectord &x)
+    void sliceSample(vectord &x);
+    void sampleParticles(const vectord &initial, bool burnout);
 
   private:
-    vecOfvec particles;
+    RBOptimizable* obj;
+    size_t mDims;
+    size_t nBurnOut;
+    size_t nSamples;
+    bool mStepOut;
+    vectord mSigma;
+    vecOfvec mParticles;
+  };
+
+  inline void MCMC::burnOut(vectord &x)
+  {
+    for(size_t i=0; i<nBurnOut; ++i)  sliceSample(x);
   }
+
+  inline void MCMC::sampleParticles(const vectord &initX, bool burnout)
+  {
+    vectord x = initX;
+    if (burnout) burnOut(x);
+
+    mParticles.clear();
+    for(size_t i=0; i<nSamples; ++i)  
+      {
+	sliceSample(x);
+	mParticles.push_back(x);
+      }
+    
+  }
+
 
 } //namespace bayesopt
 

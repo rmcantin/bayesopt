@@ -38,7 +38,7 @@ namespace bayesopt
   /**
    * \brief Virtual class for hierarchical Gaussian processes.
    */
-  class HierarchicalGaussianProcess: public EmpiricalBayesProcess
+  class HierarchicalGaussianProcess: public ConditionalBayesProcess
   {
   public:
     HierarchicalGaussianProcess(size_t dim, bopt_params params, const Dataset& data);

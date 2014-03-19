@@ -38,7 +38,7 @@ namespace bayesopt
   /**
    * \brief Standard zero mean gaussian process with noisy observations.
    */
-  class GaussianProcess: public EmpiricalBayesProcess
+  class GaussianProcess: public ConditionalBayesProcess
   {
   public:
     GaussianProcess(size_t dim, bopt_params params, const Dataset& data);

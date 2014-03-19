@@ -30,11 +30,11 @@ namespace bayesopt
   namespace ublas = boost::numeric::ublas;
 
   GaussianProcessML::GaussianProcessML(size_t dim, bopt_params params, 
-				       const Dataset& data):
-    HierarchicalGaussianProcess(dim, params, data)
+				       const Dataset& data, randEngine& eng):
+    HierarchicalGaussianProcess(dim, params, data, eng)
   {
     mSigma = params.sigma_s;
-    d_ = new GaussianDistribution();
+    d_ = new GaussianDistribution(eng);
   }  // Constructor
 
 

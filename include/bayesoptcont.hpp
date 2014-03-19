@@ -91,6 +91,8 @@ namespace bayesopt  {
     /** Selects the initial set of points to build the surrogate model. */
     void sampleInitialPoints();
 
+    /** Sample a single point in the input space. Used for epsilon greedy exploration. */
+    vectord samplePoint();
 
     /** 
      * \brief Returns the corresponding criteria of a series of queries
@@ -138,7 +140,22 @@ namespace bayesopt  {
   inline void ContinuousModel::findOptimal(vectord &xOpt)
   { cOptimizer->run(xOpt); };
 
+  inline vectord ContinuousModel::samplePoint()
+  {	    
+    randFloat drawSample(mEngine,realUniformDist(0,1));
+    vectord Xnext(mDims);    
+    for(vectord::iterator x = Xnext.begin(); x != Xnext.end(); ++x)
+      {
+	*x = drawSample();
+      }
+    
+    // for (size_t i = 0; i<Xnext.size(); ++i)
+    //   {
+    // 	 Xnext(i) = drawSample();
+    //   } 
 
+    return Xnext;
+};
 
 }  //namespace bayesopt
 

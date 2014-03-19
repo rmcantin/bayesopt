@@ -2,7 +2,8 @@
 #include <boost/math/special_functions/factorials.hpp>
 #include "gauss_distribution.hpp"
 
-GaussianDistribution::GaussianDistribution()
+GaussianDistribution::GaussianDistribution(randEngine& eng): 
+  ProbabilityDistribution(eng)
 {
   mean_ = 0.0;  std_ = 1.0;
 }
@@ -60,8 +61,8 @@ double GaussianDistribution::negativeProbabilityOfImprovement(double min,
 }  // negativeProbabilityOfImprovement
 
 
-double GaussianDistribution::sample_query(randEngine& eng)
+double GaussianDistribution::sample_query()
 { 
-  randNFloat sample(eng,normalDist(mean_,std_));
+  randNFloat sample(mtRandom,normalDist(mean_,std_));
   return sample();
 } // sample_query

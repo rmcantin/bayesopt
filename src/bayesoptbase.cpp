@@ -84,7 +84,7 @@ namespace bayesopt
 
   void BayesOptBase::setSurrogateModel()
   {
-    mGP.reset(NonParametricProcess::create(mDims,mParameters,mData));
+    mGP.reset(NonParametricProcess::create(mDims,mParameters,mData,mEngine));
   } // setSurrogateModel
 
   void BayesOptBase::setCriteria()
@@ -110,17 +110,23 @@ namespace bayesopt
 
   void BayesOptBase::stepOptimization(size_t ii)
   {
-    vectord xNext(mDims);
-    nextPoint(xNext); // Find what is the next point.
-    
+    // Find what is the next point.
+    vectord xNext = nextPoint(); 
     double yNext = evaluateSampleInternal(xNext);
+    addSample(xNext,yNext);
 
     // Update surrogate model
     bool retrain = ((mParameters.n_iter_relearn > 0) && 
 		    ((ii + 1) % mParameters.n_iter_relearn == 0));
     
-    addSample(xNext,yNext);
-    mGP->updateSurrogateModel(xNext,yNext,retrain); 
+    if (retrain)  // Full update
+      {
+	mGP->fitSurrogateModel();
+      }
+    else          // Incremental update
+      {
+	mGP->updateSurrogateModel(xNext);
+      } 
     plotStepData(ii,xNext,yNext);
   }
 
@@ -140,8 +146,9 @@ namespace bayesopt
   } // optimize
   
 
-  void BayesOptBase::nextPoint(vectord &Xnext)
+  vectord BayesOptBase::nextPoint()
   {
+
     //Epsilon-Greedy exploration (see Bull 2011)
     if ((mParameters.epsilon > 0.0) && (mParameters.epsilon < 1.0))
       {
@@ -150,36 +157,33 @@ namespace bayesopt
 	FILE_LOG(logINFO) << "Trying random jump with prob:" << result;
 	if (mParameters.epsilon > result)
 	  {
-	    for (size_t i = 0; i<Xnext.size(); ++i)
-	      {
-		 Xnext(i) = drawSample();
-	      } 
 	    FILE_LOG(logINFO) << "Epsilon-greedy random query!";
+	    return samplePoint();
 	  }
       }
-    else
+
+    vectord Xnext(mDims);    
+
+    // GP-Hedge and related algorithms
+    if (mCrit->requireComparison())
       {
-	// GP-Hedge and related algorithms
-	if (mCrit->requireComparison())
-	  {
-	    bool check = false;
-	    std::string name;
-	    
-	    mCrit->reset();
-	    while (!check)
-	      {
-		findOptimal(Xnext);
-		check = mCrit->checkIfBest(Xnext,name);
-	      }
-	    FILE_LOG(logINFO) << name << " was selected.";
-	  }
-	else  // Standard "Bayesian optimization"
+	bool check = false;
+	std::string name;
+	mCrit->setRandomEngine(mEngine);
+	
+	mCrit->reset();
+	while (!check)
 	  {
 	    findOptimal(Xnext);
+	    check = mCrit->checkIfBest(Xnext,name);
 	  }
+	FILE_LOG(logINFO) << name << " was selected.";
       }
+    else  // Standard "Bayesian optimization"
+      {
+	findOptimal(Xnext);
+      }
+    return Xnext;
   }
-
-
 } //namespace bayesopt
 

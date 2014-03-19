@@ -78,6 +78,15 @@ namespace bayesopt
     double coef_local = 0.2;
     //int ierror;
 
+    // If Xnext is outside the bounding box, maybe it is undefined
+    for (size_t i = 0; i < n; ++i) 
+      {
+	if (Xnext(i) < mDown[i] || Xnext(i) > mUp[i])
+	  {
+	    Xnext(i)=(mDown[i]+mUp[i])/2.0;
+	  }
+      }
+
     //    nlopt_opt opt;
     nlopt::algorithm algo;
     switch(alg)
@@ -130,10 +139,10 @@ namespace bayesopt
     std::copy(Xnext.begin(),Xnext.end(),xstd.begin());
 
     try { opt.optimize(xstd, fmin);  }
-    catch (nlopt::roundoff_limited&)
+    catch (nlopt::roundoff_limited& e)
       {
-	FILE_LOG(logERROR) << "NLOPT Warning: Potential roundoff error. " 
-			   << "In general, this can be ignored.";
+		FILE_LOG(logERROR) << "NLOPT Warning: Potential roundoff error. " 
+						   << "In general, this can be ignored.";
       }
 
     std::copy(xstd.begin(),xstd.end(),Xnext.begin());
@@ -147,7 +156,7 @@ namespace bayesopt
 	opt2.set_maxeval(maxf2) ;
 	
 	try { opt2.optimize(xstd, fmin);  }
-	catch (nlopt::roundoff_limited&)
+	catch (nlopt::roundoff_limited& e)
 	  {
 	    FILE_LOG(logERROR) << "NLOPT Warning: Potential roundoff error. " 
 			       << "In general, this can be ignored.";

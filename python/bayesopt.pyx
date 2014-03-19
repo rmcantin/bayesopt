@@ -31,10 +31,10 @@ cdef extern from *:
 ###########################################################################
 cdef extern from "parameters.h":
 
-    ctypedef enum surrogate_name:
+    ctypedef enum learning_type:
         pass
 
-    ctypedef enum learning_type:
+    ctypedef enum score_type:
         pass
 
     ctypedef struct kernel_parameters:
@@ -60,6 +60,7 @@ cdef extern from "parameters.h":
         double noise
         double alpha, beta
         learning_type l_type
+        score_type sc_type
         double epsilon
         kernel_parameters kernel
         mean_parameters mean
@@ -67,11 +68,12 @@ cdef extern from "parameters.h":
         double* crit_params
         unsigned int n_crit_params
 
-    surrogate_name str2surrogate(char* name)
-    learning_type str2learn(char* name)
 
-    char* surrogate2str(surrogate_name name)
+    learning_type str2learn(char* name)
     char* learn2str(learning_type name)
+
+    score_type str2score(char* name)
+    char* score2str(score_type name)
 
     bopt_params initialize_parameters_to_default()
 
@@ -113,10 +115,15 @@ cdef bopt_params dict2structparams(dict dparams):
     params.alpha = dparams.get('alpha',params.alpha)
     params.beta = dparams.get('beta',params.beta)
 
-    learning = dparams.get('learning_type', None)
+    learning = dparams.get('l_type', None)
     if learning is not None:
         params.l_type = str2learn(learning)
 
+    score = dparams.get('sc_type', None)
+    if score is not None:
+        params.sc_type = str2score(learning)
+
+        
     params.epsilon = dparams.get('epsilon',params.epsilon)
 
     kname = dparams.get('kernel_name',params.kernel.name)
@@ -175,7 +182,8 @@ def initialize_params():
         "noise"  : 0.001,
         "alpha"  : 1.0,
         "beta"   : 1.0,
-        "l_type" : "L_MAP",
+        "sc_type" : "SC_MAP",
+        "l_type" : "L_EMPIRICAL",
         "epsilon" : 0.0,
         "kernel_name" : "kMaternISO3",
         "kernel_hp_mean"  : [1.0],

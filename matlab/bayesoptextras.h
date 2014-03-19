@@ -175,7 +175,7 @@ static bopt_params load_parameters(const mxArray* params)
   
   /* See parameters.h for the available options */
   
-  char l_str[100];
+  char l_str[100], sc_str[100];
   size_t n_hp_test, n_coef_test;
 
   bopt_params parameters = initialize_parameters_to_default();
@@ -203,6 +203,11 @@ static bopt_params load_parameters(const mxArray* params)
   strcpy( l_str, learn2str(parameters.l_type));
   struct_string(params, "l_type", l_str);
   parameters.l_type = str2learn(l_str);
+
+  strcpy( sc_str, score2str(parameters.sc_type));
+  struct_string(params, "sc_type", sc_str);
+  parameters.sc_type = str2score(sc_str);
+
 
   struct_value(params, "epsilon",  &parameters.epsilon);
 

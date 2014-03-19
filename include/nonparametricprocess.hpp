@@ -112,7 +112,7 @@ namespace bayesopt
   class BAYESOPT_API NonParametricProcess
   {
   public:
-    NonParametricProcess(size_t dim, bopt_params parameters, const Dataset& data);
+    NonParametricProcess(size_t dim, bopt_params parameters, const Dataset& data, randEngine& eng);
     virtual ~NonParametricProcess();
 
     /** 
@@ -121,7 +121,7 @@ namespace bayesopt
      * @return pointer to the corresponding derivate class (surrogate model)
      */
     static NonParametricProcess* create(size_t dim, bopt_params parameters,
-					const Dataset& data);
+					const Dataset& data, randEngine& eng);
 
     /** 
      * \brief Function that returns the prediction of the GP for a query point
@@ -142,14 +142,13 @@ namespace bayesopt
     virtual void fitSurrogateModel() = 0;
 
     /** 
-     * \brief Sequential update of the surrogate model by adding a new point.
-     *  Add new point efficiently using Matrix Decomposition Lemma for the
-     *  inversion of the correlation matrix or adding new rows to the
-     *  Cholesky decomposition.  If retrain is true, it recomputes the
-     *  kernel hyperparameters and computes a full covariance matrix.
+     * \brief Sequential update of the surrogate model by adding a new
+     * row to the Kernel matrix, more precisely, to its Cholesky
+     * decomposition. 
+     * 
+     * It assumes that the kernel hyperparemeters do not change.
      */   
-    virtual void updateSurrogateModel(const vectord &Xnew, 
-				      double Ynew, bool retrain) = 0;
+    virtual void updateSurrogateModel(const vectord &Xnew) = 0;
 
 
     // Getters and setters

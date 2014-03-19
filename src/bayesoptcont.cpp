@@ -116,7 +116,7 @@ namespace bayesopt  {
     vectord yPoints(nSamples);
     vectord sample(mDims);
     
-    utils::samplePoints(xPoints,mParameters.init_method);
+    utils::samplePoints(xPoints,mParameters.init_method,mEngine);
 
     for(size_t i = 0; i < nSamples; i++)
       {

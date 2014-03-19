@@ -44,7 +44,7 @@ namespace bayesopt
   {
   public:
     ConditionalBayesProcess(size_t dim, bopt_params parameters,
-			  const Dataset& data);
+			  const Dataset& data, randEngine& eng);
     virtual ~ConditionalBayesProcess();
 
     /** 

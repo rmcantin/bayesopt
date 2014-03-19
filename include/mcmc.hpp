@@ -53,21 +53,6 @@ namespace bayesopt {
     for(size_t i=0; i<nBurnOut; ++i)  sliceSample(x);
   }
 
-  inline void MCMC::sampleParticles(const vectord &initX, bool burnout)
-  {
-    vectord x = initX;
-    if (burnout) burnOut(x);
-
-    mParticles.clear();
-    for(size_t i=0; i<nSamples; ++i)  
-      {
-	sliceSample(x);
-	mParticles.push_back(x);
-      }
-    
-  }
-
-
 } //namespace bayesopt
 
 

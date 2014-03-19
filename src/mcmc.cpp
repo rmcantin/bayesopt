@@ -54,4 +54,16 @@ void MCMC::sliceSample(vectord &x)
 }
 
 
+void MCMC::sampleParticles(const vectord &initX, bool burnout)
+{
+  vectord x = initX;
+  if (burnout) burnOut(x);
+  
+  mParticles.clear();
+  for(size_t i=0; i<nSamples; ++i)  
+    {
+      sliceSample(x);
+      mParticles.push_back(x);
+    }
+}
 

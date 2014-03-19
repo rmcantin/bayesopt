@@ -86,7 +86,7 @@ SET( BAYESOPT_SRCS
   ./src/inneroptimization.cpp
   ./src/nonparametricprocess.cpp
   ./src/kernelregressor.cpp
-  ./src/empiricalbayesprocess.cpp
+  ./src/conditionalbayesprocess.cpp
   ./src/hierarchical_gaussian_process.cpp
   ./src/gaussian_process.cpp
   ./src/gaussian_process_ml.cpp

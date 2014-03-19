@@ -1,4 +1,4 @@
-/** \file empiricalbayesprocess.hpp
+/** \file conditionalbayesprocess.hpp
     \brief Implementes a empirical Bayesian nonparametric process with a 
     ML, MAP or similar estimate of kernel parameters. */
 /*
@@ -40,12 +40,12 @@ namespace bayesopt
   /**
    * \brief Empirical Bayesian NonParametric process.
    */
-  class ConditionalBayesProcess: public KernelRegressor, RBOptimizable
+  class EmpiricalBayesProcess: public RBOptimizable
   {
   public:
-    ConditionalBayesProcess(size_t dim, bopt_params parameters,
+    EmpiricalBayesProcess(size_t dim, bopt_params parameters,
 			  const Dataset& data, randEngine& eng);
-    virtual ~ConditionalBayesProcess();
+    virtual ~EmpiricalBayesProcess();
 
     /** 
      * \brief Function that returns the prediction of the GP for a query point

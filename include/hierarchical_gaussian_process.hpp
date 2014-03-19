@@ -26,7 +26,7 @@
 #ifndef __HIERARCHICAL_GAUSSIAN_PROCESS_HPP__
 #define __HIERARCHICAL_GAUSSIAN_PROCESS_HPP__
 
-#include "empiricalbayesprocess.hpp"
+#include "conditionalbayesprocess.hpp"
 
 
 namespace bayesopt

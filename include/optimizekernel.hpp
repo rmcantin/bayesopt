@@ -26,7 +26,7 @@
 #define __OPTIMIZEKERNEL_HPP__
 
 #include "inneroptimization.hpp"
-#include "empiricalbayesprocess.hpp"
+#include "conditionalbayesprocess.hpp"
 
 namespace bayesopt {
 

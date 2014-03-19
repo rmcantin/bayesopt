@@ -26,7 +26,7 @@
 #define  _GAUSSIAN_PROCESS_HPP_
 
 #include "gauss_distribution.hpp"
-#include "empiricalbayesprocess.hpp"
+#include "conditionalbayesprocess.hpp"
 
 
 namespace bayesopt

@@ -85,7 +85,7 @@ iterations between recomputing the kernel parameters. If it is set to
 \subsection initpar Initialization parameters
 
 \li \b init_method: (unsigned integer value) For continuous
-optimization, we can choose among diferent strategies for the initial
+optimization, we can choose among different strategies for the initial
 design (1-Latin Hypercube Sampling (LHS), 2-Sobol sequences (if available,
 see \ref mininst), Other-Uniform Sampling) [Default 1, LHS].
 
@@ -116,7 +116,7 @@ applicable) [Default 1.0, 1.0]
 
 \subsection hyperlearn Hyperparameter learning
 
-Although BayesOpt tries to build a full analytical Bayesian model for
+Although BayesOpt tries to build a full analytic Bayesian model for
 the surrogate function, some hyperparameters cannot be estimated in
 closed form. Currently, the only parameters of BayesOpt models that
 require special treatment are the kernel hyperparameters. See Section
@@ -144,7 +144,7 @@ each iteration of the optimization process. Could be a combination of
 functions like "cHedge(cEI,cLCB,cPOI,cThompsonSampling)". See section
 critmod for the different possibilities. [Default: "cEI"]
 \li \b crit_params, \b n_crit_params: Array with the set of parameters
-for the selected criteria. If there are more than one criterium, the
+for the selected criteria. If there are more than one criterion, the
 parameters are split among them according to the number of parameters
 required for each criterion. If n_crit_params is 0, then the default
 parameter is selected for each criteria. [Default: n_crit_params = 0]
@@ -155,16 +155,17 @@ parameter is selected for each criteria. [Default: n_crit_params = 0]
 combination of functions like "kSum(kSEARD,kMaternARD3)". See section
 kermod for the different posibilities. [Default: "kMaternISO3"]
 \li \b kernel.hp_mean, \b kernel.hp_std, \b kernel.n_hp: Kernel
-hyperparameters prior. Any "ilegal" standard deviation (std<=0)
-results in a maximum likelihood estimate. Depends on the kernel
-selected. If there are more than one, the parameters are split among
-them according to the number of parameters required for each
-criterion. [Default: "1.0, 10.0, 1" ]
+hyperparameters prior in the log space. That is, if the
+hyperparameters are \f$\theta\f$, this prior is \f$p(\log(\theta))\f$. Any
+"ilegal" standard deviation (std<=0) results in a maximum likelihood
+estimate. Depends on the kernel selected. If there are more than one,
+the parameters are split among them according to the number of
+parameters required for each criterion. [Default: "1.0, 10.0, 1" ]
 
 \subsection meanpar Mean function parameters
 
 \li \b mean.name: Name of the mean function. Could be a combination of
-functions like "mSum(mOne, mLinear)". See section parmod for the different
+functions like "mSum(mOne, mLinear)". See Section parmod for the different
 posibilities. [Default: "mOne"]
 \li \b mean.coef_mean, \b kernel.coef_std, \b kernel.n_coef: Mean
 function coefficients. The standard deviation is only used if the

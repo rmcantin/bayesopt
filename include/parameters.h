@@ -56,8 +56,8 @@ extern "C" {
   /** Kernel configuration parameters */
   typedef struct {
     char*  name;                 /**< Name of the kernel function */
-    double hp_mean[128];         /**< Kernel hyperparameters prior (mean) */
-    double hp_std[128];          /**< Kernel hyperparameters prior (st dev) */
+    double hp_mean[128];         /**< Kernel hyperparameters prior (mean, log space) */
+    double hp_std[128];          /**< Kernel hyperparameters prior (st dev, log space) */
     size_t n_hp;                 /**< Number of kernel hyperparameters */
   } kernel_parameters;
 

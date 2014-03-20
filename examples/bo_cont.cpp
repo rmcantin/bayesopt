@@ -88,6 +88,7 @@ int main(int nargs, char *args[])
   par.sc_type = SC_ML;
   par.n_iterations = 200;       // Number of iterations
   par.n_init_samples = 50;
+  par.n_iter_relearn = 20;
   par.verbose_level = 2;
   /*******************************************/
 

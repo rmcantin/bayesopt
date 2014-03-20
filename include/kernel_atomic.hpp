@@ -24,6 +24,7 @@
 #ifndef  _KERNEL_ATOMIC_HPP_
 #define  _KERNEL_ATOMIC_HPP_
 
+#include <valarray>
 #include "kernel_functors.hpp"
 #include "elementwise_ublas.hpp"
 
@@ -48,10 +49,18 @@ namespace bayesopt
 	  FILE_LOG(logERROR) << "Wrong number of kernel hyperparameters"; 
 	  throw std::invalid_argument("Wrong number of kernel hyperparameters");
 	}
-      params = theta;
+      params = theta; //TODO: To make enough space. Make it more efficient.
+      std::transform(theta.begin(), theta.end(), params.begin(), (double (*)(double)) exp);
+      //      params = exp(theta);
     };
 
-    vectord getHyperParameters() {return params;};
+    vectord getHyperParameters() 
+    { 
+      vectord theta(params.size());
+      std::transform(params.begin(), params.end(), theta.begin(), (double (*)(double)) log);
+      return theta;
+      //  return log(params);
+    };
     size_t nHyperParameters() {return n_params;};
 
     virtual ~AtomicKernel(){};

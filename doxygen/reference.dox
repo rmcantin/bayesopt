@@ -46,20 +46,20 @@ its default configuration. However, Bayesian optimization shines when
 we can include as much knowledge as possible about the target function
 or about the problem. Or, if the knowledge is not available, keep the
 model as general as possible (to avoid bias). In this part, knowledge
-about Gaussian process or nonparametric models in general might be
+about Gaussian processes or nonparametric models in general might be
 useful. 
 
 For example, with the parameters we can select the kind of kernel,
-mean or surrogate model that we want to use. With the kernel we can
-play with the smoothness of the function and it's derivatives. The
-mean function can be use to model the overall trend (is it flat?
-linear?). If we know the overall signal variance we better use a
-Gaussian process, if we don't, we should use a Student's t process
-instead.
+mean function or surrogate model that we want to use. With the kernel
+we can play with the smoothness of the function and it's
+derivatives. The mean function can be use to model the overall trend
+(flat, linear, etc.). If we know the overall signal variance we better
+use a Gaussian process, if we don't, we should use a Student's t
+process instead.
 
-For that reason, the parameters are bundled in a structure or
-dictionary, depending on the API that we use. This is a brief
-explanation of every parameter
+For that reason, the parameters are bundled in a structure
+(C/C++/Matlab/Octave) or dictionary (Python), depending on the API
+that we use. This is a brief explanation of every parameter
 
 \subsection budgetpar Budget parameters
 
@@ -69,8 +69,7 @@ related with the budget of the application [Default 300]
 \li \b n_inner_iterations: Maximum number of iterations of the inner
 optimization process. Each iteration corresponds with a criterion
 evaluation. The inner optimization results in the "most interest
-point" to run evaluate the target function. This is also used for the
-kernel hyperparameter computation. In order to scale the process for
+point" to evaluate the target function. In order to scale the process for
 increasing dimensional spaces, the actual number of iterations is this
 number times the number of dimensions. [Default 500]
 \li \b n_init_samples: BayesOpt requires an initial set of samples to
@@ -78,54 +77,72 @@ learn a preliminary model of the target function. Each sample is also
 a target function evaluation. [Default 30]
 \li \b n_iter_relearn: Although most of the parameters of the model
 are updated after every iteration, the kernel parameters cannot be
-updated continuously as it might crash the convergence. This
-represents the number of iterations between recomputing the kernel
-parameters. If it is set to 0, they are only learned after the initial
-set of samples. [Default 0]
+updated continuously as it has a very large computational overhead and
+it might introduce bias in the result. This represents the number of
+iterations between recomputing the kernel parameters. If it is set to
+0, they are only learned after the initial set of samples. [Default 0]
 
 \subsection initpar Initialization parameters
 
 \li \b init_method: (unsigned integer value) For continuous
 optimization, we can choose among diferent strategies for the initial
-design (1-Latin Hypercube Sampling, 2-Sobol sequences (if available,
-see \ref mininst), Other-Uniform Sampling).
+design (1-Latin Hypercube Sampling (LHS), 2-Sobol sequences (if available,
+see \ref mininst), Other-Uniform Sampling) [Default 1, LHS].
 
 
 \subsection logpar Logging parameters
 
-\li \b verbose_level: (unsigned integer value) Verbose level 0,3 -> warnings,
-1,4 -> general information, 2,5 -> debug information, any other value
--> only errors. Levels < 3 send the messages to stdout. Levels > 4
-send them to a log file. [Default 1].
-\li \b log_filename: Name of the log file (if applicable, verbose >
-4)[Default "bayesopt.log"]
+\li \b verbose_level: (unsigned integer value) Verbose level 0,3 ->
+warnings, 1,4 -> general information, 2,5 -> debug information, any
+other value -> only errors. Levels 0,1,2 -> send messages to
+stdout. Levels 3,4,5 -> send messages to a log file. [Default 1,
+general info->stdout].
+\li \b log_filename: Name of the log file (if applicable,
+verbose_level= 3, 4 or 5) [Default "bayesopt.log"]
 
 \subsection surrpar Surrogate model parameters
 
 \li \b surr_name: Name of the hierarchical surrogate function
 (nonparametric process and the hyperpriors on sigma and w). See
-Section \ref surrmod for a detailed description. [Default "sGaussianProcess"]
+Section \ref surrmod for a detailed description. [Default
+"sGaussianProcess"]
 \li \b sigma_s: Signal variance (if known) [Default 1.0]
-\li \b noise: Observation noise. For computer simulations or
-deterministic functions, it should be close to 0. However, to avoid
-numerical instability due to model inaccuracies, do not make it
-0. [Default 0.0001]
+\li \b noise: Observation noise/signal ratio. For computer simulations
+or deterministic functions, it should be close to 0. However, to avoid
+numerical instability due to model inaccuracies, make it always <0.
+[Default 0.0001]
 \li \b alpha, \b beta: Inverse-Gamma prior hyperparameters (if
 applicable) [Default 1.0, 1.0]
-\li \b l_type: Learning method for the kernel hyperparameters. See
-section \ref learnmod for a detailed description [Default L_MAP]
+
+\subsection hyperlearn Hyperparameter learning
+
+Although BayesOpt tries to build a full analytical Bayesian model for
+the surrogate function, some hyperparameters cannot be estimated in
+closed form. Currently, the only parameters of BayesOpt models that
+require special treatment are the kernel hyperparameters. See Section
+\ref learnmod for a detailed description
+
+\li \b l_type: Learning method for the kernel
+hyperparameters. Currently, only L_FIXED and L_EMPIRICAL are
+implemented [Default L_EMPIRICAL]
+\li \b sc_type: Score function for the learning method. [Default
+SC_MAP]
+
 
 \subsection critpar Exploration/exploitation parameters
 
 \li \b epsilon: According to some authors, it is recommendable to
 include an epsilon-greedy strategy to achieve near optimal convergence
 rates. Epsilon is the probability of performing a random (blind)
-evaluation of the target function [Default 0.0 (disabled)]
+evaluation of the target function. Higher values implies forced
+exploration while lower values relies more on the
+exploration/exploitation policy of the criterion [Default 0.0
+(disabled)]
 \li \b crit_name: Name of the sample selection criterion or a
 combination of them. It is used to select which points to evaluate for
 each iteration of the optimization process. Could be a combination of
 functions like "cHedge(cEI,cLCB,cPOI,cThompsonSampling)". See section
-critmod for the different possibilities. [Default: "cEI]"
+critmod for the different possibilities. [Default: "cEI"]
 \li \b crit_params, \b n_crit_params: Array with the set of parameters
 for the selected criteria. If there are more than one criterium, the
 parameters are split among them according to the number of parameters

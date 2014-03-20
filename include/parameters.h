@@ -68,7 +68,9 @@ extern "C" {
     size_t n_coef;               /**< Number of mean funct. hyperparameters */
   } mean_parameters;
 
-  /** \brief Configuration parameters */
+  /** \brief Configuration parameters 
+   *  @see \ref reference for a full description of the parameters
+   */
   typedef struct {
     size_t n_iterations;         /**< Maximum BayesOpt evaluations (budget) */
     size_t n_inner_iterations;   /**< Maximum inner optimizer evaluations */
@@ -87,8 +89,10 @@ extern "C" {
     double noise;                /**< Observation noise (and nugget) */
     double alpha;                /**< Inverse Gamma prior for signal var */
     double beta;                 /**< Inverse Gamma prior for signal var*/
+
     score_type sc_type;          /**< Score type for kernel hyperparameters (ML,MAP,etc) */
     learning_type l_type;        /**< Type of learning for the kernel params*/
+
     double epsilon;              /**< For epsilon-greedy exploration */
 
     kernel_parameters kernel;    /**< Kernel parameters */
@@ -106,7 +110,7 @@ extern "C" {
 
   /* Nonparametric process "parameters" */
   const double KERNEL_THETA    = 1.0;
-  const double KERNEL_SIGMA    = 100.0;
+  const double KERNEL_SIGMA    = 10.0;
   const double MEAN_MU         = 1.0;
   const double MEAN_SIGMA      = 1000.0;
   const double PRIOR_ALPHA     = 1.0;

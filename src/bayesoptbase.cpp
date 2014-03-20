@@ -20,6 +20,7 @@
 ------------------------------------------------------------------------
 */
 
+#include <ctime>
 #include <cstdlib>
 #include "log.hpp"
 #include "bayesoptbase.hpp"
@@ -28,7 +29,7 @@ namespace bayesopt
 {
   
   BayesOptBase::BayesOptBase():
-    mGP(NULL), mCrit(NULL), mEngine()
+    mGP(NULL), mCrit(NULL)
   {
     mParameters = initialize_parameters_to_default();
     __init__();
@@ -44,6 +45,8 @@ namespace bayesopt
   void BayesOptBase::__init__()
   { 
     // Configure logging
+    if (mParameters.use_random_seed) mEngine.seed(std::time(0));
+
     size_t verbose = mParameters.verbose_level;
     if (verbose>=3)
       {

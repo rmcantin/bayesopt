@@ -25,6 +25,7 @@
 #define _LHS_HPP_
 
 #include "randgen.hpp"
+#include "log.hpp"
 #include "indexvector.hpp"
 #if defined (USE_SOBOL)
 #  include "sobol.hpp"
@@ -35,14 +36,47 @@ namespace bayesopt
   namespace utils
   {      
     
+    /** \brief Selects the sampling method.  */
+    template<class M>
+    void samplePoints(M& xPoints, int method, randEngine& mtRandom);
+
+
+    /** \brief Latin hypercube sampling
+     * It is used to generate a uniform Latin hypercube
+     */
+    template<class M>
+    void lhs(M& Result,randEngine& mtRandom);
+
+    /** \brief Hypercube sampling based on Sobol sequences
+     * It uses the external Sobol library. Thus it do not depend on
+     * boost random.
+     */
+#if defined (USE_SOBOL)
+    template<class M>
+    void sobol(M& result, long long int seed);
+#endif
+
+    /** \brief Uniform hypercube sampling
+     * It is used to generate a set of uniformly distributed
+     * samples in hypercube
+     */
+    template<class M>
+    void uniformSampling(M& Result, randEngine& mtRandom);
+
     /** \brief Modify an array using ramdom permutations.
      *
      * It is used to generate a uniform Latin hypercube.
      * Equivalent to std::random_shuffle but using boost::random
      */
     template<class D>
-    void randomPerms(D& arr, 
-		     randEngine& mtRandom)
+    void randomPerms(D& arr, randEngine& mtRandom);
+
+    //////////////////////////////////////////////////////////////////////
+    // Implementations
+    //////////////////////////////////////////////////////////////////////
+
+    template<class D>
+    void randomPerms(D& arr, randEngine& mtRandom)
     {
       typedef typename D::iterator iter;
 
@@ -52,12 +86,8 @@ namespace bayesopt
     } // randomPerms 
 
 
-    /** \brief Latin hypercube sampling
-     * It is used to generate a uniform Latin hypercube
-     */
     template<class M>
-    int lhs(M& Result,
-	    randEngine& mtRandom)
+    void lhs(M& Result, randEngine& mtRandom)
     {
       randFloat sample( mtRandom, realUniformDist(0,1) );
       size_t nA = Result.size1();
@@ -69,81 +99,70 @@ namespace bayesopt
 	{
 	  std::vector<int> perms = returnIndexVector(nA);
 	  randomPerms(perms, mtRandom);
-	  //std::random_shuffle(perms.begin(),perms.end());
-      
+
 	  for (size_t j = 0; j < nA; j++)
 	    {		
 	      Result(j,i) = ( static_cast<double>(perms[j]) - sample() ) / ndA;
 	    }
 	}
-
-      return 0;
     }
 
-    /** \brief Hypercube sampling based on Sobol sequences
-     * It uses the external Sobol library. Thus it do not depend on
-     * boost random.
-     */
 #if defined (USE_SOBOL)
     template<class M>
-    int sobol(M& result, long long int seed)
+    void sobol(M& result, long long int seed)
     {
       size_t nSamples = result.size1();
       size_t nDims = result.size2();
 
       double *sobol_seq = i8_sobol_generate(nDims,nSamples,seed);
-      
-      for(size_t ii = 0; ii<nSamples; ++ii)
-	{
-	  for(size_t jj=0; jj<nDims; ++jj)
-	    {
-	      result(ii,jj) = *sobol_seq++;
-	    }
-	}
-      return 0;
+
+      std::copy(sobol_seq,sobol_seq+nSamples*nDims,result.begin2());
     }
 #endif
 
-    /** \brief Uniform hypercube sampling
-     * It is used to generate a set of uniformly distributed
-     * samples in hypercube
-     */
     template<class M>
-    int uniformSampling(M& Result,
+    void uniformSampling(M& Result,
 			randEngine& mtRandom)
     {
       randFloat sample( mtRandom, realUniformDist(0,1) );
+      //      sample.engine().seed(std::time(0));
+      //      std::cout << &mtRandom;
+      //      mtRandom.seed(std::time(0));
+      //      sample.distribution().reset();
       size_t nA = Result.size1();
       size_t nB = Result.size2();
 
+      //      std::generate(Result.begin2(),Result.end2(),sample);
       // TODO: Improve with iterators
       for (size_t i = 0; i < nA; i++)
-	for (size_t j = 0; j < nB; j++)
-	  Result(i,j) = sample();
-
-      return 0;
+      	for (size_t j = 0; j < nB; j++)
+      	  Result(i,j) = sample();
     }
 
-    /** \brief Selects the sampling method.  */
     template<class M>
-    int samplePoints(M& xPoints, int method,
+    void samplePoints(M& xPoints, int method,
 		     randEngine& mtRandom)
     {
       if (method == 1) 
-	lhs(xPoints, mtRandom);
-      else 
-	if (method == 2)
-	  {
+	{
+	  FILE_LOG(logINFO) << "Latin hypercube sampling";
+	  lhs(xPoints, mtRandom);
+	}
+      else if (method == 2)
+	{
 #if defined (USE_SOBOL)
-	    sobol(xPoints, 0);
+	  FILE_LOG(logINFO) << "Sobol sampling";
+	  sobol(xPoints, 0);
 #else
-	    lhs(xPoints, mtRandom);
+	  FILE_LOG(logINFO) << "Latin hypercube sampling";
+	  lhs(xPoints, mtRandom);
 #endif
-	  }
-	else
+	}
+      else
+	{
+	  FILE_LOG(logINFO) << "Uniform sampling";
 	  uniformSampling(xPoints, mtRandom);
-
-      return 0;
+	}
     }
 
 

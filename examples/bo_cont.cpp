@@ -86,7 +86,8 @@ int main(int nargs, char *args[])
   par.kernel.name = "kSum(kSEISO,kConst)";
   par.mean.name = "mConst";
   par.sc_type = SC_ML;
-  par.n_iterations = 200;       // Number of iterations
+  par.n_iterations = 200;    // Number of iterations
+  par.init_method = 1;
   par.n_init_samples = 50;
   par.n_iter_relearn = 20;
   par.verbose_level = 2;

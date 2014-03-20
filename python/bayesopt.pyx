@@ -50,9 +50,12 @@ cdef extern from "parameters.h":
         unsigned int n_coef
 
     ctypedef struct bopt_params:
-        unsigned int n_iterations, n_inner_iterations,
-        unsigned int n_init_samples, n_iter_relearn,
+        unsigned int n_iterations
+        unsigned int n_inner_iterations
+        unsigned int n_init_samples
+        unsigned int n_iter_relearn
         unsigned int init_method
+        unsigned int use_random_seed
         unsigned int verbose_level
         char* log_filename
         char* surr_name
@@ -102,7 +105,9 @@ cdef bopt_params dict2structparams(dict dparams):
                                             params.n_inner_iterations)
     params.n_init_samples = dparams.get('n_init_samples',params.n_init_samples)
     params.n_iter_relearn = dparams.get('n_iter_relearn',params.n_iter_relearn)
+
     params.init_method = dparams.get('init_method',params.init_method)
+    params.use_random_seed = dparams.get('use_random_seed',params.use_random_seed)
 
     params.verbose_level = dparams.get('verbose_level',params.verbose_level)
     logname = dparams.get('log_filename',params.log_filename)
@@ -175,6 +180,7 @@ def initialize_params():
         "n_init_samples" : 30,
         "n_iter_relearn" : 0,
         "init_method" : 1,
+        "use_random_seed" : 1,
         "verbose_level"  : 1,
         "log_filename"   : "bayesopt.log" ,
         "surr_name" : "sGaussianProcess" ,

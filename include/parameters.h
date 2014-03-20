@@ -80,6 +80,7 @@ extern "C" {
     /** Sampling method for initial set 1-LHS, 2-Sobol (if available),
      *  other value-uniformly distributed */
     size_t init_method;          
+    size_t use_random_seed;      /**< 0-Fixed seed, 1-Random (time) seed.*/    
 
     size_t verbose_level;        /**< 1-Error,2-Warning,3-Info. 4-6 log file*/
     char* log_filename;          /**< Log file path (if applicable) */

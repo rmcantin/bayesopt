@@ -143,7 +143,9 @@ bopt_params initialize_parameters_to_default(void)
   params.n_inner_iterations = MAX_INNER_EVALUATIONS;
   params.n_init_samples = DEFAULT_SAMPLES;
   params.n_iter_relearn = 0;
+
   params.init_method = 1;
+  params.use_random_seed = 1;
 
   params.verbose_level = DEFAULT_VERBOSE;
   params.log_filename = new char[128];

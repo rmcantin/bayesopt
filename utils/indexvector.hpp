@@ -24,6 +24,8 @@
 #ifndef __INDEX_VECTOR_HPP__
 #define __INDEX_VECTOR_HPP__
 
+#include <algorithm>
+
 namespace bayesopt
 {
   namespace utils

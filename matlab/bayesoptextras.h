@@ -187,7 +187,9 @@ static bopt_params load_parameters(const mxArray* params)
   struct_size(params,"n_inner_iterations", &parameters.n_inner_iterations);
   struct_size(params, "n_init_samples", &parameters.n_init_samples);
   struct_size(params, "n_iter_relearn", &parameters.n_iter_relearn);
+
   struct_size(params, "init_method", &parameters.init_method);
+  struct_size(params, "use_random_seed", &parameters.use_random_seed);
   
   struct_size(params, "verbose_level", &parameters.verbose_level);
   struct_string(params, "log_filename", parameters.log_filename);

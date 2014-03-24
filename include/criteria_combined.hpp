@@ -54,7 +54,7 @@ namespace bayesopt
       mCriteriaList = list;
     };
 
-    int setParameters(const vectord &theta) 
+    void setParameters(const vectord &theta) 
     {
       using boost::numeric::ublas::subrange;
       const size_t np = mCriteriaList.size();
@@ -68,7 +68,7 @@ namespace bayesopt
       if (theta.size() != norm_1(sizes))
 	{
 	  FILE_LOG(logERROR) << "Wrong number of criteria parameters"; 
-	  return -1; 
+	  throw std::invalid_argument("Wrong number of criteria parameters");
 	}
 
       size_t start = 0;
@@ -77,7 +77,6 @@ namespace bayesopt
 	  mCriteriaList[i]->setParameters(subrange(theta,start,start+sizes(i)));
 	  start += sizes(i);
 	}
-      return 0;
     };
 
     size_t nParameters() 

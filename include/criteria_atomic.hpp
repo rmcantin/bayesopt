@@ -63,11 +63,8 @@ namespace bayesopt
       mExp = 1;
     };
 
-    int setParameters(const vectord &params)
-    {
-      mExp = static_cast<size_t>(params(0));
-      return 0;
-    };
+    void setParameters(const vectord &params)
+    { mExp = static_cast<size_t>(params(0)); };
 
     size_t nParameters() {return 1;};
 
@@ -94,11 +91,11 @@ namespace bayesopt
       mBias = 0.01;
       mExp = 1;
     };
-    int setParameters(const vectord &params)
+
+    void setParameters(const vectord &params)
     {
       mExp = static_cast<size_t>(params(0));
       mBias = params(1);
-      return 0;
     };
 
     size_t nParameters() {return 2;};
@@ -126,11 +123,8 @@ namespace bayesopt
       mProc = proc;
       mBeta = 1.0;
     };
-    int setParameters(const vectord &params)
-    {
-      mBeta = params(0);
-      return 0;
-    };
+    void setParameters(const vectord &params)
+    { mBeta = params(0); };
 
     size_t nParameters() {return 1;};
 
@@ -154,11 +148,8 @@ namespace bayesopt
       mProc = proc;
       mEpsilon = 0.01;
     };
-    int setParameters(const vectord &params)
-    {
-      mEpsilon = params(0);
-      return 0;
-    };
+    void setParameters(const vectord &params)
+    { mEpsilon = params(0); };
 
     size_t nParameters() {return 1;};
 
@@ -184,7 +175,7 @@ namespace bayesopt
   {
   public:
     virtual ~GreedyAOptimality(){};
-    int setParameters(const vectord &params) { return 0; };
+    void setParameters(const vectord &params) {};
     size_t nParameters() {return 0;};
     double operator()( const vectord &x)
     { return -mProc->prediction(x)->getStd(); };
@@ -197,7 +188,7 @@ namespace bayesopt
   {
   public:
     virtual ~ExpectedReturn(){};
-    int setParameters(const vectord &params) { return 0; };
+    void setParameters(const vectord &params) { };
     size_t nParameters() {return 0;};
     double operator()( const vectord &x)
     { return mProc->prediction(x)->getMean(); };
@@ -215,7 +206,7 @@ namespace bayesopt
   public:
     OptimisticSampling() {};
     virtual ~OptimisticSampling(){};
-    int setParameters(const vectord &params) { return 0; };
+    void setParameters(const vectord &params) {};
     size_t nParameters() {return 0;};
     double operator()( const vectord &x)
     {
@@ -237,7 +228,7 @@ namespace bayesopt
   public:
     ThompsonSampling() {};
     virtual ~ThompsonSampling(){};
-    int setParameters(const vectord &params) { return 0; };
+    void setParameters(const vectord &params) { };
     size_t nParameters() {return 0;};
     double operator()( const vectord &x)
     {
@@ -260,11 +251,8 @@ namespace bayesopt
       reset();
     };
 
-    int setParameters(const vectord &params)
-    {
-      mExp = static_cast<size_t>(params(0));
-      return 0;
-    };
+    void setParameters(const vectord &params)
+    { mExp = static_cast<size_t>(params(0)); };
 
     size_t nParameters() {return 1;};
     void reset() { nCalls = 0; mExp = 10;};
@@ -296,11 +284,9 @@ namespace bayesopt
       reset();
     };
 
-    int setParameters(const vectord &params)
-    {
-      mCoef = params(0);
-      return 0;
-    };
+    void setParameters(const vectord &params)
+    { mCoef = params(0); };
+
     size_t nParameters() {return 1;};
     void reset() { nCalls = 0; mCoef = 5.0;};
     double operator()( const vectord &x)
@@ -320,6 +306,7 @@ namespace bayesopt
     unsigned int nCalls;
   };
 
+
   /**
    * \brief Distance in input space. Can be combined with other
    * critera to trade off large changes in input space.
@@ -333,11 +320,8 @@ namespace bayesopt
       mW = 1;
     };
     virtual ~InputDistance(){};
-    int setParameters(const vectord &params)
-    {
-      mW = params(0);
-      return 0;
-    };
+    void setParameters(const vectord &params)
+    { mW = params(0); };
     size_t nParameters() {return 1;};
  
     double operator()(const vectord &x)

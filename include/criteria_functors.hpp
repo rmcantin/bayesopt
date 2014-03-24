@@ -51,11 +51,12 @@ namespace bayesopt
 
     double evaluate(const vectord &x) {return (*this)(x);}
     virtual double operator()(const vectord &x) = 0;
+
     virtual std::string name() = 0;
-    virtual int setParameters(const vectord &params) = 0;
+    virtual void setParameters(const vectord &params) = 0;
     virtual size_t nParameters() = 0;
 
-    //Dummy functions.
+    //Dummy functions. Not all criteria support these methods.
     virtual void reset() { assert(false); };
     void setRandomEngine(randEngine& eng){ mtRandom = &eng; }
 
@@ -68,12 +69,6 @@ namespace bayesopt
     NonParametricProcess *mProc;
     randEngine* mtRandom;
   };
-
-
-  template <typename CriteriaType> Criteria * create_func()
-  {
-    return new CriteriaType();
-  }
 
 
   /** 

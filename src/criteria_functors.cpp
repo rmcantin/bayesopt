@@ -27,6 +27,13 @@
 
 namespace bayesopt
 {
+
+  template <typename CriteriaType> Criteria * create_func()
+  {
+    return new CriteriaType();
+  }
+
+
   CriteriaFactory::CriteriaFactory()
   {
     registry["cEI"] = & create_func<ExpectedImprovement>;
@@ -46,43 +53,6 @@ namespace bayesopt
     registry["cHedge"] = & create_func<GP_Hedge>;
     registry["cHedgeRandom"] = & create_func<GP_Hedge_Random>;
   }
-
-  /// Factory method for criterion functions.
-  // Criteria* CriteriaFactory::create(criterium_name name,
-  // 				    KernelRegressor* proc)
-  // {
-  //   Criteria* c_ptr;
-  //   std::vector<Criteria*> list;
-  //   switch (name)
-  //     {
-  //     case C_EI:     c_ptr = new ExpectedImprovement(); break;
-  //     case C_EI_A:   c_ptr = new AnnealedExpectedImprovement(); break;
-  //     case C_LCB:    c_ptr = new LowerConfidenceBound(); break;
-  //     case C_LCB_A:  c_ptr = new AnnealedLowerConfindenceBound(); break;
-  //     case C_POI:    c_ptr = new ProbabilityOfImprovement(); break;
-  //     case C_GREEDY_A_OPTIMALITY: c_ptr = new GreedyAOptimality(); break;
-  //     case C_EXPECTED_RETURN: c_ptr = new ExpectedReturn(); break;
-  //     case C_OPTIMISTIC_SAMPLING: c_ptr = new OptimisticSampling(); break;
-  //     case C_GP_HEDGE: c_ptr = new GP_Hedge(); break;
-  //     case C_GP_HEDGE_RANDOM: c_ptr = new GP_Hedge_Random(); break;
-  //     default:
-  // 	FILE_LOG(logERROR) << "Error in criterium";
-  // 	return NULL;
-  //     }
-  //   if ((name = C_GP_HEDGE) || (name = C_GP_HEDGE_RANDOM))
-  //     {
-  // 	for(size_t i = 0; i < N_ALGORITHMS_IN_GP_HEDGE; ++i)
-  // 	  {
-  // 	    list.push_back(create(ALGORITHMS_IN_GP_HEDGE[i],proc)); 
-  // 	  }
-  // 	c_ptr->init(proc,list);
-  //     }
-  //   else
-  //     {
-  // 	c_ptr->init(proc);
-  //     }
-  //   return c_ptr;
-  // };
 
 
   /** 
@@ -109,7 +79,7 @@ namespace bayesopt
 	FILE_LOG(logERROR) << "Error: Fatal error while parsing "
 			   << "kernel function: " << os 
 			   << " not found";
-	throw std::invalid_argument("Criteria not found " + os);
+	throw std::invalid_argument("Parsing error: Criteria not found: " + os);
 	return NULL;
       } 
     cFunc = it->second();

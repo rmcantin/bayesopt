@@ -47,7 +47,7 @@ namespace bayesopt
      * @param n vector size
      * @return index vector
      */
-    inline std::vector<int> returnIndexVector(size_t n)
+    inline std::vector<int> return_index_vector(size_t n)
     {
       CUnique UniqueNumber;
       std::vector<int> arr(n);
@@ -59,7 +59,7 @@ namespace bayesopt
      * Modify a vector of indexes (0..n)
      * @param arr vector
      */
-    inline void modifyIndexVector(std::vector<int>& arr)
+    inline void modify_index_vector(std::vector<int>& arr)
     {
       CUnique UniqueNumber;
       generate (arr.begin(), arr.end(), UniqueNumber);

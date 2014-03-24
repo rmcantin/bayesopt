@@ -97,7 +97,7 @@ namespace bayesopt
   
       for (size_t i = 0; i < nB; i++)
 	{
-	  std::vector<int> perms = returnIndexVector(nA);
+	  std::vector<int> perms = return_index_vector(nA);
 	  randomPerms(perms, mtRandom);
 
 	  for (size_t j = 0; j < nA; j++)

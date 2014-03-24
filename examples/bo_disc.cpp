@@ -20,8 +20,8 @@
 ------------------------------------------------------------------------
 */
 
-#include "bayesoptwpr.h"               // For the C API
-#include "bayesoptdisc.hpp"            // For the C++ API
+#include "bayesopt.h"               // For the C API
+#include "bayesopt.hpp"             // For the C++ API
 #include "lhs.hpp"
 
 

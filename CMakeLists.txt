@@ -24,10 +24,13 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} 
 		      ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
-set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} /opt/local/lib /opt/local/Library)
-set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} /opt/local/include
-                                             /opt/local/Library)
-set(CMAKE_PROGRAM_PATH ${CMAKE_PROGRAM_PATH} /opt/local/bin/ /opt/local/Library)
+if(APPLE)
+  # For macports or similar systems
+  set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} /opt/local/lib /opt/local/Library)
+  set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} /opt/local/include
+                                               /opt/local/Library)
+  set(CMAKE_PROGRAM_PATH ${CMAKE_PROGRAM_PATH} /opt/local/bin/ /opt/local/Library)
+endif(APPLE)
 
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -166,9 +169,8 @@ IF(BAYESOPT_BUILD_EXAMPLES)
 endif(BAYESOPT_BUILD_EXAMPLES)
 
 INSTALL(FILES 
-  ./include/bayesoptcont.hpp 
-  ./include/bayesoptdisc.hpp 
-  ./wrappers/bayesoptwpr.h 
+  ./include/bayesopt.hpp 
+  ./wrappers/bayesopt.h 
   DESTINATION include
 )
 
@@ -178,8 +180,10 @@ INSTALL(
   ARCHIVE DESTINATION lib
 )
 
+
 IF(BAYESOPT_PYTHON_INTERFACE)
   INCLUDE(PythonMagic)
+#  INCLUDE(FindPython)
   INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
 
   ADD_LIBRARY(esopt MODULE ${BAYESOPT_SRCS}   
@@ -194,6 +198,8 @@ IF(BAYESOPT_PYTHON_INTERFACE)
   IF(NOT WIN32)
     # Kind of a hack but it works
     SET_TARGET_PROPERTIES(esopt PROPERTIES PREFIX "bay" SUFFIX ".so")
+  ELSE()
+    SET_TARGET_PROPERTIES(esopt PROPERTIES PREFIX "libbay" SUFFIX ".dll")
   ENDIF()
 
   INSTALL(

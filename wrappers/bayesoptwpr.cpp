@@ -1,8 +1,7 @@
 #include "log.hpp"
 #include "ublas_extra.hpp"
-#include "bayesoptwpr.h"
-#include "bayesoptcont.hpp"      
-#include "bayesoptdisc.hpp"      
+#include "bayesopt.h"
+#include "bayesopt.hpp"      
 
 /**
  * \brief Version of ContinuousModel for the C wrapper

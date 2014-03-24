@@ -24,8 +24,8 @@
 #include "lhs.hpp"
 #include "randgen.hpp"
 #include "log.hpp"
-#include "bayesoptcont.hpp"
-//#include "optimizecriteria.hpp"
+#include "bayesopt.hpp"
+
 
 namespace bayesopt  {
   

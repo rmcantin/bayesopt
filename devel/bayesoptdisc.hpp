@@ -26,11 +26,11 @@
 
 #include "bayesoptbase.hpp"
 
-/** \addtogroup BayesOpt */
-/*@{*/
-
 namespace bayesopt
 {
+  /** \addtogroup BayesOpt */
+  /*@{*/
+
 
   /**
    * \brief Sequential Kriging Optimization using different non-parametric 
@@ -51,8 +51,7 @@ namespace bayesopt
      * @param validSet  Set of potential inputs
      * @param params set of parameters (see parameters.h)
      */
-    DiscreteModel( const vecOfvec &validSet, 
-		 bopt_params params);
+    DiscreteModel(const vecOfvec &validSet, bopt_params params);
     
     /** Default destructor  */
     virtual ~DiscreteModel();
@@ -60,23 +59,14 @@ namespace bayesopt
     /** Initialize the optimization process. */
     void initializeOptimization();
 
-    /** 
-     * Once the optimization has been perfomed, return the optimal
-     * point.
-     */
+    /** Once the optimization has been perfomed, return the optimal point. */
     vectord getFinalResult();
 
     
   protected:
     
     
-    /** 
-     * Print data for every step according to the verbose level
-     * 
-     * @param iteration 
-     * @param xNext 
-     * @param yNext 
-     */
+    /** Print data for every step according to the verbose level */
     void plotStepData(size_t iteration, const vectord& xNext,
 		     double yNext);
 
@@ -98,23 +88,21 @@ namespace bayesopt
 
   protected:
     vecOfvec mInputSet;               ///< List of input points
-
   };
 
+
+  /**@}*/
+  
   inline vectord DiscreteModel::samplePoint()
   {   
     randInt sample(mEngine, intUniformDist(0,mInputSet.size()-1));
     return mInputSet[sample()];
   };
 
-   
-
   inline double DiscreteModel::evaluateSampleInternal( const vectord &query )
   { return evaluateSample(query); }; 
 
 } //namespace bayesopt
-
-/**@}*/
 
 
 #endif

@@ -21,7 +21,7 @@
 */
 
 #include <valarray>
-#include "bayesoptcont.hpp"
+#include "bayesopt.hpp"
 
 class ExampleOneD: public bayesopt::ContinuousModel
 {

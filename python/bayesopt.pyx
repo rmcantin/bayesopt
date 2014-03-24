@@ -81,7 +81,7 @@ cdef extern from "parameters.h":
     bopt_params initialize_parameters_to_default()
 
 ###########################################################################
-cdef extern from "bayesoptwpr.h":
+cdef extern from "bayesopt.h":
     ctypedef double (*eval_func)(unsigned int n, const_double_ptr x,
                                  double *gradient, void *func_data)
 

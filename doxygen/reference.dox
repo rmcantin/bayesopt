@@ -188,7 +188,7 @@ compatibility with C code with other languages it could also be used
 for other languages such as Fortran, Ada, etc.
 
 The function to optimize must agree with the template provided in
-bayesoptwpr.h
+bayesopt.h
 
 \code{.c}
 double my_function (unsigned int n, const double *x, double *gradient, void *func_data);

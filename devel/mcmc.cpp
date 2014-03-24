@@ -6,7 +6,7 @@ void MCMC::sliceSample(vectord &x)
   randFloat sample( mtRandom, realUniformDist(0,1) );
   size_t n = x.size();
 
-  std::vector<int> perms = utils::returnIndexVector(n);
+  std::vector<int> perms = utils::return_index_vector(n);
   utils::randomPerms(perms, mtRandom);
 
   for (size_t i = 0; i<n; ++i)

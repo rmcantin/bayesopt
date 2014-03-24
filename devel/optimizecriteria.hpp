@@ -26,7 +26,7 @@
 #define __OPTIMIZECRITERIA_HPP__
 
 #include "inneroptimization.hpp"
-#include "bayesoptcont.hpp"
+#include "bayesopt.hpp"
 
 namespace bayesopt {
 

@@ -98,7 +98,7 @@ namespace bayesopt
 
     vectord v0 = mData.mY - prod(trans(mMean.mFeatM),mW0);
     matrixd WW = zmatrixd(p,p);  //TODO: diagonal matrix
-    utils::addToDiagonal(WW,mInvVarW);
+    utils::add_to_diagonal(WW,mInvVarW);
     matrixd FW = prod(trans(mMean.mFeatM),WW);
     KK += prod(FW,mMean.mFeatM);
     matrixd BB(n,n);
@@ -125,7 +125,7 @@ namespace bayesopt
     //TODO: make one line
     matrixd DD(p,p);
     DD = prod(trans(mKF),mKF);
-    utils::addToDiagonal(DD,mInvVarW);
+    utils::add_to_diagonal(DD,mInvVarW);
     utils::cholesky_decompose(DD,mD);
 
     vectord vn = mData.mY;
@@ -141,7 +141,7 @@ namespace bayesopt
     //matrixd KK = prod(mL,trans(mL));
     matrixd KK = computeCorrMatrix();
     matrixd WW = zmatrixd(p,p);  //TODO: diagonal matrix
-    utils::addToDiagonal(WW,mInvVarW);
+    utils::add_to_diagonal(WW,mInvVarW);
     const matrixd FW = prod(trans(mMean.mFeatM),WW);
     KK += prod(FW,mMean.mFeatM);
     matrixd BB(n,n);

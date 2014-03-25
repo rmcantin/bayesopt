@@ -131,6 +131,7 @@ namespace bayesopt {
     double evaluateCriteria( const vectord &query );
 
     void setSamples(const matrixd &x, const vectord &y);
+    void setSample(const vectord &x, double y);
     void addSample(const vectord &x, double y);
     vectord getPointAtMinimum();
     double getValueAtMinimum();
@@ -208,6 +209,12 @@ namespace bayesopt {
 
   inline void BayesOptBase::setSamples(const matrixd &x, const vectord &y)
   { mData.setSamples(x,y);  mGP->setSamples(x,y);  }
+
+  inline void BayesOptBase::setSample(const vectord &x, double y)
+  { 
+    matrixd xx(1,x.size());  vectord yy(1);
+    row(xx,0) = x;           yy(0) = y;
+    mData.setSamples(xx,yy);   mGP->setSamples(xx,yy);  }
 
   inline void BayesOptBase::addSample(const vectord &x, double y)
   {  mData.addSample(x,y); mGP->addSample(x,y);  };

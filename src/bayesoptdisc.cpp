@@ -84,7 +84,8 @@ namespace bayesopt
       {
 	const vectord xPoint = perms[i];
 	const double yPoint = evaluateSample(xPoint);
-	addSample(xPoint,yPoint);
+	if (i == 0)  setSample(xPoint,yPoint);
+	else addSample(xPoint,yPoint);
       }
 
     mGP->fitSurrogateModel();

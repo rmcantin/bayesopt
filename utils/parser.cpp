@@ -19,6 +19,7 @@
    along with BayesOpt.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------
 */
+#include <stdexcept>
 #include <sstream>
 #include "parser.hpp"
 
@@ -30,7 +31,7 @@ namespace bayesopt
      * Parse expresions of the form Parent(Child1, Child2). The "childs"
      * can also be expressions of the same type.
      */
-    int parseExpresion(std::string input, std::string& parent,
+    void parseExpresion(std::string input, std::string& parent,
 		       std::string& child1, std::string& child2)
     {
       std::stringstream is(input);
@@ -41,7 +42,7 @@ namespace bayesopt
       int i = 0, j = 0;
       while (is >> c) 
 	{
-	  if (i < 0) return -1;
+	  if (i < 0) throw std::runtime_error("Error parsin expression:" + input);
 	  
 	  if (c == ' ') /* pass */;
 	  else if (c == '(') i++;
@@ -54,19 +55,18 @@ namespace bayesopt
 	      else os2 << c;
 	    }
 	}
-      if (i != 0) return -1;
+      if (i != 0) throw std::runtime_error("Error parsin expression:" + input);
 
       parent = os.str();
       child1 = os1.str();
       child2 = os2.str();
-      return 0;
     }
 
     /**
      * Parse expresions of the form Parent(Child1, ... ,ChildN). The "childs"
      * can also be expressions of the same type.
      */
-    int parseExpresion(std::string input, std::string& parent,
+    void parseExpresion(std::string input, std::string& parent,
 		       std::vector<std::string>& childs)
     {
       std::stringstream is(input);
@@ -78,7 +78,7 @@ namespace bayesopt
       childs.clear();
       while (is >> c) 
 	{
-	  if (i < 0) return -1;
+	  if (i < 0) throw std::runtime_error("Error parsin expression:" + input);
 
 	  if (c == ' ') /* pass */;
 	  else if (c == '(') 
@@ -101,13 +101,10 @@ namespace bayesopt
 	      else os1 << c;
 	    }
 	}
-      if (i != 0) return -1;
+      if (i != 0) throw std::runtime_error("Error parsin expression:" + input);
 
       parent = os.str();
-      return 0;
-    }
-
-    
+    } 
     
   } //namespace utils
 

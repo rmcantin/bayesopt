@@ -34,14 +34,14 @@ namespace bayesopt
      * Parse expresions of the form Parent(Child1, Child2). The "childs"
      * can also be expressions of the same type.
      */
-    int parseExpresion(std::string input, std::string& parent,
-		       std::string& child1, std::string& child2);
+    void parseExpresion(std::string input, std::string& parent,
+			std::string& child1, std::string& child2);
 
     /**
      * Parse expresions of the form Parent(Child1, ... ,ChildN). The "childs"
      * can also be expressions of the same type.
      */
-    int parseExpresion(std::string input, std::string& parent,
+    void parseExpresion(std::string input, std::string& parent,
 		       std::vector<std::string>& childs);
 
   

@@ -183,8 +183,12 @@ INSTALL(
 
 IF(BAYESOPT_PYTHON_INTERFACE)
   INCLUDE(PythonMagic)
-#  INCLUDE(FindPython)
   INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
+#  find_package(python)
+#  find_python_module(numpy REQUIRED)
+#  string(REGEX REPLACE "__init.py.*" "core/include/${module}" 
+#	    		PY_MOD_INCLUDE "PY_NUMPY")
+#  include_directories(${PYTHON_INCLUDE_DIRS} ${PY_NUMPY_INCLUDE_DIRS} )
 
   ADD_LIBRARY(esopt MODULE ${BAYESOPT_SRCS}   
     ${WRAPPPERS_SRC} ${UTILS_SRC} ./python/bayesopt.cpp)

@@ -56,8 +56,13 @@ else()
 endif()
 set(PYTHON_EXEC "${PYTHON_EXEC_}" CACHE FILEPATH "Path to Python interpreter")
 
-string(REGEX REPLACE "/bin/python.*" "" PYTHON_PREFIX "${PYTHON_EXEC_}")
-string(REGEX REPLACE "/bin/python.*" "" PYTHON_PREFIX2 "${PYTHON_EXEC}")
+if("${PYTHON_EXEC_}" MATCHES ".*/bin/.*")
+   string(REGEX REPLACE "/bin/python.*" "" PYTHON_PREFIX "${PYTHON_EXEC_}")
+   string(REGEX REPLACE "/bin/python.*" "" PYTHON_PREFIX2 "${PYTHON_EXEC}")
+else()
+   string(REGEX REPLACE "/python.*" "" PYTHON_PREFIX "${PYTHON_EXEC_}")
+   string(REGEX REPLACE "/python.*" "" PYTHON_PREFIX2 "${PYTHON_EXEC}")
+endif()
 
 execute_process(COMMAND "${PYTHON_EXEC}" "-c"
     "import sys; print('%d.%d' % (sys.version_info[0],sys.version_info[1]))"
@@ -69,9 +74,11 @@ find_library(PYTHON_LIBRARIES
     NAMES "python${PYTHON_VERSION_NO_DOTS}" "python${PYTHON_VERSION}"
     PATHS
         "${PYTHON_PREFIX}/lib"
+        "${PYTHON_PREFIX}/libs"
         [HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore\\${PYTHON_VERSION}\\InstallPath]/libs
     PATH_SUFFIXES "" "python${PYTHON_VERSION}/config"
     DOC "Python libraries" NO_DEFAULT_PATH)
+
 
 find_path(PYTHON_INCLUDE_DIRS "Python.h"
     PATHS
@@ -108,9 +115,11 @@ function(find_python_module module)
         if(NOT _${module}_status)
             set(PY_${module_upper} ${_${module}_location} CACHE STRING
                 "Location of Python module ${module}")
+            set(PY_${module_upper}_INCLUDE_DIRS PY_MOD_INCLUDE CACHE STRING
+                "Location of Python module ${module}")
         endif(NOT _${module}_status)
     endif(NOT PY_${module_upper})
-    find_package_handle_standard_args(PY_${module} DEFAULT_MSG PY_${module_upper})
+    find_package_handle_standard_args(PY_${module} DEFAULT_MSG PY_${module_upper} PY_${module_upper}_INCLUDE_DIRS)
 endfunction(find_python_module)
 
 set(PYTHON_ARCH "unknown")

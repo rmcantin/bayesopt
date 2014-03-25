@@ -41,12 +41,9 @@ namespace bayesopt
   };
 
   //////////////////////////////////////////////////////////////////////
-  GP_Hedge::GP_Hedge():
-    mtRandom(100u),
-    sampleUniform( mtRandom, realUniformDist(0,1))
-  {};
+  GP_Hedge::GP_Hedge(){};
 
-  int GP_Hedge::init(NonParametricProcess *proc, 
+  void GP_Hedge::init(NonParametricProcess *proc, 
 		     const std::vector<Criteria*>& list) 
   { 
     mProc = proc;
@@ -56,7 +53,6 @@ namespace bayesopt
     gain_ = zvectord(n); 
     prob_ = zvectord(n);
     cumprob_ = zvectord(n);
-    return 0; 
   };
 
   void GP_Hedge::reset()
@@ -67,14 +63,12 @@ namespace bayesopt
   };
 
   bool GP_Hedge::checkIfBest(vectord& best, 
-			     std::string& name,
-			     int& error_code)
+			     std::string& name)
   { 
     if (mIndex < mCriteriaList.size())
       {
 	loss_(mIndex) = computeLoss(best);
 	mBestLists.push_back(best);
-	error_code = 0;
 	++mIndex;
 	if (mIndex < mCriteriaList.size())
 	  mCurrentCriterium = mCriteriaList[mIndex];
@@ -83,19 +77,8 @@ namespace bayesopt
     else
       {
 	int optIndex = update_hedge();
-	if (optIndex >= 0)
-	  {
-	    name = mCriteriaList[optIndex]->name();
-      	    best = mBestLists[optIndex];
-	    error_code = 0;
-	  }
-	else
-	  {
-	    name = mCriteriaList[0]->name();
-      	    best = mBestLists[0];
-	    FILE_LOG(logERROR) << "Error updating Hedge algorithm. Selecting " << name;
-	    error_code = optIndex; 
-	  }
+	name = mCriteriaList[optIndex]->name();
+	best = mBestLists[optIndex];
 	return true;	
       }
 
@@ -131,6 +114,7 @@ namespace bayesopt
     std::partial_sum(prob_.begin(), prob_.end(), cumprob_.begin(), 
 		     std::plus<double>());
 
+    randFloat sampleUniform( *mtRandom, realUniformDist(0,1));
     double u = sampleUniform();
 
     for (size_t i=0; i < cumprob_.size(); ++i)
@@ -138,7 +122,9 @@ namespace bayesopt
 	if (u < cumprob_(i))
 	  return i;
       }
-    return -1;
+    FILE_LOG(logERROR) << "Error updating Hedge algorithm. " 
+		       << "Selecting first criteria by default.";
+    return 0;
   };
 
 

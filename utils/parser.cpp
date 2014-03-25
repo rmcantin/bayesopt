@@ -1,21 +1,25 @@
 /*
------------------------------------------------------------------------------
-   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+-------------------------------------------------------------------------
+   This file is part of BayesOpt, an efficient C++ library for 
+   Bayesian optimization.
+
+   Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
-   This program is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
+   BayesOpt is free software: you can redistribute it and/or modify it 
+   under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   BayesOpt is distributed in the hope that it will be useful, but 
+   WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.
------------------------------------------------------------------------------
+   along with BayesOpt.  If not, see <http://www.gnu.org/licenses/>.
+------------------------------------------------------------------------
 */
+#include <stdexcept>
 #include <sstream>
 #include "parser.hpp"
 
@@ -27,7 +31,7 @@ namespace bayesopt
      * Parse expresions of the form Parent(Child1, Child2). The "childs"
      * can also be expressions of the same type.
      */
-    int parseExpresion(std::string input, std::string& parent,
+    void parseExpresion(std::string input, std::string& parent,
 		       std::string& child1, std::string& child2)
     {
       std::stringstream is(input);
@@ -38,7 +42,7 @@ namespace bayesopt
       int i = 0, j = 0;
       while (is >> c) 
 	{
-	  if (i < 0) return -1;
+	  if (i < 0) throw std::runtime_error("Error parsin expression:" + input);
 	  
 	  if (c == ' ') /* pass */;
 	  else if (c == '(') i++;
@@ -51,19 +55,18 @@ namespace bayesopt
 	      else os2 << c;
 	    }
 	}
-      if (i != 0) return -1;
+      if (i != 0) throw std::runtime_error("Error parsin expression:" + input);
 
       parent = os.str();
       child1 = os1.str();
       child2 = os2.str();
-      return 0;
     }
 
     /**
      * Parse expresions of the form Parent(Child1, ... ,ChildN). The "childs"
      * can also be expressions of the same type.
      */
-    int parseExpresion(std::string input, std::string& parent,
+    void parseExpresion(std::string input, std::string& parent,
 		       std::vector<std::string>& childs)
     {
       std::stringstream is(input);
@@ -75,7 +78,7 @@ namespace bayesopt
       childs.clear();
       while (is >> c) 
 	{
-	  if (i < 0) return -1;
+	  if (i < 0) throw std::runtime_error("Error parsin expression:" + input);
 
 	  if (c == ' ') /* pass */;
 	  else if (c == '(') 
@@ -98,12 +101,11 @@ namespace bayesopt
 	      else os1 << c;
 	    }
 	}
-      if (i != 0) return -1;
+      if (i != 0) throw std::runtime_error("Error parsin expression:" + input);
 
       parent = os.str();
-      return 0;
-    }
-
+    } 
+    
   } //namespace utils
 
 } //namespace bayesopt

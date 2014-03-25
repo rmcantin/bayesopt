@@ -24,10 +24,13 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} 
 		      ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
-set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} /opt/local/lib /opt/local/Library)
-set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} /opt/local/include
-                                             /opt/local/Library)
-set(CMAKE_PROGRAM_PATH ${CMAKE_PROGRAM_PATH} /opt/local/bin/ /opt/local/Library)
+if(APPLE)
+  # For macports or similar systems
+  set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} /opt/local/lib /opt/local/Library)
+  set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} /opt/local/include
+                                               /opt/local/Library)
+  set(CMAKE_PROGRAM_PATH ${CMAKE_PROGRAM_PATH} /opt/local/bin/ /opt/local/Library)
+endif(APPLE)
 
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -42,6 +45,7 @@ SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
 option(BAYESOPT_BUILD_EXAMPLES "Build examples and demos?" ON)
+option(BAYESOPT_BUILD_TESTS "Build tests?" OFF)
 option(BAYESOPT_PYTHON_INTERFACE "Build Python interface?" OFF)
 option(BAYESOPT_MATLAB_COMPATIBLE "Build library compatible with Matlab?" ON)
 option(BAYESOPT_BUILD_SOBOL "Build support for Sobol sequences?" ON)
@@ -64,6 +68,8 @@ ENDIF(NLOPT MATCHES NLOPT-NOTFOUND)
 
 INCLUDE(UseDoxygen)
 
+# Sobol sequences are hardcoded tables, so it might take a lot of time
+# to compile.
 IF(BAYESOPT_BUILD_SOBOL)
   ADD_DEFINITIONS(-DUSE_SOBOL)	
   SET(SOBOL_SRC
@@ -82,6 +88,8 @@ SET( BAYESOPT_SRCS
   ./src/bayesoptbase.cpp
   ./src/inneroptimization.cpp
   ./src/nonparametricprocess.cpp
+  ./src/kernelregressor.cpp
+  ./src/conditionalbayesprocess.cpp
   ./src/hierarchical_gaussian_process.cpp
   ./src/gaussian_process.cpp
   ./src/gaussian_process_ml.cpp
@@ -104,7 +112,6 @@ SET(UTILS_SRC
   )
 
 SET(WRAPPPERS_SRC 
-  ./wrappers/nloptwpr.cpp
   ./wrappers/bayesoptwpr.cpp
   )
 
@@ -118,8 +125,8 @@ INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/include
 LINK_DIRECTORIES( ${CMAKE_SOURCE_DIR}/lib )
 
 IF(NLOPT_BUILD)
-  ADD_SUBDIRECTORY(nlopt)
-  include_directories(${CMAKE_SOURCE_DIR}/nlopt/api)
+  ADD_SUBDIRECTORY(nlopt2)
+  include_directories(${CMAKE_SOURCE_DIR}/nlopt2/api)
   SET(EXT_LIBS nlopt)
 ELSE(NLOPT_BUILD)
   SET(EXT_LIBS ${NLOPT})
@@ -152,14 +159,18 @@ ENDIF()
   
 TARGET_LINK_LIBRARIES(bayesopt ${EXT_LIBS})
 
+IF(BAYESOPT_BUILD_TESTS)
+  ADD_SUBDIRECTORY(tests)
+endif(BAYESOPT_BUILD_TESTS)
+
+
 IF(BAYESOPT_BUILD_EXAMPLES)
   ADD_SUBDIRECTORY(examples)
 endif(BAYESOPT_BUILD_EXAMPLES)
 
 INSTALL(FILES 
-  ./include/bayesoptcont.hpp 
-  ./include/bayesoptdisc.hpp 
-  ./wrappers/bayesoptwpr.h 
+  ./include/bayesopt.hpp 
+  ./wrappers/bayesopt.h 
   DESTINATION include
 )
 
@@ -169,9 +180,15 @@ INSTALL(
   ARCHIVE DESTINATION lib
 )
 
+
 IF(BAYESOPT_PYTHON_INTERFACE)
   INCLUDE(PythonMagic)
   INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
+#  find_package(python)
+#  find_python_module(numpy REQUIRED)
+#  string(REGEX REPLACE "__init.py.*" "core/include/${module}" 
+#	    		PY_MOD_INCLUDE "PY_NUMPY")
+#  include_directories(${PYTHON_INCLUDE_DIRS} ${PY_NUMPY_INCLUDE_DIRS} )
 
   ADD_LIBRARY(esopt MODULE ${BAYESOPT_SRCS}   
     ${WRAPPPERS_SRC} ${UTILS_SRC} ./python/bayesopt.cpp)
@@ -185,6 +202,8 @@ IF(BAYESOPT_PYTHON_INTERFACE)
   IF(NOT WIN32)
     # Kind of a hack but it works
     SET_TARGET_PROPERTIES(esopt PROPERTIES PREFIX "bay" SUFFIX ".so")
+  ELSE()
+    SET_TARGET_PROPERTIES(esopt PROPERTIES PREFIX "libbay" SUFFIX ".dll")
   ENDIF()
 
   INSTALL(

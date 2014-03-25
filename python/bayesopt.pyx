@@ -31,10 +31,10 @@ cdef extern from *:
 ###########################################################################
 cdef extern from "parameters.h":
 
-    ctypedef enum surrogate_name:
+    ctypedef enum learning_type:
         pass
 
-    ctypedef enum learning_type:
+    ctypedef enum score_type:
         pass
 
     ctypedef struct kernel_parameters:
@@ -50,9 +50,12 @@ cdef extern from "parameters.h":
         unsigned int n_coef
 
     ctypedef struct bopt_params:
-        unsigned int n_iterations, n_inner_iterations,
-        unsigned int n_init_samples, n_iter_relearn,
+        unsigned int n_iterations
+        unsigned int n_inner_iterations
+        unsigned int n_init_samples
+        unsigned int n_iter_relearn
         unsigned int init_method
+        unsigned int use_random_seed
         unsigned int verbose_level
         char* log_filename
         char* surr_name
@@ -60,6 +63,7 @@ cdef extern from "parameters.h":
         double noise
         double alpha, beta
         learning_type l_type
+        score_type sc_type
         double epsilon
         kernel_parameters kernel
         mean_parameters mean
@@ -67,16 +71,17 @@ cdef extern from "parameters.h":
         double* crit_params
         unsigned int n_crit_params
 
-    surrogate_name str2surrogate(char* name)
-    learning_type str2learn(char* name)
 
-    char* surrogate2str(surrogate_name name)
+    learning_type str2learn(char* name)
     char* learn2str(learning_type name)
+
+    score_type str2score(char* name)
+    char* score2str(score_type name)
 
     bopt_params initialize_parameters_to_default()
 
 ###########################################################################
-cdef extern from "bayesoptwpr.h":
+cdef extern from "bayesopt.h":
     ctypedef double (*eval_func)(unsigned int n, const_double_ptr x,
                                  double *gradient, void *func_data)
 
@@ -100,7 +105,9 @@ cdef bopt_params dict2structparams(dict dparams):
                                             params.n_inner_iterations)
     params.n_init_samples = dparams.get('n_init_samples',params.n_init_samples)
     params.n_iter_relearn = dparams.get('n_iter_relearn',params.n_iter_relearn)
+
     params.init_method = dparams.get('init_method',params.init_method)
+    params.use_random_seed = dparams.get('use_random_seed',params.use_random_seed)
 
     params.verbose_level = dparams.get('verbose_level',params.verbose_level)
     logname = dparams.get('log_filename',params.log_filename)
@@ -113,10 +120,15 @@ cdef bopt_params dict2structparams(dict dparams):
     params.alpha = dparams.get('alpha',params.alpha)
     params.beta = dparams.get('beta',params.beta)
 
-    learning = dparams.get('learning_type', None)
+    learning = dparams.get('l_type', None)
     if learning is not None:
         params.l_type = str2learn(learning)
 
+    score = dparams.get('sc_type', None)
+    if score is not None:
+        params.sc_type = str2score(score)
+
+        
     params.epsilon = dparams.get('epsilon',params.epsilon)
 
     kname = dparams.get('kernel_name',params.kernel.name)
@@ -168,6 +180,7 @@ def initialize_params():
         "n_init_samples" : 30,
         "n_iter_relearn" : 0,
         "init_method" : 1,
+        "use_random_seed" : 1,
         "verbose_level"  : 1,
         "log_filename"   : "bayesopt.log" ,
         "surr_name" : "sGaussianProcess" ,
@@ -175,7 +188,8 @@ def initialize_params():
         "noise"  : 0.001,
         "alpha"  : 1.0,
         "beta"   : 1.0,
-        "l_type" : "L_MAP",
+        "sc_type" : "SC_MAP",
+        "l_type" : "L_EMPIRICAL",
         "epsilon" : 0.0,
         "kernel_name" : "kMaternISO3",
         "kernel_hp_mean"  : [1.0],

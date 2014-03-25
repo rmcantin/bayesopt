@@ -27,7 +27,8 @@
 #define __INNEROPTIMIZATION_HPP__
 
 #include "dll_stuff.h"
-#include "specialtypes.hpp"
+#include "optimizable.hpp"
+//#include "optimization.hpp"
 
 namespace bayesopt {
 
@@ -36,81 +37,110 @@ namespace bayesopt {
     DIRECT,    ///< Global optimization
     LBFGS,     ///< Local, derivative based
     BOBYQA,    ///< Local, derivative free
-    COMBINED   ///< Global exploration, local refinement
+    COMBINED   ///< Global exploration, local refinement (hand tuned)
   } innerOptAlgorithms;
 
 
-  class BAYESOPT_API InnerOptimization
+  class RBOptimizableWrapper
   {
   public:
-    InnerOptimization()
-      { 
-	alg = DIRECT;    mDown = 0.;    mUp = 1.;
-      };
-
-    virtual ~InnerOptimization(){};
-
-    /** 
-     * Set the optimization algorithm
-     * 
-     * @param newAlg 
-     */
-    void setAlgorithm(innerOptAlgorithms newAlg)
-    { alg = newAlg; }
-
-    /** 
-     * Limits of the hypercube. 
-     * Currently, it assumes that all dimensions have the same limits.
-     * 
-     * @param down 
-     * @param up 
-     */
-    void setLimits(double down, double up)
-    {
-      mDown = down;   mUp = up;
-    }
-
-    /** 
-     * Compute the inner optimization algorithm
-     * 
-     * @param Xnext input: initial guess, output: result
-     * 
-     * @return error_code
-     */
-    int innerOptimize(vectord &Xnext);
-    int innerOptimize(double* x, int n, void* objPointer);	
-
-
-    /** 
-     * Virtual function to be overriden by the actual function to be evaluated
-     * 
-     * @param query input point
-     * 
-     * @return function value at query point
-     */
-    virtual double innerEvaluate(const vectord& query) 
-    {return 0.0;};
-
-
-    /** 
-     * Virtual function to be overriden by the actual function to be evaluated
-     * 
-     * @param query input point
-     * @param grad output gradient at query point
-     * 
-     * @return function value at query point
-     */
-    virtual double innerEvaluate(const vectord& query, 
-				 vectord& grad) 
-    {return 0.0;};
-
-
-  protected:
-
-    innerOptAlgorithms alg;
-    double mDown, mUp;
+    explicit RBOptimizableWrapper(RBOptimizable* rbo): rbo_(rbo){};
+    virtual ~RBOptimizableWrapper(){};
+    double evaluate(const vectord& query){return rbo_->evaluate(query);}
+  private:
+    RBOptimizable* rbo_;
   };
 
+  class RGBOptimizableWrapper
+  {
+  public:
+    explicit RGBOptimizableWrapper(RGBOptimizable* rgbo): rgbo_(rgbo){};
+    virtual ~RGBOptimizableWrapper(){};
+    double evaluate(const vectord& query, vectord& grad){return rgbo_->evaluate(query,grad);}
+  private:
+    RGBOptimizable* rgbo_;
+  };
+
+
+  class NLOPT_Optimization //: public Optimization
+  {
+  public:
+    NLOPT_Optimization(RBOptimizable* rbo, size_t dim);
+    NLOPT_Optimization(RGBOptimizable* rgbo, size_t dim);
+    virtual ~NLOPT_Optimization();
+
+    /** Sets the optimization algorithm  */
+    void setAlgorithm(innerOptAlgorithms newAlg);
+
+    /** Sets the optimization algorithm  */
+    void setMaxEvals(size_t meval);
+
+    /** Limits of the hypercube. */
+    void setLimits(const vectord& down, const vectord& up);
+
+    /** Limits of the hypercube assuming that all dimensions have the same limits. */
+    void setLimits(double down, double up);
+
+    /** Compute the inner optimization algorithm
+     * @param Xnext input: initial guess, output: result
+     */
+    void run(vectord &Xnext);
+
+    /** 
+     * Wrapper of inner optimization to be evaluated by NLOPT
+     * 
+     * @param n # of dimensions
+     * @param x input point
+     * @param grad (NOT USED. Only for compatibily with NLOPT template, see evaluate_nlopt_grad)
+     * @param my_func_data pointer to the NLOPT_Optimization object
+     * 
+     * @return function evaluation
+     */  
+    static double evaluate_nlopt (unsigned int n, const double *x,
+				  double *grad, void *my_func_data);
+
+    /** 
+     * Wrapper of inner optimization to be evaluated by NLOPT
+     * 
+     * @param n # of dimensions
+     * @param x input point
+     * @param grad returns gradient evaluation
+     * @param my_func_data pointer to the NLOPT_Optimization object
+     * 
+     * @return function evaluation
+     */  
+    static double evaluate_nlopt_grad (unsigned int n, const double *x,
+				       double *grad, void *my_func_data);
+
+  private:
+    RBOptimizableWrapper *rbobj;
+    RGBOptimizableWrapper *rgbobj;
+
+    innerOptAlgorithms alg;
+    std::vector<double> mDown, mUp;
+    size_t maxEvals;
+  };
+
+
+  inline void NLOPT_Optimization::setAlgorithm(innerOptAlgorithms newAlg)
+  { alg = newAlg; }
+
+  inline void NLOPT_Optimization::setMaxEvals(size_t meval)
+  { maxEvals = meval; }
+
+  inline void NLOPT_Optimization::setLimits(const vectord& down, const vectord& up)
+  { 
+    std::copy(down.begin(),down.end(),mDown.begin());
+    std::copy(up.begin(),up.end(),mUp.begin());
+  }
+
+  inline void NLOPT_Optimization::setLimits(double down, double up)
+  { 
+    for(size_t i = 0; i<mDown.size();++i) 
+      {
+	mDown[i] = down; mUp[i] = up;
+      }
+  };
 }//namespace bayesopt
 
 #endif

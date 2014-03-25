@@ -17,7 +17,6 @@
 -----------------------------------------------------------------------------
 */
 
-
 #include "cholesky.hpp"
 #include "trace_ublas.hpp"
 #include "student_t_process_jef.hpp"
@@ -28,10 +27,13 @@ namespace bayesopt
   namespace ublas = boost::numeric::ublas; 
 
   StudentTProcessJeffreys::StudentTProcessJeffreys(size_t dim, 
-						   bopt_params params):
-    HierarchicalGaussianProcess(dim, params)
+						   bopt_params params, 
+						   const Dataset& data, 
+						   randEngine& eng):
+    HierarchicalGaussianProcess(dim, params, data,eng)
   {
-    d_ = new StudentTDistribution();
+    mSigma = params.sigma_s;
+    d_ = new StudentTDistribution(eng);
   }  // Constructor
 
 
@@ -54,50 +56,53 @@ namespace bayesopt
   ProbabilityDistribution* 
   StudentTProcessJeffreys::prediction(const vectord &query )
   {
-    double kq = (*mKernel)(query, query);;
-    vectord kn = computeCrossCorrelation(query);
-    vectord phi = mMean->getFeatures(query);
+    clock_t start = clock();
+    double kq = computeSelfCorrelation(query);
+    //    vectord kn = computeCrossCorrelation(query);
+    mKernel.computeCrossCorrelation(mData.mX,query,mKn);
+    vectord phi = mMean.getFeatures(query);
   
-    vectord v(kn);
-    inplace_solve(mL,v,ublas::lower_tag());
+    //    vectord v(mKn);
+    inplace_solve(mL,mKn,ublas::lower_tag());
 
-    vectord rq = phi - prod(v,mKF);
+    vectord rho = phi - prod(mKn,mKF);
 
-    vectord rho(rq);
+    //    vectord rho(rq);
     inplace_solve(mL2,rho,ublas::lower_tag());
     
-    double yPred = inner_prod(phi,mWML) + inner_prod(v,mAlphaF);
-    double sPred = sqrt( mSigma * (kq - inner_prod(v,v) 
+    double yPred = inner_prod(phi,mWML) + inner_prod(mKn,mAlphaF);
+    double sPred = sqrt( mSigma * (kq - inner_prod(mKn,mKn) 
 				   + inner_prod(rho,rho)));
 
     d_->setMeanAndStd(yPred,sPred);
     return d_;
   }
 
-  int StudentTProcessJeffreys::precomputePrediction()
+  void StudentTProcessJeffreys::precomputePrediction()
   {
-    size_t n = mGPXX.size();
-    size_t p = mMean->nFeatures();
+    size_t n = mData.getNSamples();
+    size_t p = mMean.nFeatures();
 
-    mKF = trans(mFeatM);
+    mKn.resize(n);
+
+    mKF = trans(mMean.mFeatM);
     inplace_solve(mL,mKF,ublas::lower_tag());
 
     matrixd FKF = prod(trans(mKF),mKF);
     mL2 = FKF;
     utils::cholesky_decompose(FKF,mL2);
 
-    vectord Ky(mGPY);
+    vectord Ky(mData.mY);
     inplace_solve(mL,Ky,ublas::lower_tag());
 
     mWML = prod(Ky,mKF);
     utils::cholesky_solve(mL2,mWML,ublas::lower());
 
-    mAlphaF = mGPY - prod(mWML,mFeatM);
+    mAlphaF = mData.mY - prod(mWML,mMean.mFeatM);
     inplace_solve(mL,mAlphaF,ublas::lower_tag());
     mSigma = inner_prod(mAlphaF,mAlphaF)/(n-p);
     
     d_->setDof(n-p);  
-    return 0;
   }
 
 } //namespace bayesopt

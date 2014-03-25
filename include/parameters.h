@@ -37,17 +37,27 @@ extern "C" {
   /*************************************************************/
   
   typedef enum {
-    L_ML,
-    L_MAP,
-    L_LOO,
+    L_FIXED,
+    L_EMPIRICAL,
+    L_DISCRETE,
+    L_MCMC,
     L_ERROR = -1
   } learning_type;
+
+  typedef enum {
+    SC_MTL,
+    SC_ML,
+    SC_MAP,
+    SC_LOOCV,
+    SC_ERROR = -1
+  } score_type;
+
 
   /** Kernel configuration parameters */
   typedef struct {
     char*  name;                 /**< Name of the kernel function */
-    double hp_mean[128];         /**< Kernel hyperparameters prior (mean) */
-    double hp_std[128];          /**< Kernel hyperparameters prior (st dev) */
+    double hp_mean[128];         /**< Kernel hyperparameters prior (mean, log space) */
+    double hp_std[128];          /**< Kernel hyperparameters prior (st dev, log space) */
     size_t n_hp;                 /**< Number of kernel hyperparameters */
   } kernel_parameters;
 
@@ -58,23 +68,37 @@ extern "C" {
     size_t n_coef;               /**< Number of mean funct. hyperparameters */
   } mean_parameters;
 
-  /** \brief Configuration parameters */
+  /** \brief Configuration parameters 
+   *  @see \ref reference for a full description of the parameters
+   */
   typedef struct {
     size_t n_iterations;         /**< Maximum BayesOpt evaluations (budget) */
     size_t n_inner_iterations;   /**< Maximum inner optimizer evaluations */
     size_t n_init_samples;       /**< Number of samples before optimization */
     size_t n_iter_relearn;       /**< Number of samples before relearn kernel */
-    size_t init_method;   /**< Sampling method for initial set 1-LHS, 2-Sobol (if available), other uniform */
+
+    /** Sampling method for initial set 1-LHS, 2-Sobol (if available),
+     *  other value-uniformly distributed */
+    size_t init_method;          
+    size_t use_random_seed;      /**< 0-Fixed seed, 1-Random (time) seed.*/    
 
     size_t verbose_level;        /**< 1-Error,2-Warning,3-Info. 4-6 log file*/
     char* log_filename;          /**< Log file path (if applicable) */
+
+    size_t load_save_flag;       /**< 1-Load data,2-Save data,
+				      3-Load and save data. */
+    char* load_filename;          /**< Init data file path (if applicable) */
+    char* save_filename;          /**< Sava data file path (if applicable) */
 
     char* surr_name;             /**< Name of the surrogate function */
     double sigma_s;              /**< Signal variance (if known) */
     double noise;                /**< Observation noise (and nugget) */
     double alpha;                /**< Inverse Gamma prior for signal var */
     double beta;                 /**< Inverse Gamma prior for signal var*/
+
+    score_type sc_type;          /**< Score type for kernel hyperparameters (ML,MAP,etc) */
     learning_type l_type;        /**< Type of learning for the kernel params*/
+
     double epsilon;              /**< For epsilon-greedy exploration */
 
     kernel_parameters kernel;    /**< Kernel parameters */
@@ -92,7 +116,7 @@ extern "C" {
 
   /* Nonparametric process "parameters" */
   const double KERNEL_THETA    = 1.0;
-  const double KERNEL_SIGMA    = 100.0;
+  const double KERNEL_SIGMA    = 10.0;
   const double MEAN_MU         = 1.0;
   const double MEAN_SIGMA      = 1000.0;
   const double PRIOR_ALPHA     = 1.0;
@@ -125,6 +149,13 @@ extern "C" {
 
   /* BAYESOPT_API const char* surrogate2str(surrogate_name name); */
   BAYESOPT_API const char* learn2str(learning_type name);
+
+  /* surrogate_name str2surrogate (const char* name); */
+  BAYESOPT_API score_type str2score(const char* name);
+
+  /* BAYESOPT_API const char* surrogate2str(surrogate_name name); */
+  BAYESOPT_API const char* score2str(score_type name);
+
 
   BAYESOPT_API bopt_params initialize_parameters_to_default(void);
 

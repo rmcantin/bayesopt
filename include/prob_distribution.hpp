@@ -32,7 +32,7 @@
 class ProbabilityDistribution
 {
 public:
-  ProbabilityDistribution(){};
+  ProbabilityDistribution(randEngine& eng): mtRandom(eng) {};
   virtual ~ProbabilityDistribution(){};
 
   /** 
@@ -76,10 +76,13 @@ public:
    * @param eng boost.random engine
    * @return outcome
    */
-  virtual double sample_query(randEngine& eng) = 0;
+  virtual double sample_query() = 0;
 
   virtual double getMean() = 0;
   virtual double getStd() = 0;
+
+protected:
+  randEngine& mtRandom;
 };
 
 

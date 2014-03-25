@@ -24,7 +24,9 @@
 #ifndef  _CRITERIA_FUNCTORS_HPP_
 #define  _CRITERIA_FUNCTORS_HPP_
 
+#include <map>
 #include <algorithm>
+#include "optimizable.hpp"
 #include "nonparametricprocess.hpp"
 
 namespace bayesopt
@@ -39,34 +41,34 @@ namespace bayesopt
   /**
    * \brief Abstract interface for criteria functors.
    */
-  class Criteria
+  class Criteria: public RBOptimizable
   {
   public:
     virtual ~Criteria() {};
-    virtual int init(NonParametricProcess *proc) { return 0; };
-    virtual int init(NonParametricProcess *proc, 
-		     const std::vector<Criteria*>& list) { return 0; };
+    virtual void init(NonParametricProcess *proc) { };
+    virtual void init(NonParametricProcess *proc, 
+		     const std::vector<Criteria*>& list) { };
 
-    virtual bool requireComparison() = 0;
+    double evaluate(const vectord &x) {return (*this)(x);}
     virtual double operator()(const vectord &x) = 0;
+
     virtual std::string name() = 0;
-    virtual int setParameters(const vectord &params) = 0;
+    virtual void setParameters(const vectord &params) = 0;
     virtual size_t nParameters() = 0;
 
-    //Dummy functions.
+    //Dummy functions. Not all criteria support these methods.
     virtual void reset() { assert(false); };
-    virtual bool checkIfBest(vectord& xNext,
-			     std::string& name,
-			     int& error_code) { assert(false); return false; };
+    void setRandomEngine(randEngine& eng){ mtRandom = &eng; }
+
+    // In general, most criteria does not support comparisons!
+    virtual bool requireComparison(){ return false; };
+    virtual bool checkIfBest(vectord& xNext,std::string& name)
+    { assert(false); return false; };
+
   protected:
     NonParametricProcess *mProc;
+    randEngine* mtRandom;
   };
-
-
-  template <typename CriteriaType> Criteria * create_func()
-  {
-    return new CriteriaType();
-  }
 
 
   /** 

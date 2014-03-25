@@ -26,12 +26,10 @@
 
 learning_type str2learn(const char* name)
 {
-  if      (!strcmp(name,  "L_ML"))
-    return L_ML;
-  else if (!strcmp(name,  "L_MAP"))
-    return L_MAP;
-  else if (!strcmp(name,  "L_LOO"))
-    return L_LOO;
+  if      (!strcmp(name,"L_FIXED"))     return L_FIXED;
+  else if (!strcmp(name,"L_EMPIRICAL")) return L_EMPIRICAL;
+  else if (!strcmp(name,"L_DISCRETE"))  return L_DISCRETE;
+  else if (!strcmp(name,"L_MCMC"))      return L_MCMC;
   else return L_ERROR;
 }
 
@@ -42,13 +40,41 @@ const char* learn2str(learning_type name)
 {
   switch(name)
     {
-    case L_ML: return "L_ML"; 
-    case L_MAP: return "L_MAP"; 
-    case L_LOO: return "L_LOO"; 
+    case L_FIXED:     return "L_FIXED"; 
+    case L_EMPIRICAL: return "L_EMPIRICAL"; 
+    case L_DISCRETE:  return "L_DISCRETE"; 
+    case L_MCMC:      return "L_MCMC"; 
     case L_ERROR:
     default: return "ERROR!";
     }
 }
+
+
+score_type str2score(const char* name)
+{
+  if      (!strcmp(name,  "SC_MTL"))   return SC_MTL;
+  else if (!strcmp(name,  "SC_ML"))    return SC_ML;
+  else if (!strcmp(name,  "SC_MAP"))   return SC_MAP;
+  else if (!strcmp(name,  "SC_LOOCV")) return SC_LOOCV;
+  else return SC_ERROR;
+}
+
+
+
+
+const char* score2str(score_type name)
+{
+  switch(name)
+    {
+    case SC_MTL:   return "SC_MTL"; 
+    case SC_ML:    return "SC_ML"; 
+    case SC_MAP:   return "SC_MAP"; 
+    case SC_LOOCV: return "SC_LOOCV"; 
+    case SC_ERROR:
+    default: return "ERROR!";
+    }
+}
+
 
 /*
 char DEF_LOG_FILE[128] = "bayesopt.log";
@@ -117,11 +143,19 @@ bopt_params initialize_parameters_to_default(void)
   params.n_inner_iterations = MAX_INNER_EVALUATIONS;
   params.n_init_samples = DEFAULT_SAMPLES;
   params.n_iter_relearn = 0;
+
   params.init_method = 1;
+  params.use_random_seed = 1;
 
   params.verbose_level = DEFAULT_VERBOSE;
   params.log_filename = new char[128];
   strcpy(params.log_filename,"bayesopt.log");
+
+  params.load_save_flag = 0;
+  params.load_filename = new char[128];
+  strcpy(params.log_filename,"bayesopt.dat");
+  params.save_filename = new char[128];
+  strcpy(params.log_filename,"bayesopt.dat");
 
   params.surr_name = new char[128];
   strcpy(params.surr_name,"sGaussianProcess");
@@ -130,7 +164,8 @@ bopt_params initialize_parameters_to_default(void)
   params.noise = DEFAULT_NOISE;
   params.alpha = PRIOR_ALPHA;
   params.beta = PRIOR_BETA;
-  params.l_type = L_MAP;
+  params.l_type = L_EMPIRICAL;
+  params.sc_type = SC_MAP;
   params.epsilon = 0.0;
   
   params.crit_name = new char[128];

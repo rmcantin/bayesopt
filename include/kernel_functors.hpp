@@ -25,6 +25,8 @@
 #define  _KERNEL_FUNCTORS_HPP_
 
 #include <map>
+#include <boost/scoped_ptr.hpp>
+#include <boost/math/distributions/normal.hpp> 
 #include "parameters.h"
 #include "specialtypes.hpp"
 
@@ -41,27 +43,28 @@ namespace bayesopt
   class Kernel
   {
   public:
-    virtual int init(size_t input_dim) {return 0;};
-    virtual int init(size_t input_dim, Kernel* left, Kernel* right) {return 0;};
+    virtual ~Kernel(){};
+    virtual void init(size_t input_dim) {};
+    virtual void init(size_t input_dim, Kernel* left, Kernel* right) {};
 
-    virtual int setHyperParameters(const vectord &theta) = 0;
+    virtual void setHyperParameters(const vectord &theta) = 0;
     virtual vectord getHyperParameters() = 0;
     virtual size_t nHyperParameters() = 0;
 
     virtual double operator()( const vectord &x1, const vectord &x2 ) = 0;
     virtual double gradient( const vectord &x1, const vectord &x2,
 			     size_t component ) = 0;
-    virtual ~Kernel(){};
 
   protected:
     size_t n_inputs;
   };
 
+
+
   template <typename KernelType> Kernel * create_func()
   {
     return new KernelType();
   }
-
 
   /** 
    * \brief Factory model for kernel functions
@@ -82,6 +85,94 @@ namespace bayesopt
     typedef Kernel* (*create_func_definition)();
     std::map<std::string , KernelFactory::create_func_definition> registry;
   };
+
+
+  class KernelModel
+  {
+  public:
+    KernelModel(size_t dim, bopt_params parameters);
+    virtual ~KernelModel() {};
+
+    Kernel* getKernel();
+    
+    void setHyperParameters(const vectord &theta);
+    vectord getHyperParameters();
+    size_t nHyperParameters();
+
+
+    /** 
+     * \brief Select kernel (covariance function) for the surrogate process.
+     * @param thetav kernel parameters (mean)
+     * @param stheta kernel parameters (std)
+     * @param k_name kernel name
+     */
+    void setKernel (const vectord &thetav, const vectord &stheta, 
+		   std::string k_name, size_t dim);
+
+    /** Wrapper of setKernel for C kernel structure */
+    void setKernel (kernel_parameters kernel, size_t dim);
+
+    void computeCorrMatrix(const vecOfvec& XX, matrixd& corrMatrix, double nugget);
+    void computeDerivativeCorrMatrix(const vecOfvec& XX, matrixd& corrMatrix, 
+				    int dth_index);
+    vectord computeCrossCorrelation(const vecOfvec& XX, const vectord &query);
+    void computeCrossCorrelation(const vecOfvec& XX, const vectord &query,
+				 vectord& knx);
+    double computeSelfCorrelation(const vectord& query);
+    double kernelLogPrior();
+
+  private:
+    /** Set prior (Gaussian) for kernel hyperparameters */
+    void setKernelPrior (const vectord &theta, const vectord &s_theta);
+
+    boost::scoped_ptr<Kernel> mKernel;            ///< Pointer to kernel function
+    std::vector<boost::math::normal> priorKernel; ///< Prior of kernel parameters
+  };
+
+  inline Kernel* KernelModel::getKernel()
+  { return mKernel.get();  }
+
+  inline void KernelModel::setHyperParameters(const vectord &theta)
+  { mKernel->setHyperParameters(theta); };
+    
+  inline vectord KernelModel::getHyperParameters()
+  {return mKernel->getHyperParameters();};
+  
+  inline size_t KernelModel::nHyperParameters()
+  {return mKernel->nHyperParameters();};
+
+  inline vectord KernelModel::computeCrossCorrelation(const vecOfvec& XX, 
+						      const vectord &query)
+  {
+    vectord knx(XX.size());
+    computeCrossCorrelation(XX,query,knx);
+    return knx;
+  }
+
+  inline void KernelModel::computeCrossCorrelation(const vecOfvec& XX, 
+						   const vectord &query,
+						   vectord& knx)
+  {
+    std::vector<vectord>::const_iterator x_it  = XX.begin();
+    vectord::iterator k_it = knx.begin();
+    while(x_it != XX.end())
+      {	*k_it++ = (*mKernel)(*x_it++, query); }
+  }
+
+
+  inline double KernelModel::computeSelfCorrelation(const vectord& query)
+  { return (*mKernel)(query,query); }
+
+  inline void KernelModel::setKernelPrior (const vectord &theta, 
+					   const vectord &s_theta)
+  {
+    for (size_t i = 0; i<theta.size(); ++i)
+      {
+	boost::math::normal n(theta(i),s_theta(i));
+	priorKernel.push_back(n);
+      }
+  };
+
 
   //@}
 

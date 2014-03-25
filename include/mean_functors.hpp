@@ -25,6 +25,7 @@
 #define  _MEAN_FUNCTORS_HPP_
 
 #include <map>
+#include <boost/scoped_ptr.hpp>
 #include "parameters.h"
 #include "specialtypes.hpp"
 
@@ -64,7 +65,7 @@ namespace bayesopt
 
 
     virtual size_t nFeatures() = 0;
-    virtual vectord getFeatures(const vectord& x) = 0;  
+    virtual vectord getFeatures(const vectord& x) = 0;
     virtual matrixd getAllFeatures(const vecOfvec& x)
     {
       size_t nf = nFeatures();
@@ -110,6 +111,91 @@ namespace bayesopt
     typedef ParametricFunction* (*create_func_definition)();
     std::map<std::string , MeanFactory::create_func_definition> registry;
   };
+
+  class MeanModel
+  {
+  public:
+    MeanModel(size_t dim, bopt_params parameters);
+    virtual ~MeanModel() {};
+
+    ParametricFunction* getMeanFunc();
+   
+    int setParameters(const vectord &theta);
+    vectord getParameters();
+    size_t nParameters();
+
+    vectord getFeatures(const vectord& x);  
+    void getFeatures(const vectord& x, vectord& kx);  
+    size_t nFeatures();
+
+    void setPoints(const vecOfvec &x);
+    void addNewPoint(const vectord &x);
+
+    vectord muTimesFeat();
+    double muTimesFeat(const vectord& x);
+
+    /** 
+     * \brief Select the parametric part of the surrogate process.
+     * 
+     * @param muv mean function parameters
+     * @param smu std function parameters
+     * @param m_name mean function name
+     * @param dim number of input dimensions
+     * @return error_code
+     */
+    int setMean (const vectord &muv, const vectord &smu, 
+		 std::string m_name, size_t dim);
+
+    /** Wrapper of setMean for the C structure */
+    int setMean (mean_parameters mean, size_t dim);
+
+    matrixd mFeatM;           ///< Value of the mean features at the input points
+
+  private:
+    vectord mMu;                 ///< Mean of the parameters of the mean function
+    vectord mS_Mu;    ///< Variance of the params of the mean function W=mS_Mu*I
+
+    boost::scoped_ptr<ParametricFunction> mMean;    ///< Pointer to mean function   
+  };
+
+
+
+  inline ParametricFunction* MeanModel::getMeanFunc()
+  { return mMean.get(); }
+
+  inline int MeanModel::setParameters(const vectord &theta)
+  { return mMean->setParameters(theta); };
+    
+  inline vectord MeanModel::getParameters(){return mMean->getParameters();};
+  inline size_t MeanModel::nParameters(){return mMean->nParameters();};
+
+  inline vectord MeanModel::getFeatures(const vectord& x) 
+  { return mMean->getFeatures(x); }
+
+  inline void MeanModel::getFeatures(const vectord& x, vectord& kx)
+  { kx = mMean->getFeatures(x); }  
+
+  inline size_t MeanModel::nFeatures()
+  { return mMean->nFeatures(); }  
+
+  inline void MeanModel::setPoints(const vecOfvec &x)
+  { mFeatM = mMean->getAllFeatures(x); };
+
+  inline void MeanModel::addNewPoint(const vectord &x)
+  { 
+    using boost::numeric::ublas::column;
+    
+    mFeatM.resize(mFeatM.size1(),mFeatM.size2()+1);  
+    column(mFeatM,mFeatM.size2()-1) = mMean->getFeatures(x);
+  }
+
+  inline vectord MeanModel::muTimesFeat()
+  {  return boost::numeric::ublas::prod(mMu,mFeatM); }
+    
+  inline double MeanModel::muTimesFeat(const vectord& x)
+  { return boost::numeric::ublas::inner_prod(mMu,mMean->getFeatures(x));}
+
+
 
   //@}
 

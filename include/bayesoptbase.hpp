@@ -25,6 +25,7 @@
 #ifndef  _BAYESOPTBASE_HPP_
 #define  _BAYESOPTBASE_HPP_
 
+#include <boost/scoped_ptr.hpp>
 #include "criteria_functors.hpp"
 
 /**
@@ -62,49 +63,6 @@ namespace bayesopt {
     virtual ~BayesOptBase();
 
     /** 
-     * \brief Execute the optimization process of the function defined
-     * in evaluateSample.
-     * 
-     * @see evaluateSample
-     * @see checkReachability
-     *
-     * @param bestPoint returns point with the optimum value in a ublas::vector.
-     * @return 0 if terminate successfully, any other value otherwise
-     */
-    int optimize(vectord &bestPoint);
-
-    /** 
-     * \brief Execute ONE step the optimization process of the function defined
-     * in evaluateSample.
-     * 
-     * @see evaluateSample
-     * @see checkReachability
-     *
-     * @param ii iteration number.
-     * @return 0 if terminate successfully, any other value otherwise
-     */  
-    int stepOptimization(size_t ii);
-
-    /** 
-     * Initialize the optimization process.
-     * @return error_code
-     */
-    virtual int initializeOptimization() = 0;
-
-    /** 
-     * Once the optimization has been perfomed, return the optimal point.
-     */
-    virtual vectord getFinalResult() = 0;
-
-    /** 
-     * Once the optimization has been perfomed, return the value of
-     * the optimal point.
-     */
-    double getMinimumValue()
-    { return mGP->getValueAtMinimum(); };
-
-
-    /** 
      * \brief Function that defines the actual function to be optimized.
      * This function must be modified (overriden) according to the
      * specific problem.
@@ -136,6 +94,31 @@ namespace bayesopt {
 
 
     /** 
+     * \brief Execute the optimization process of the function defined
+     * in evaluateSample.
+     * 
+     * @see evaluateSample
+     * @see checkReachability
+     *
+     * @param bestPoint returns point with the optimum value in a ublas::vector.
+     * @return 0 if terminate successfully, any other value otherwise
+     */
+    int optimize(vectord &bestPoint);
+
+    /** 
+     * \brief Execute ONE step the optimization process of the
+     * function defined in evaluateSample.  
+     * @param ii iteration number.
+     */  
+    void stepOptimization(size_t ii);
+
+    /** Initialize the optimization process.  */
+    virtual void initializeOptimization() = 0;
+
+    /** Once the optimization has been perfomed, return the optimal point. */
+    virtual vectord getFinalResult() = 0;
+
+    /** 
      * \brief Evaluate the criteria considering if the query is
      * reachable or not.  This is a way to include non-linear
      * restrictions.
@@ -145,20 +128,19 @@ namespace bayesopt {
      * @param query query point
      * @return value of the criteria, 0 otherwise.
      */
-    inline double evaluateCriteria( const vectord &query )
-    {
-      bool reachable = checkReachability(query);
-      if (!reachable)  return 0.0;
-      return (*mCrit)(query);
-    };
+    double evaluateCriteria( const vectord &query );
 
-    
-    inline NonParametricProcess* getSurrogateModel()
-    { return mGP.get(); };
+    void setSamples(const matrixd &x, const vectord &y);
+    void setSample(const vectord &x, double y);
+    void addSample(const vectord &x, double y);
+    vectord getPointAtMinimum();
+    double getValueAtMinimum();
 
-    int setSurrogateModel();    
-    int setCriteria();
-    bopt_params* getParameters() {return &mParameters;};
+    NonParametricProcess* getSurrogateModel();
+    void setSurrogateModel();    
+    void  setCriteria();
+    bopt_params* getParameters();
+    randEngine& getRandomNumberGenerator();
 
   protected:
     /** 
@@ -167,11 +149,9 @@ namespace bayesopt {
      * @param iteration 
      * @param xNext 
      * @param yNext 
-     * 
-     * @return error code
      */
-    virtual int plotStepData(size_t iteration, const vectord& xNext,
-		     double yNext) = 0;
+    virtual void plotStepData(size_t iteration, const vectord& xNext,
+			      double yNext) = 0;
 
 
     /** 
@@ -188,33 +168,31 @@ namespace bayesopt {
      * @see evaluateCriteria
      *
      * @param xOpt optimal point
-     * @return error code
      */
-    virtual int findOptimal(vectord &xOpt) = 0;
+    virtual void findOptimal(vectord &xOpt) = 0;
   
-    /** 
-     * \brief Selects the initial set of points to build the surrogate
-     * model.
-     * @return error code
-     */
-    virtual int sampleInitialPoints() = 0;
+    /** Selects the initial set of points to build the surrogate model. */
+    virtual void sampleInitialPoints() = 0;
+
+    /** Sample a single point in the input space. Used for epsilon greedy exploration. */
+    virtual vectord samplePoint() = 0;
 
     /** 
      * \brief Selects the next point to evaluate according to a certain
      * criteria or metacriteria
      * 
-     * @param Xnext next point to evaluate
-     * @return error code
+     * @return next point to evaluate
      */
-    int nextPoint( vectord &Xnext );  
-
+    vectord nextPoint();  
 
 
   protected:
-    boost::scoped_ptr<NonParametricProcess> mGP;  ///< Pointer to surrogate model
-    boost::scoped_ptr<Criteria> mCrit;                    ///< Metacriteria model
-    bopt_params mParameters;                        ///< Configuration parameters
-    size_t mDims;                                       ///< Number of dimensions
+    Dataset mData;                  ///< Dataset (x-> inputs, y-> labels/output)
+    boost::scoped_ptr<NonParametricProcess> mGP; ///< Pointer to surrogate model
+    boost::scoped_ptr<Criteria> mCrit;                   ///< Metacriteria model
+    bopt_params mParameters;                       ///< Configuration parameters
+    size_t mDims;                                      ///< Number of dimensions
+    randEngine mEngine;                             ///< Random number generator
 
   private:
 
@@ -222,13 +200,45 @@ namespace bayesopt {
      * \brief Checks the parameters and setups the elements (criteria, 
      * surrogate, etc.)
      */
-    int __init__();
+    void __init__();
 
     CriteriaFactory mCFactory;
-    randEngine mEngine;
   };
 
   /**@}*/
+
+  inline void BayesOptBase::setSamples(const matrixd &x, const vectord &y)
+  { mData.setSamples(x,y);  mGP->setSamples(x,y);  }
+
+  inline void BayesOptBase::setSample(const vectord &x, double y)
+  { 
+    matrixd xx(1,x.size());  vectord yy(1);
+    row(xx,0) = x;           yy(0) = y;
+    mData.setSamples(xx,yy);   mGP->setSamples(xx,yy);  }
+
+  inline void BayesOptBase::addSample(const vectord &x, double y)
+  {  mData.addSample(x,y); mGP->addSample(x,y);  };
+
+  inline vectord BayesOptBase::getPointAtMinimum() 
+  { return mData.getPointAtMinimum(); };
+  
+  inline double BayesOptBase::getValueAtMinimum() 
+  { return mData.getValueAtMinimum(); };
+
+  inline double BayesOptBase::evaluateCriteria( const vectord &query )
+  {
+    if (checkReachability(query))  return (*mCrit)(query);
+    else return 0.0;
+  };
+
+  inline NonParametricProcess* BayesOptBase::getSurrogateModel()
+  { return mGP.get(); };
+
+  inline bopt_params* BayesOptBase::getParameters() 
+  {return &mParameters;};
+
+  inline randEngine& BayesOptBase::getRandomNumberGenerator() 
+  {return mEngine;};
 
 } //namespace bayesopt
 

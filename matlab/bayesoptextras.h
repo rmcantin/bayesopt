@@ -1,25 +1,25 @@
 /**  \file bayesoptextras.h 
               \brief Helper functions to Matlab/Octave wrappers. */
 /*
------------------------------------------------------------------------------
-   This file is part of BayesOptimization, an efficient C++ library for 
+-------------------------------------------------------------------------
+   This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
-   BayesOptimization is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
+   BayesOpt is free software: you can redistribute it and/or modify it 
+   under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
 
-   BayesOptimization is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   BayesOpt is distributed in the hope that it will be useful, but 
+   WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with BayesOptimization.  If not, see <http://www.gnu.org/licenses/>.
------------------------------------------------------------------------------
+   along with BayesOpt.  If not, see <http://www.gnu.org/licenses/>.
+------------------------------------------------------------------------
 */
 
 #ifndef __BAYESOPTEXTRAS_H__
@@ -31,8 +31,7 @@
 #include <math.h>
 #include <mex.h>
 
-#include "bayesoptwpr.h"
-#include "parameters.h"
+#include "bayesopt.h"
 
 
 #define CHECK0(cond, msg) if (!(cond)) mexErrMsgTxt(msg);
@@ -175,7 +174,7 @@ static bopt_params load_parameters(const mxArray* params)
   
   /* See parameters.h for the available options */
   
-  char l_str[100];
+  char l_str[100], sc_str[100];
   size_t n_hp_test, n_coef_test;
 
   bopt_params parameters = initialize_parameters_to_default();
@@ -187,7 +186,9 @@ static bopt_params load_parameters(const mxArray* params)
   struct_size(params,"n_inner_iterations", &parameters.n_inner_iterations);
   struct_size(params, "n_init_samples", &parameters.n_init_samples);
   struct_size(params, "n_iter_relearn", &parameters.n_iter_relearn);
+
   struct_size(params, "init_method", &parameters.init_method);
+  struct_size(params, "use_random_seed", &parameters.use_random_seed);
   
   struct_size(params, "verbose_level", &parameters.verbose_level);
   struct_string(params, "log_filename", parameters.log_filename);
@@ -203,6 +204,11 @@ static bopt_params load_parameters(const mxArray* params)
   strcpy( l_str, learn2str(parameters.l_type));
   struct_string(params, "l_type", l_str);
   parameters.l_type = str2learn(l_str);
+
+  strcpy( sc_str, score2str(parameters.sc_type));
+  struct_string(params, "sc_type", sc_str);
+  parameters.sc_type = str2score(sc_str);
+
 
   struct_value(params, "epsilon",  &parameters.epsilon);
 

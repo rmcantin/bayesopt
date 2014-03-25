@@ -29,10 +29,12 @@ namespace bayesopt
 
   namespace ublas = boost::numeric::ublas;
 
-  GaussianProcessML::GaussianProcessML(size_t dim, bopt_params params):
-    HierarchicalGaussianProcess(dim, params)
+  GaussianProcessML::GaussianProcessML(size_t dim, bopt_params params, 
+				       const Dataset& data, randEngine& eng):
+    HierarchicalGaussianProcess(dim, params, data, eng)
   {
-    d_ = new GaussianDistribution();
+    mSigma = params.sigma_s;
+    d_ = new GaussianDistribution(eng);
   }  // Constructor
 
 
@@ -54,9 +56,9 @@ namespace bayesopt
 
   ProbabilityDistribution* GaussianProcessML::prediction( const vectord &query )
   {
-    double kq = (*mKernel)(query, query);;
+    double kq = computeSelfCorrelation(query);
     vectord kn = computeCrossCorrelation(query);
-    vectord phi = mMean->getFeatures(query);
+    vectord phi = mMean.getFeatures(query);
   
     vectord v(kn);
     inplace_solve(mL,v,ublas::lower_tag());
@@ -74,29 +76,27 @@ namespace bayesopt
     return d_;
   }
 
-  int GaussianProcessML::precomputePrediction()
+  void GaussianProcessML::precomputePrediction()
   {
-    size_t n = mGPXX.size();
-    size_t p = mMean->nFeatures();
+    size_t n = mData.getNSamples();
+    size_t p = mMean.getMeanFunc()->nFeatures();
 
-    mKF = trans(mFeatM);
+    mKF = trans(mMean.mFeatM);
     inplace_solve(mL,mKF,ublas::lower_tag());
 
     matrixd FKF = prod(trans(mKF),mKF);
     mL2 = FKF;
     utils::cholesky_decompose(FKF,mL2);
 
-    vectord Ky(mGPY);
+    vectord Ky(mData.mY);
     inplace_solve(mL,Ky,ublas::lower_tag());
 
     mWML = prod(Ky,mKF);
     utils::cholesky_solve(mL2,mWML,ublas::lower());
 
-    mAlphaF = mGPY - prod(mWML,mFeatM);
+    mAlphaF = mData.mY - prod(mWML,mMean.mFeatM);
     inplace_solve(mL,mAlphaF,ublas::lower_tag());
     mSigma = inner_prod(mAlphaF,mAlphaF)/(n-p);
-  
-    return 0;
   }
 
 } //namespace bayesopt

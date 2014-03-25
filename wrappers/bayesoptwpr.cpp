@@ -1,8 +1,7 @@
 #include "log.hpp"
 #include "ublas_extra.hpp"
-#include "bayesoptwpr.h"
-#include "bayesoptcont.hpp"      
-#include "bayesoptdisc.hpp"      
+#include "bayesopt.h"
+#include "bayesopt.hpp"      
 
 /**
  * \brief Version of ContinuousModel for the C wrapper
@@ -64,7 +63,7 @@ protected:
   eval_func mF;
 };
 
-
+//TODO: Add catching for exceptions and transform it to error codes
 
 int bayes_optimization(int nDim, eval_func f, void* f_data,
 		       const double *lb, const double *ub,
@@ -84,8 +83,8 @@ int bayes_optimization(int nDim, eval_func f, void* f_data,
 
   std::copy(result.begin(), result.end(), x);
 
-  *minf = optimizer.getMinimumValue();
-
+  *minf = optimizer.getValueAtMinimum();
+  
   return 0; /* everything ok*/
 };
 
@@ -120,7 +119,7 @@ int bayes_optimization_disc(int nDim, eval_func f, void* f_data,
 
   std::copy(result.begin(), result.end(), x);
 
-  *minf = optimizer.getMinimumValue();
+  *minf = optimizer.getValueAtMinimum();
 
   return 0; /* everything ok*/
 }

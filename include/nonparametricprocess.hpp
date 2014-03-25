@@ -1,5 +1,5 @@
 /** \file nonparametricprocess.hpp 
-    \brief Nonparametric process abstract module */
+    \brief Abstract module for a Bayesian regressor */
 /*
 -------------------------------------------------------------------------
    This file is part of BayesOpt, an efficient C++ library for 
@@ -23,35 +23,96 @@
 */
 
 
-#ifndef __NONPARAMETRICPROCESS_HPP__
-#define __NONPARAMETRICPROCESS_HPP__
+#ifndef __BAYESIANREGRESSOR_HPP__
+#define __BAYESIANREGRESSOR_HPP__
 
 #include <boost/scoped_ptr.hpp>
-#include <boost/math/distributions/normal.hpp> 
+#include "dll_stuff.h"
 #include "ublas_extra.hpp"
-#include "kernel_functors.hpp"
-#include "mean_functors.hpp"
-#include "inneroptimization.hpp"	
 #include "prob_distribution.hpp"
-
+#include "mean_functors.hpp"
 
 namespace bayesopt
 {
 
-  /** \addtogroup NonParametricProcesses 
-   *  \brief Set of nonparametric processes (Gaussian process, Student's
-   *  t process, etc.) for surrogate modelling
-   */
+  /** \addtogroup NonParametricProcesses */
   /**@{*/
+
+  /** \brief Dataset model to deal with the vector (real) based datasets */
+  class Dataset
+  {
+  public:
+    Dataset();
+    Dataset(const matrixd& x, const vectord& y);
+    virtual ~Dataset();
+
+    void setSamples(const matrixd &x, const vectord &y);
+    void addSample(const vectord &x, double y);
+    double getSampleY(size_t index) const;
+    vectord getSampleX(size_t index) const;
+    double getLastSampleY() const;
+    vectord getLastSampleX() const;
+
+    vectord getPointAtMinimum() const;
+    double getValueAtMinimum() const;
+    size_t getNSamples() const;
+    void checkBoundsY( size_t i );
+
+    vecOfvec mX;                                         ///< Data inputs
+    vectord mY;                                          ///< Data values
+
+  private:
+    size_t mMinIndex, mMaxIndex;	
+  };
+
+
+  //// Inline methods
+  inline void Dataset::setSamples(const matrixd &x, const vectord &y)
+  {
+    mY = y;
+    for (size_t i=0; i<x.size1(); ++i)
+      {
+	mX.push_back(row(x,i));
+	checkBoundsY(i);
+      } 
+  };
+  
+  inline void Dataset::addSample(const vectord &x, double y)
+  {
+    mX.push_back(x); utils::append(mY,y);
+    checkBoundsY(mY.size()-1);
+  }
+
+  inline double Dataset::getSampleY(size_t index) const
+  { return mY(index);  }
+
+  inline vectord Dataset::getSampleX(size_t index) const
+  { return mX[index];  }
+
+  inline double Dataset::getLastSampleY() const
+  { return mY(mY.size()-1); }
+
+  inline vectord Dataset::getLastSampleX() const
+  { return mX[mX.size()-1]; }
+
+
+  inline vectord Dataset::getPointAtMinimum() const { return mX[mMinIndex]; };
+  inline double Dataset::getValueAtMinimum() const { return mY(mMinIndex); };
+  inline size_t Dataset::getNSamples() const { return mY.size(); };
+  inline void Dataset::checkBoundsY( size_t i )
+  {
+    if ( mY(mMinIndex) > mY(i) )       mMinIndex = i;
+    else if ( mY(mMaxIndex) < mY(i) )  mMaxIndex = i;
+  };
 
 
   /**
-   * \brief Abstract class to implement non-parametric processes
+   * \brief Abstract class to implement Bayesian regressors
    */
-  class NonParametricProcess: public InnerOptimization
+  class BAYESOPT_API NonParametricProcess
   {
   public:
-    NonParametricProcess(size_t dim, bopt_params parameters);
+    NonParametricProcess(size_t dim, bopt_params parameters, const Dataset& data, randEngine& eng);
     virtual ~NonParametricProcess();
 
     /** 
@@ -59,7 +120,8 @@ namespace bayesopt
      * @param parameters (process name, noise, priors, etc.)
      * @return pointer to the corresponding derivate class (surrogate model)
      */
-    static NonParametricProcess* create(size_t dim, bopt_params parameters);
+    static NonParametricProcess* create(size_t dim, bopt_params parameters,
+					const Dataset& data, randEngine& eng);
 
     /** 
      * \brief Function that returns the prediction of the GP for a query point
@@ -71,173 +133,61 @@ namespace bayesopt
     virtual ProbabilityDistribution* prediction(const vectord &query) = 0;
 		 		 
     /** 
-     * \brief Computes the initial surrogate model. 
-     * It also estimates the kernel parameters by MAP or ML. This
-     * function is hightly inefficient.  Use it only at the begining.
-     * @return error code
+     * \brief Computes the initial surrogate model and updates the
+     * kernel parameters estimation. 
+     *
+     * This function requires to recompute all covariance matrixes,
+     * inverses, etc.  Use it with precaution.
      */
-    int fitInitialSurrogate(bool learnTheta = true);
-  
-    /** 
-     * \brief Sequential update of the surrogate model by adding a new point.
-     *  Add new point efficiently using Matrix Decomposition Lemma 
-     *  for the inversion of the correlation matrix or adding new 
-     *  rows to the Cholesky decomposition.
-     * @return error code
-     */   
-    int updateSurrogateModel( const vectord &Xnew,
-			      double Ynew);
+    virtual void fitSurrogateModel() = 0;
 
     /** 
-     * \brief Full update of the surrogate model by adding a new point.
-     *  It recomputes the kernel hyperparameters and full covariance matrix.
-     * @return error code
+     * \brief Sequential update of the surrogate model by adding a new
+     * row to the Kernel matrix, more precisely, to its Cholesky
+     * decomposition. 
+     * 
+     * It assumes that the kernel hyperparemeters do not change.
      */   
-    int fullUpdateSurrogateModel( const vectord &Xnew,
-				  double Ynew);
+    virtual void updateSurrogateModel(const vectord &Xnew) = 0;
 
 
     // Getters and setters
     void setSamples(const matrixd &x, const vectord &y);
     void addSample(const vectord &x, double y);
-    double getSample(size_t index, vectord &x);
-    double getLastSample(vectord &x);
-    inline vectord getPointAtMinimum() { return mGPXX[mMinIndex]; };
-    inline double getValueAtMinimum() { return mGPY(mMinIndex); };
-    inline size_t getNSamples() { return mGPY.size(); };
-    inline double getSignalVariance() { return mSigma; };
-  
-    // Kernel function
-    /** 
-     * \brief Select kernel (covariance function) for the surrogate process.
-     * @param thetav kernel parameters (mean)
-     * @param stheta kernel parameters (std)
-     * @param k_name kernel name
-     * @return error_code
-     */
-    int setKernel (const vectord &thetav, const vectord &stheta, 
-		   std::string k_name, size_t dim);
-
-    /** Wrapper of setKernel for C kernel structure */
-    int setKernel (kernel_parameters kernel, size_t dim);
-
-    /** Set prior (Gaussian) for kernel hyperparameters */
-    int setKernelPrior (const vectord &theta, const vectord &s_theta);
-
-    /** Sets the kind of learning methodology for kernel hyperparameters */
-    inline void setLearnType(learning_type l_type) { mLearnType = l_type; };
-
-
-    /** 
-     * \brief Select the parametric part of the surrogate process.
-     * 
-     * @param muv mean function parameters
-     * @param smu std function parameters
-     * @param m_name mean function name
-     * @param dim number of input dimensions
-     * @return error_code
-     */
-    int setMean (const vectord &muv, const vectord &smu, 
-		 std::string m_name, size_t dim);
-
-    /** Wrapper of setMean for the C structure */
-    int setMean (mean_parameters mean, size_t dim);
+    //    void setData(Dataset* data);
+    double getValueAtMinimum();
+    const Dataset* getData();
+    double getSignalVariance();
 
   protected:
-    /** 
-     * \brief Computes the negative log likelihood of the data for all
-     * the parameters.
-     * @return value negative log likelihood
-     */
-    virtual double negativeTotalLogLikelihood() = 0;
-
-
-    /** 
-     * \brief Computes the negative log likelihood of the data for the
-     * kernel hyperparameters.
-     * @return value negative log likelihood
-     */
-    virtual double negativeLogLikelihood() = 0;
-
-    /** 
-     * \brief Precompute some values of the prediction that do not
-     * depends on the query.
-     * @return error code
-     */
-    virtual int precomputePrediction() = 0;
-
-    /**
-     * Computes the negative score of the data using cross correlation.
-     * @return negative score
-     */
-    double negativeCrossValidation();
-
-    /** 
-     * \brief Computes the negative log prior of the hyperparameters.
-     * @return value negative log prior
-     */
-    double negativeLogPrior();
-
-    /** 
-     * \brief Wrapper to the function that computes the score of the
-     * parameters.
-     * @param query set of parameters.
-     * @return score
-     */
-    double innerEvaluate(const vectord& query);
-
-
-    /** 
-     * Computes the inverse of the Correlation (Kernel or Gram) matrix  
-     * @return error code
-     */
-    int computeInverseCorrelation();
-    int addNewPointToInverse(const vectord& correlation,
-			     double selfcorrelation);
-
-    int computeCholeskyCorrelation();
-    int addNewPointToCholesky(const vectord& correlation,
-			      double selfcorrelation);
-
-
-    int computeCorrMatrix(matrixd& corrMatrix);
-    matrixd computeCorrMatrix();
-    matrixd computeDerivativeCorrMatrix(int dth_index);
-    vectord computeCrossCorrelation(const vectord &query);
-
-    inline void checkBoundsY( size_t i )
-    {
-      if ( mGPY(mMinIndex) > mGPY(i) )       mMinIndex = i;
-      else if ( mGPY(mMaxIndex) < mGPY(i) )  mMaxIndex = i;
-    };
-
-
-  protected:
-    const double mRegularizer;   ///< Std of the obs. model (also used as nugget)
-    double mSigma;                                           ///< Signal variance
-    vecOfvec mGPXX;                                              ///< Data inputs
-    vectord mGPY;                                                ///< Data values
-    
-    vectord mMeanV;                           ///< Mean value at the input points
-    matrixd mFeatM;           ///< Value of the mean features at the input points
-    vectord mMu;                 ///< Mean of the parameters of the mean function
-    vectord mS_Mu;    ///< Variance of the params of the mean function W=mS_Mu*I
-
-    std::vector<boost::math::normal> priorKernel; ///< Prior of kernel parameters
-    boost::scoped_ptr<Kernel> mKernel;            ///< Pointer to kernel function
-    boost::scoped_ptr<ParametricFunction> mMean;    ///< Pointer to mean function
-
-    // TODO: Choose one
-    matrixd mL;             ///< Cholesky decomposition of the Correlation matrix
-    covMatrix mInvR;                              ///< Inverse Correlation matrix
+    const Dataset& mData;  
+    double mSigma;                                   //!< Signal variance
     size_t dim_;
-    learning_type mLearnType;
-
-  private:
-    size_t mMinIndex, mMaxIndex;	
-    KernelFactory mKFactory;
-    MeanFactory mPFactory;
+    MeanModel mMean;
   };
+
+  //////////////////////////////////////////////////////////////////////////////
+  //// Inlines
+  inline void NonParametricProcess::setSamples(const matrixd &x, const vectord &y)
+  {
+    mMean.setPoints(mData.mX);  //Because it expects a vecOfvec instead of a matrixd
+  }
+
+  inline void NonParametricProcess::addSample(const vectord &x, double y)
+  {  mMean.addNewPoint(x);  };
+
+  // inline void NonParametricProcess::setData(Dataset* data)
+  // {mData = data;}
+
+  inline double NonParametricProcess::getValueAtMinimum() 
+  { return mData.getValueAtMinimum(); };
+
+
+  inline const Dataset* NonParametricProcess::getData()
+  {return &mData;}
+
+  inline double NonParametricProcess::getSignalVariance() 
+  { return mSigma; };
 
   /**@}*/
   

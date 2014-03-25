@@ -47,15 +47,14 @@ namespace bayesopt
 	delete mCriteriaList[i];
       }
     };
-    virtual int init(NonParametricProcess *proc, 
+    virtual void init(NonParametricProcess *proc, 
 		     const std::vector<Criteria*>& list) 
     { 
       mProc = proc;
       mCriteriaList = list;
-      return 0; 
     };
 
-    int setParameters(const vectord &theta) 
+    void setParameters(const vectord &theta) 
     {
       using boost::numeric::ublas::subrange;
       const size_t np = mCriteriaList.size();
@@ -69,7 +68,7 @@ namespace bayesopt
       if (theta.size() != norm_1(sizes))
 	{
 	  FILE_LOG(logERROR) << "Wrong number of criteria parameters"; 
-	  return -1; 
+	  throw std::invalid_argument("Wrong number of criteria parameters");
 	}
 
       size_t start = 0;
@@ -78,7 +77,6 @@ namespace bayesopt
 	  mCriteriaList[i]->setParameters(subrange(theta,start,start+sizes(i)));
 	  start += sizes(i);
 	}
-      return 0;
     };
 
     size_t nParameters() 
@@ -104,7 +102,6 @@ namespace bayesopt
   public:
     virtual ~SumCriteria() {};
   
-    bool requireComparison(){ return false; };
     double operator()(const vectord &x)  
     {
       double sum = 0.0;
@@ -126,7 +123,6 @@ namespace bayesopt
   public:
     virtual ~ProdCriteria() {};
   
-    bool requireComparison(){ return false; };
     double operator()(const vectord &x)  
     {
       double prod = 1.0;
@@ -152,20 +148,18 @@ namespace bayesopt
   public:
     GP_Hedge();
     virtual ~GP_Hedge() {};
-    int init(NonParametricProcess *proc, 
+    void init(NonParametricProcess *proc, 
 	     const std::vector<Criteria*>& list);
 
     bool requireComparison(){ return true; };
     double operator()(const vectord &x) { return (*mCurrentCriterium)(x); };
 
     void reset();
-    bool checkIfBest(vectord& best, std::string& name,int& error_code);
+    bool checkIfBest(vectord& best, std::string& name);
     std::string name() {return "cHedge";};
   protected:
     int update_hedge();
 
-    randEngine mtRandom;
-    randFloat sampleUniform;
     vectord loss_, gain_, prob_, cumprob_;
     Criteria* mCurrentCriterium;
     std::vector<vectord> mBestLists;
@@ -187,7 +181,7 @@ namespace bayesopt
     std::string name() {return "cHedgeRandom";};
   private:
     double computeLoss(const vectord& query)
-    { return mProc->prediction(query)->sample_query(mtRandom); }
+    { return mProc->prediction(query)->sample_query(); }
   };
 
 

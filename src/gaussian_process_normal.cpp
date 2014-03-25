@@ -36,19 +36,21 @@ namespace bayesopt
   namespace ublas = boost::numeric::ublas; 
   
   GaussianProcessNormal::GaussianProcessNormal(size_t dim, 
-					 bopt_params params):
-    HierarchicalGaussianProcess(dim,params),
-    mSigma(params.sigma_s), 
+					       bopt_params params, 
+					       const Dataset& data, 
+					       randEngine& eng):
+    HierarchicalGaussianProcess(dim,params,data,eng),
     mW0(params.mean.n_coef), mInvVarW(params.mean.n_coef), 
     mD(params.mean.n_coef,params.mean.n_coef)
   {  
+    mSigma = params.sigma_s;
     mW0 = utils::array2vector(params.mean.coef_mean,params.mean.n_coef);
     for (size_t ii = 0; ii < params.mean.n_coef; ++ii)
       {
 	double varii = params.mean.coef_std[ii] * params.mean.coef_std[ii];
 	mInvVarW(ii) = 1/varii;
       }
-     d_ = new GaussianDistribution();
+     d_ = new GaussianDistribution(eng);
   }  // Constructor
 
 
@@ -62,9 +64,9 @@ namespace bayesopt
   ProbabilityDistribution* 
   GaussianProcessNormal::prediction(const vectord &query)
   {
-    double kq = (*mKernel)(query, query);;
+    double kq = computeSelfCorrelation(query);
     vectord kn = computeCrossCorrelation(query);
-    vectord phi = mMean->getFeatures(query);
+    vectord phi = mMean.getFeatures(query);
   
     vectord v(kn);
     inplace_solve(mL,v,ublas::lower_tag());
@@ -94,13 +96,13 @@ namespace bayesopt
   {
     matrixd KK = computeCorrMatrix();
     const size_t n = KK.size1();
-    const size_t p = mMean->nFeatures();
+    const size_t p = mMean.getMeanFunc()->nFeatures();
   
-    vectord v0 = mGPY - prod(trans(mFeatM),mW0);
+    vectord v0 = mData.mY - prod(trans(mMean.mFeatM),mW0);
     matrixd WW = zmatrixd(p,p);  //TODO: diagonal matrix
-    utils::addToDiagonal(WW,mInvVarW);
-    matrixd FW = prod(trans(mFeatM),WW);
-    KK += prod(FW,mFeatM);
+    utils::add_to_diagonal(WW,mInvVarW);
+    matrixd FW = prod(trans(mMean.mFeatM),WW);
+    KK += prod(FW,mMean.mFeatM);
     matrixd BB(n,n);
     utils::cholesky_decompose(KK,BB);
     inplace_solve(BB,v0,ublas::lower_tag());
@@ -113,33 +115,32 @@ namespace bayesopt
 
 
 
-  int GaussianProcessNormal::precomputePrediction()
+  void GaussianProcessNormal::precomputePrediction()
   {
-    size_t n = mGPXX.size();
-    size_t p = mMean->nFeatures();
+    size_t n = mData.getNSamples();
+    size_t p = mMean.getMeanFunc()->nFeatures();
 
-    mKF = trans(mFeatM);
+    mKF = trans(mMean.mFeatM);
     inplace_solve(mL,mKF,ublas::lower_tag());
     //TODO: make one line
     matrixd DD(p,p);
     DD = prod(trans(mKF),mKF);
-    utils::addToDiagonal(DD,mInvVarW);
+    utils::add_to_diagonal(DD,mInvVarW);
     utils::cholesky_decompose(DD,mD);
 
-    vectord vn = mGPY;
+    vectord vn = mData.mY;
     inplace_solve(mL,vn,ublas::lower_tag());
-    mWMap = prod(mFeatM,vn) + utils::ublas_elementwise_prod(mInvVarW,mW0);
+    mWMap = prod(mMean.mFeatM,vn) + utils::ublas_elementwise_prod(mInvVarW,mW0);
     utils::cholesky_solve(mD,mWMap,ublas::lower());
 
-    mVf = mGPY - prod(trans(mFeatM),mWMap);
+    mVf = mData.mY - prod(trans(mMean.mFeatM),mWMap);
     inplace_solve(mL,mVf,ublas::lower_tag());
 
-    if (boost::math::isnan(mWMap(0)))
+    if ((boost::math::isnan(mWMap(0))) || (boost::math::isnan(mSigma)))
       {
 	FILE_LOG(logERROR) << "Error in precomputed prediction. NaN found.";
-	return -1;
+	throw std::runtime_error("Error in precomputed prediction. NaN found.");
       }
-    return 0;
   }
 
 } //namespace bayesopt

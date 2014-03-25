@@ -1,5 +1,29 @@
+/*
+-------------------------------------------------------------------------
+   This file is part of BayesOpt, an efficient C++ library for 
+   Bayesian optimization.
+
+   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+ 
+   BayesOpt is free software: you can redistribute it and/or modify it 
+   under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   BayesOpt is distributed in the hope that it will be useful, but 
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with BayesOpt.  If not, see <http://www.gnu.org/licenses/>.
+------------------------------------------------------------------------
+*/
+
+#include <stdexcept>
 #include "log.hpp"
 #include "parser.hpp"
+#include "ublas_extra.hpp"
 #include "kernel_functors.hpp"
 #include "kernel_atomic.hpp"
 #include "kernel_combined.hpp"
@@ -57,8 +81,8 @@ namespace bayesopt
     if (it == registry.end()) 
       {
 	FILE_LOG(logERROR) << "Error: Fatal error while parsing "
-			   << "kernel function: " << os 
-			   << " not found" << std::endl;
+			   << "kernel function: " << os << " not found";
+	throw std::invalid_argument("Kernel not found " + os);
 	return NULL;
       } 
     kFunc = it->second();
@@ -66,12 +90,91 @@ namespace bayesopt
       {
 	kFunc->init(input_dim);
       } 
-    else 
+    else // Combined kernel
       {
 	kFunc->init(input_dim, create(os1,input_dim), create(os2,input_dim));
       }
     return kFunc;
-
   };
 
+
+  //////////////////////////////////////////////////////////////////////
+
+  KernelModel::KernelModel(size_t dim, bopt_params parameters)
+  { setKernel(parameters.kernel,dim);  }
+
+  void KernelModel::setKernel (const vectord &thetav, 
+			      const vectord &stheta,
+			      std::string k_name, 
+			      size_t dim)
+  {
+    KernelFactory mKFactory;
+
+    mKernel.reset(mKFactory.create(k_name, dim));
+    setKernelPrior(thetav,stheta);
+    mKernel->setHyperParameters(thetav);
+  }
+
+  void KernelModel::setKernel (kernel_parameters kernel, 
+			      size_t dim)
+  {
+    size_t n = kernel.n_hp;
+    vectord th = utils::array2vector(kernel.hp_mean,n);
+    vectord sth = utils::array2vector(kernel.hp_std,n);
+    setKernel(th, sth, kernel.name, dim);
+  };
+
+
+  void KernelModel::computeCorrMatrix(const vecOfvec& XX, matrixd& corrMatrix, 
+				     double nugget)
+  {
+    assert(corrMatrix.size1() == XX.size());
+    assert(corrMatrix.size2() == XX.size());
+    const size_t nSamples = XX.size();
+  
+    for (size_t ii=0; ii< nSamples; ++ii)
+      {
+	for (size_t jj=0; jj < ii; ++jj)
+	  {
+	    corrMatrix(ii,jj) = (*mKernel)(XX[ii], XX[jj]);
+	    corrMatrix(jj,ii) = corrMatrix(ii,jj);
+	  }
+	corrMatrix(ii,ii) = (*mKernel)(XX[ii],XX[ii]) + nugget;
+      }
+  }
+
+  void KernelModel::computeDerivativeCorrMatrix(const vecOfvec& XX, 
+					       matrixd& corrMatrix,
+					       int dth_index)
+  {
+    assert(corrMatrix.size1() == XX.size());
+    assert(corrMatrix.size2() == XX.size());
+    const size_t nSamples = XX.size();
+   
+    for (size_t ii=0; ii< nSamples; ++ii)
+      {
+	for (size_t jj=0; jj < ii; ++jj)
+	  {
+	    corrMatrix(ii,jj) = mKernel->gradient(XX[ii],XX[jj], 
+						  dth_index);
+	    corrMatrix(jj,ii) = corrMatrix(ii,jj);
+	  }
+	corrMatrix(ii,ii) = mKernel->gradient(XX[ii],XX[ii],dth_index);
+      }
+  }
+
+  
+  double KernelModel::kernelLogPrior()
+  {
+    double prior = 0.0;
+    vectord th = mKernel->getHyperParameters();
+    for(size_t i = 0; i<th.size();++i)
+      {
+	if (priorKernel[i].standard_deviation() > 0)
+	  {
+	    prior += log(boost::math::pdf(priorKernel[i],th(i)));
+	  }
+      }
+    return prior;
+  }
 } //namespace bayesopt

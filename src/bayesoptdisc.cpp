@@ -24,7 +24,7 @@
 #include "randgen.hpp"
 #include "lhs.hpp"
 #include "log.hpp"
-#include "bayesoptdisc.hpp"
+#include "bayesopt.hpp"
 
 namespace bayesopt
 {
@@ -43,20 +43,19 @@ namespace bayesopt
   DiscreteModel::~DiscreteModel()
   {} // Default destructor
 
-  int DiscreteModel::initializeOptimization()
+  void DiscreteModel::initializeOptimization()
   {
     mDims = mInputSet[0].size();    
     sampleInitialPoints();
-    return 0;
   }
 
   vectord DiscreteModel::getFinalResult()
   {
-    return mGP->getPointAtMinimum();
+    return getPointAtMinimum();
   }
   
-  int DiscreteModel::plotStepData(size_t iteration, const vectord& xNext,
-				double yNext)
+  void DiscreteModel::plotStepData(size_t iteration, const vectord& xNext,
+				   double yNext)
   {
     if(mParameters.verbose_level >0)
       { 
@@ -65,33 +64,31 @@ namespace bayesopt
 			  << iteration+1+mParameters.n_init_samples ;
 	FILE_LOG(logINFO) << "Trying point at: " << xNext ;
 	FILE_LOG(logINFO) << "Current outcome: " << yNext ;
-	FILE_LOG(logINFO) << "Best found at: " << mGP->getPointAtMinimum() ; 
-	FILE_LOG(logINFO) << "Best outcome: " <<  mGP->getValueAtMinimum() ;    
+	FILE_LOG(logINFO) << "Best found at: " << getPointAtMinimum() ; 
+	FILE_LOG(logINFO) << "Best outcome: " <<  getValueAtMinimum() ;    
       }
-    return 0;
   }
 
 
-  int DiscreteModel::sampleInitialPoints()
+  void DiscreteModel::sampleInitialPoints()
   {
     size_t nSamples = mParameters.n_init_samples;
-    double yPoint;
-    randEngine rng;
     vecOfvec perms = mInputSet;
     
     // By using random permutations, we guarantee that 
     // the same point is not selected twice
-    utils::randomPerms(perms,rng);
+    utils::randomPerms(perms,mEngine);
     
-    vectord xPoint(mInputSet[0].size());
+    // vectord xPoint(mInputSet[0].size());
     for(size_t i = 0; i < nSamples; i++)
       {
-	xPoint = perms[i];
-	yPoint = evaluateSample(xPoint);
-	mGP->addSample(xPoint,yPoint);
+	const vectord xPoint = perms[i];
+	const double yPoint = evaluateSample(xPoint);
+	if (i == 0)  setSample(xPoint,yPoint);
+	else addSample(xPoint,yPoint);
       }
 
-    mGP->fitInitialSurrogate();
+    mGP->fitSurrogateModel();
 
     // For logging purpose
     if(mParameters.verbose_level > 0)
@@ -100,7 +97,8 @@ namespace bayesopt
 	double ymin = (std::numeric_limits<double>::max)();
 	for(size_t i = 0; i < nSamples; i++)
 	  {
-	    yPoint = mGP->getSample(i,xPoint);
+	    const double yPoint = mGP->getData()->getSampleY(i);
+	    const vectord xPoint = mGP->getData()->getSampleX(i);
 	    FILE_LOG(logDEBUG) << xPoint ;
 	  
 	    if (mParameters.verbose_level > 1)
@@ -112,11 +110,10 @@ namespace bayesopt
 	      }
 	  }  
       }
-    return 0;
   } // sampleInitialPoints
   
 
-  int DiscreteModel::findOptimal(vectord &xOpt)
+  void DiscreteModel::findOptimal(vectord &xOpt)
   {
     double current, min;
   
@@ -133,7 +130,6 @@ namespace bayesopt
 	    min = current;
 	  }
       }
-    return 0;
   }
 
 }  // namespace bayesopt

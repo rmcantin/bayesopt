@@ -178,26 +178,41 @@ functions. For example:
 
 \section learnmod Methods for learning the kernel parameters  
 
-As commented before, we consider that the prior of the kernel
-hyperparameters \f$\theta\f$ --if available-- is independent of other
-variables. Thus, either if we are going to use maximum likelihood,
-maximum a posteriori or a fully Bayesian approach, we need to find the
-likelihood function of the observed data for the parameters. Depending
-on the model, this function will be a multivariate Gaussian
-distribution or multivariate t distribution. In general, we present
-the likelihood function up to a constant factor, that is, we remove
-the terms independent of \f$\theta\f$ from the log likelihood. In
-practice, wether we use ML or MAP point estimates or full Bayes MCMC
-posterior, the constant factor is not needed.
+The posterior distribution of the model, which is necessary to compute
+the criterion function, cannot be computed in closed form if the
+kernel hyperparameters are unknown. Thus, we need a find to
+approximate this posterior distribution conditional on the kernel
+hyperparameters.
 
-We are going to consider the following algorithms to learn the kernel
+First, we need to consider if we are going to use a full Bayesian
+approach or an empirical Bayesian approach. The first one, computes
+the full posterior distribution by propagation of the uncertainty of
+each element and hyperparameter to the posterior. In this case, it can
+be done by discretization of the hyperparameter space or by using MCMC
+(not yet implemented). In theory, it is more precise but the
+computation burden can be orders of magnitude higher. The empirical
+approach on the other hand computes a point estimate of the
+hyperparameters based on some score function and use it as a "true"
+value. Although the uncertainty estimation in this case might not be
+as accurate as the full Bayesian, the computation overhead is minimal.
+
+For the score function, we need to find the likelihood function of the
+observed data for the parameters. Depending on the model, this
+function will be a multivariate Gaussian distribution or multivariate
+t distribution. In general, we present the likelihood as a
+log-likelihood function up to a constant factor, that is, we remove
+the terms independent of \f$\theta\f$ from the log likelihood. In
+practice, whether we use a point estimate (maximum score) or full
+Bayes MCMC/discrete posterior, the constant factor is not needed.
+
+We are going to consider the following score functions to learn the kernel
 hyperparameters:
 
-\li Cross-validation (L_LOO): In this case, we try to maximize the
+\li Leave one out cross-validation (SC_LOOCV): In this case, we try to maximize the
 average predicted log probability by the <em>leave one out</em> (LOO)
-strategy. This is sometimes called a pseudo-likelihood.
+cross-validation strategy. This is sometimes called a pseudo-likelihood.
 
-\li Maximum Likelihood (L_ML) For any of the models presented, one
+\li Maximum Total Likelihood (SC_MTL) For any of the models presented, one
 approach to learn the hyperparameters is to maximize the likelihood of
 all the parameters \f$\mathbf{w}\f$, \f$\sigma_s^2\f$ and
 \f$\theta\f$. Then, the likelihood function is a multivariate Gaussian
@@ -205,19 +220,21 @@ distribution. We can obtain a better estimate if we adjust the number
 of degrees of freedom, this is called <em>restricted maximum
 likelihood</em>. The library automatically selects the restricted
 version, if it is suitable.
-\li Posterior maximum likelihood (L_MAP): In this case, the likelihood
+
+\li Posterior maximum likelihood (SC_ML): In this case, the likelihood
 function is modified to consider the posterior estimate of
 \f$(\mathbf{w},\sigma_s^2)\f$ based on the different cases defined in
 Section \ref surrmods. In this case, the function will be a
 multivariate Gaussian or t distribution, depending on the kind of
 prior used for \f$\sigma_s^2\f$.
 
-\li Maximum a posteriori (L_ML or L_MAP): We can modify any of the
-previous algorithms by adding a prior distribution \f$p(\theta)\f$. By
-default, we add a normal prior on the kernel hyperparameters. However,
-if the variance of the prior \a hp_std is invalid (<=0), then we
-assume no prior. Since we assume that the hyperparameters are independent,
-we can apply priors selectively only to a small set.
+\li Maximum a posteriori (SC_MAP): We can modify the previous
+algorithms by adding a prior distribution \f$p(\theta)\f$. By default,
+we add a joint normal prior on all the kernel
+hyperparameters. However, if the variance of the prior \a hp_std is
+invalid (<=0), then we assume a flat prior on that
+hyperparameter. Since we assume that the hyperparameters are
+independent, we can apply priors selectively only to a small set.
 
 \section initdes Initial design methods
 

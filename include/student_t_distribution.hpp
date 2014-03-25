@@ -32,7 +32,7 @@
 class StudentTDistribution: public ProbabilityDistribution
 {
 public:
-  StudentTDistribution();
+  StudentTDistribution(randEngine& eng);
   virtual ~StudentTDistribution();
 
   /** 
@@ -91,11 +91,9 @@ public:
 
   /** 
    * Sample outcome acording to the marginal distribution at the query point.
-   * @param eng boost.random engine
-   * 
    * @return outcome
    */
-  double sample_query(randEngine& eng);
+  double sample_query();
 
   double getMean() { return mean_; };
   double getStd()  { return std_; };

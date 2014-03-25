@@ -42,7 +42,7 @@ namespace bayesopt
   class StudentTProcessJeffreys: public HierarchicalGaussianProcess
   {
   public:
-    StudentTProcessJeffreys(size_t dim, bopt_params params);
+    StudentTProcessJeffreys(size_t dim, bopt_params params, const Dataset& data, randEngine& eng);
     virtual ~StudentTProcessJeffreys();
 
     /** 
@@ -64,16 +64,14 @@ namespace bayesopt
      */
     double negativeLogLikelihood();
 
-    /** 
-     * \brief Precompute some values of the prediction that do not depends on
-     * the query
-     * @return error code
+    /** Precompute some values of the prediction that do not depends
+     *	on the query
      */
-    int precomputePrediction();
+    void precomputePrediction();
 
   private:
     vectord mWML;           //!< GP ML parameters
-    
+    vectord mKn;
     /// Precomputed GP prediction operations
     vectord mAlphaF;
     matrixd mKF, mL2;

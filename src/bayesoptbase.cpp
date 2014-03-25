@@ -20,6 +20,7 @@
 ------------------------------------------------------------------------
 */
 
+#include <ctime>
 #include <cstdlib>
 #include "log.hpp"
 #include "bayesoptbase.hpp"
@@ -28,7 +29,7 @@ namespace bayesopt
 {
   
   BayesOptBase::BayesOptBase():
-    mGP(NULL), mCrit(NULL), mEngine()
+    mGP(NULL), mCrit(NULL)
   {
     mParameters = initialize_parameters_to_default();
     __init__();
@@ -41,9 +42,11 @@ namespace bayesopt
     __init__();
   }
 
-  int BayesOptBase::__init__()
+  void BayesOptBase::__init__()
   { 
     // Configure logging
+    if (mParameters.use_random_seed) mEngine.seed(std::time(0));
+
     size_t verbose = mParameters.verbose_level;
     if (verbose>=3)
       {
@@ -71,37 +74,32 @@ namespace bayesopt
 	static_cast<size_t>(ceil(0.1*mParameters.n_iterations));
 
     // Configure Surrogate and Criteria Functions
+    
     setSurrogateModel();
     setCriteria();
 
-    return 0;
+    // mData.reset(new Dataset());
+    // mGP->setData(mData.get());
   } // __init__
 
   BayesOptBase::~BayesOptBase()
   {} // Default destructor
 
-  int BayesOptBase::setSurrogateModel()
+  void BayesOptBase::setSurrogateModel()
   {
-    // Configure Surrogate and Criteria Functions
-    mGP.reset(NonParametricProcess::create(mDims,mParameters));
-    if (mGP == NULL) 
-      {
-	FILE_LOG(logERROR) << "Error setting the surrogate function"; 
-	exit(EXIT_FAILURE);
-      } 
-    return 0;
+    mGP.reset(NonParametricProcess::create(mDims,mParameters,mData,mEngine));
   } // setSurrogateModel
 
-  int BayesOptBase::setCriteria()
+  void BayesOptBase::setCriteria()
   {
     mCrit.reset(mCFactory.create(mParameters.crit_name,mGP.get()));
-    if (mCrit == NULL)
-      {
-	FILE_LOG(logERROR) << "Error in criterium"; 
-	exit(EXIT_FAILURE);
-      }
     
-    if (mCrit->nParameters() != mParameters.n_crit_params)
+    if (mCrit->nParameters() == mParameters.n_crit_params)
+      {
+	mCrit->setParameters(utils::array2vector(mParameters.crit_params,
+					       mParameters.n_crit_params));
+      }
+    else // If the number of paramerters is different, use default.
       {
 	if (mParameters.n_crit_params != 0)
 	  {
@@ -110,32 +108,29 @@ namespace bayesopt
 			       << mParameters.n_crit_params << " instead.";
 	  }
 	FILE_LOG(logINFO) << "Usign default parameters for criteria.";
-	return 0;
       }
-      
-    // If we have the correct number of parameters.
-    vectord critParams = utils::array2vector(mParameters.crit_params,
-					       mParameters.n_crit_params);
-    mCrit->setParameters(critParams);
-    return 0;
   } // setCriteria
 
-  int BayesOptBase::stepOptimization(size_t ii)
+  void BayesOptBase::stepOptimization(size_t ii)
   {
-    vectord xNext(mDims);
-    nextPoint(xNext); // Find what is the next point.
-    
+    // Find what is the next point.
+    vectord xNext = nextPoint(); 
     double yNext = evaluateSampleInternal(xNext);
+    addSample(xNext,yNext);
 
     // Update surrogate model
-    if ((mParameters.n_iter_relearn > 0) && 
-	((ii + 1) % mParameters.n_iter_relearn == 0))
-      mGP->fullUpdateSurrogateModel(xNext,yNext); 
-    else
-      mGP->updateSurrogateModel(xNext,yNext); 
+    bool retrain = ((mParameters.n_iter_relearn > 0) && 
+		    ((ii + 1) % mParameters.n_iter_relearn == 0));
     
+    if (retrain)  // Full update
+      {
+	mGP->fitSurrogateModel();
+      }
+    else          // Incremental update
+      {
+	mGP->updateSurrogateModel(xNext);
+      } 
     plotStepData(ii,xNext,yNext);
-    return 0;
   }
 
   int BayesOptBase::optimize(vectord &bestPoint)
@@ -154,10 +149,9 @@ namespace bayesopt
   } // optimize
   
 
-  int BayesOptBase::nextPoint(vectord &Xnext)
+  vectord BayesOptBase::nextPoint()
   {
-    int error = 0;
-    
+
     //Epsilon-Greedy exploration (see Bull 2011)
     if ((mParameters.epsilon > 0.0) && (mParameters.epsilon < 1.0))
       {
@@ -166,35 +160,33 @@ namespace bayesopt
 	FILE_LOG(logINFO) << "Trying random jump with prob:" << result;
 	if (mParameters.epsilon > result)
 	  {
-	    for (size_t i = 0; i <Xnext.size(); ++i)
-	      {
-		 Xnext(i) = drawSample();
-	      } 
 	    FILE_LOG(logINFO) << "Epsilon-greedy random query!";
-	    return 0;
+	    return samplePoint();
 	  }
       }
 
+    vectord Xnext(mDims);    
+
+    // GP-Hedge and related algorithms
     if (mCrit->requireComparison())
       {
 	bool check = false;
 	std::string name;
-
+	mCrit->setRandomEngine(mEngine);
+	
 	mCrit->reset();
 	while (!check)
 	  {
 	    findOptimal(Xnext);
-	    check = mCrit->checkIfBest(Xnext,name,error);
+	    check = mCrit->checkIfBest(Xnext,name);
 	  }
 	FILE_LOG(logINFO) << name << " was selected.";
       }
-    else
+    else  // Standard "Bayesian optimization"
       {
 	findOptimal(Xnext);
       }
-    return error;
+    return Xnext;
   }
-
-
 } //namespace bayesopt
 

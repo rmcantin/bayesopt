@@ -24,29 +24,36 @@
 #include "lhs.hpp"
 #include "randgen.hpp"
 #include "log.hpp"
-#include "bayesoptcont.hpp"
+#include "bayesopt.hpp"
+
 
 namespace bayesopt  {
   
   ContinuousModel::ContinuousModel():
     BayesOptBase(), mBB(NULL)
   { 
-    setAlgorithm(DIRECT);
+    if (mCrit == NULL)    throw(-1);
+    cOptimizer = new NLOPT_Optimization(mCrit.get(),1);
+    cOptimizer->setAlgorithm(DIRECT);
   } // Def Constructor
 
   ContinuousModel::ContinuousModel(size_t dim, bopt_params parameters):
     BayesOptBase(dim,parameters), mBB(NULL)
   { 
-    setAlgorithm(DIRECT);
+    if (mCrit == NULL)    throw(-1);
+    cOptimizer = new NLOPT_Optimization(mCrit.get(),dim);
+    cOptimizer->setAlgorithm(DIRECT);
+    cOptimizer->setMaxEvals(parameters.n_inner_iterations);
   } // Constructor
 
   ContinuousModel::~ContinuousModel()
   {
+    delete cOptimizer;
     if (mBB != NULL)
       delete mBB;
   } // Default destructor
 
-  int ContinuousModel::initializeOptimization()
+  void ContinuousModel::initializeOptimization()
   {
     if (mBB == NULL)
       {
@@ -55,18 +62,21 @@ namespace bayesopt  {
 	mBB = new utils::BoundingBox<vectord>(lowerBound,upperBound);
       }
     sampleInitialPoints();
-    return 0;
   }
 
   vectord ContinuousModel::getFinalResult()
   {
-    return mBB->unnormalizeVector(mGP->getPointAtMinimum());
+    return mBB->unnormalizeVector(getPointAtMinimum());
   }
 
 
   int ContinuousModel::setBoundingBox(const vectord &lowerBound,
 			      const vectord &upperBound)
   {
+    // We don't change the bounds of the inner optimization because,
+    // thanks to this bounding box model, everything is mapped to the
+    // unit hypercube, thus the default inner optimization are just
+    // right.
     if (mBB != NULL)
       delete mBB;
     
@@ -81,22 +91,23 @@ namespace bayesopt  {
 
 
 
-  int ContinuousModel::plotStepData(size_t iteration, const vectord& xNext,
+  void ContinuousModel::plotStepData(size_t iteration, const vectord& xNext,
 			    double yNext)
   {
-    FILE_LOG(logINFO) << "Iteration: " << iteration+1 << " of " 
-		      << mParameters.n_iterations << " | Total samples: " 
-		      << iteration+1+mParameters.n_init_samples ;
-    FILE_LOG(logINFO) << "Query: " << mBB->unnormalizeVector(xNext); ;
-    FILE_LOG(logINFO) << "Query outcome: " << yNext ;
-    FILE_LOG(logINFO) << "Best query: " 
-		      << mBB->unnormalizeVector(mGP->getPointAtMinimum()); 
-    FILE_LOG(logINFO) << "Best outcome: " <<  mGP->getValueAtMinimum();
-    
-    return 0;
+    if(mParameters.verbose_level >0)
+      { 
+	FILE_LOG(logINFO) << "Iteration: " << iteration+1 << " of " 
+			  << mParameters.n_iterations << " | Total samples: " 
+			  << iteration+1+mParameters.n_init_samples ;
+	FILE_LOG(logINFO) << "Query: " << mBB->unnormalizeVector(xNext); ;
+	FILE_LOG(logINFO) << "Query outcome: " << yNext ;
+	FILE_LOG(logINFO) << "Best query: " 
+			  << mBB->unnormalizeVector(getPointAtMinimum()); 
+	FILE_LOG(logINFO) << "Best outcome: " <<  getValueAtMinimum();
+      }
   } //plotStepData
 
-  int ContinuousModel::sampleInitialPoints()
+  void ContinuousModel::sampleInitialPoints()
   {
     
     size_t nSamples = mParameters.n_init_samples;
@@ -105,7 +116,7 @@ namespace bayesopt  {
     vectord yPoints(nSamples);
     vectord sample(mDims);
     
-    utils::samplePoints(xPoints,mParameters.init_method);
+    utils::samplePoints(xPoints,mParameters.init_method,mEngine);
 
     for(size_t i = 0; i < nSamples; i++)
       {
@@ -113,8 +124,8 @@ namespace bayesopt  {
 	yPoints(i) = evaluateSampleInternal(sample);
       }
     
-    mGP->setSamples(xPoints,yPoints);
-    mGP->fitInitialSurrogate();
+    setSamples(xPoints,yPoints);
+    mGP->fitSurrogateModel();
     
     // For logging purpose
     if(mParameters.verbose_level > 0)
@@ -132,7 +143,6 @@ namespace bayesopt  {
 			       << "|Y:" << yPoints(i) << "|Min:" << ymin ;
 	  }  
       }
-    return 0;
   } // sampleInitialPoints
 
 }  //namespace bayesopt

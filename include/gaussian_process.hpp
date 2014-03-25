@@ -26,7 +26,7 @@
 #define  _GAUSSIAN_PROCESS_HPP_
 
 #include "gauss_distribution.hpp"
-#include "nonparametricprocess.hpp"
+#include "conditionalbayesprocess.hpp"
 
 
 namespace bayesopt
@@ -38,10 +38,10 @@ namespace bayesopt
   /**
    * \brief Standard zero mean gaussian process with noisy observations.
    */
-  class GaussianProcess: public NonParametricProcess
+  class GaussianProcess: public ConditionalBayesProcess
   {
   public:
-    GaussianProcess(size_t dim, bopt_params params);
+    GaussianProcess(size_t dim, bopt_params params, const Dataset& data, randEngine& eng);
     virtual ~GaussianProcess();
 
     /** 
@@ -73,12 +73,10 @@ namespace bayesopt
      */
     double negativeLogLikelihood();
 
-    /** 
-     * \brief Precompute some values of the prediction that do not depends on
-     * the query
-     * @return error code
+    /** Precompute some values of the prediction that do not depends
+     *	on the query
      */
-    int precomputePrediction();
+    void precomputePrediction();
 
   private:
     vectord mAlphaV;              ///< Precomputed L\y

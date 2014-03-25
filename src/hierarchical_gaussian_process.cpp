@@ -28,8 +28,10 @@ namespace bayesopt
   namespace ublas = boost::numeric::ublas;
 
   HierarchicalGaussianProcess::HierarchicalGaussianProcess(size_t dim, 
-							   bopt_params params):
-    NonParametricProcess(dim, params) {};
+							   bopt_params params, 
+							   const Dataset& data, 
+							   randEngine& eng):
+    ConditionalBayesProcess(dim, params, data,eng) {};
 
   double HierarchicalGaussianProcess::negativeTotalLogLikelihood()
   {
@@ -38,24 +40,24 @@ namespace bayesopt
 
     const matrixd K = computeCorrMatrix();
     const size_t n = K.size1();
-    const size_t p = mFeatM.size1(); 
+    const size_t p = mMean.mFeatM.size1(); 
     matrixd L(n,n);
     utils::cholesky_decompose(K,L);
 
-    matrixd KF(ublas::trans(mFeatM));
+    matrixd KF(ublas::trans(mMean.mFeatM));
     inplace_solve(L,KF,ublas::lower_tag());
     
     matrixd FKF = prod(ublas::trans(KF),KF);
     matrixd L2(p,p);
     utils::cholesky_decompose(FKF,L2);
 
-    vectord Ky(mGPY);
+    vectord Ky(mData.mY);
     inplace_solve(L,Ky,ublas::lower_tag());
 
     vectord wML = prod(Ky,KF);
     utils::cholesky_solve(L2,wML,ublas::lower());
 
-    vectord alpha = mGPY - prod(wML,mFeatM);
+    vectord alpha = mData.mY - prod(wML,mMean.mFeatM);
     inplace_solve(L,alpha,ublas::lower_tag());
     double sigma = ublas::inner_prod(alpha,alpha)/(n-p);
 

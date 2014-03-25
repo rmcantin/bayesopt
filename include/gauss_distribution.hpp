@@ -32,7 +32,7 @@
 class GaussianDistribution: public ProbabilityDistribution
 {
 public:
-  GaussianDistribution();
+  GaussianDistribution(randEngine& eng);
   virtual ~GaussianDistribution();
 
   /** 
@@ -81,11 +81,9 @@ public:
 
   /** 
    * Sample outcome acording to the marginal distribution at the query point.
-   * @param eng boost.random engine
-   * 
    * @return outcome
    */
-  double sample_query(randEngine& eng);
+  double sample_query();
 
   double getMean() { return mean_; };
   double getStd()  { return std_; };

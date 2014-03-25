@@ -350,17 +350,5 @@ function handlers
 [x_out, y_out] = bayesopt(@my_function, n_dimensions, parameters, lower_bound, upper_bound)
 \endcode
 
-\subsubsection notematlab Note on gcc versions:
-
-Matlab for *nix OS may ship outdated libraries for gcc (e.g.: 4.3 in
-2011b). You might get errors like this one:
-\verbatim
-/usr/lib/x86_64-linux-gnu/gcc/x86_64-linux-gnu/4.5.2/cc1: /usr/local/MATLAB/R2010b/sys/os/glnxa64/libstdc++.so.6: version `GLIBCXX_3.4.14' not found (required by /usr/lib/libppl_c.so.2)
-\endverbatim
-
-The solution is to change the symbolic links
-in /matlabroot/sys/os/glnx86 for \em libgcc_s.so.1
-and \em libstdc++.so.6 to point to the system libraries, which
-typically can be found in /lib or /usr/lib.
 
 */

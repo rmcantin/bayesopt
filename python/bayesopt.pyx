@@ -126,7 +126,7 @@ cdef bopt_params dict2structparams(dict dparams):
 
     score = dparams.get('sc_type', None)
     if score is not None:
-        params.sc_type = str2score(learning)
+        params.sc_type = str2score(score)
 
         
     params.epsilon = dparams.get('epsilon',params.epsilon)

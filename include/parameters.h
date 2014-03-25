@@ -85,6 +85,11 @@ extern "C" {
     size_t verbose_level;        /**< 1-Error,2-Warning,3-Info. 4-6 log file*/
     char* log_filename;          /**< Log file path (if applicable) */
 
+    size_t load_save_flag;       /**< 1-Load data,2-Save data,
+				      3-Load and save data. */
+    char* load_filename;          /**< Init data file path (if applicable) */
+    char* save_filename;          /**< Sava data file path (if applicable) */
+
     char* surr_name;             /**< Name of the surrogate function */
     double sigma_s;              /**< Signal variance (if known) */
     double noise;                /**< Observation noise (and nugget) */

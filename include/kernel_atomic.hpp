@@ -315,7 +315,7 @@ namespace bayesopt
     double operator()( const vectord &x1, const vectord &x2)
     {
       double xx = boost::numeric::ublas::inner_prod(x1,x2); 
-      return params(0)*params(0) * (params(1)+xx)*mExp;
+      return params(0)*params(0) * pow((params(1)+xx),mExp);
     };
 
     //TODO:

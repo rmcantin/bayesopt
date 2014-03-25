@@ -107,6 +107,8 @@ namespace bayesopt
       return 0;
     }
 
+    
+    
   } //namespace utils
 
 } //namespace bayesopt

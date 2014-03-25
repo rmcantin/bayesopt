@@ -151,6 +151,12 @@ bopt_params initialize_parameters_to_default(void)
   params.log_filename = new char[128];
   strcpy(params.log_filename,"bayesopt.log");
 
+  params.load_save_flag = 0;
+  params.load_filename = new char[128];
+  strcpy(params.log_filename,"bayesopt.dat");
+  params.save_filename = new char[128];
+  strcpy(params.log_filename,"bayesopt.dat");
+
   params.surr_name = new char[128];
   strcpy(params.surr_name,"sGaussianProcess");
 

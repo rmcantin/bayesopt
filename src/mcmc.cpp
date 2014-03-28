@@ -20,10 +20,12 @@
 ------------------------------------------------------------------------
 */
 #include "mcmc.hpp"
+#include "lhs.hpp"
 
 namespace bayesopt
 {
-  MCMCSampler::MCMCSampler(RBOptimizable* rbo, size_t dim)
+  MCMCSampler::MCMCSampler(RBOptimizable* rbo, size_t dim, randEngine& eng):
+    mtRandom(eng)
   {
     obj = new RBOptimizableWrapper(rbo);
 
@@ -41,12 +43,13 @@ namespace bayesopt
   };
 
 
-  void MCMC::sliceSample(vectord &x)
+  void MCMCSampler::sliceSample(vectord &x)
   {
     randFloat sample( mtRandom, realUniformDist(0,1) );
     size_t n = x.size();
 
-    std::vector<int> perms = utils::return_index_vector(n);
+    std::vector<int> perms = utils::return_index_vector(0,n);
+
     utils::randomPerms(perms, mtRandom);
 
     for (size_t i = 0; i<n; ++i)
@@ -61,7 +64,7 @@ namespace bayesopt
 	double x_cur = x(ind);
 	double r = sample();
 	double xl = x_cur - r * sigma;
-	double xl = x_cur + (1-r)*sigma;
+	double xr = x_cur + (1-r)*sigma;
 
 	if (mStepOut)
 	  {
@@ -94,16 +97,15 @@ namespace bayesopt
   }
 
   //TODO: Include new algorithms when we add them.
-  void MCMC::run(const vectord &initX)
+  void MCMCSampler::run(vectord &Xnext)
   {
-    vectord x = initX;
-    if (nBurnOut<0) burnOut(x);
+    if (nBurnOut<0) burnOut(Xnext);
   
     mParticles.clear();
     for(size_t i=0; i<nSamples; ++i)  
       {
-	sliceSample(x);
-	mParticles.push_back(x);
+	sliceSample(Xnext);
+	mParticles.push_back(Xnext);
       }
   }
 

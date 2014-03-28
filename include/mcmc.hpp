@@ -25,6 +25,7 @@
 #ifndef  _MCMC_HPP_
 #define  _MCMC_HPP_
 
+#include "randgen.hpp"
 #include "optimizable.hpp"
 
 namespace bayesopt {
@@ -38,17 +39,23 @@ namespace bayesopt {
   class MCMCSampler
   {
   public:
-    MCMCSampler(RBOptimizable* rbo, size_t dim);
+    MCMCSampler(RBOptimizable* rbo, size_t dim, randEngine& eng);
     virtual ~MCMCSampler();
 
     /** Sets the optimization algorithm  */
-    void setAlgorithm(innerOptAlgorithms newAlg);
+    void setAlgorithm(McmcAlgorithms newAlg);
 
     void setNParticles(size_t nParticles);
 
     void setNBurnOut(size_t nParticles);
 
-    void run(const vectord &initial);
+    /** Compute the inner optimization algorithm 
+     * @param Xnext input: initial point of the Markov Chain, 
+     *              output: last point of the MC
+     */
+    void run(vectord &Xnext);
+
+    void printParticles();
 
   private:
     void burnOut(vectord &x);
@@ -64,22 +71,29 @@ namespace bayesopt {
 
     vectord mSigma;
     vecOfvec mParticles;
+    randEngine mtRandom;
   };
 
   //TODO: Include new algorithms when we add them.
-  inline void MCMC::burnOut(vectord &x)
+  inline void MCMCSampler::burnOut(vectord &x)
   {
     for(size_t i=0; i<nBurnOut; ++i)  sliceSample(x);
   }
 
-  inline void MCMC::setNParticles(size_t nParticles)
+  inline void MCMCSampler::setNParticles(size_t nParticles)
   { nSamples = nParticles; };
 
-  inline void MCMC::setNBurnOut(size_t nParticles)
+  inline void MCMCSampler::setNBurnOut(size_t nParticles)
   { nBurnOut = nParticles; };
 
-  inline void MCMC::setAlgorithm(McmcAlgorithms newAlg)
+  inline void MCMCSampler::setAlgorithm(McmcAlgorithms newAlg)
   { mAlg = newAlg; };
+
+  inline void MCMCSampler::printParticles()
+  {
+    for(size_t i=0; i<mParticles.size(); ++i)
+      std::cout << i << "->" << mParticles[i] << std::endl;
+  }
 
 } //namespace bayesopt
 

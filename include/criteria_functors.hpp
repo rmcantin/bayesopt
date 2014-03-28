@@ -47,7 +47,7 @@ namespace bayesopt
     virtual ~Criteria() {};
     virtual void init(NonParametricProcess *proc) { };
     virtual void init(NonParametricProcess *proc, 
-		     const std::vector<Criteria*>& list) { };
+		      const std::vector<Criteria*>& list) { };
 
     double evaluate(const vectord &x) {return (*this)(x);}
     virtual double operator()(const vectord &x) = 0;
@@ -92,6 +92,27 @@ namespace bayesopt
     std::map<std::string , CriteriaFactory::create_func_definition> registry;
   };
 
+  //////////////////////////////////////////////////////////////////////
+  // class CriteriaModel
+  // {
+  // public:
+  //   CriteriaModel(size_t dim, bopt_params parameters, const Dataset& data, randEngine& eng);
+  //   virtual ~CriteriaModel() {};
+
+  //   Criteria* getCriteria();
+    
+  //   void setParameters(const vectord &theta);
+  //   vectord getParameters();
+  //   size_t nParameters();
+
+  //   void setCriteria();
+
+  // private:
+  //   Dataset mData;                     ///< Dataset (x-> inputs, y-> labels/output)
+  //   boost::scoped_ptr<Criteria> mCriteria;          ///< Pointer to kernel function
+  //   boost::scoped_ptr<NonParametricProcess> mGP;    ///< Pointer to surrogate model
+  //   randEngine* mtRandom;
+  // };
 
   //@}
 

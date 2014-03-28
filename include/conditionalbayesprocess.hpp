@@ -40,7 +40,7 @@ namespace bayesopt
   /**
    * \brief Empirical Bayesian NonParametric process.
    */
-  class ConditionalBayesProcess: public KernelRegressor, RBOptimizable
+  class ConditionalBayesProcess: public KernelRegressor, private RBOptimizable
   {
   public:
     ConditionalBayesProcess(size_t dim, bopt_params parameters,

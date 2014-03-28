@@ -87,6 +87,7 @@ SET( BAYESOPT_SRCS
   ./src/bayesoptdisc.cpp
   ./src/bayesoptbase.cpp
   ./src/inneroptimization.cpp
+  ./src/dataset.cpp
   ./src/nonparametricprocess.cpp
   ./src/kernelregressor.cpp
   ./src/conditionalbayesprocess.cpp

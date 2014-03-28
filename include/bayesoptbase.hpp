@@ -222,7 +222,7 @@ namespace bayesopt {
   inline vectord BayesOptBase::getPointAtMinimum() 
   { return mData.getPointAtMinimum(); };
   
-  inline double BayesOptBase::getValueAtMinimum() 
+  inline double BayesOptBase::getValueAtMinimum()
   { return mData.getValueAtMinimum(); };
 
   inline double BayesOptBase::evaluateCriteria( const vectord &query )

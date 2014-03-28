@@ -93,7 +93,9 @@ namespace bayesopt
   void BayesOptBase::setCriteria()
   {
     mCrit.reset(mCFactory.create(mParameters.crit_name,mGP.get()));
-    
+
+    mCrit->setRandomEngine(mEngine);
+
     if (mCrit->nParameters() == mParameters.n_crit_params)
       {
 	mCrit->setParameters(utils::array2vector(mParameters.crit_params,
@@ -114,8 +116,9 @@ namespace bayesopt
   void BayesOptBase::stepOptimization(size_t ii)
   {
     // Find what is the next point.
-    vectord xNext = nextPoint(); 
-    double yNext = evaluateSampleInternal(xNext);
+    const vectord xNext = nextPoint(); 
+    const double yNext = evaluateSampleInternal(xNext);
+
     addSample(xNext,yNext);
 
     // Update surrogate model
@@ -172,7 +175,6 @@ namespace bayesopt
       {
 	bool check = false;
 	std::string name;
-	mCrit->setRandomEngine(mEngine);
 	
 	mCrit->reset();
 	while (!check)

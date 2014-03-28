@@ -97,8 +97,10 @@ namespace bayesopt
 	double ymin = (std::numeric_limits<double>::max)();
 	for(size_t i = 0; i < nSamples; i++)
 	  {
-	    const double yPoint = mGP->getData()->getSampleY(i);
-	    const vectord xPoint = mGP->getData()->getSampleX(i);
+	    // const double yPoint = mGP->getData()->getSampleY(i);
+	    // const vectord xPoint = mGP->getData()->getSampleX(i);
+	    const double yPoint = mData.getSampleY(i);
+	    const vectord xPoint = mData.getSampleX(i);
 	    FILE_LOG(logDEBUG) << xPoint ;
 	  
 	    if (mParameters.verbose_level > 1)

@@ -97,6 +97,7 @@ namespace bayesopt
   
       for (size_t i = 0; i < nB; i++)
 	{
+	  // TODO: perms starts at 1. Check this
 	  std::vector<int> perms = return_index_vector(nA);
 	  randomPerms(perms, mtRandom);
 

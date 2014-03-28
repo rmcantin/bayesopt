@@ -36,18 +36,6 @@
 namespace bayesopt
 {
 
-  Dataset::Dataset(): mMinIndex(0), mMaxIndex(0) {};
-
-  Dataset::Dataset(const matrixd& x, const vectord& y):
-    mMinIndex(0), mMaxIndex(0)
-  {
-    setSamples(x,y);
-  };
-
-  Dataset::~Dataset(){};
-
-
-  ///////////////////////////////////////////////////////////////////////////
   NonParametricProcess::NonParametricProcess(size_t dim, bopt_params parameters, 
 					     const Dataset& data, randEngine& eng):
     mData(data), dim_(dim), mMean(dim, parameters)

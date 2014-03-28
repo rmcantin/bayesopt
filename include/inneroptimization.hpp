@@ -26,7 +26,7 @@
 #ifndef __INNEROPTIMIZATION_HPP__
 #define __INNEROPTIMIZATION_HPP__
 
-#include "dll_stuff.h"
+//#include "dll_stuff.h"
 #include "optimizable.hpp"
 //#include "optimization.hpp"
 
@@ -41,27 +41,6 @@ namespace bayesopt {
   } innerOptAlgorithms;
 
 
-  class RBOptimizableWrapper
-  {
-  public:
-    explicit RBOptimizableWrapper(RBOptimizable* rbo): rbo_(rbo){};
-    virtual ~RBOptimizableWrapper(){};
-    double evaluate(const vectord& query){return rbo_->evaluate(query);}
-  private:
-    RBOptimizable* rbo_;
-  };
-
-  class RGBOptimizableWrapper
-  {
-  public:
-    explicit RGBOptimizableWrapper(RGBOptimizable* rgbo): rgbo_(rgbo){};
-    virtual ~RGBOptimizableWrapper(){};
-    double evaluate(const vectord& query, vectord& grad){return rgbo_->evaluate(query,grad);}
-  private:
-    RGBOptimizable* rgbo_;
-  };
-
-
   class NLOPT_Optimization //: public Optimization
   {
   public:
@@ -72,7 +51,8 @@ namespace bayesopt {
     /** Sets the optimization algorithm  */
     void setAlgorithm(innerOptAlgorithms newAlg);
 
-    /** Sets the optimization algorithm  */
+    /** Sets the maximum number of function evaluations. Depending on
+	the algorithm, it might stops earlier if convergence is reached. */
     void setMaxEvals(size_t meval);
 
     /** Limits of the hypercube. */

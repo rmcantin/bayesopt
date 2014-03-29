@@ -76,6 +76,9 @@ namespace bayesopt
 
     // Getters and setters
     double getSignalVariance();
+    size_t nHyperParameters();
+    vectord getHyperParameters();
+    void setHyperParameters(const vectord& theta);
 
     /** Sets the kind of learning methodology for kernel hyperparameters */
     //void setLearnType(learning_type l_type);
@@ -121,10 +124,19 @@ namespace bayesopt
   //// Inline methods
   inline void KernelRegressor::fitSurrogateModel()
   {
-    updateKernelParameters();
+    //updateKernelParameters();
     computeCholeskyCorrelation();
     precomputePrediction(); 
   };
+
+  inline size_t KernelRegressor::nHyperParameters()
+  { return mKernel.nHyperParameters(); }
+
+  inline vectord KernelRegressor::getHyperParameters()
+  { return mKernel.getHyperParameters(); }
+
+  inline void KernelRegressor::setHyperParameters(const vectord &theta)
+  { mKernel.setHyperParameters(theta); };
 
   // inline void KernelRegressor::setLearnType(learning_type l_type) 
   // { mLearnType = l_type; };

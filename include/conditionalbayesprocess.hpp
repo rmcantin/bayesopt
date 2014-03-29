@@ -28,7 +28,6 @@
 #define  _CONDITIONAL_BAYES_PROCESS_HPP_
 
 #include "kernelregressor.hpp"
-#include "inneroptimization.hpp"
 
 namespace bayesopt
 {
@@ -40,11 +39,11 @@ namespace bayesopt
   /**
    * \brief Empirical Bayesian NonParametric process.
    */
-  class ConditionalBayesProcess: public KernelRegressor, private RBOptimizable
+  class ConditionalBayesProcess: public KernelRegressor
   {
   public:
     ConditionalBayesProcess(size_t dim, bopt_params parameters,
-			  const Dataset& data, randEngine& eng);
+			    const Dataset& data, randEngine& eng);
     virtual ~ConditionalBayesProcess();
 
     /** 
@@ -103,8 +102,6 @@ namespace bayesopt
      */
     double negativeCrossValidation();
 
-  private:
-    NLOPT_Optimization* kOptimizer;
   };
 
 

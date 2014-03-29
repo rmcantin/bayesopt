@@ -22,7 +22,6 @@
 
 #include <ctime>
 #include <cstdlib>
-#include "log.hpp"
 #include "bayesoptbase.hpp"
 
 namespace bayesopt
@@ -44,7 +43,6 @@ namespace bayesopt
 
   void BayesOptBase::__init__()
   { 
-    // Configure logging
     if (mParameters.use_random_seed) mEngine.seed(std::time(0));
 
     size_t verbose = mParameters.verbose_level;
@@ -78,12 +76,30 @@ namespace bayesopt
     setSurrogateModel();
     setCriteria();
 
-    // mData.reset(new Dataset());
-    // mGP->setData(mData.get());
+    // Seting kernel optimization
+    size_t nhp = mGP->nHyperParameters();
+    kOptimizer = new NLOPT_Optimization(mGP.get(),nhp);
+
+    //TODO: Generalize
+    if (mParameters.sc_type == SC_ML)
+      {
+	kOptimizer->setAlgorithm(BOBYQA);    // local search to avoid underfitting
+      }
+    else
+      {
+	kOptimizer->setAlgorithm(COMBINED);
+      }
+    // kOptimizer->setLimits(svectord(nhp,1e-10),svectord(nhp,100.));
+    kOptimizer->setLimits(svectord(nhp,-6),svectord(nhp,6));
+
+    // Configure logging
+
   } // __init__
 
   BayesOptBase::~BayesOptBase()
-  {} // Default destructor
+  {
+    delete kOptimizer;
+  } // Default destructor
 
   void BayesOptBase::setSurrogateModel()
   {
@@ -127,7 +143,7 @@ namespace bayesopt
     
     if (retrain)  // Full update
       {
-	mGP->fitSurrogateModel();
+	fitSurrogateModel();
       }
     else          // Incremental update
       {

@@ -27,6 +27,9 @@
 
 #include <boost/scoped_ptr.hpp>
 #include "criteria_functors.hpp"
+#include "inneroptimization.hpp"
+#include "log.hpp"
+
 
 /**
  * Namespace of the library interface
@@ -185,6 +188,8 @@ namespace bayesopt {
      */
     vectord nextPoint();  
 
+    void fitSurrogateModel();
+
 
   protected:
     Dataset mData;                  ///< Dataset (x-> inputs, y-> labels/output)
@@ -203,6 +208,7 @@ namespace bayesopt {
     void __init__();
 
     CriteriaFactory mCFactory;
+    NLOPT_Optimization* kOptimizer;
   };
 
   /**@}*/
@@ -239,6 +245,19 @@ namespace bayesopt {
 
   inline randEngine& BayesOptBase::getRandomNumberGenerator() 
   {return mEngine;};
+
+  inline void BayesOptBase::fitSurrogateModel()
+  {
+    vectord optimalTheta = mGP->getHyperParameters();
+
+    FILE_LOG(logDEBUG) << "Initial kernel parameters: " << optimalTheta;
+    kOptimizer->run(optimalTheta);
+    mGP->setHyperParameters(optimalTheta);
+    FILE_LOG(logDEBUG) << "Final kernel parameters: " << optimalTheta;	
+
+    mGP->fitSurrogateModel(); 
+  };
+
 
 } //namespace bayesopt
 

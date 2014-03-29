@@ -125,7 +125,7 @@ namespace bayesopt  {
       }
     
     setSamples(xPoints,yPoints);
-    mGP->fitSurrogateModel();
+    fitSurrogateModel();
     
     // For logging purpose
     if(mParameters.verbose_level > 0)

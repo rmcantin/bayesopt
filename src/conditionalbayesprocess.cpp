@@ -32,50 +32,20 @@ namespace bayesopt
   ConditionalBayesProcess::ConditionalBayesProcess(size_t dim, bopt_params parameters, 
 						   const Dataset& data, randEngine& eng):
     KernelRegressor(dim,parameters,data,eng)
-  { 
-    // if (mLearnType == L_BAYES)
-    //   {
-    // 	FILE_LOG(logERROR) << "Empirical Bayes model and full Bayes learning are incompatible.";
-    // 	throw std::invalid_argument("Trying full Bayes learning for an empirical Bayes model.");
-    //   }
-
-    size_t nhp = mKernel.nHyperParameters();
-    kOptimizer = new NLOPT_Optimization(this,nhp);
-
-    //TODO: Generalize
-    if (parameters.sc_type == SC_ML)
-      {
-	kOptimizer->setAlgorithm(BOBYQA);    // local search to avoid underfitting
-      }
-    else
-      {
-	kOptimizer->setAlgorithm(COMBINED);
-      }
-    // kOptimizer->setLimits(svectord(nhp,1e-10),svectord(nhp,100.));
-    kOptimizer->setLimits(svectord(nhp,-6),svectord(nhp,6));
-  }
+  {}
 
   ConditionalBayesProcess::~ConditionalBayesProcess()
-  {
-    delete kOptimizer;
-  }
+  {}
 
 
   void ConditionalBayesProcess::updateKernelParameters()
   {
-    // if (mLearnType == L_FIXED)
-    //   {
-    // 	FILE_LOG(logDEBUG) << "Fixed hyperparameters. Not learning";
-    //   }
-    // else
-    //   {
-	vectord optimalTheta = mKernel.getHyperParameters();
+    // vectord optimalTheta = mKernel.getHyperParameters();
 	
-	FILE_LOG(logDEBUG) << "Initial kernel parameters: " << optimalTheta;
-	kOptimizer->run(optimalTheta);
-	mKernel.setHyperParameters(optimalTheta);
-	FILE_LOG(logDEBUG) << "Final kernel parameters: " << optimalTheta;	
-      // }
+  //   FILE_LOG(logDEBUG) << "Initial kernel parameters: " << optimalTheta;
+  //   kOptimizer->run(optimalTheta);
+  //   mKernel.setHyperParameters(optimalTheta);
+  //   FILE_LOG(logDEBUG) << "Final kernel parameters: " << optimalTheta;	
   };
 
   double ConditionalBayesProcess::evaluateKernelParams()

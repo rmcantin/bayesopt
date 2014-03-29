@@ -31,6 +31,7 @@
 #include "dataset.hpp"
 #include "prob_distribution.hpp"
 #include "mean_functors.hpp"
+#include "optimizable.hpp"
 
 namespace bayesopt
 {
@@ -41,7 +42,7 @@ namespace bayesopt
   /**
    * \brief Abstract class to implement Bayesian regressors
    */
-  class BAYESOPT_API NonParametricProcess
+  class BAYESOPT_API NonParametricProcess: public RBOptimizable
   {
   public:
     NonParametricProcess(size_t dim, bopt_params parameters, const Dataset& data, randEngine& eng);
@@ -90,6 +91,11 @@ namespace bayesopt
     double getValueAtMinimum();
     const Dataset* getData();
     double getSignalVariance();
+    
+    virtual size_t nHyperParameters() = 0;
+    virtual vectord getHyperParameters() = 0;
+    virtual void setHyperParameters(const vectord& theta) = 0;
+
 
   protected:
     const Dataset& mData;  

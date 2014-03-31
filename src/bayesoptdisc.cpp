@@ -29,25 +29,22 @@
 namespace bayesopt
 {
   
-  DiscreteModel::DiscreteModel(const vecOfvec &validSet):
-    BayesOptBase(), mInputSet(validSet)
-  {} // Constructor
+  // DiscreteModel::DiscreteModel(const vecOfvec &validSet):
+  //   BayesOptBase(), mInputSet(validSet)
+  // {} // Constructor
 
 
   DiscreteModel::DiscreteModel( const vecOfvec &validSet, 
-			    bopt_params parameters):
+				bopt_params parameters):
     BayesOptBase(validSet[0].size(),parameters), mInputSet(validSet)
-  {} // Constructor
+  {    
+    mDims = mInputSet[0].size();    
+  } // Constructor
 
 
   DiscreteModel::~DiscreteModel()
   {} // Default destructor
 
-  void DiscreteModel::initializeOptimization()
-  {
-    mDims = mInputSet[0].size();    
-    sampleInitialPoints();
-  }
 
   vectord DiscreteModel::getFinalResult()
   {
@@ -70,9 +67,9 @@ namespace bayesopt
   }
 
 
-  void DiscreteModel::sampleInitialPoints()
+  void DiscreteModel::sampleInitialPoints(matrixd& xPoints, vectord& yPoints)
   {
-    size_t nSamples = mParameters.n_init_samples;
+
     vecOfvec perms = mInputSet;
     
     // By using random permutations, we guarantee that 
@@ -80,39 +77,13 @@ namespace bayesopt
     utils::randomPerms(perms,mEngine);
     
     // vectord xPoint(mInputSet[0].size());
-    for(size_t i = 0; i < nSamples; i++)
+    for(size_t i = 0; i < yPoints.size(); i++)
       {
-	const vectord xPoint = perms[i];
-	const double yPoint = evaluateSample(xPoint);
-	if (i == 0)  setSample(xPoint,yPoint);
-	else addSample(xPoint,yPoint);
+	const vectord xP = perms[i];
+	row(xPoints,i) = xP;
+	yPoints(i) = evaluateSample(xP);
       }
-
-    fitSurrogateModel();
-
-    // For logging purpose
-    if(mParameters.verbose_level > 0)
-      {
-	FILE_LOG(logDEBUG) << "Initial points:" ;
-	double ymin = (std::numeric_limits<double>::max)();
-	for(size_t i = 0; i < nSamples; i++)
-	  {
-	    // const double yPoint = mGP->getData()->getSampleY(i);
-	    // const vectord xPoint = mGP->getData()->getSampleX(i);
-	    const double yPoint = mData.getSampleY(i);
-	    const vectord xPoint = mData.getSampleX(i);
-	    FILE_LOG(logDEBUG) << xPoint ;
-	  
-	    if (mParameters.verbose_level > 1)
-	      { 
-		if(yPoint<ymin) 
-		  ymin = yPoint;
-	      
-		FILE_LOG(logDEBUG) << ymin << "|" << yPoint ;
-	      }
-	  }  
-      }
-  } // sampleInitialPoints
+  }
   
 
   void DiscreteModel::findOptimal(vectord &xOpt)

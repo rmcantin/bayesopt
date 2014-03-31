@@ -29,8 +29,9 @@ namespace bayesopt
   StudentTProcessJeffreys::StudentTProcessJeffreys(size_t dim, 
 						   bopt_params params, 
 						   const Dataset& data, 
+						   MeanModel& mean,
 						   randEngine& eng):
-    HierarchicalGaussianProcess(dim, params, data,eng)
+    HierarchicalGaussianProcess(dim, params, data, mean, eng)
   {
     mSigma = params.sigma_s;
     d_ = new StudentTDistribution(eng);

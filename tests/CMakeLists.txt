@@ -7,7 +7,7 @@ ADD_EXECUTABLE(randtest ./testrand.cpp)
 ADD_EXECUTABLE(parsetest ../utils/parser.cpp ./testparser.cpp)
 
 #Test for MCMC
-ADD_EXECUTABLE(mcmctest ../src/mcmc.cpp ./testmcmc.cpp)
+# ADD_EXECUTABLE(mcmctest ../src/mcmc.cpp ./testmcmc.cpp)
 
 #Continuous test
 # ADD_EXECUTABLE(bo_cont ./bo_cont.cpp)

@@ -43,7 +43,7 @@ namespace bayesopt  {
   public:
    
     /** Default constructor */
-    ContinuousModel();
+    //    ContinuousModel();
 
     /** 
      * Constructor
@@ -55,9 +55,6 @@ namespace bayesopt  {
     /**  Default destructor  */
     virtual ~ContinuousModel();
   
-    /** Initialize the optimization process.  */
-    void initializeOptimization();
-
     /** 
      * Once the optimization has been perfomed, return the optimal
      * point.
@@ -69,10 +66,8 @@ namespace bayesopt  {
      *
      * @param lowerBound vector with the lower bounds of the hypercube
      * @param upperBound vector with the upper bounds of the hypercube
-     * 
-     * @return 0 if terminate successfully, nonzero otherwise
      */
-    int setBoundingBox( const vectord &lowerBound,
+    void setBoundingBox( const vectord &lowerBound,
 			const vectord &upperBound);
 
 
@@ -89,7 +84,7 @@ namespace bayesopt  {
 		      double yNext);
 
     /** Selects the initial set of points to build the surrogate model. */
-    void sampleInitialPoints();
+    void sampleInitialPoints(matrixd& xPoints, vectord& yPoints);
 
     /** Sample a single point in the input space. Used for epsilon greedy exploration. */
     vectord samplePoint();
@@ -110,8 +105,10 @@ namespace bayesopt  {
     void findOptimal(vectord &xOpt);
 
   private:
-    utils::BoundingBox<vectord> *mBB;      ///< Bounding Box (input space limits)
+    boost::scoped_ptr<utils::BoundingBox<vectord> > mBB;      ///< Bounding Box (input space limits)
     NLOPT_Optimization* cOptimizer;
+
+    ContinuousModel();                       ///< Default constructor forbidden.
   };
   
 
@@ -122,13 +119,6 @@ namespace bayesopt  {
   class BAYESOPT_API DiscreteModel : public BayesOptBase
   {
   public:
-
-    /** 
-     * Constructor
-     * @param validSet  Set of potential inputs
-     */
-    DiscreteModel(const vecOfvec &validSet );
-
     /** 
      * Constructor
      * @param validSet  Set of potential inputs
@@ -138,9 +128,6 @@ namespace bayesopt  {
     
     /** Default destructor  */
     virtual ~DiscreteModel();
-
-    /** Initialize the optimization process. */
-    void initializeOptimization();
 
     /** Once the optimization has been perfomed, return the optimal point. */
     vectord getFinalResult();
@@ -154,7 +141,7 @@ namespace bayesopt  {
 		     double yNext);
 
     /** Selects the initial set of points to build the surrogate model. */
-    void sampleInitialPoints();
+    void sampleInitialPoints(matrixd& xPoints, vectord& yPoints);
 
     /** Sample a single point in the input space. Used for epsilon greedy exploration. */
     vectord samplePoint();
@@ -171,6 +158,9 @@ namespace bayesopt  {
 
   protected:
     vecOfvec mInputSet;               ///< List of input points
+
+  private:
+    DiscreteModel();         ///< Default constructor forbidden.
   };
 
 

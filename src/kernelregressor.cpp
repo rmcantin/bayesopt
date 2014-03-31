@@ -35,8 +35,9 @@
 namespace bayesopt
 {
   KernelRegressor::KernelRegressor(size_t dim, bopt_params parameters,
-				   const Dataset& data, randEngine& eng):
-    NonParametricProcess(dim,parameters,data,eng), mRegularizer(parameters.noise),
+				   const Dataset& data,
+				   MeanModel& mean, randEngine& eng):
+    NonParametricProcess(dim,parameters,data,mean,eng), mRegularizer(parameters.noise),
     mKernel(dim, parameters),mScoreType(parameters.sc_type)
   { }
 

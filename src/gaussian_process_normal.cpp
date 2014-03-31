@@ -38,8 +38,9 @@ namespace bayesopt
   GaussianProcessNormal::GaussianProcessNormal(size_t dim, 
 					       bopt_params params, 
 					       const Dataset& data, 
+					       MeanModel& mean,
 					       randEngine& eng):
-    HierarchicalGaussianProcess(dim,params,data,eng),
+    HierarchicalGaussianProcess(dim,params,data,mean,eng),
     mW0(params.mean.n_coef), mInvVarW(params.mean.n_coef), 
     mD(params.mean.n_coef,params.mean.n_coef)
   {  
@@ -96,7 +97,7 @@ namespace bayesopt
   {
     matrixd KK = computeCorrMatrix();
     const size_t n = KK.size1();
-    const size_t p = mMean.getMeanFunc()->nFeatures();
+    const size_t p = mMean.nFeatures();
   
     vectord v0 = mData.mY - prod(trans(mMean.mFeatM),mW0);
     matrixd WW = zmatrixd(p,p);  //TODO: diagonal matrix
@@ -118,7 +119,7 @@ namespace bayesopt
   void GaussianProcessNormal::precomputePrediction()
   {
     size_t n = mData.getNSamples();
-    size_t p = mMean.getMeanFunc()->nFeatures();
+    size_t p = mMean.nFeatures();
 
     mKF = trans(mMean.mFeatM);
     inplace_solve(mL,mKF,ublas::lower_tag());

@@ -26,6 +26,7 @@
 #ifndef __DATASET_HPP__
 #define __DATASET_HPP__
 
+#include "log.hpp"
 #include "specialtypes.hpp"
 #include "ublas_extra.hpp"
 
@@ -49,6 +50,8 @@ namespace bayesopt
     vectord getSampleX(size_t index) const;
     double getLastSampleY() const;
     vectord getLastSampleX() const;
+
+    void plotData(TLogLevel level);
 
     vectord getPointAtMinimum() const;
     double getValueAtMinimum() const;

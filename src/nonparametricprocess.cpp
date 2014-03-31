@@ -37,8 +37,10 @@ namespace bayesopt
 {
 
   NonParametricProcess::NonParametricProcess(size_t dim, bopt_params parameters, 
-					     const Dataset& data, randEngine& eng):
-    mData(data), dim_(dim), mMean(dim, parameters)
+					     const Dataset& data, 
+					     MeanModel& mean,
+					     randEngine& eng):
+    mData(data), dim_(dim), mMean(mean)
   {}
 
   NonParametricProcess::~NonParametricProcess(){}
@@ -47,6 +49,7 @@ namespace bayesopt
   NonParametricProcess* NonParametricProcess::create(size_t dim, 
 						     bopt_params parameters, 
 						     const Dataset& data, 
+						     MeanModel& mean,
 						     randEngine& eng)
   {
     NonParametricProcess* s_ptr;
@@ -54,15 +57,15 @@ namespace bayesopt
     std::string name = parameters.surr_name;
 
     if (!name.compare("sGaussianProcess"))
-      s_ptr = new GaussianProcess(dim,parameters,data,eng);
+      s_ptr = new GaussianProcess(dim,parameters,data,mean,eng);
     else  if(!name.compare("sGaussianProcessML"))
-      s_ptr = new GaussianProcessML(dim,parameters,data,eng);
+      s_ptr = new GaussianProcessML(dim,parameters,data,mean,eng);
     else  if(!name.compare("sGaussianProcessNormal"))
-      s_ptr = new GaussianProcessNormal(dim,parameters,data,eng);
+      s_ptr = new GaussianProcessNormal(dim,parameters,data,mean,eng);
     else if (!name.compare("sStudentTProcessJef"))
-      s_ptr = new StudentTProcessJeffreys(dim,parameters,data,eng); 
+      s_ptr = new StudentTProcessJeffreys(dim,parameters,data,mean,eng); 
     else if (!name.compare("sStudentTProcessNIG"))
-      s_ptr = new StudentTProcessNIG(dim,parameters,data,eng); 
+      s_ptr = new StudentTProcessNIG(dim,parameters,data,mean,eng); 
     else
       {
 	FILE_LOG(logERROR) << "Error: surrogate function not supported.";

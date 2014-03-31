@@ -45,7 +45,11 @@ namespace bayesopt
   class BAYESOPT_API NonParametricProcess: public RBOptimizable
   {
   public:
-    NonParametricProcess(size_t dim, bopt_params parameters, const Dataset& data, randEngine& eng);
+    NonParametricProcess(size_t dim, bopt_params parameters, 
+			 const Dataset& data, 
+			 MeanModel& mean,
+			 randEngine& eng);
+
     virtual ~NonParametricProcess();
 
     /** 
@@ -54,7 +58,8 @@ namespace bayesopt
      * @return pointer to the corresponding derivate class (surrogate model)
      */
     static NonParametricProcess* create(size_t dim, bopt_params parameters,
-					const Dataset& data, randEngine& eng);
+					const Dataset& data, 			 
+					MeanModel& mean, randEngine& eng);
 
     /** 
      * \brief Function that returns the prediction of the GP for a query point
@@ -85,9 +90,6 @@ namespace bayesopt
 
 
     // Getters and setters
-    void setSamples(const matrixd &x, const vectord &y);
-    void addSample(const vectord &x, double y);
-    //    void setData(Dataset* data);
     double getValueAtMinimum();
     const Dataset* getData();
     double getSignalVariance();
@@ -101,21 +103,11 @@ namespace bayesopt
     const Dataset& mData;  
     double mSigma;                                   //!< Signal variance
     size_t dim_;
-    MeanModel mMean;
+    MeanModel& mMean;
   };
 
   //////////////////////////////////////////////////////////////////////////////
   //// Inlines
-  inline void NonParametricProcess::setSamples(const matrixd &x, const vectord &y)
-  {
-    mMean.setPoints(mData.mX);  //Because it expects a vecOfvec instead of a matrixd
-  }
-
-  inline void NonParametricProcess::addSample(const vectord &x, double y)
-  {  mMean.addNewPoint(x);  };
-
-  // inline void NonParametricProcess::setData(Dataset* data)
-  // {mData = data;}
 
   inline double NonParametricProcess::getValueAtMinimum() 
   { return mData.getValueAtMinimum(); };

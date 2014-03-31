@@ -36,8 +36,9 @@ namespace bayesopt
   namespace ublas = boost::numeric::ublas; 
   
   StudentTProcessNIG::StudentTProcessNIG(size_t dim, bopt_params params, 
-					 const Dataset& data, randEngine& eng):
-    HierarchicalGaussianProcess(dim,params,data, eng),
+					 const Dataset& data, 			 
+					 MeanModel& mean, randEngine& eng):
+    HierarchicalGaussianProcess(dim,params,data, mean, eng),
     mAlpha(params.alpha), mBeta (params.beta), 
     mW0(params.mean.n_coef), mInvVarW(params.mean.n_coef), 
     mD(params.mean.n_coef,params.mean.n_coef)
@@ -93,7 +94,7 @@ namespace bayesopt
   {
     matrixd KK = computeCorrMatrix();
     const size_t n = KK.size1();
-    const size_t p = mMean.getMeanFunc()->nFeatures();
+    const size_t p = mMean.nFeatures();
     const size_t nalpha = (n+2*mAlpha);
 
     vectord v0 = mData.mY - prod(trans(mMean.mFeatM),mW0);
@@ -118,7 +119,7 @@ namespace bayesopt
   void StudentTProcessNIG::precomputePrediction()
   {
     size_t n = mData.getNSamples();
-    size_t p = mMean.getMeanFunc()->nFeatures();
+    size_t p = mMean.nFeatures();
 
     mKF = trans(mMean.mFeatM);
     inplace_solve(mL,mKF,ublas::lower_tag());

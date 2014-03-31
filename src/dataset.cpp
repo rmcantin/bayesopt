@@ -36,4 +36,22 @@ namespace bayesopt
 
   Dataset::~Dataset(){};
 
+  void Dataset::plotData(TLogLevel level)
+  {
+    // For logging purpose
+    FILE_LOG(level) << "Initial points:" ;
+    for(size_t i = 0; i < mY.size(); i++)
+      {
+	FILE_LOG(level) << "X:" << mX[i]
+			<< "|Y:" << mY(i);
+      }
+    const double yPoint = getValueAtMinimum();
+    const vectord xPoint = getPointAtMinimum();
+    FILE_LOG(level) << "Best point so far:" ;
+    FILE_LOG(level) << "X:" << xPoint
+		    << "|Y:" << yPoint;
+    
+  } // plotData
+
+
 } //namespace bayesopt

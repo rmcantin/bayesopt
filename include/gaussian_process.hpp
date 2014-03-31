@@ -41,7 +41,8 @@ namespace bayesopt
   class GaussianProcess: public ConditionalBayesProcess
   {
   public:
-    GaussianProcess(size_t dim, bopt_params params, const Dataset& data, randEngine& eng);
+    GaussianProcess(size_t dim, bopt_params params, const Dataset& data, 
+		    MeanModel& mean, randEngine& eng);
     virtual ~GaussianProcess();
 
     /** 

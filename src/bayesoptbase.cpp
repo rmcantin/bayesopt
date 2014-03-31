@@ -26,17 +26,18 @@
 
 namespace bayesopt
 {
-  
-  BayesOptBase::BayesOptBase():
-    mGP(NULL), mCrit(NULL)
-  {
-    mParameters = initialize_parameters_to_default();
-    __init__();
-  }
+  // TODO: Should be forbidden to use this constructor
+  // BayesOptBase::BayesOptBase():
+  //   mGP(NULL), mCrit(NULL)
+  // {
+  //   mParameters = initialize_parameters_to_default();
+  //   __init__();
+  // }
 
 
   BayesOptBase::BayesOptBase(size_t dim, bopt_params parameters):
-    mGP(NULL), mCrit(NULL),  mParameters(parameters), mDims(dim)
+    mGP(NULL), mCrit(NULL),  mParameters(parameters), 
+    mDims(dim), mMean(dim, parameters)
   {
     __init__();
   }
@@ -103,7 +104,8 @@ namespace bayesopt
 
   void BayesOptBase::setSurrogateModel()
   {
-    mGP.reset(NonParametricProcess::create(mDims,mParameters,mData,mEngine));
+    mGP.reset(NonParametricProcess::create(mDims,mParameters,
+					   mData,mMean,mEngine));
   } // setSurrogateModel
 
   void BayesOptBase::setCriteria()
@@ -151,6 +153,24 @@ namespace bayesopt
       } 
     plotStepData(ii,xNext,yNext);
   }
+
+  void BayesOptBase::initializeOptimization()
+  {
+    size_t nSamples = mParameters.n_init_samples;
+
+    matrixd xPoints(nSamples,mDims);
+    vectord yPoints(nSamples);
+
+    sampleInitialPoints(xPoints,yPoints);
+
+    setSamples(xPoints,yPoints);
+    fitSurrogateModel();
+    if(mParameters.verbose_level > 0)
+      {
+	mData.plotData(logDEBUG);
+      }
+  }
+
 
   int BayesOptBase::optimize(vectord &bestPoint)
   {
@@ -206,5 +226,6 @@ namespace bayesopt
       }
     return Xnext;
   }
+
 } //namespace bayesopt
 

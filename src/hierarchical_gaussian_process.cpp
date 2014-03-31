@@ -30,8 +30,9 @@ namespace bayesopt
   HierarchicalGaussianProcess::HierarchicalGaussianProcess(size_t dim, 
 							   bopt_params params, 
 							   const Dataset& data, 
+							   MeanModel& mean,
 							   randEngine& eng):
-    ConditionalBayesProcess(dim, params, data,eng) {};
+    ConditionalBayesProcess(dim, params, data, mean, eng) {};
 
   double HierarchicalGaussianProcess::negativeTotalLogLikelihood()
   {

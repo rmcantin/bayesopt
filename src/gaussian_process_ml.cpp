@@ -30,8 +30,9 @@ namespace bayesopt
   namespace ublas = boost::numeric::ublas;
 
   GaussianProcessML::GaussianProcessML(size_t dim, bopt_params params, 
-				       const Dataset& data, randEngine& eng):
-    HierarchicalGaussianProcess(dim, params, data, eng)
+				       const Dataset& data, 
+				       MeanModel& mean, randEngine& eng):
+    HierarchicalGaussianProcess(dim, params, data, mean, eng)
   {
     mSigma = params.sigma_s;
     d_ = new GaussianDistribution(eng);
@@ -79,7 +80,7 @@ namespace bayesopt
   void GaussianProcessML::precomputePrediction()
   {
     size_t n = mData.getNSamples();
-    size_t p = mMean.getMeanFunc()->nFeatures();
+    size_t p = mMean.nFeatures();
 
     mKF = trans(mMean.mFeatM);
     inplace_solve(mL,mKF,ublas::lower_tag());

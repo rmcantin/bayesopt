@@ -44,7 +44,8 @@ namespace bayesopt
   class StudentTProcessNIG: public HierarchicalGaussianProcess
   {
   public:
-    StudentTProcessNIG(size_t dim, bopt_params params, const Dataset& data, randEngine& eng);
+    StudentTProcessNIG(size_t dim, bopt_params params, const Dataset& data, 
+		       MeanModel& mean, randEngine& eng);
     virtual ~StudentTProcessNIG();
 
     /** 

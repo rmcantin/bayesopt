@@ -41,7 +41,8 @@ namespace bayesopt
   class HierarchicalGaussianProcess: public ConditionalBayesProcess
   {
   public:
-    HierarchicalGaussianProcess(size_t dim, bopt_params params, const Dataset& data, randEngine& eng);
+    HierarchicalGaussianProcess(size_t dim, bopt_params params, const Dataset& data, 
+				MeanModel& mean,randEngine& eng);
     virtual ~HierarchicalGaussianProcess() {};
 
   protected:

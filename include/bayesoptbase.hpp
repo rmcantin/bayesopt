@@ -1,3 +1,4 @@
+
 /**  \file bayesoptbase.hpp \brief Bayesian optimization module */
 /*
 -------------------------------------------------------------------------
@@ -48,12 +49,6 @@ namespace bayesopt {
   class BAYESOPT_API BayesOptBase
   {
   public:
-  
-    /** 
-     * Default constructor
-     */
-    BayesOptBase();
-    
     /** 
      * Constructor
      * @param params set of parameters (see parameters.h)
@@ -116,7 +111,7 @@ namespace bayesopt {
     void stepOptimization(size_t ii);
 
     /** Initialize the optimization process.  */
-    virtual void initializeOptimization() = 0;
+    void initializeOptimization();
 
     /** Once the optimization has been perfomed, return the optimal point. */
     virtual vectord getFinalResult() = 0;
@@ -175,7 +170,7 @@ namespace bayesopt {
     virtual void findOptimal(vectord &xOpt) = 0;
   
     /** Selects the initial set of points to build the surrogate model. */
-    virtual void sampleInitialPoints() = 0;
+    virtual void sampleInitialPoints(matrixd& xPoints, vectord& yPoints) = 0;
 
     /** Sample a single point in the input space. Used for epsilon greedy exploration. */
     virtual vectord samplePoint() = 0;
@@ -190,7 +185,7 @@ namespace bayesopt {
 
     void fitSurrogateModel();
 
-
+    void plotInitialPoints();
   protected:
     Dataset mData;                  ///< Dataset (x-> inputs, y-> labels/output)
     boost::scoped_ptr<NonParametricProcess> mGP; ///< Pointer to surrogate model
@@ -198,8 +193,11 @@ namespace bayesopt {
     bopt_params mParameters;                       ///< Configuration parameters
     size_t mDims;                                      ///< Number of dimensions
     randEngine mEngine;                             ///< Random number generator
+    MeanModel mMean;
 
   private:
+
+    BayesOptBase();
 
     /** 
      * \brief Checks the parameters and setups the elements (criteria, 
@@ -214,16 +212,21 @@ namespace bayesopt {
   /**@}*/
 
   inline void BayesOptBase::setSamples(const matrixd &x, const vectord &y)
-  { mData.setSamples(x,y);  mGP->setSamples(x,y);  }
+  { 
+    mData.setSamples(x,y);  
+    mMean.setPoints(mData.mX);  //Because it expects a vecOfvec instead of a matrixd 
+  }
 
   inline void BayesOptBase::setSample(const vectord &x, double y)
   { 
     matrixd xx(1,x.size());  vectord yy(1);
     row(xx,0) = x;           yy(0) = y;
-    mData.setSamples(xx,yy);   mGP->setSamples(xx,yy);  }
+    mData.setSamples(xx,yy);   
+    mMean.setPoints(mData.mX);  //Because it expects a vecOfvec instead of a matrixd
+  }
 
   inline void BayesOptBase::addSample(const vectord &x, double y)
-  {  mData.addSample(x,y); mGP->addSample(x,y);  };
+  {  mData.addSample(x,y); mMean.addNewPoint(x);  };
 
   inline vectord BayesOptBase::getPointAtMinimum() 
   { return mData.getPointAtMinimum(); };
@@ -237,7 +240,7 @@ namespace bayesopt {
     else return 0.0;
   };
 
-  inline NonParametricProcess* BayesOptBase::getSurrogateModel()
+  inline  NonParametricProcess* BayesOptBase::getSurrogateModel()
   { return mGP.get(); };
 
   inline bopt_params* BayesOptBase::getParameters() 

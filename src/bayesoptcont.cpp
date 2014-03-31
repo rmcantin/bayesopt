@@ -29,40 +29,23 @@
 
 namespace bayesopt  {
   
-  ContinuousModel::ContinuousModel():
-    BayesOptBase(), mBB(NULL)
-  { 
-    if (mCrit == NULL)    throw(-1);
-    cOptimizer = new NLOPT_Optimization(mCrit.get(),1);
-    cOptimizer->setAlgorithm(DIRECT);
-  } // Def Constructor
-
   ContinuousModel::ContinuousModel(size_t dim, bopt_params parameters):
-    BayesOptBase(dim,parameters), mBB(NULL)
+    BayesOptBase(dim,parameters)
   { 
     if (mCrit == NULL)    throw(-1);
     cOptimizer = new NLOPT_Optimization(mCrit.get(),dim);
     cOptimizer->setAlgorithm(DIRECT);
     cOptimizer->setMaxEvals(parameters.n_inner_iterations);
+
+    vectord lowerBound = zvectord(mDims);
+    vectord upperBound = svectord(mDims,1.0);
+    mBB.reset(new utils::BoundingBox<vectord>(lowerBound,upperBound));
   } // Constructor
 
   ContinuousModel::~ContinuousModel()
   {
     delete cOptimizer;
-    if (mBB != NULL)
-      delete mBB;
   } // Default destructor
-
-  void ContinuousModel::initializeOptimization()
-  {
-    if (mBB == NULL)
-      {
-	vectord lowerBound = zvectord(mDims);
-	vectord upperBound = svectord(mDims,1.0);
-	mBB = new utils::BoundingBox<vectord>(lowerBound,upperBound);
-      }
-    sampleInitialPoints();
-  }
 
   vectord ContinuousModel::getFinalResult()
   {
@@ -70,23 +53,18 @@ namespace bayesopt  {
   }
 
 
-  int ContinuousModel::setBoundingBox(const vectord &lowerBound,
-			      const vectord &upperBound)
+  void ContinuousModel::setBoundingBox(const vectord &lowerBound,
+				       const vectord &upperBound)
   {
     // We don't change the bounds of the inner optimization because,
     // thanks to this bounding box model, everything is mapped to the
     // unit hypercube, thus the default inner optimization are just
     // right.
-    if (mBB != NULL)
-      delete mBB;
-    
-    mBB = new utils::BoundingBox<vectord>(lowerBound,upperBound);
+    mBB.reset(new utils::BoundingBox<vectord>(lowerBound,upperBound));
     
     FILE_LOG(logINFO) << "Bounds: ";
     FILE_LOG(logINFO) << lowerBound;
     FILE_LOG(logINFO) << upperBound;
-    
-    return 0;
   } //setBoundingBox
 
 
@@ -107,42 +85,14 @@ namespace bayesopt  {
       }
   } //plotStepData
 
-  void ContinuousModel::sampleInitialPoints()
-  {
-    
-    size_t nSamples = mParameters.n_init_samples;
-    
-    matrixd xPoints(nSamples,mDims);
-    vectord yPoints(nSamples);
-    vectord sample(mDims);
-    
+  void ContinuousModel::sampleInitialPoints(matrixd& xPoints, vectord& yPoints)
+  {   
     utils::samplePoints(xPoints,mParameters.init_method,mEngine);
 
-    for(size_t i = 0; i < nSamples; i++)
+    for(size_t i = 0; i < yPoints.size(); i++)
       {
-	sample = row(xPoints,i);
+	const vectord sample = row(xPoints,i);
 	yPoints(i) = evaluateSampleInternal(sample);
       }
-    
-    setSamples(xPoints,yPoints);
-    fitSurrogateModel();
-    
-    // For logging purpose
-    if(mParameters.verbose_level > 0)
-      {
-	FILE_LOG(logDEBUG) << "Initial points:" ;
-	double ymin = (std::numeric_limits<double>::max)();
-	for(size_t i = 0; i < nSamples; i++)
-	  {
-	    sample = row(xPoints,i);
-	    FILE_LOG(logDEBUG) << "Normalized X:" << sample ;
-	    
-	    if (yPoints(i)<ymin)  ymin = yPoints(i);
-	      
-	    FILE_LOG(logDEBUG) << "X:" << mBB->unnormalizeVector(sample) 
-			       << "|Y:" << yPoints(i) << "|Min:" << ymin ;
-	  }  
-      }
-  } // sampleInitialPoints
-
+  }
 }  //namespace bayesopt

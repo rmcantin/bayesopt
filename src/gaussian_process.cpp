@@ -30,8 +30,9 @@ namespace bayesopt
   namespace ublas = boost::numeric::ublas;
 
   GaussianProcess::GaussianProcess(size_t dim, bopt_params params, 
-				   const Dataset& data, randEngine& eng):
-    ConditionalBayesProcess(dim, params, data, eng)
+				   const Dataset& data, MeanModel& mean,
+				   randEngine& eng):
+    ConditionalBayesProcess(dim, params, data, mean, eng)
   {
     mSigma = params.sigma_s;
     d_ = new GaussianDistribution(eng);

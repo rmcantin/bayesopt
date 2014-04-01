@@ -72,7 +72,7 @@ namespace bayesopt
      * 
      * It assumes that the kernel hyperparemeters do not change.
      */   
-    void updateSurrogateModel(const vectord &Xnew);
+    void updateSurrogateModel();
 
 
     // Getters and setters

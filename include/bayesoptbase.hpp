@@ -206,7 +206,7 @@ namespace bayesopt {
     void __init__();
 
     CriteriaFactory mCFactory;
-    NLOPT_Optimization* kOptimizer;
+    boost::scoped_ptr<NLOPT_Optimization> kOptimizer;
   };
 
   /**@}*/

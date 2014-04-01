@@ -36,7 +36,7 @@ namespace bayesopt
 
 
   BayesOptBase::BayesOptBase(size_t dim, bopt_params parameters):
-    mGP(NULL), mCrit(NULL),  mParameters(parameters), 
+    mParameters(parameters), 
     mDims(dim), mMean(dim, parameters)
   {
     __init__();
@@ -79,7 +79,7 @@ namespace bayesopt
 
     // Seting kernel optimization
     size_t nhp = mGP->nHyperParameters();
-    kOptimizer = new NLOPT_Optimization(mGP.get(),nhp);
+    kOptimizer.reset(new NLOPT_Optimization(mGP.get(),nhp));
 
     //TODO: Generalize
     if (mParameters.sc_type == SC_ML)
@@ -99,7 +99,6 @@ namespace bayesopt
 
   BayesOptBase::~BayesOptBase()
   {
-    delete kOptimizer;
   } // Default destructor
 
   void BayesOptBase::setSurrogateModel()
@@ -149,7 +148,7 @@ namespace bayesopt
       }
     else          // Incremental update
       {
-	mGP->updateSurrogateModel(xNext);
+	mGP->updateSurrogateModel();
       } 
     plotStepData(ii,xNext,yNext);
   }

@@ -45,9 +45,10 @@ namespace bayesopt
 
 
 
-  void KernelRegressor::updateSurrogateModel(const vectord &Xnew)
+  void KernelRegressor::updateSurrogateModel()
   {
-    vectord newK = computeCrossCorrelation(Xnew);
+    const vectord lastX = mData.getLastSampleX();
+    vectord newK = computeCrossCorrelation(lastX);
     newK(newK.size()-1) += mRegularizer;   // We add it to the last element
     utils::cholesky_add_row(mL,newK);
     precomputePrediction(); 

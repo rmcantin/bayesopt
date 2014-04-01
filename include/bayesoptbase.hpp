@@ -128,16 +128,20 @@ namespace bayesopt {
      */
     double evaluateCriteria( const vectord &query );
 
+    NonParametricProcess* getSurrogateModel();
+    bopt_params* getParameters();
+    double getValueAtMinimum();
+
+  protected:
+
+
     void setSamples(const matrixd &x, const vectord &y);
     void setSample(const vectord &x, double y);
     void addSample(const vectord &x, double y);
     vectord getPointAtMinimum();
-    double getValueAtMinimum();
 
-    NonParametricProcess* getSurrogateModel();
     void setSurrogateModel();    
     void  setCriteria();
-    bopt_params* getParameters();
     randEngine& getRandomNumberGenerator();
 
   protected:

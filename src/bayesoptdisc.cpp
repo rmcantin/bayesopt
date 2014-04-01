@@ -50,6 +50,17 @@ namespace bayesopt
   {
     return getPointAtMinimum();
   }
+
+  vectord DiscreteModel::samplePoint()
+  {   
+    randInt sample(mEngine, intUniformDist(0,mInputSet.size()-1));
+    return mInputSet[sample()];
+  };
+
+  double DiscreteModel::evaluateSampleInternal( const vectord &query )
+  { return evaluateSample(query); }; 
+
+
   
   void DiscreteModel::plotStepData(size_t iteration, const vectord& xNext,
 				   double yNext)

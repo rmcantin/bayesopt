@@ -25,6 +25,9 @@
 #include "randgen.hpp"
 #include "log.hpp"
 #include "bayesopt.hpp"
+#include "boundingbox.hpp"
+#include "inneroptimization.hpp"
+
 
 
 namespace bayesopt  {
@@ -51,6 +54,23 @@ namespace bayesopt  {
   {
     return mBB->unnormalizeVector(getPointAtMinimum());
   }
+
+  //////////////////////////////////////////////////////////////////////
+
+  double ContinuousModel::evaluateSampleInternal( const vectord &query )
+  { return evaluateSample(mBB->unnormalizeVector(query));  };
+
+  void ContinuousModel::findOptimal(vectord &xOpt)
+  { cOptimizer->run(xOpt); };
+
+  vectord ContinuousModel::samplePoint()
+  {	    
+    randFloat drawSample(mEngine,realUniformDist(0,1));
+    vectord Xnext(mDims);    
+    for(vectord::iterator x = Xnext.begin(); x != Xnext.end(); ++x)
+      {	*x = drawSample(); }
+    return Xnext;
+  };
 
 
   void ContinuousModel::setBoundingBox(const vectord &lowerBound,

@@ -28,7 +28,6 @@
 #include <boost/scoped_ptr.hpp>
 #include "criteria_functors.hpp"
 #include "inneroptimization.hpp"
-#include "log.hpp"
 
 
 /**
@@ -41,14 +40,13 @@ namespace bayesopt {
    */
   /*@{*/
 
-  /**
+ /**
    * \brief Bayesian optimization using different non-parametric 
    * processes as distributions over surrogate functions. 
    */
-  class EmpiricalBayes
+  class BAYESOPT_API EmpiricalBayes
   {
   public:
-  
     /** 
      * Constructor
      * @param params set of parameters (see parameters.h)
@@ -60,54 +58,46 @@ namespace bayesopt {
      */
     virtual ~EmpiricalBayes();
 
-    /** 
-     * \brief Evaluate the criteria considering if the query is
-     * reachable or not.  This is a way to include non-linear
-     * restrictions.
-     *
-     * @see checkReachability
-     *
-     * @param query query point
-     * @return value of the criteria, 0 otherwise.
-     */
-    double evaluateCriteria( const vectord &query );
+   
+    void updateHyperParameters();
 
+    void setSamples(const matrixd &x, const vectord &y);
+    void setSample(const vectord &x, double y);
+    void addSample(const vectord &x, double y);
+
+
+    Criteria* getCriteria();
     NonParametricProcess* getSurrogateModel();
-    void setSurrogateModel();    
-    void  setCriteria();
+    Dataset* getData();
 
   protected:
- 
-    void fitSurrogateModel();
-
-
-  protected:
-    size_t mDims;                                      ///< Number of dimensions
     bopt_params mParameters;                       ///< Configuration parameters
-    randEngine& mEngine;                            ///< Random number generator
+    size_t mDims;                                      ///< Number of dimensions
+    randEngine mEngine;                             ///< Random number generator
+    boost::scoped_ptr<Criteria> mCrit;                   ///< Metacriteria model
+    boost::scoped_ptr<NonParametricProcess> mGP; ///< Pointer to surrogate model
     Dataset mData;                  ///< Dataset (x-> inputs, y-> labels/output)
     MeanModel mMean;
-    boost::scoped_ptr<NonParametricProcess> mGP; ///< Pointer to surrogate model
-    boost::scoped_ptr<Criteria> mCrit;                   ///< Metacriteria model
 
   private:
+
+    EmpiricalBayes();
+
+    void setSurrogateModel();    
+    void setCriteria();
+
+    /** 
+     * \brief Checks the parameters and setups the elements (criteria, 
+     * surrogate, etc.)
+     */
+    void __init__();
+
     CriteriaFactory mCFactory;
-    NLOPT_Optimization* kOptimizer;
+    boost::scoped_ptr<NLOPT_Optimization> kOptimizer;
   };
 
   /**@}*/
 
-  inline void EmpiricalBayes::setSamples(const matrixd &x, const vectord &y)
-  { mData.setSamples(x,y);  mGP->setSamples(x,y);  }
-
-  inline void EmpiricalBayes::setSample(const vectord &x, double y)
-  { 
-    matrixd xx(1,x.size());  vectord yy(1);
-    row(xx,0) = x;           yy(0) = y;
-    mData.setSamples(xx,yy);   mGP->setSamples(xx,yy);  }
-
-  inline void EmpiricalBayes::addSample(const vectord &x, double y)
-  {  mData.addSample(x,y); mGP->addSample(x,y);  };
 
   inline vectord EmpiricalBayes::getPointAtMinimum() 
   { return mData.getPointAtMinimum(); };
@@ -115,32 +105,17 @@ namespace bayesopt {
   inline double EmpiricalBayes::getValueAtMinimum()
   { return mData.getValueAtMinimum(); };
 
-  inline double EmpiricalBayes::evaluateCriteria( const vectord &query )
-  {
-    if (checkReachability(query))  return (*mCrit)(query);
-    else return 0.0;
-  };
+  inline  Criteria* EmpiricalBayes::getCriteria()
+  { return mCrit.get(); };
 
-  inline NonParametricProcess* EmpiricalBayes::getSurrogateModel()
+  inline  NonParametricProcess* EmpiricalBayes::getSurrogateModel()
   { return mGP.get(); };
 
   inline bopt_params* EmpiricalBayes::getParameters() 
   {return &mParameters;};
 
-  inline randEngine& EmpiricalBayes::getRandomNumberGenerator() 
-  {return mEngine;};
-
-  inline void EmpiricalBayes::fitSurrogateModel()
-  {
-    vectord optimalTheta = mGP->getHyperParameters();
-
-    FILE_LOG(logDEBUG) << "Initial kernel parameters: " << optimalTheta;
-    kOptimizer->run(optimalTheta);
-    mGP->setHyperParameters(optimalTheta);
-    FILE_LOG(logDEBUG) << "Final kernel parameters: " << optimalTheta;	
-
-    mGP->fitSurrogateModel(); 
-  };
-
 
 } //namespace bayesopt
+
+
+#endif

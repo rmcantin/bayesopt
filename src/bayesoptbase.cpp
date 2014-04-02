@@ -120,7 +120,7 @@ namespace bayesopt
   void BayesOptBase::addSample(const vectord &x, double y)
   {  mData.addSample(x,y); mMean.addNewPoint(x);  };
 
-  void BayesOptBase::fitSurrogateModel()
+  void BayesOptBase::updateHyperParameters()
   {
     vectord optimalTheta = mGP->getHyperParameters();
 
@@ -128,8 +128,6 @@ namespace bayesopt
     kOptimizer->run(optimalTheta);
     mGP->setHyperParameters(optimalTheta);
     FILE_LOG(logDEBUG) << "Final kernel parameters: " << optimalTheta;	
-
-    mGP->fitSurrogateModel(); 
   };
 
 
@@ -176,7 +174,8 @@ namespace bayesopt
     
     if (retrain)  // Full update
       {
-	fitSurrogateModel();
+	updateHyperParameters();
+	mGP->fitSurrogateModel();
       }
     else          // Incremental update
       {
@@ -195,7 +194,10 @@ namespace bayesopt
     sampleInitialPoints(xPoints,yPoints);
 
     setSamples(xPoints,yPoints);
-    fitSurrogateModel();
+    
+    updateHyperParameters();
+    mGP->fitSurrogateModel();
+    
     if(mParameters.verbose_level > 0)
       {
 	mData.plotData(logDEBUG);

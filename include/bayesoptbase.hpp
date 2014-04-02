@@ -180,14 +180,14 @@ namespace bayesopt {
      * @return next point to evaluate
      */
     vectord nextPoint();  
-    void fitSurrogateModel();
+    void updateHyperParameters();
 
 
     void setSamples(const matrixd &x, const vectord &y);
     void setSample(const vectord &x, double y);
     void addSample(const vectord &x, double y);
     void setSurrogateModel();    
-    void  setCriteria();
+    void setCriteria();
 
     /** 
      * \brief Checks the parameters and setups the elements (criteria, 

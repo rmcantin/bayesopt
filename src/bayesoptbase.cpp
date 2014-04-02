@@ -22,6 +22,7 @@
 
 #include <ctime>
 #include <cstdlib>
+#include "log.hpp"
 #include "bayesoptbase.hpp"
 
 namespace bayesopt
@@ -100,6 +101,37 @@ namespace bayesopt
   BayesOptBase::~BayesOptBase()
   {
   } // Default destructor
+
+
+  void BayesOptBase::setSamples(const matrixd &x, const vectord &y)
+  { 
+    mData.setSamples(x,y);  
+    mMean.setPoints(mData.mX);  //Because it expects a vecOfvec instead of a matrixd 
+  }
+
+  void BayesOptBase::setSample(const vectord &x, double y)
+  { 
+    matrixd xx(1,x.size());  vectord yy(1);
+    row(xx,0) = x;           yy(0) = y;
+    mData.setSamples(xx,yy);   
+    mMean.setPoints(mData.mX);  //Because it expects a vecOfvec instead of a matrixd
+  }
+
+  void BayesOptBase::addSample(const vectord &x, double y)
+  {  mData.addSample(x,y); mMean.addNewPoint(x);  };
+
+  void BayesOptBase::fitSurrogateModel()
+  {
+    vectord optimalTheta = mGP->getHyperParameters();
+
+    FILE_LOG(logDEBUG) << "Initial kernel parameters: " << optimalTheta;
+    kOptimizer->run(optimalTheta);
+    mGP->setHyperParameters(optimalTheta);
+    FILE_LOG(logDEBUG) << "Final kernel parameters: " << optimalTheta;	
+
+    mGP->fitSurrogateModel(); 
+  };
+
 
   void BayesOptBase::setSurrogateModel()
   {

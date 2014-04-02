@@ -33,6 +33,7 @@ namespace bayesopt  {
     class BoundingBox;
   }
   class NLOPT_Optimization;
+  class CritCallback;
 
   /** \addtogroup BayesOpt */
   /**@{*/
@@ -110,7 +111,8 @@ namespace bayesopt  {
 
   private:
     boost::scoped_ptr<utils::BoundingBox<vectord> > mBB;      ///< Bounding Box (input space limits)
-    NLOPT_Optimization* cOptimizer;
+    boost::scoped_ptr<NLOPT_Optimization> cOptimizer;
+    boost::scoped_ptr<CritCallback> mCallback;
 
     ContinuousModel();                       ///< Default constructor forbidden.
   };

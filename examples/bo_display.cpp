@@ -102,7 +102,7 @@ public:
 	y[i] = pd->getMean();
 	su[i] = y[i] + 2*pd->getStd();
 	sl[i] = y[i] - 2*pd->getStd();
-	c[i] = -GLOBAL_MODEL->evaluateCriteria(q);
+	c[i] = -GLOBAL_MODEL->getCriteria()->evaluate(q);
 	z[i] = GLOBAL_MODEL->evaluateSample(q);
       }
  

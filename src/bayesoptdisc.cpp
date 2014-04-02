@@ -99,19 +99,28 @@ namespace bayesopt
 
   void DiscreteModel::findOptimal(vectord &xOpt)
   {
-    double current, min;
-  
+    double current = 0.0;
+    double min = 0.0;
+    Criteria *crit = getCriteria();
+
     xOpt = *mInputSet.begin();
-    min = evaluateCriteria(xOpt);
-  
-    for(vecOfvecIterator it = mInputSet.begin();
+
+    if (checkReachability(xOpt))  
+      {
+	min = (*crit)(xOpt);	
+      }
+
+      for(vecOfvecIterator it = mInputSet.begin();
 	it != mInputSet.end(); ++it)
       {
-	current = evaluateCriteria(*it);
-	if (current < min)
+	if (checkReachability(*it))
 	  {
-	    xOpt = *it;  
-	    min = current;
+	    current = (*crit)(*it);
+	    if (current < min)
+	      {
+		xOpt = *it;  
+		min = current;
+	      }
 	  }
       }
   }

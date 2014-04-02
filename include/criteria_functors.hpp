@@ -41,7 +41,7 @@ namespace bayesopt
   /**
    * \brief Abstract interface for criteria functors.
    */
-  class Criteria: public RBOptimizable
+  class Criteria//: public RBOptimizable
   {
   public:
     virtual ~Criteria() {};

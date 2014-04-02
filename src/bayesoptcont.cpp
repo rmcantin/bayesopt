@@ -31,12 +31,26 @@
 
 
 namespace bayesopt  {
+
+  class CritCallback: public RBOptimizable
+  {
+  public:
+    explicit CritCallback(ContinuousModel* model):mBO(model){};
+    double evaluate(const vectord &query) 
+    {
+      if (mBO->checkReachability(query))  return mBO->getCriteria()->evaluate(query);
+      else return 0.0;
+    }
+  private:
+    ContinuousModel* mBO;
+  };
   
   ContinuousModel::ContinuousModel(size_t dim, bopt_params parameters):
     BayesOptBase(dim,parameters)
   { 
-    if (mCrit == NULL)    throw(-1);
-    cOptimizer = new NLOPT_Optimization(mCrit.get(),dim);
+    //    if (mCrit == NULL)    throw(-1);
+    mCallback.reset(new CritCallback(this));
+    cOptimizer.reset(new NLOPT_Optimization(mCallback.get(),dim));
     cOptimizer->setAlgorithm(DIRECT);
     cOptimizer->setMaxEvals(parameters.n_inner_iterations);
 
@@ -47,7 +61,7 @@ namespace bayesopt  {
 
   ContinuousModel::~ContinuousModel()
   {
-    delete cOptimizer;
+    //    delete cOptimizer;
   } // Default destructor
 
   vectord ContinuousModel::getFinalResult()

@@ -29,7 +29,6 @@
 #include <boost/scoped_ptr.hpp>
 #include "criteria_functors.hpp"
 #include "inneroptimization.hpp"
-#include "log.hpp"
 
 
 /**
@@ -116,35 +115,15 @@ namespace bayesopt {
     /** Once the optimization has been perfomed, return the optimal point. */
     virtual vectord getFinalResult() = 0;
 
-    /** 
-     * \brief Evaluate the criteria considering if the query is
-     * reachable or not.  This is a way to include non-linear
-     * restrictions.
-     *
-     * @see checkReachability
-     *
-     * @param query query point
-     * @return value of the criteria, 0 otherwise.
-     */
-    double evaluateCriteria( const vectord &query );
-
+   
+    Criteria* getCriteria();
     NonParametricProcess* getSurrogateModel();
     bopt_params* getParameters();
     double getValueAtMinimum();
 
   protected:
-
-
-    void setSamples(const matrixd &x, const vectord &y);
-    void setSample(const vectord &x, double y);
-    void addSample(const vectord &x, double y);
     vectord getPointAtMinimum();
 
-    void setSurrogateModel();    
-    void  setCriteria();
-    randEngine& getRandomNumberGenerator();
-
-  protected:
     /** 
      * Print data for every step according to the verbose level
      * 
@@ -179,6 +158,21 @@ namespace bayesopt {
     /** Sample a single point in the input space. Used for epsilon greedy exploration. */
     virtual vectord samplePoint() = 0;
 
+  protected:
+    bopt_params mParameters;                       ///< Configuration parameters
+    size_t mDims;                                      ///< Number of dimensions
+    randEngine mEngine;                             ///< Random number generator
+
+  private:
+    boost::scoped_ptr<Criteria> mCrit;                   ///< Metacriteria model
+    boost::scoped_ptr<NonParametricProcess> mGP; ///< Pointer to surrogate model
+    Dataset mData;                  ///< Dataset (x-> inputs, y-> labels/output)
+    MeanModel mMean;
+
+  private:
+
+    BayesOptBase();
+
     /** 
      * \brief Selects the next point to evaluate according to a certain
      * criteria or metacriteria
@@ -186,22 +180,14 @@ namespace bayesopt {
      * @return next point to evaluate
      */
     vectord nextPoint();  
-
     void fitSurrogateModel();
 
-    void plotInitialPoints();
-  protected:
-    Dataset mData;                  ///< Dataset (x-> inputs, y-> labels/output)
-    boost::scoped_ptr<NonParametricProcess> mGP; ///< Pointer to surrogate model
-    boost::scoped_ptr<Criteria> mCrit;                   ///< Metacriteria model
-    bopt_params mParameters;                       ///< Configuration parameters
-    size_t mDims;                                      ///< Number of dimensions
-    randEngine mEngine;                             ///< Random number generator
-    MeanModel mMean;
 
-  private:
-
-    BayesOptBase();
+    void setSamples(const matrixd &x, const vectord &y);
+    void setSample(const vectord &x, double y);
+    void addSample(const vectord &x, double y);
+    void setSurrogateModel();    
+    void  setCriteria();
 
     /** 
      * \brief Checks the parameters and setups the elements (criteria, 
@@ -215,22 +201,6 @@ namespace bayesopt {
 
   /**@}*/
 
-  inline void BayesOptBase::setSamples(const matrixd &x, const vectord &y)
-  { 
-    mData.setSamples(x,y);  
-    mMean.setPoints(mData.mX);  //Because it expects a vecOfvec instead of a matrixd 
-  }
-
-  inline void BayesOptBase::setSample(const vectord &x, double y)
-  { 
-    matrixd xx(1,x.size());  vectord yy(1);
-    row(xx,0) = x;           yy(0) = y;
-    mData.setSamples(xx,yy);   
-    mMean.setPoints(mData.mX);  //Because it expects a vecOfvec instead of a matrixd
-  }
-
-  inline void BayesOptBase::addSample(const vectord &x, double y)
-  {  mData.addSample(x,y); mMean.addNewPoint(x);  };
 
   inline vectord BayesOptBase::getPointAtMinimum() 
   { return mData.getPointAtMinimum(); };
@@ -238,32 +208,14 @@ namespace bayesopt {
   inline double BayesOptBase::getValueAtMinimum()
   { return mData.getValueAtMinimum(); };
 
-  inline double BayesOptBase::evaluateCriteria( const vectord &query )
-  {
-    if (checkReachability(query))  return (*mCrit)(query);
-    else return 0.0;
-  };
+  inline  Criteria* BayesOptBase::getCriteria()
+  { return mCrit.get(); };
 
   inline  NonParametricProcess* BayesOptBase::getSurrogateModel()
   { return mGP.get(); };
 
   inline bopt_params* BayesOptBase::getParameters() 
   {return &mParameters;};
-
-  inline randEngine& BayesOptBase::getRandomNumberGenerator() 
-  {return mEngine;};
-
-  inline void BayesOptBase::fitSurrogateModel()
-  {
-    vectord optimalTheta = mGP->getHyperParameters();
-
-    FILE_LOG(logDEBUG) << "Initial kernel parameters: " << optimalTheta;
-    kOptimizer->run(optimalTheta);
-    mGP->setHyperParameters(optimalTheta);
-    FILE_LOG(logDEBUG) << "Final kernel parameters: " << optimalTheta;	
-
-    mGP->fitSurrogateModel(); 
-  };
 
 
 } //namespace bayesopt

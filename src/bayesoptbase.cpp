@@ -27,26 +27,15 @@
 
 namespace bayesopt
 {
-  // TODO: Should be forbidden to use this constructor
-  // BayesOptBase::BayesOptBase():
-  //   mGP(NULL), mCrit(NULL)
-  // {
-  //   mParameters = initialize_parameters_to_default();
-  //   __init__();
-  // }
 
 
   BayesOptBase::BayesOptBase(size_t dim, bopt_params parameters):
-    mParameters(parameters), 
-    mDims(dim), mMean(dim, parameters)
+    mParameters(parameters), mDims(dim)
   {
-    __init__();
-  }
-
-  void BayesOptBase::__init__()
-  { 
     if (mParameters.use_random_seed) mEngine.seed(std::time(0));
 
+    mModel.reset(PosteriorModel::create(dim,parameters,mEngine));
+    
     size_t verbose = mParameters.verbose_level;
     if (verbose>=3)
       {
@@ -73,92 +62,11 @@ namespace bayesopt
       mParameters.n_init_samples = 
 	static_cast<size_t>(ceil(0.1*mParameters.n_iterations));
 
-    // Configure Surrogate and Criteria Functions
-    
-    setSurrogateModel();
-    setCriteria();
-
-    // Seting kernel optimization
-    size_t nhp = mGP->nHyperParameters();
-    kOptimizer.reset(new NLOPT_Optimization(mGP.get(),nhp));
-
-    //TODO: Generalize
-    if (mParameters.sc_type == SC_ML)
-      {
-	kOptimizer->setAlgorithm(BOBYQA);    // local search to avoid underfitting
-      }
-    else
-      {
-	kOptimizer->setAlgorithm(COMBINED);
-      }
-    // kOptimizer->setLimits(svectord(nhp,1e-10),svectord(nhp,100.));
-    kOptimizer->setLimits(svectord(nhp,-6),svectord(nhp,6));
-
-    // Configure logging
-
-  } // __init__
+  }
 
   BayesOptBase::~BayesOptBase()
-  {
-  } // Default destructor
+  { } // Default destructor
 
-
-  void BayesOptBase::setSamples(const matrixd &x, const vectord &y)
-  { 
-    mData.setSamples(x,y);  
-    mMean.setPoints(mData.mX);  //Because it expects a vecOfvec instead of a matrixd 
-  }
-
-  void BayesOptBase::setSample(const vectord &x, double y)
-  { 
-    matrixd xx(1,x.size());  vectord yy(1);
-    row(xx,0) = x;           yy(0) = y;
-    mData.setSamples(xx,yy);   
-    mMean.setPoints(mData.mX);  //Because it expects a vecOfvec instead of a matrixd
-  }
-
-  void BayesOptBase::addSample(const vectord &x, double y)
-  {  mData.addSample(x,y); mMean.addNewPoint(x);  };
-
-  void BayesOptBase::updateHyperParameters()
-  {
-    vectord optimalTheta = mGP->getHyperParameters();
-
-    FILE_LOG(logDEBUG) << "Initial kernel parameters: " << optimalTheta;
-    kOptimizer->run(optimalTheta);
-    mGP->setHyperParameters(optimalTheta);
-    FILE_LOG(logDEBUG) << "Final kernel parameters: " << optimalTheta;	
-  };
-
-
-  void BayesOptBase::setSurrogateModel()
-  {
-    mGP.reset(NonParametricProcess::create(mDims,mParameters,
-					   mData,mMean,mEngine));
-  } // setSurrogateModel
-
-  void BayesOptBase::setCriteria()
-  {
-    mCrit.reset(mCFactory.create(mParameters.crit_name,mGP.get()));
-
-    mCrit->setRandomEngine(mEngine);
-
-    if (mCrit->nParameters() == mParameters.n_crit_params)
-      {
-	mCrit->setParameters(utils::array2vector(mParameters.crit_params,
-					       mParameters.n_crit_params));
-      }
-    else // If the number of paramerters is different, use default.
-      {
-	if (mParameters.n_crit_params != 0)
-	  {
-	    FILE_LOG(logERROR) << "Expected " << mCrit->nParameters() 
-			       << " parameters. Got " 
-			       << mParameters.n_crit_params << " instead.";
-	  }
-	FILE_LOG(logINFO) << "Usign default parameters for criteria.";
-      }
-  } // setCriteria
 
   void BayesOptBase::stepOptimization(size_t ii)
   {
@@ -166,7 +74,7 @@ namespace bayesopt
     const vectord xNext = nextPoint(); 
     const double yNext = evaluateSampleInternal(xNext);
 
-    addSample(xNext,yNext);
+    mModel->addSample(xNext,yNext);
 
     // Update surrogate model
     bool retrain = ((mParameters.n_iter_relearn > 0) && 
@@ -174,12 +82,12 @@ namespace bayesopt
     
     if (retrain)  // Full update
       {
-	updateHyperParameters();
-	mGP->fitSurrogateModel();
+	mModel->updateHyperParameters();
+	mModel->fitSurrogateModel();
       }
     else          // Incremental update
       {
-	mGP->updateSurrogateModel();
+	mModel->updateSurrogateModel();
       } 
     plotStepData(ii,xNext,yNext);
   }
@@ -193,14 +101,14 @@ namespace bayesopt
 
     sampleInitialPoints(xPoints,yPoints);
 
-    setSamples(xPoints,yPoints);
+    mModel->setSamples(xPoints,yPoints);
     
-    updateHyperParameters();
-    mGP->fitSurrogateModel();
+    mModel->updateHyperParameters();
+    mModel->fitSurrogateModel();
     
     if(mParameters.verbose_level > 0)
       {
-	mData.plotData(logDEBUG);
+	mModel->plotDataset(logDEBUG);
       }
   }
 
@@ -237,19 +145,21 @@ namespace bayesopt
 	  }
       }
 
+    //TODO: Try to solve this without bringing the pointer to the criteria.
     vectord Xnext(mDims);    
+    Criteria* crit = mModel->getCriteria();
 
     // GP-Hedge and related algorithms
-    if (mCrit->requireComparison())
+    if (crit->requireComparison())
       {
 	bool check = false;
 	std::string name;
 	
-	mCrit->reset();
+	crit->reset();
 	while (!check)
 	  {
 	    findOptimal(Xnext);
-	    check = mCrit->checkIfBest(Xnext,name);
+	    check = crit->checkIfBest(Xnext,name);
 	  }
 	FILE_LOG(logINFO) << name << " was selected.";
       }

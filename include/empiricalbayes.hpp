@@ -26,13 +26,9 @@
 #define  _EMPIRICALBAYES_HPP_
 
 #include <boost/scoped_ptr.hpp>
-#include "criteria_functors.hpp"
 #include "inneroptimization.hpp"
+#include "posteriormodel.hpp"
 
-
-/**
- * Namespace of the library interface
- */
 namespace bayesopt {
 
   /** \addtogroup BayesOpt
@@ -44,75 +40,58 @@ namespace bayesopt {
    * \brief Bayesian optimization using different non-parametric 
    * processes as distributions over surrogate functions. 
    */
-  class BAYESOPT_API EmpiricalBayes
+  class EmpiricalBayes: public PosteriorModel
   {
   public:
     /** 
      * Constructor
      * @param params set of parameters (see parameters.h)
      */
-    EmpiricalBayes(size_t dim, bopt_params params);
+    EmpiricalBayes(size_t dim, bopt_params params, randEngine& eng);
 
     /** 
      * Default destructor
      */
     virtual ~EmpiricalBayes();
 
-   
     void updateHyperParameters();
-
-    void setSamples(const matrixd &x, const vectord &y);
-    void setSample(const vectord &x, double y);
-    void addSample(const vectord &x, double y);
-
+    void fitSurrogateModel();
+    void updateSurrogateModel();
+    double evaluateCriteria(const vectord& query);
 
     Criteria* getCriteria();
     NonParametricProcess* getSurrogateModel();
-    Dataset* getData();
-
-  protected:
-    bopt_params mParameters;                       ///< Configuration parameters
-    size_t mDims;                                      ///< Number of dimensions
-    randEngine mEngine;                             ///< Random number generator
-    boost::scoped_ptr<Criteria> mCrit;                   ///< Metacriteria model
-    boost::scoped_ptr<NonParametricProcess> mGP; ///< Pointer to surrogate model
-    Dataset mData;                  ///< Dataset (x-> inputs, y-> labels/output)
-    MeanModel mMean;
 
   private:
 
     EmpiricalBayes();
 
-    void setSurrogateModel();    
-    void setCriteria();
+    void setSurrogateModel(randEngine& eng);    
+    void setCriteria(randEngine& eng);
 
-    /** 
-     * \brief Checks the parameters and setups the elements (criteria, 
-     * surrogate, etc.)
-     */
-    void __init__();
+  private:  // Members
+    boost::scoped_ptr<NonParametricProcess> mGP; ///< Pointer to surrogate model
+    boost::scoped_ptr<Criteria> mCrit;                   ///< Metacriteria model
 
-    CriteriaFactory mCFactory;
     boost::scoped_ptr<NLOPT_Optimization> kOptimizer;
   };
 
   /**@}*/
 
+  inline void EmpiricalBayes::fitSurrogateModel()
+  { mGP->fitSurrogateModel(); };
 
-  inline vectord EmpiricalBayes::getPointAtMinimum() 
-  { return mData.getPointAtMinimum(); };
-  
-  inline double EmpiricalBayes::getValueAtMinimum()
-  { return mData.getValueAtMinimum(); };
+  inline void EmpiricalBayes::updateSurrogateModel()
+  { mGP->updateSurrogateModel(); };
+
+  inline double EmpiricalBayes::evaluateCriteria(const vectord& query)
+  { return (*mCrit)(query); };
 
   inline  Criteria* EmpiricalBayes::getCriteria()
   { return mCrit.get(); };
 
   inline  NonParametricProcess* EmpiricalBayes::getSurrogateModel()
   { return mGP.get(); };
-
-  inline bopt_params* EmpiricalBayes::getParameters() 
-  {return &mParameters;};
 
 
 } //namespace bayesopt

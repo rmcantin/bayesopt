@@ -27,8 +27,7 @@
 #define  _BAYESOPTBASE_HPP_
 
 #include <boost/scoped_ptr.hpp>
-#include "criteria_functors.hpp"
-#include "inneroptimization.hpp"
+#include "posteriormodel.hpp"
 
 
 /**
@@ -120,6 +119,7 @@ namespace bayesopt {
     NonParametricProcess* getSurrogateModel();
     bopt_params* getParameters();
     double getValueAtMinimum();
+    double evaluateCriteria(const vectord& query);
 
   protected:
     vectord getPointAtMinimum();
@@ -164,10 +164,7 @@ namespace bayesopt {
     randEngine mEngine;                             ///< Random number generator
 
   private:
-    boost::scoped_ptr<Criteria> mCrit;                   ///< Metacriteria model
-    boost::scoped_ptr<NonParametricProcess> mGP; ///< Pointer to surrogate model
-    Dataset mData;                  ///< Dataset (x-> inputs, y-> labels/output)
-    MeanModel mMean;
+    boost::scoped_ptr<PosteriorModel> mModel;
 
   private:
 
@@ -180,39 +177,28 @@ namespace bayesopt {
      * @return next point to evaluate
      */
     vectord nextPoint();  
-    void updateHyperParameters();
 
-
-    void setSamples(const matrixd &x, const vectord &y);
-    void setSample(const vectord &x, double y);
-    void addSample(const vectord &x, double y);
-    void setSurrogateModel();    
-    void setCriteria();
-
-    /** 
-     * \brief Checks the parameters and setups the elements (criteria, 
-     * surrogate, etc.)
-     */
-    void __init__();
-
-    CriteriaFactory mCFactory;
-    boost::scoped_ptr<NLOPT_Optimization> kOptimizer;
   };
 
   /**@}*/
 
+  inline double BayesOptBase::evaluateCriteria(const vectord& query)
+  {
+    if (checkReachability(query)) return mModel->evaluateCriteria(query);
+    else return 0.0;
+  }
 
   inline vectord BayesOptBase::getPointAtMinimum() 
-  { return mData.getPointAtMinimum(); };
+  { return mModel->getPointAtMinimum(); };
   
   inline double BayesOptBase::getValueAtMinimum()
-  { return mData.getValueAtMinimum(); };
+  { return mModel->getValueAtMinimum(); };
 
   inline  Criteria* BayesOptBase::getCriteria()
-  { return mCrit.get(); };
+  { return mModel->getCriteria(); };
 
   inline  NonParametricProcess* BayesOptBase::getSurrogateModel()
-  { return mGP.get(); };
+  { return mModel->getSurrogateModel(); };
 
   inline bopt_params* BayesOptBase::getParameters() 
   {return &mParameters;};

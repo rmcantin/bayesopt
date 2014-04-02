@@ -38,7 +38,7 @@ namespace bayesopt  {
     explicit CritCallback(ContinuousModel* model):mBO(model){};
     double evaluate(const vectord &query) 
     {
-      if (mBO->checkReachability(query))  return mBO->getCriteria()->evaluate(query);
+      if (mBO->checkReachability(query))  return mBO->evaluateCriteria(query);
       else return 0.0;
     }
   private:

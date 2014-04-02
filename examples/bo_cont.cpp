@@ -85,7 +85,8 @@ int main(int nargs, char *args[])
   par.surr_name = "sStudentTProcessJef";
   par.kernel.name = "kSum(kSEISO,kConst)";
   par.mean.name = "mConst";
-  par.sc_type = SC_ML;
+  par.sc_type = SC_MAP;
+  par.l_type = L_MCMC;
   par.n_iterations = 200;    // Number of iterations
   par.init_method = 1;
   par.n_init_samples = 50;

@@ -25,8 +25,10 @@
 #ifndef  _MCMC_HPP_
 #define  _MCMC_HPP_
 
+#include <boost/ptr_container/ptr_vector.hpp>
 #include "randgen.hpp"
 #include "optimizable.hpp"
+#include "posteriormodel.hpp"
 
 namespace bayesopt {
 
@@ -55,6 +57,8 @@ namespace bayesopt {
      */
     void run(vectord &Xnext);
 
+    vectord getParticle(size_t i);
+
     void printParticles();
 
   private:
@@ -77,7 +81,12 @@ namespace bayesopt {
   //TODO: Include new algorithms when we add them.
   inline void MCMCSampler::burnOut(vectord &x)
   {
-    for(size_t i=0; i<nBurnOut; ++i)  sliceSample(x);
+    FILE_LOG(logDEBUG) << "Start Burnout.";
+    for(size_t i=0; i<nBurnOut; ++i)  
+      {
+	sliceSample(x);
+	FILE_LOG(logDEBUG) << "Burnout:" << i << " | " << x;
+      }
   }
 
   inline void MCMCSampler::setNParticles(size_t nParticles)
@@ -89,11 +98,89 @@ namespace bayesopt {
   inline void MCMCSampler::setAlgorithm(McmcAlgorithms newAlg)
   { mAlg = newAlg; };
 
+  inline vectord MCMCSampler::getParticle(size_t i)
+  { return mParticles[i]; };
+
   inline void MCMCSampler::printParticles()
   {
     for(size_t i=0; i<mParticles.size(); ++i)
       std::cout << i << "->" << mParticles[i] << std::endl;
   }
+
+
+  class MCMCModel: public PosteriorModel
+  {
+  public:
+
+    typedef boost::ptr_vector<NonParametricProcess>  GPVect;
+    typedef boost::ptr_vector<Criteria>  CritVect;
+
+    /** 
+     * Constructor
+     * @param params set of parameters (see parameters.h)
+     */
+    MCMCModel(size_t dim, bopt_params params, randEngine& eng);
+
+    /** 
+     * Default destructor
+     */
+    virtual ~MCMCModel();
+
+    void updateHyperParameters();
+    void fitSurrogateModel();
+    void updateSurrogateModel();
+    double evaluateCriteria(const vectord& query);
+
+    Criteria* getCriteria();
+    NonParametricProcess* getSurrogateModel();
+   
+  private:
+
+    MCMCModel();
+
+    void setSurrogateModel(randEngine& eng);    
+    void setCriteria(randEngine& eng);
+
+  private:  // Members
+    size_t nParticles;
+    GPVect mGP;                ///< Pointer to surrogate model
+    CritVect mCrit;                    ///< Metacriteria model
+
+    boost::scoped_ptr<MCMCSampler> kSampler;
+  };
+
+  /**@}*/
+
+  inline void MCMCModel::fitSurrogateModel()
+  { 
+    for(GPVect::iterator it=mGP.begin(); it != mGP.end(); ++it)
+      it->fitSurrogateModel(); 
+  };
+
+  inline void MCMCModel::updateSurrogateModel()
+  {     
+    for(GPVect::iterator it=mGP.begin(); it != mGP.end(); ++it)
+      it->updateSurrogateModel(); 
+  };
+
+  inline double MCMCModel::evaluateCriteria(const vectord& query)
+  { 
+    double sum = 0.0;
+    for(CritVect::iterator it=mCrit.begin(); it != mCrit.end(); ++it)
+      {
+	sum += it->evaluate(query); 
+      }
+    return sum/static_cast<double>(nParticles);
+  };
+
+
+  inline  Criteria* MCMCModel::getCriteria()
+  { return &mCrit[0]; };
+
+  inline  NonParametricProcess* MCMCModel::getSurrogateModel()
+  { return &mGP[0]; };
+
+
 
 } //namespace bayesopt
 

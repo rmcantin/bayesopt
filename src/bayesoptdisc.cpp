@@ -101,26 +101,18 @@ namespace bayesopt
   {
     double current = 0.0;
     double min = 0.0;
-    Criteria *crit = getCriteria();
 
     xOpt = *mInputSet.begin();
-
-    if (checkReachability(xOpt))  
-      {
-	min = (*crit)(xOpt);	
-      }
-
-      for(vecOfvecIterator it = mInputSet.begin();
+    min = evaluateCriteria(xOpt);
+    
+    for(vecOfvecIterator it = mInputSet.begin();
 	it != mInputSet.end(); ++it)
       {
-	if (checkReachability(*it))
+	current = evaluateCriteria(*it);
+	if (current < min)
 	  {
-	    current = (*crit)(*it);
-	    if (current < min)
-	      {
-		xOpt = *it;  
-		min = current;
-	      }
+	    xOpt = *it;  
+	    min = current;
 	  }
       }
   }

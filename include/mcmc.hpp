@@ -81,11 +81,9 @@ namespace bayesopt {
   //TODO: Include new algorithms when we add them.
   inline void MCMCSampler::burnOut(vectord &x)
   {
-    FILE_LOG(logDEBUG) << "Start Burnout.";
     for(size_t i=0; i<nBurnOut; ++i)  
       {
 	sliceSample(x);
-	FILE_LOG(logDEBUG) << "Burnout:" << i << " | " << x;
       }
   }
 

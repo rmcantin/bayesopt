@@ -109,7 +109,7 @@ namespace bayesopt
   protected:
     matrixd mL;             ///< Cholesky decomposition of the Correlation matrix
     score_type mScoreType;
-    //learning_type mLearnType;
+    learning_type mLearnType;
     KernelModel mKernel;
 
   private:

@@ -106,11 +106,21 @@ namespace bayesopt
   };
 
 
-
+  // WARNING!! evaluateKernelParams models return the NEGATIVE
+  // log-score (likelihood, LOO, MAP, etc.). 
   inline double ConditionalBayesProcess::evaluate(const vectord& x)
   { 
     mKernel.setHyperParameters(x);
-    return evaluateKernelParams();
+    if (mLearnType == L_EMPIRICAL)
+      { 
+	// Negative log-score (log-likelihood...)
+	return evaluateKernelParams();
+      }
+    else
+      {
+	//Actual distribution
+	return exp(-evaluateKernelParams());
+      }
   };
 
 

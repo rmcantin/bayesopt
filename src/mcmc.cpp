@@ -44,9 +44,6 @@ namespace bayesopt
   };
 
 
-  // WARNING!! The NonParametricProcess models return the NEGATIVE
-  // score (likelihood, LOO, MAP, etc.). Thus, all the "evaluate"
-  // calls must be multiplied by -1
   void MCMCSampler::sliceSample(vectord &x)
   {
     randFloat sample( mtRandom, realUniformDist(0,1) );
@@ -61,11 +58,10 @@ namespace bayesopt
 	size_t ind = perms[i];
 	double sigma = mSigma(ind);
 
-	double y_max = -obj->evaluate(x);
+	double y_max = obj->evaluate(x);
 	double y = sample()*y_max;
 
 	// Step out
-	FILE_LOG(logDEBUG) << "Step out." << y << "||" << y_max;
 	double x_cur = x(ind);
 	double r = sample();
 	double xl = x_cur - r * sigma;
@@ -74,31 +70,21 @@ namespace bayesopt
 	if (mStepOut)
 	  {
 	    x(ind) = xl;
-	    while (-obj->evaluate(x) > y) 
-	      {
-		FILE_LOG(logDEBUG) << "Likelihood L" << -obj->evaluate(x) << "||" << x(ind);
-		x(ind) -= sigma;	
-	      }
+	    while (obj->evaluate(x) > y) { x(ind) -= sigma; }
 	    xl = x(ind);
 
 	    x(ind) = xr;
-	    while (-obj->evaluate(x) > y) 
-	      {
-		FILE_LOG(logDEBUG) << "Likelihood R" << -obj->evaluate(x) << "||" << x(ind);
-		x(ind) += sigma;	
-	      }
+	    while (obj->evaluate(x) > y) { x(ind) += sigma; }
 	    xr = x(ind);
 	  }
 
 	//Shrink
-	FILE_LOG(logDEBUG) << "Shrink.";
 	bool on_slice = false;
 	while (!on_slice)
 	  {
 	    x(ind) = (xr-xl) * sample() + xl;
-	    if (-obj->evaluate(x) < y)
+	    if (obj->evaluate(x) < y)
 	      {
-		FILE_LOG(logDEBUG) << "Likelihood S" << -obj->evaluate(x) << "||" << x << "||" << x_cur;
 		if      (x(ind) > x_cur)  xr = x(ind);
 		else if (x(ind) < x_cur)  xl = x(ind);
 		else throw std::runtime_error("Error in MCMC. Slice colapsed.");

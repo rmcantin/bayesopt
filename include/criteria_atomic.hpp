@@ -43,10 +43,6 @@ namespace bayesopt
     virtual ~AtomicCriteria(){};
     virtual void init(NonParametricProcess* proc)
     { mProc = proc; };
-    // This criteria does not support comparisons!
-    bool requireComparison(){ return false; };
-    bool checkIfBest(vectord& xNext,std::string& name)
-    { assert(false); return false; };
 
     virtual double operator()(const vectord &x)  = 0;
   };

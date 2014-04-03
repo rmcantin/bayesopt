@@ -151,11 +151,14 @@ namespace bayesopt
     void init(NonParametricProcess *proc, 
 	     const std::vector<Criteria*>& list);
 
-    bool requireComparison(){ return true; };
     double operator()(const vectord &x) { return (*mCurrentCriterium)(x); };
 
-    void reset();
-    bool checkIfBest(vectord& best, std::string& name);
+    bool requireComparison(){ return true; };
+    void initialCriteria();
+    bool rotateCriteria();  //Returns false if NOT rotated -> end of list
+    void pushResult(const vectord& prevResult);
+    std::string getBestCriteria(vectord& best);
+
     std::string name() {return "cHedge";};
   protected:
     int update_hedge();

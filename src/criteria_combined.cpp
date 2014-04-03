@@ -55,33 +55,38 @@ namespace bayesopt
     cumprob_ = zvectord(n);
   };
 
-  void GP_Hedge::reset()
+  void GP_Hedge::initialCriteria()
   {
     mIndex = 0;
     mCurrentCriterium = mCriteriaList[mIndex];
     mBestLists.clear();
   };
 
-  bool GP_Hedge::checkIfBest(vectord& best, 
-			     std::string& name)
+  bool GP_Hedge::rotateCriteria()
   { 
-    if (mIndex < mCriteriaList.size())
+    ++mIndex;
+    if (mIndex >= mCriteriaList.size())
       {
-	loss_(mIndex) = computeLoss(best);
-	mBestLists.push_back(best);
-	++mIndex;
-	if (mIndex < mCriteriaList.size())
-	  mCurrentCriterium = mCriteriaList[mIndex];
 	return false;
       }
     else
       {
-	int optIndex = update_hedge();
-	name = mCriteriaList[optIndex]->name();
-	best = mBestLists[optIndex];
-	return true;	
+	mCurrentCriterium = mCriteriaList[mIndex];	
+	return true;
       }
-
+  };
+  
+  void GP_Hedge::pushResult(const vectord& prevResult)
+  {
+    loss_(mIndex) = computeLoss(prevResult);
+    mBestLists.push_back(prevResult);    
+  };
+  
+  std::string GP_Hedge::getBestCriteria(vectord& best)
+  { 
+    int optIndex = update_hedge();
+    best = mBestLists[optIndex];
+    return mCriteriaList[optIndex]->name();
   };
 
 

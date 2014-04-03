@@ -61,9 +61,13 @@ namespace bayesopt
     void setRandomEngine(randEngine& eng){ mtRandom = &eng; }
 
     // In general, most criteria does not support comparisons!
+    // TODO: Consider throwing exception when incorrect calls
     virtual bool requireComparison(){ return false; };
-    virtual bool checkIfBest(vectord& xNext,std::string& name)
-    { assert(false); return false; };
+    virtual void initialCriteria(){};
+    virtual bool rotateCriteria(){return false;};
+    virtual void pushResult(const vectord& prevResult){};
+    virtual std::string getBestCriteria(vectord& best)
+    { assert(false); return name(); };
 
   protected:
     NonParametricProcess *mProc;

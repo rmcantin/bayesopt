@@ -60,7 +60,9 @@ namespace bayesopt
 
     vectord alpha = mData.mY - prod(wML,mMean.mFeatM);
     inplace_solve(L,alpha,ublas::lower_tag());
-    double sigma = ublas::inner_prod(alpha,alpha)/(n-p);
+
+    //TODO: Review this line
+    //    double sigma = ublas::inner_prod(alpha,alpha)/(n-p);
 
     double loglik = .5*(n-p)*log(ublas::inner_prod(alpha,alpha)) 
       + utils::log_trace(L) + utils::log_trace(L2);

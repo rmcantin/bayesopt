@@ -30,12 +30,11 @@ double GaussianDistribution::negativeExpectedImprovement(double min,
 
       double Tm2 = cdf_z;
       double Tm1 = pdf_z;
-      double Tact;
       double sumEI = pow(z,static_cast<double>(g))*Tm2 - g*pow(z,static_cast<double>(g-1))*Tm1;
 
       for (size_t ii = 2; ii < g; ++ii) 
 	{
-	  Tact = (ii-1)*Tm2 - pdf_z*pow(z,static_cast<double>(ii-1));
+	  double Tact = (ii-1)*Tm2 - pdf_z*pow(z,static_cast<double>(ii-1));
 	  sumEI += pow(-1.0,static_cast<double>(ii))* 
 	    (fg / ( factorial<double>(ii)*factorial<double>(g-ii) ) )*
 	    pow(z,static_cast<double>(g-ii))*Tact;

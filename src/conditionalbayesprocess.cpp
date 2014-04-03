@@ -76,8 +76,6 @@ namespace bayesopt
     Dataset data(mData);
 
     size_t n = data.getNSamples();
-    size_t last = n-1;
-    int error = 0;
     double sum = 0.0;
 
     matrixd tempF(mMean.mFeatM);

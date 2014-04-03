@@ -48,6 +48,9 @@ namespace bayesopt
   { 
     mProc = proc;
     mCriteriaList = list;
+    mCurrentCriterium = list[0];
+    mIndex = 0;
+
     size_t n = mCriteriaList.size();
     loss_ = zvectord(n); 
     gain_ = zvectord(n); 

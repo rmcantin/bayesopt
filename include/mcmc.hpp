@@ -76,6 +76,10 @@ namespace bayesopt {
     vectord mSigma;
     vecOfvec mParticles;
     randEngine mtRandom;
+
+  private: //Forbidden
+    MCMCSampler();
+    MCMCSampler(MCMCSampler& copy);
   };
 
   //TODO: Include new algorithms when we add them.
@@ -129,6 +133,11 @@ namespace bayesopt {
     void updateSurrogateModel();
     double evaluateCriteria(const vectord& query);
 
+    bool criteriaRequiresComparison();
+    void setFirstCriterium();
+    bool setNextCriterium(const vectord& prevResult);
+    std::string getBestCriteria(vectord& best);
+
     Criteria* getCriteria();
     NonParametricProcess* getSurrogateModel();
    
@@ -170,6 +179,35 @@ namespace bayesopt {
       }
     return sum/static_cast<double>(nParticles);
   };
+
+  inline bool MCMCModel::criteriaRequiresComparison()
+  {return mCrit[0].requireComparison(); };
+    
+  inline void MCMCModel::setFirstCriterium()
+  { 
+    for(CritVect::iterator it=mCrit.begin(); it != mCrit.end(); ++it)
+      {
+	it->initialCriteria();
+      }
+  };
+
+  // Although we change the criteria for all MCMC particles, we use
+  // only the first element to compute de Hedge algorithm, because it
+  // should be based on the average result, thus being common for all
+  // the particles.
+  inline bool MCMCModel::setNextCriterium(const vectord& prevResult)
+  { 
+    bool rotated;
+    mCrit[0].pushResult(prevResult);
+    for(CritVect::iterator it=mCrit.begin(); it != mCrit.end(); ++it)
+      {
+	rotated = it->rotateCriteria();
+      }
+    return rotated; 
+  };
+
+  inline std::string MCMCModel::getBestCriteria(vectord& best)
+  { return mCrit[0].getBestCriteria(best); };
 
 
   inline  Criteria* MCMCModel::getCriteria()

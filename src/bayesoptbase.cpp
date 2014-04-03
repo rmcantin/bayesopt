@@ -148,21 +148,20 @@ namespace bayesopt
     //TODO: Try to solve this without bringing the pointer to the
     //criteria. Right now it does not work with MCMC.
     vectord Xnext(mDims);    
-    Criteria* crit = mModel->getCriteria();
+    //    Criteria* crit = mModel->getCriteria();
 
     // GP-Hedge and related algorithms
-    if (crit->requireComparison())
+    if (mModel->criteriaRequiresComparison())
       {
 	bool changed = true;
 
-	crit->initialCriteria();
+	mModel->setFirstCriterium();
 	while (changed)
 	  {
 	    findOptimal(Xnext);
-	    crit->pushResult(Xnext);
-	    changed = crit->rotateCriteria();
+	    changed = mModel->setNextCriterium(Xnext);
 	  }
-	std::string name = crit->getBestCriteria(Xnext);
+	std::string name = mModel->getBestCriteria(Xnext);
 	FILE_LOG(logINFO) << name << " was selected.";
       }
     else  // Standard "Bayesian optimization"

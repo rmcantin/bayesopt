@@ -65,11 +65,11 @@ namespace bayesopt
   ProbabilityDistribution* 
   GaussianProcessNormal::prediction(const vectord &query)
   {
-    double kq = computeSelfCorrelation(query);
-    vectord kn = computeCrossCorrelation(query);
-    vectord phi = mMean.getFeatures(query);
-  
-    vectord v(kn);
+    const double kq = computeSelfCorrelation(query);
+    const vectord phi = mMean.getFeatures(query);
+
+    vectord v = computeCrossCorrelation(query);
+
     inplace_solve(mL,v,ublas::lower_tag());
 
     vectord rq = phi - prod(v,mKF);
@@ -118,8 +118,7 @@ namespace bayesopt
 
   void GaussianProcessNormal::precomputePrediction()
   {
-    size_t n = mData.getNSamples();
-    size_t p = mMean.nFeatures();
+    const size_t p = mMean.nFeatures();
 
     mKF = trans(mMean.mFeatM);
     inplace_solve(mL,mKF,ublas::lower_tag());

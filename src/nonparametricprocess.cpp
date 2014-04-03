@@ -40,7 +40,7 @@ namespace bayesopt
 					     const Dataset& data, 
 					     MeanModel& mean,
 					     randEngine& eng):
-    mData(data), dim_(dim), mMean(mean)
+    mData(data), dim_(dim), mMean(mean), mSigma(parameters.sigma_s)
   {}
 
   NonParametricProcess::~NonParametricProcess(){}

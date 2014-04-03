@@ -59,6 +59,11 @@ namespace bayesopt {
     void updateSurrogateModel();
     double evaluateCriteria(const vectord& query);
 
+    bool criteriaRequiresComparison();
+    void setFirstCriterium();
+    bool setNextCriterium(const vectord& prevResult);
+    std::string getBestCriteria(vectord& best);
+
     Criteria* getCriteria();
     NonParametricProcess* getSurrogateModel();
 
@@ -86,6 +91,19 @@ namespace bayesopt {
 
   inline double EmpiricalBayes::evaluateCriteria(const vectord& query)
   { return (*mCrit)(query); };
+
+  inline bool EmpiricalBayes::criteriaRequiresComparison()
+  {return mCrit->requireComparison(); };
+    
+  inline void EmpiricalBayes::setFirstCriterium()
+  { mCrit->initialCriteria(); };
+
+  inline bool EmpiricalBayes::setNextCriterium(const vectord& prevResult)
+  { return false; };
+
+  inline std::string EmpiricalBayes::getBestCriteria(vectord& best)
+  { return mCrit->name(); };
+
 
   inline  Criteria* EmpiricalBayes::getCriteria()
   { return mCrit.get(); };

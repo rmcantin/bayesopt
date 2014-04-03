@@ -99,6 +99,10 @@ namespace bayesopt {
     innerOptAlgorithms alg;
     std::vector<double> mDown, mUp;
     size_t maxEvals;
+
+  private: //Forbidden
+    NLOPT_Optimization();
+    NLOPT_Optimization(NLOPT_Optimization& copy);
   };
 
 

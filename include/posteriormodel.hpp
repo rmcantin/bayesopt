@@ -61,6 +61,12 @@ namespace bayesopt {
     virtual void updateSurrogateModel() = 0;
     virtual double evaluateCriteria(const vectord& query) = 0;
 
+    virtual bool criteriaRequiresComparison() = 0;
+    virtual void setFirstCriterium() = 0;
+    virtual bool setNextCriterium(const vectord& prevResult) = 0;
+    virtual std::string getBestCriteria(vectord& best) = 0;
+
+
     void setSamples(const matrixd &x, const vectord &y);
     void setSample(const vectord &x, double y);
     void addSample(const vectord &x, double y);

@@ -89,9 +89,7 @@ namespace bayesopt
       return sum;
     };
 
-
   protected:
-    NonParametricProcess* mProc;
     std::vector<Criteria*> mCriteriaList;
   };
 
@@ -167,9 +165,8 @@ namespace bayesopt
     Criteria* mCurrentCriterium;
     std::vector<vectord> mBestLists;
     size_t mIndex;
- 
-  private:
-    double computeLoss(const vectord& query)
+
+    virtual double computeLoss(const vectord& query)
     { return mProc->prediction(query)->getMean(); }
   };
 
@@ -182,8 +179,9 @@ namespace bayesopt
   public:
     virtual ~GP_Hedge_Random() {};
     std::string name() {return "cHedgeRandom";};
-  private:
-    double computeLoss(const vectord& query)
+ 
+  protected:
+    virtual double computeLoss(const vectord& query)
     { return mProc->prediction(query)->sample_query(); }
   };
 

@@ -111,16 +111,7 @@ namespace bayesopt
   inline double ConditionalBayesProcess::evaluate(const vectord& x)
   { 
     mKernel.setHyperParameters(x);
-    if (mLearnType == L_EMPIRICAL)
-      { 
-	// Negative log-score (log-likelihood...)
-	return evaluateKernelParams();
-      }
-    else
-      {
-	//Actual distribution
-	return exp(-evaluateKernelParams());
-      }
+    return evaluateKernelParams();
   };
 
 

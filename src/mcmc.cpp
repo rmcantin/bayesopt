@@ -55,28 +55,32 @@ namespace bayesopt
 
     for (size_t i = 0; i<n; ++i)
       {
-	size_t ind = perms[i];
-	double sigma = mSigma(ind);
+	const size_t ind = perms[i];
+	const double sigma = mSigma(ind);
 
-	double y_max = obj->evaluate(x);
-	double y = sample()*y_max;
+	const double y_max = obj->evaluate(x);
+	const double y = y_max-std::log(sample());  
+	//y = y_max * sample(), but we are in negative log space
 
-	if (y == 0.0) throw std::runtime_error("Error in MCMC. Initial point out of support region.");
+	if (y == 0.0) 
+	  {
+	    throw std::runtime_error("Error in MCMC: Initial point out of support region."); 
+	  }
 
 	// Step out
-	double x_cur = x(ind);
-	double r = sample();
+	const double x_cur = x(ind);
+	const double r = sample();
 	double xl = x_cur - r * sigma;
 	double xr = x_cur + (1-r)*sigma;
 
 	if (mStepOut)
 	  {
 	    x(ind) = xl;
-	    while (obj->evaluate(x) > y) { x(ind) -= sigma; }
+	    while (obj->evaluate(x) < y) { x(ind) -= sigma; }
 	    xl = x(ind);
 
 	    x(ind) = xr;
-	    while (obj->evaluate(x) > y) { x(ind) += sigma; }
+	    while (obj->evaluate(x) < y) { x(ind) += sigma; }
 	    xr = x(ind);
 	  }
 
@@ -85,7 +89,7 @@ namespace bayesopt
 	while (!on_slice)
 	  {
 	    x(ind) = (xr-xl) * sample() + xl;
-	    if (obj->evaluate(x) < y)
+	    if (obj->evaluate(x) > y)
 	      {
 		if      (x(ind) > x_cur)  xr = x(ind);
 		else if (x(ind) < x_cur)  xl = x(ind);

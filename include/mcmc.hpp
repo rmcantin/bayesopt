@@ -85,11 +85,11 @@ namespace bayesopt {
 
   inline void MCMCSampler::randomJump(vectord &x)
   {
-    randFloat sample( mtRandom, realUniformDist(0,1) );
+    randNFloat sample( mtRandom, normalDist(0,1) );
     FILE_LOG(logERROR) << "Doing random jump.";
     for(vectord::iterator it = x.begin(); it != x.end(); ++it)
       {
-	*it = sample()*12 - 6;
+	*it = sample()*6;
       }
     FILE_LOG(logERROR) << "Likelihood." << x << " | " << obj->evaluate(x);
   }

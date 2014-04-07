@@ -62,6 +62,7 @@ namespace bayesopt {
     void printParticles();
 
   private:
+    void randomJump(vectord &x);
     void burnOut(vectord &x);
     void sliceSample(vectord &x);
 
@@ -82,12 +83,31 @@ namespace bayesopt {
     MCMCSampler(MCMCSampler& copy);
   };
 
+  inline void MCMCSampler::randomJump(vectord &x)
+  {
+    randFloat sample( mtRandom, realUniformDist(0,1) );
+    FILE_LOG(logERROR) << "Doing random jump.";
+    for(vectord::iterator it = x.begin(); it != x.end(); ++it)
+      {
+	*it = sample()*12 - 6;
+      }
+    FILE_LOG(logERROR) << "Likelihood." << x << " | " << obj->evaluate(x);
+  }
+
   //TODO: Include new algorithms when we add them.
   inline void MCMCSampler::burnOut(vectord &x)
   {
     for(size_t i=0; i<nBurnOut; ++i)  
       {
-	sliceSample(x);
+	try
+	  {
+	    sliceSample(x);
+	  }
+	catch(std::runtime_error& e)
+	  {
+	    FILE_LOG(logERROR) << e.what();
+	    randomJump(x);
+	  }
       }
   }
 

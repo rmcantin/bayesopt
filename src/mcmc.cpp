@@ -61,6 +61,8 @@ namespace bayesopt
 	double y_max = obj->evaluate(x);
 	double y = sample()*y_max;
 
+	if (y == 0.0) throw std::runtime_error("Error in MCMC. Initial point out of support region.");
+
 	// Step out
 	double x_cur = x(ind);
 	double r = sample();
@@ -100,13 +102,23 @@ namespace bayesopt
   //TODO: Include new algorithms when we add them.
   void MCMCSampler::run(vectord &Xnext)
   {
+    randFloat sample( mtRandom, realUniformDist(0,1) );
     if (nBurnOut>0) burnOut(Xnext);
-  
+
     mParticles.clear();
     for(size_t i=0; i<nSamples; ++i)  
       {
-	sliceSample(Xnext);
+	try
+	  {
+	    sliceSample(Xnext);
+	  }
+	catch(std::runtime_error& e)
+	  {
+	    FILE_LOG(logERROR) << e.what();
+	    randomJump(Xnext);
+	  }
 	mParticles.push_back(Xnext);
+
       }
   }
 

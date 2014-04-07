@@ -108,9 +108,9 @@ namespace bayesopt
     double zz = inner_prod(v0,v0);
     double sigmaMap = (mBeta/mAlpha + zz)/nalpha;
 
-    double lik = nalpha/2 * log(1+zz/(2*mBeta*sigmaMap));
+    double lik = nalpha/2 * std::log(1+zz/(2*mBeta*sigmaMap));
     lik += utils::log_trace(BB);
-    lik += n/2 * log(sigmaMap);
+    lik += n/2 * std::log(sigmaMap);
     return lik;
   }
 

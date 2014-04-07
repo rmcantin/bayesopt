@@ -100,7 +100,7 @@ namespace bayesopt
 	computeCholeskyCorrelation();
 	precomputePrediction(); 
 	ProbabilityDistribution* pd = prediction(x);
-	sum += log(pd->pdf(y));
+	sum += std::log(pd->pdf(y));
 
 	//Paste it back at the end
 	data.addSample(x,y);

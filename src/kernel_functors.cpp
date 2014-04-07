@@ -172,7 +172,7 @@ namespace bayesopt
       {
 	if (priorKernel[i].standard_deviation() > 0)
 	  {
-	    prior += log(boost::math::pdf(priorKernel[i],th(i)));
+	    prior += std::log(boost::math::pdf(priorKernel[i],th(i)));
 	  }
       }
     return prior;

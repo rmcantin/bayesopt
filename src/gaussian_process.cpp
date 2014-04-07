@@ -61,8 +61,8 @@ namespace bayesopt
 
     vectord alpha(mData.mY-mMean.muTimesFeat());
     inplace_solve(L,alpha,ublas::lower_tag());
-    double loglik = ublas::inner_prod(alpha,alpha)/(2*mSigma) + 
-      utils::log_trace(L);
+    double loglik = ublas::inner_prod(alpha,alpha)/(2*mSigma);
+    loglik += utils::log_trace(L);
     return loglik;
   }
 

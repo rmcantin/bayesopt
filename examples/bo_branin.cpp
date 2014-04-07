@@ -76,16 +76,28 @@ int main(int nargs, char *args[])
   bopt_params par = initialize_parameters_to_default();
   par.n_iterations = 200;
   par.n_init_samples = 50;
-  par.kernel.hp_mean[0] = 1.0;
-  par.kernel.hp_std[0] = 1.0;
-  par.kernel.n_hp = 1;
-  par.crit_name = "cHedge(cLCB,cEI,cPOI)";
+  
   par.l_type = L_MCMC;
+  par.sc_type = SC_MAP;
+  par.verbose_level = 2;
+
+  par.kernel.name = "kMaternARD3";
+  par.kernel.hp_mean[0] = 1.0;
+  par.kernel.hp_std[0] = 10.0;
+  par.kernel.hp_mean[1] = 1.0;
+  par.kernel.hp_std[1] = 10.0;
+  par.kernel.n_hp = 2;
+
+  par.surr_name = "sGaussianProcessNormal";
+  par.noise = 0.005;
+  
+  par.mean.coef_mean[0] = 50;
+  
+  par.crit_name = "cHedge(cLCB,cEI,cPOI)";
   par.n_iter_relearn = 20;
   double cParams[] = {5.0, 1.0, 0.01};
   std::copy(cParams, cParams+3, par.crit_params);
   par.n_crit_params = 3;
-  par.verbose_level = 2;
   
   ExampleBranin branin(2,par);
   vectord result(2);

@@ -44,7 +44,7 @@ namespace bayesopt
     virtual void init(NonParametricProcess* proc)
     { mProc = proc; };
 
-    virtual double operator()(const vectord &x)  = 0;
+    virtual double operator() (const vectord &x) = 0;
   };
 
 
@@ -64,7 +64,7 @@ namespace bayesopt
 
     size_t nParameters() {return 1;};
 
-    double operator()(const vectord &x)
+    double operator() (const vectord &x) 
     { 
       const double min = mProc->getValueAtMinimum();
       return mProc->prediction(x)->negativeExpectedImprovement(min,mExp); 
@@ -96,7 +96,7 @@ namespace bayesopt
 
     size_t nParameters() {return 2;};
 
-    double operator()(const vectord &x)
+    double operator() (const vectord &x) 
     { 
       const double sigma = mProc->getSignalVariance();
       const double min = mProc->getValueAtMinimum() - mBias/sigma;
@@ -124,7 +124,7 @@ namespace bayesopt
 
     size_t nParameters() {return 1;};
 
-    double operator()( const vectord &x)
+    double operator() (const vectord &x) 
     { 
       return mProc->prediction(x)->lowerConfidenceBound(mBeta); 
     };
@@ -150,7 +150,7 @@ namespace bayesopt
     size_t nParameters() {return 1;};
 
     inline void setEpsilon(double eps) { mEpsilon = eps; };
-    double operator()( const vectord &x)
+    double operator() (const vectord &x) 
     { 
       const double min = mProc->getValueAtMinimum();
       return mProc->prediction(x)->negativeProbabilityOfImprovement(min,
@@ -173,7 +173,7 @@ namespace bayesopt
     virtual ~GreedyAOptimality(){};
     void setParameters(const vectord &params) {};
     size_t nParameters() {return 0;};
-    double operator()( const vectord &x)
+    double operator() (const vectord &x) 
     { return -mProc->prediction(x)->getStd(); };
     std::string name() {return "cAopt";};
   };
@@ -186,7 +186,7 @@ namespace bayesopt
     virtual ~ExpectedReturn(){};
     void setParameters(const vectord &params) { };
     size_t nParameters() {return 0;};
-    double operator()( const vectord &x)
+    double operator() (const vectord &x) 
     { return mProc->prediction(x)->getMean(); };
     std::string name() {return "cExpReturn";};
   };
@@ -204,7 +204,7 @@ namespace bayesopt
     virtual ~OptimisticSampling(){};
     void setParameters(const vectord &params) {};
     size_t nParameters() {return 0;};
-    double operator()( const vectord &x)
+    double operator() (const vectord &x)  
     {
       ProbabilityDistribution* d_ = mProc->prediction(x);
       const double yStar = d_->sample_query();
@@ -226,7 +226,7 @@ namespace bayesopt
     virtual ~ThompsonSampling(){};
     void setParameters(const vectord &params) { };
     size_t nParameters() {return 0;};
-    double operator()( const vectord &x)
+    double operator() (const vectord &x) 
     {
       ProbabilityDistribution* d_ = mProc->prediction(x);
       return d_->sample_query();
@@ -252,7 +252,7 @@ namespace bayesopt
 
     size_t nParameters() {return 1;};
     void reset() { nCalls = 0; mExp = 10;};
-    double operator()( const vectord &x)
+    double operator() (const vectord &x) 
     {
       ++nCalls;
       if (nCalls % 10)
@@ -285,7 +285,7 @@ namespace bayesopt
 
     size_t nParameters() {return 1;};
     void reset() { nCalls = 0; mCoef = 5.0;};
-    double operator()( const vectord &x)
+    double operator() (const vectord &x) 
     {
       ++nCalls;
       size_t nDims = x.size();
@@ -320,7 +320,7 @@ namespace bayesopt
     { mW = params(0); };
     size_t nParameters() {return 1;};
  
-    double operator()(const vectord &x)
+    double operator() (const vectord &x) 
     { 
       const vectord x2 = mProc->getData()->getLastSampleX();
       return mW*norm_2(x-x2);

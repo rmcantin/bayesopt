@@ -100,7 +100,7 @@ namespace bayesopt
   public:
     virtual ~SumCriteria() {};
   
-    double operator()(const vectord &x)  
+    double operator() (const vectord &x)   
     {
       double sum = 0.0;
       for(size_t i = 0; i<mCriteriaList.size(); ++i)
@@ -121,7 +121,7 @@ namespace bayesopt
   public:
     virtual ~ProdCriteria() {};
   
-    double operator()(const vectord &x)  
+    double operator() (const vectord &x)   
     {
       double prod = 1.0;
       for(size_t i = 0; i<mCriteriaList.size(); ++i)
@@ -149,7 +149,7 @@ namespace bayesopt
     void init(NonParametricProcess *proc, 
 	     const std::vector<Criteria*>& list);
 
-    double operator()(const vectord &x) { return (*mCurrentCriterium)(x); };
+    double operator() (const vectord &x) { return (*mCurrentCriterium)(x); };
 
     bool requireComparison(){ return true; };
     void initialCriteria();

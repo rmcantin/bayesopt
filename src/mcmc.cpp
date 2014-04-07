@@ -43,6 +43,34 @@ namespace bayesopt
     if (obj != NULL) delete obj;
   };
 
+  void MCMCSampler::randomJump(vectord &x)
+  {
+    randNFloat sample( mtRandom, normalDist(0,1) );
+    FILE_LOG(logERROR) << "Doing random jump.";
+    for(vectord::iterator it = x.begin(); it != x.end(); ++it)
+      {
+	*it = sample()*6;
+      }
+    FILE_LOG(logERROR) << "Likelihood." << x << " | " << obj->evaluate(x);
+  }
+
+  //TODO: Include new algorithms when we add them.
+  void MCMCSampler::burnOut(vectord &x)
+  {
+    for(size_t i=0; i<nBurnOut; ++i)  
+      {
+	try
+	  {
+	    sliceSample(x);
+	  }
+	catch(std::runtime_error& e)
+	  {
+	    FILE_LOG(logERROR) << e.what();
+	    randomJump(x);
+	  }
+      }
+  }
+
 
   void MCMCSampler::sliceSample(vectord &x)
   {

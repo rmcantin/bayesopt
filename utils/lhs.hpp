@@ -36,6 +36,7 @@ namespace bayesopt
   namespace utils
   {      
     
+
     /** \brief Selects the sampling method.  */
     template<class M>
     void samplePoints(M& xPoints, int method, randEngine& mtRandom);

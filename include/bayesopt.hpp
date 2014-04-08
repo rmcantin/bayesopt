@@ -91,7 +91,8 @@ namespace bayesopt  {
     /** Selects the initial set of points to build the surrogate model. */
     void sampleInitialPoints(matrixd& xPoints, vectord& yPoints);
 
-    /** Sample a single point in the input space. Used for epsilon greedy exploration. */
+    /** Sample a single point in the input space. Used for epsilon
+	greedy exploration. */
     vectord samplePoint();
 
     /** 
@@ -126,11 +127,18 @@ namespace bayesopt  {
   {
   public:
     /** 
-     * Constructor
+     * Constructor for real-valued discrete data
      * @param validSet  Set of potential inputs
      * @param params set of parameters (see parameters.h)
      */
     DiscreteModel(const vecOfvec &validSet, bopt_params params);
+
+    /** 
+     * Constructor for categorical data
+     * @param number of categories per dimension
+     * @param params set of parameters (see parameters.h)
+     */
+    DiscreteModel(const vectori &categories, bopt_params params);
     
     /** Default destructor  */
     virtual ~DiscreteModel();

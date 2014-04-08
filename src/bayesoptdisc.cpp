@@ -23,6 +23,7 @@
 
 #include "randgen.hpp"
 #include "lhs.hpp"
+#include "gridsampling.hpp"
 #include "log.hpp"
 #include "bayesopt.hpp"
 
@@ -40,6 +41,14 @@ namespace bayesopt
   {    
     mDims = mInputSet[0].size();    
   } // Constructor
+
+  DiscreteModel::DiscreteModel(const vectori &categories, 
+			       bopt_params parameters):
+   BayesOptBase(categories.size(),parameters)
+  {    
+    mDims = categories.size();    
+    utils::buildGrid(categories,mInputSet);
+  }
 
 
   DiscreteModel::~DiscreteModel()

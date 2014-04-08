@@ -20,8 +20,8 @@
 ------------------------------------------------------------------------
 */
 
-#include <valarray>
 #include "bayesopt.hpp"
+#include "displaygp.hpp"
 
 class ExampleOneD: public bayesopt::ContinuousModel
 {
@@ -38,13 +38,10 @@ public:
       }
 
     double x = xin(0);
-    return sqr(x-0.3) + sin(20*x)*0.2;
+    return (x-0.3)*(x-0.3) + sin(20*x)*0.2;
   };
 
-  bool checkReachability(const vectord &query)
-  {return true;};
-
-  inline double sqr( double x ){ return x*x; }
+  bool checkReachability(const vectord &query) {return true;};
 
   void printOptimal()
   {
@@ -53,86 +50,29 @@ public:
 
 };
 
-//#include "unistd.h"
-//using namespace std;
-#include "matplotpp.h"  
 
-using namespace bayesopt;
+// Unfortunately OpenGL functions require no parameters, so the object has to be global.
+bayesopt::utils::DisplayProblem GLOBAL_MATPLOT;
 
-
-class MP :public MatPlot
-{ 
-public:
-  int is_run, is_step;
-  size_t state_ii;
-  BayesOptBase* GLOBAL_MODEL;
-  std::vector<double> lx,ly;
-
-  MP(): MatPlot()
-  {
-    is_run=0;
-    is_step=0;
-    state_ii = 0;    
-  }
-
-  void DISPLAY()
-  {
-    size_t nruns = GLOBAL_MODEL->getParameters()->n_iterations;
-    if ((is_run) && (state_ii < nruns))
-      {
-	++state_ii;
-	GLOBAL_MODEL->stepOptimization(state_ii); 
-	const double res = GLOBAL_MODEL->getSurrogateModel()->getData()->getLastSampleY();
-	const vectord last = GLOBAL_MODEL->getSurrogateModel()->getData()->getLastSampleX();
-	ly.push_back(res);
-	lx.push_back(last(0));
-	  
-	if (is_step) { is_run = 0; is_step = 0; }
-      }
-    
-    int n=1000;
-    std::vector<double> x,y,z,su,sl,c;
-    x=linspace(0,1,n);
-    y = x; z = x; su = x; sl = x; c= x;
-    vectord q(1);
-    for(int i=0;i<n;++i)
-      {
-	q(0) = x[i];
-	ProbabilityDistribution* pd = GLOBAL_MODEL->getSurrogateModel()->prediction(q);
-	y[i] = pd->getMean();
-	su[i] = y[i] + 2*pd->getStd();
-	sl[i] = y[i] - 2*pd->getStd();
-	c[i] = -GLOBAL_MODEL->getCriteria()->evaluate(q);
-	z[i] = GLOBAL_MODEL->evaluateSample(q);
-      }
- 
-    //plot
-    subplot(2,1,1);
-    title("Press r to run and stop, s to run a step and q to quit.");
-    plot(x,y); set(3);
-    plot(lx,ly);set("k");set("*");
-    plot(x,su);set("g"); set(2);
-    plot(x,sl);set("g"); set(2);
-    plot(x,z);set("r"); set(3);
-  
-    subplot(2,1,2);
-    plot(x,c); set(3);
-  }
-};
-
-MP GLOBAL_MATPLOT;
-
-void display(){ GLOBAL_MATPLOT.display(); }
-void reshape(int w,int h){ GLOBAL_MATPLOT.reshape(w,h); }
+void display( void ){ GLOBAL_MATPLOT.display(); }
+void reshape( int w,int h ){ GLOBAL_MATPLOT.reshape(w,h); }
 void idle( void ) { glutPostRedisplay(); } 
 
 void mouse(int button, int state, int x, int y ){ GLOBAL_MATPLOT.mouse(button,state,x,y); }
 void motion(int x, int y ){ GLOBAL_MATPLOT.motion(x,y); }
 void passive(int x, int y ){ GLOBAL_MATPLOT.passivemotion(x,y); }
-void keyboard(unsigned char key, int x, int y){
+
+void keyboard(unsigned char key, int x, int y)
+{
     GLOBAL_MATPLOT.keyboard(key, x, y); 
-    if(key=='r'){ if(GLOBAL_MATPLOT.is_run==0){GLOBAL_MATPLOT.is_run=1;}else{GLOBAL_MATPLOT.is_run=0;}}
-    if(key=='s'){ GLOBAL_MATPLOT.is_run=1; GLOBAL_MATPLOT.is_step=1; } 
+    if(key=='r')   //Toogle run/stop
+      { 
+	GLOBAL_MATPLOT.toogleRUN();
+      }
+    if(key=='s')   //Activate one step
+      { 
+	GLOBAL_MATPLOT.setSTEP();
+      }
 }
 
 int main(int nargs, char *args[])
@@ -174,18 +114,8 @@ int main(int nargs, char *args[])
   parameters.kernel.hp_std[0] = 5;
   parameters.kernel.n_hp = 1;
 
-  ExampleOneD* opt = new ExampleOneD(dim,parameters);
-  vectord result(dim);
-  GLOBAL_MATPLOT.GLOBAL_MODEL = opt;
-  opt->initializeOptimization();
-  size_t n_points = GLOBAL_MATPLOT.GLOBAL_MODEL->getSurrogateModel()->getData()->getNSamples();
-  for (size_t i = 0; i<n_points;++i)
-    {
-      const double res = GLOBAL_MATPLOT.GLOBAL_MODEL->getSurrogateModel()->getData()->getSampleY(i);
-      const vectord last = GLOBAL_MATPLOT.GLOBAL_MODEL->getSurrogateModel()->getData()->getSampleX(i);
-      GLOBAL_MATPLOT.ly.push_back(res);
-      GLOBAL_MATPLOT.lx.push_back(last(0));
-    }
+  boost::scoped_ptr<ExampleOneD> opt(new ExampleOneD(dim,parameters));
+  GLOBAL_MATPLOT.init(opt.get(),1);
 
   glutInit(&nargs, args);
   glutCreateWindow(50,50,800,650);
@@ -198,6 +128,5 @@ int main(int nargs, char *args[])
   glutKeyboardFunc( keyboard );        
   glutMainLoop();    
 
-  delete opt;
   return 0;
 }

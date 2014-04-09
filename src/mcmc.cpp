@@ -92,7 +92,8 @@ namespace bayesopt
 
 	if (y == 0.0) 
 	  {
-	    throw std::runtime_error("Error in MCMC: Initial point out of support region."); 
+	    throw std::runtime_error("Error in MCMC: Initial point"
+				     " out of support region."); 
 	  }
 
 	// Step out

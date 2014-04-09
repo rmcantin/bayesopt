@@ -7,7 +7,7 @@ ADD_EXECUTABLE(randtest ./testrand.cpp)
 ADD_EXECUTABLE(parsetest ../utils/parser.cpp ./testparser.cpp)
 
 #Test for grid
-ADD_EXECUTABLE(gridtest ./testgrid.cpp)
+#ADD_EXECUTABLE(gridtest ./testgrid.cpp)
 
 #Test for MCMC
 # ADD_EXECUTABLE(mcmctest ../src/mcmc.cpp ./testmcmc.cpp)

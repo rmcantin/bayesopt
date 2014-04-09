@@ -43,15 +43,17 @@ namespace bayesopt
   //////////////////////////////////////////////////////////////////////
   GP_Hedge::GP_Hedge(){};
 
-  void GP_Hedge::init(NonParametricProcess *proc, 
-		     const std::vector<Criteria*>& list) 
+  void GP_Hedge::init(NonParametricProcess *proc) 
   { 
     mProc = proc;
-    mCriteriaList = list;
-    mCurrentCriterium = list[0];
-    mIndex = 0;
 
     size_t n = mCriteriaList.size();
+    if (!n)
+      {
+	throw std::logic_error("Criteria list should be created (pushed)"
+			       " before initializing combined criterion.");
+      }
+
     loss_ = zvectord(n); 
     gain_ = zvectord(n); 
     prob_ = zvectord(n);
@@ -61,7 +63,7 @@ namespace bayesopt
   void GP_Hedge::initialCriteria()
   {
     mIndex = 0;
-    mCurrentCriterium = mCriteriaList[mIndex];
+    mCurrentCriterium = &mCriteriaList[mIndex];
     mBestLists.clear();
   };
 
@@ -74,7 +76,7 @@ namespace bayesopt
       }
     else
       {
-	mCurrentCriterium = mCriteriaList[mIndex];	
+	mCurrentCriterium = &mCriteriaList[mIndex];	
 	return true;
       }
   };
@@ -89,7 +91,7 @@ namespace bayesopt
   { 
     int optIndex = update_hedge();
     best = mBestLists[optIndex];
-    return mCriteriaList[optIndex]->name();
+    return mCriteriaList[optIndex].name();
   };
 
 

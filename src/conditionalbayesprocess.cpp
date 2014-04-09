@@ -64,7 +64,6 @@ namespace bayesopt
       case SC_LOOCV:
 	return negativeCrossValidation(); 
       default:
-	FILE_LOG(logERROR) << "Learning type not supported";
 	throw std::invalid_argument("Learning type not supported");
       }	  
   }

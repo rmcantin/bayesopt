@@ -38,8 +38,7 @@ namespace bayesopt
       case L_MCMC: return new MCMCModel(dim,params,eng);
       case L_ERROR:
       default:
-	FILE_LOG(logERROR) << "Error: surrogate function not supported.";
-	throw std::invalid_argument("surrogate function not supported");
+	throw std::invalid_argument("Learning type not supported");
       }
   };
 

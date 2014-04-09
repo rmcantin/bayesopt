@@ -45,9 +45,7 @@ namespace bayesopt
   {
   public:
     virtual ~Criteria() {};
-    virtual void init(NonParametricProcess *proc) { };
-    virtual void init(NonParametricProcess *proc, 
-		      const std::vector<Criteria*>& list) { };
+    virtual void init(NonParametricProcess *proc) { mProc = proc; };
 
     double evaluate(const vectord &x)  {return (*this)(x);}
     virtual double operator() (const vectord &x)  = 0;
@@ -62,6 +60,7 @@ namespace bayesopt
 
     // In general, most criteria does not support comparisons!
     // TODO: Consider throwing exception when incorrect calls
+    virtual void pushCriteria(Criteria* crit){};
     virtual bool requireComparison(){ return false; };
     virtual void initialCriteria(){};
     virtual bool rotateCriteria(){return false;};

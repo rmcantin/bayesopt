@@ -68,8 +68,7 @@ namespace bayesopt
       s_ptr = new StudentTProcessNIG(dim,parameters,data,mean,eng); 
     else
       {
-	FILE_LOG(logERROR) << "Error: surrogate function not supported.";
-	throw std::invalid_argument("surrogate function not supported");
+	throw std::invalid_argument("Surrogate function not supported");
       }
     return s_ptr;
   };

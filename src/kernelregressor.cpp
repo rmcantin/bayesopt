@@ -68,8 +68,10 @@ namespace bayesopt
     computeCorrMatrix(K);
     size_t line_error = utils::cholesky_decompose(K,mL);
     if (line_error) 
-      throw std::runtime_error("Cholesky decomposition error at line " + 
-			       boost::lexical_cast<std::string>(line_error));
+      {
+	throw std::runtime_error("Cholesky decomposition error at line " + 
+				 boost::lexical_cast<std::string>(line_error));
+      }
   }
 
   matrixd KernelRegressor::computeDerivativeCorrMatrix(int dth_index)

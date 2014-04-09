@@ -36,20 +36,8 @@ namespace bayesopt
    */
   //@{
 
-  /// Abstract class for atomic criteria (only one function)
-  class AtomicCriteria: public Criteria
-  {
-  public:
-    virtual ~AtomicCriteria(){};
-    virtual void init(NonParametricProcess* proc)
-    { mProc = proc; };
-
-    virtual double operator() (const vectord &x) = 0;
-  };
-
-
   /// Expected improvement criterion by Mockus \cite Mockus78
-  class ExpectedImprovement: public AtomicCriteria
+  class ExpectedImprovement: public Criteria
   {
   public:
     virtual ~ExpectedImprovement(){};
@@ -77,7 +65,7 @@ namespace bayesopt
   };
 
   /// Expected improvement criterion modification by Lizotte
-  class BiasedExpectedImprovement: public AtomicCriteria
+  class BiasedExpectedImprovement: public Criteria
   {
   public:
     virtual ~BiasedExpectedImprovement(){};
@@ -110,7 +98,7 @@ namespace bayesopt
 
 
   /// Lower (upper) confidence bound criterion by [Cox and John, 1992].
-  class LowerConfidenceBound: public AtomicCriteria
+  class LowerConfidenceBound: public Criteria
   {
   public:
     virtual ~LowerConfidenceBound(){};
@@ -135,7 +123,7 @@ namespace bayesopt
 
 
   /// Probability of improvement criterion based on (Kushner).
-  class ProbabilityOfImprovement: public AtomicCriteria
+  class ProbabilityOfImprovement: public Criteria
   {
   public:
     virtual ~ProbabilityOfImprovement(){};
@@ -167,7 +155,7 @@ namespace bayesopt
    * because it minimizes the error on the prediction, not on the
    * parameters.
    */
-  class GreedyAOptimality: public AtomicCriteria
+  class GreedyAOptimality: public Criteria
   {
   public:
     virtual ~GreedyAOptimality(){};
@@ -180,7 +168,7 @@ namespace bayesopt
 
 
   /// Expected return criterion.
-  class ExpectedReturn: public AtomicCriteria
+  class ExpectedReturn: public Criteria
   {
   public:
     virtual ~ExpectedReturn(){};
@@ -197,7 +185,7 @@ namespace bayesopt
    * that picks only samples that are better than the best outcome so
    * far.
    */
-  class OptimisticSampling: public AtomicCriteria
+  class OptimisticSampling: public Criteria
   {
   public:
     OptimisticSampling() {};
@@ -219,7 +207,7 @@ namespace bayesopt
    * \brief Thompson sampling. 
    * Picks a random realization of the surrogate model.
    */
-  class ThompsonSampling: public AtomicCriteria
+  class ThompsonSampling: public Criteria
   {
   public:
     ThompsonSampling() {};
@@ -237,7 +225,7 @@ namespace bayesopt
 
 
   /// Expected improvement criterion using Schonlau annealing. \cite Schonlau98
-  class AnnealedExpectedImprovement: public AtomicCriteria
+  class AnnealedExpectedImprovement: public Criteria
   {
   public:
     virtual ~AnnealedExpectedImprovement(){};
@@ -270,7 +258,7 @@ namespace bayesopt
 
 
   /// Lower (upper) confidence bound using Srinivas annealing \cite Srinivas10
-  class AnnealedLowerConfindenceBound: public AtomicCriteria
+  class AnnealedLowerConfindenceBound: public Criteria
   {
   public:
     virtual ~AnnealedLowerConfindenceBound(){};
@@ -307,7 +295,7 @@ namespace bayesopt
    * \brief Distance in input space. Can be combined with other
    * critera to trade off large changes in input space.
    */
-  class InputDistance: public AtomicCriteria
+  class InputDistance: public Criteria
   {
   public:
     void init(NonParametricProcess* proc)

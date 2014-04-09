@@ -24,6 +24,7 @@
 #ifndef  _CRITERIA_COMBINED_HPP_
 #define  _CRITERIA_COMBINED_HPP_
 
+#include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/numeric/ublas/vector_proxy.hpp>
 #include "criteria_functors.hpp"
 
@@ -40,18 +41,15 @@ namespace bayesopt
   class CombinedCriteria: public Criteria
   {
   public:
-    virtual ~CombinedCriteria() 
-    {
-      for(size_t i = 0; i<mCriteriaList.size(); ++i)
-      {
-	delete mCriteriaList[i];
-      }
-    };
-    virtual void init(NonParametricProcess *proc, 
-		     const std::vector<Criteria*>& list) 
+    virtual ~CombinedCriteria() {};
+    virtual void init(NonParametricProcess *proc) 
     { 
       mProc = proc;
-      mCriteriaList = list;
+    };
+
+    void pushCriteria(Criteria* crit)
+    {
+      mCriteriaList.push_back(crit);
     };
 
     void setParameters(const vectord &theta) 
@@ -62,7 +60,7 @@ namespace bayesopt
 
       for (size_t i = 0; i < np; ++i)
 	{
-	  sizes(i) = mCriteriaList[i]->nParameters();
+	  sizes(i) = mCriteriaList[i].nParameters();
 	}
 
       if (theta.size() != norm_1(sizes))
@@ -74,7 +72,7 @@ namespace bayesopt
       size_t start = 0;
       for (size_t i = 0; i < np; ++i)
 	{
-	  mCriteriaList[i]->setParameters(subrange(theta,start,start+sizes(i)));
+	  mCriteriaList[i].setParameters(subrange(theta,start,start+sizes(i)));
 	  start += sizes(i);
 	}
     };
@@ -84,13 +82,13 @@ namespace bayesopt
       size_t sum = 0;
       for (size_t i = 0; i < mCriteriaList.size(); ++i)
 	{
-	  sum += mCriteriaList[i]->nParameters();
+	  sum += mCriteriaList[i].nParameters();
 	}
       return sum;
     };
 
   protected:
-    std::vector<Criteria*> mCriteriaList;
+    boost::ptr_vector<Criteria> mCriteriaList;
   };
 
 
@@ -105,7 +103,7 @@ namespace bayesopt
       double sum = 0.0;
       for(size_t i = 0; i<mCriteriaList.size(); ++i)
 	{ 
-	  sum += (*mCriteriaList[i])(x); 
+	  sum += mCriteriaList[i](x); 
 	}
       return sum;
     };
@@ -126,7 +124,7 @@ namespace bayesopt
       double prod = 1.0;
       for(size_t i = 0; i<mCriteriaList.size(); ++i)
 	{ 
-	  prod *= (*mCriteriaList[i])(x); 
+	  prod *= mCriteriaList[i](x); 
 	}
       return prod;
     };
@@ -146,8 +144,7 @@ namespace bayesopt
   public:
     GP_Hedge();
     virtual ~GP_Hedge() {};
-    void init(NonParametricProcess *proc, 
-	     const std::vector<Criteria*>& list);
+    void init(NonParametricProcess *proc);
 
     double operator() (const vectord &x) { return (*mCurrentCriterium)(x); };
 

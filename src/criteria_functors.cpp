@@ -76,9 +76,6 @@ namespace bayesopt
     std::map<std::string,CriteriaFactory::create_func_definition>::iterator it = registry.find(os);
     if (it == registry.end()) 
       {
-	FILE_LOG(logERROR) << "Error: Fatal error while parsing "
-			   << "kernel function: " << os 
-			   << " not found";
 	throw std::invalid_argument("Parsing error: Criteria not found: " + os);
 	return NULL;
       } 
@@ -89,12 +86,11 @@ namespace bayesopt
       } 
     else 
       {
-	std::vector<Criteria*> list;
 	for(size_t i = 0; i < osc.size(); ++i)
 	  {
-	    list.push_back(create(osc[i],proc)); 
+	    cFunc->pushCriteria(create(osc[i],proc)); 
 	  }
-	cFunc->init(proc,list);
+	cFunc->init(proc);  //Requires to know the number of criteria
       }
     return cFunc;
   };

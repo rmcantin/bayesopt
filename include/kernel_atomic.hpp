@@ -157,7 +157,7 @@ namespace bayesopt
     double operator()(const vectord &x1, const vectord &x2)
     { 
       const size_t n = x1.size();
-      const double ll = params(0);
+      const double coef = -params(0)/2.0;
       vectori s1(n);
       vectori s2(n);
 
@@ -167,8 +167,9 @@ namespace bayesopt
 	  s1(i) = static_cast<int>(x1(i)+0.5);
 	  s2(i) = static_cast<int>(x2(i)+0.5);
 	}
-
-      return std::exp(-ll/2*static_cast<double>(hammingDistance(s1,s2)));
+      
+      const double dist = static_cast<double>(hammingDistance(s1,s2));
+      return std::exp(coef*dist*dist);
     };
 
     double gradient(const vectord &x1, const vectord &x2,

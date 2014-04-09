@@ -37,6 +37,8 @@ namespace bayesopt
     registry["kLinear"] = & create_func<LinKernel>;
     registry["kLinearARD"] = & create_func<LinKernelARD>;
 
+    registry["kHamming"] = & create_func<HammingKernel>;
+
     registry["kMaternISO1"] = & create_func<MaternIso1>;
     registry["kMaternISO3"] = & create_func<MaternIso3>;
     registry["kMaternISO5"] = & create_func<MaternIso5>;
@@ -80,9 +82,8 @@ namespace bayesopt
     std::map<std::string,KernelFactory::create_func_definition>::iterator it = registry.find(os);
     if (it == registry.end()) 
       {
-	FILE_LOG(logERROR) << "Error: Fatal error while parsing "
-			   << "kernel function: " << os << " not found";
-	throw std::invalid_argument("Kernel not found " + os);
+	throw std::invalid_argument("Error while parsing kernel function: "
+				    "Kernel not found " + os);
 	return NULL;
       } 
     kFunc = it->second();

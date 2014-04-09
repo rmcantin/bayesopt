@@ -154,7 +154,6 @@ namespace bayesopt
     
     if ((boost::math::isnan(mWMap(0))) || (boost::math::isnan(mSigma)))
       {
-	FILE_LOG(logERROR) << "Error in precomputed prediction. NaN found.";
 	throw std::runtime_error("Error in precomputed prediction. NaN found.");
       }
 

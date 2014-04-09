@@ -48,7 +48,6 @@ namespace bayesopt  {
   ContinuousModel::ContinuousModel(size_t dim, bopt_params parameters):
     BayesOptBase(dim,parameters)
   { 
-    //    if (mCrit == NULL)    throw(-1);
     mCallback.reset(new CritCallback(this));
     cOptimizer.reset(new NLOPT_Optimization(mCallback.get(),dim));
     cOptimizer->setAlgorithm(DIRECT);

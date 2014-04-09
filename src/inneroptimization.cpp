@@ -118,7 +118,6 @@ namespace bayesopt
 	objPointer = static_cast<void *>(rgbobj);
 	break;
       default: 
-	FILE_LOG(logERROR) << "Algorithm not supported"; 
 	throw std::invalid_argument("Inner optimization algorithm not supported");
       }
 
@@ -126,7 +125,6 @@ namespace bayesopt
 
     if (objPointer == NULL)
       {
-	FILE_LOG(logERROR) << "Wrong object model (gradient/no gradient)"; 
 	throw std::invalid_argument("Wrong object model (gradient/no gradient)");
       }
 

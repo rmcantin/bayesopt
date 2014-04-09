@@ -29,63 +29,66 @@
 
 #include "randgen.hpp"
 
-class ProbabilityDistribution
+namespace bayesopt
 {
-public:
-  ProbabilityDistribution(randEngine& eng): mtRandom(eng) {};
-  virtual ~ProbabilityDistribution(){};
 
-  /** 
-   * \brief Probability density function
-   * @param x query point
-   * @return probability
-   */
-  virtual double pdf(double x) = 0;
+  class ProbabilityDistribution
+  {
+  public:
+    ProbabilityDistribution(randEngine& eng): mtRandom(eng) {};
+    virtual ~ProbabilityDistribution(){};
 
-
-  /** 
-   * \brief Expected Improvement algorithm for minimization
-   * @param min minimum value found so far
-   * @param g exponent (used for annealing)
-   * @return negative value of the expected improvement
-   */
-  virtual double negativeExpectedImprovement(double min, size_t g) = 0;
-
-  /** 
-   * \brief Lower confindence bound. Can be seen as the inverse of the Upper 
-   * confidence bound
-   * @param beta std coefficient (used for annealing)
-   * @return value of the lower confidence bound
-   */
-  virtual double lowerConfidenceBound(double beta = 1) = 0;
-
-  /** 
-   * \brief Probability of improvement algorithm for minimization
-   * @param min minimum value found so far
-   * @param epsilon minimum improvement margin
-   * 
-   * @return negative value of the probability of improvement
-   */
-  virtual double negativeProbabilityOfImprovement(double yMin,
-						  double epsilon) = 0;
-
-  /** 
-   * \brief Sample outcome acording to the marginal distribution at 
-   * the query point.
-   *
-   * @param eng boost.random engine
-   * @return outcome
-   */
-  virtual double sample_query() = 0;
-
-  virtual double getMean() = 0;
-  virtual double getStd() = 0;
-
-protected:
-  randEngine& mtRandom;
-};
+    /** 
+     * \brief Probability density function
+     * @param x query point
+     * @return probability
+     */
+    virtual double pdf(double x) = 0;
 
 
+    /** 
+     * \brief Expected Improvement algorithm for minimization
+     * @param min minimum value found so far
+     * @param g exponent (used for annealing)
+     * @return negative value of the expected improvement
+     */
+    virtual double negativeExpectedImprovement(double min, size_t g) = 0;
+
+    /** 
+     * \brief Lower confindence bound. Can be seen as the inverse of the Upper 
+     * confidence bound
+     * @param beta std coefficient (used for annealing)
+     * @return value of the lower confidence bound
+     */
+    virtual double lowerConfidenceBound(double beta = 1) = 0;
+
+    /** 
+     * \brief Probability of improvement algorithm for minimization
+     * @param min minimum value found so far
+     * @param epsilon minimum improvement margin
+     * 
+     * @return negative value of the probability of improvement
+     */
+    virtual double negativeProbabilityOfImprovement(double yMin,
+						    double epsilon) = 0;
+
+    /** 
+     * \brief Sample outcome acording to the marginal distribution at 
+     * the query point.
+     *
+     * @param eng boost.random engine
+     * @return outcome
+     */
+    virtual double sample_query() = 0;
+
+    virtual double getMean() = 0;
+    virtual double getStd() = 0;
+
+  protected:
+    randEngine& mtRandom;
+  };
+
+} //namespace bayesopt
 
 #endif
 

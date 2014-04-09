@@ -29,72 +29,75 @@
 #include <boost/math/distributions/normal.hpp> 
 #include "prob_distribution.hpp"
 
-class GaussianDistribution: public ProbabilityDistribution
+namespace bayesopt
 {
-public:
-  GaussianDistribution(randEngine& eng);
-  virtual ~GaussianDistribution();
 
-  /** 
-   * \brief Sets the mean and std of the distribution
-   */
-  void setMeanAndStd(double mean, double std)
-  { mean_ = mean; std_ = std; };
-
-  /** 
-   * \brief Probability density function
-   * @param x query point
-   * @return probability
-   */
-  double pdf(double x) 
+  class GaussianDistribution: public ProbabilityDistribution
   {
-    x = (x - mean_) / std_;
-    return boost::math::pdf(d_,x); 
+  public:
+    GaussianDistribution(randEngine& eng);
+    virtual ~GaussianDistribution();
+
+    /** 
+     * \brief Sets the mean and std of the distribution
+     */
+    void setMeanAndStd(double mean, double std)
+    { mean_ = mean; std_ = std; };
+
+    /** 
+     * \brief Probability density function
+     * @param x query point
+     * @return probability
+     */
+    double pdf(double x) 
+    {
+      x = (x - mean_) / std_;
+      return boost::math::pdf(d_,x); 
+    };
+
+    /** 
+     * \brief Expected Improvement algorithm for minimization
+     * @param min  minimum value found
+     * @param g exponent (used for annealing)
+     *
+     * @return negative value of the expected improvement
+     */
+    double negativeExpectedImprovement(double min, size_t g);
+
+    /** 
+     * \brief Lower confindence bound. Can be seen as the inverse of the Upper 
+     * confidence bound
+     * @param beta std coefficient (used for annealing)
+     * @return value of the lower confidence bound
+     */
+    double lowerConfidenceBound(double beta);
+
+    /** 
+     * Probability of improvement algorithm for minimization
+     * @param min  minimum value found
+     * @param epsilon minimum improvement margin
+     * 
+     * @return negative value of the probability of improvement
+     */
+    double negativeProbabilityOfImprovement(double min,
+					    double epsilon);
+
+    /** 
+     * Sample outcome acording to the marginal distribution at the query point.
+     * @return outcome
+     */
+    double sample_query();
+
+    double getMean() { return mean_; };
+    double getStd()  { return std_; };
+
+
+  private:
+    boost::math::normal d_;
+    double mean_;
+    double std_;
   };
 
-  /** 
-   * \brief Expected Improvement algorithm for minimization
-   * @param min  minimum value found
-   * @param g exponent (used for annealing)
-   *
-   * @return negative value of the expected improvement
-   */
-  double negativeExpectedImprovement(double min, size_t g);
-
-  /** 
-   * \brief Lower confindence bound. Can be seen as the inverse of the Upper 
-   * confidence bound
-   * @param beta std coefficient (used for annealing)
-   * @return value of the lower confidence bound
-   */
-  double lowerConfidenceBound(double beta);
-
-  /** 
-   * Probability of improvement algorithm for minimization
-   * @param min  minimum value found
-   * @param epsilon minimum improvement margin
-   * 
-   * @return negative value of the probability of improvement
-   */
-  double negativeProbabilityOfImprovement(double min,
-					  double epsilon);
-
-  /** 
-   * Sample outcome acording to the marginal distribution at the query point.
-   * @return outcome
-   */
-  double sample_query();
-
-  double getMean() { return mean_; };
-  double getStd()  { return std_; };
-
-
-private:
-  boost::math::normal d_;
-  double mean_;
-  double std_;
-};
-
-
+} //namespace bayesopt
 
 #endif

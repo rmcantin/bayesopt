@@ -26,85 +26,89 @@
 #ifndef __STUDENT_T_DISTRIBUTION_HPP__
 #define __STUDENT_T_DISTRIBUTION_HPP__
 
-#include <boost/math/distributions/students_t.hpp> // for student t distribution
+// for student t distribution
+#include <boost/math/distributions/students_t.hpp> 
 #include "prob_distribution.hpp"
 
-class StudentTDistribution: public ProbabilityDistribution
+namespace bayesopt
 {
-public:
-  StudentTDistribution(randEngine& eng);
-  virtual ~StudentTDistribution();
 
-  /** 
-   * \brief Sets the mean and std of the distribution
-   */
-  void setMeanAndStd(double mean, double std)
-  { mean_ = mean; std_ = std; };
-
-  /** 
-   * \brief Sets the degrees of freedom (dof) the distribution
-   */
-  void setDof(size_t dof)
-  { 
-    dof_ = dof; 
-    boost::math::students_t new_d(dof);
-    d_ = new_d;
-  };
-
-  /** 
-   * \brief Probability density function
-   * @param x query point
-   * @return probability
-   */
-  double pdf(double x) 
+  class StudentTDistribution: public ProbabilityDistribution
   {
-    x = (x - mean_) / std_;
-    return boost::math::pdf(d_,x); 
+  public:
+    StudentTDistribution(randEngine& eng);
+    virtual ~StudentTDistribution();
+
+    /** 
+     * \brief Sets the mean and std of the distribution
+     */
+    void setMeanAndStd(double mean, double std)
+    { mean_ = mean; std_ = std; };
+
+    /** 
+     * \brief Sets the degrees of freedom (dof) the distribution
+     */
+    void setDof(size_t dof)
+    { 
+      dof_ = dof; 
+      boost::math::students_t new_d(dof);
+      d_ = new_d;
+    };
+
+    /** 
+     * \brief Probability density function
+     * @param x query point
+     * @return probability
+     */
+    double pdf(double x) 
+    {
+      x = (x - mean_) / std_;
+      return boost::math::pdf(d_,x); 
+    };
+
+    /** 
+     * \brief Expected Improvement algorithm for minimization
+     * @param min  minimum value found
+     * @param g exponent (used for annealing)
+     *
+     * @return negative value of the expected improvement
+     */
+    double negativeExpectedImprovement(double min, size_t g);
+
+    /** 
+     * \brief Lower confindence bound. Can be seen as the inverse of the Upper 
+     * confidence bound
+     * @param beta std coefficient (used for annealing)
+     * @return value of the lower confidence bound
+     */
+    double lowerConfidenceBound(double beta);
+
+    /** 
+     * Probability of improvement algorithm for minimization
+     * @param min  minimum value found
+     * @param epsilon minimum improvement margin
+     * 
+     * @return negative value of the probability of improvement
+     */
+    double negativeProbabilityOfImprovement(double min,
+					    double epsilon);
+
+    /** 
+     * Sample outcome acording to the marginal distribution at the query point.
+     * @return outcome
+     */
+    double sample_query();
+
+    double getMean() { return mean_; };
+    double getStd()  { return std_; };
+
+  private:
+    boost::math::students_t d_;
+    double mean_;
+    double std_;
+    size_t dof_;
   };
 
-  /** 
-   * \brief Expected Improvement algorithm for minimization
-   * @param min  minimum value found
-   * @param g exponent (used for annealing)
-   *
-   * @return negative value of the expected improvement
-   */
-  double negativeExpectedImprovement(double min, size_t g);
-
-  /** 
-   * \brief Lower confindence bound. Can be seen as the inverse of the Upper 
-   * confidence bound
-   * @param beta std coefficient (used for annealing)
-   * @return value of the lower confidence bound
-   */
-  double lowerConfidenceBound(double beta);
-
-  /** 
-   * Probability of improvement algorithm for minimization
-   * @param min  minimum value found
-   * @param epsilon minimum improvement margin
-   * 
-   * @return negative value of the probability of improvement
-   */
-  double negativeProbabilityOfImprovement(double min,
-					  double epsilon);
-
-  /** 
-   * Sample outcome acording to the marginal distribution at the query point.
-   * @return outcome
-   */
-  double sample_query();
-
-  double getMean() { return mean_; };
-  double getStd()  { return std_; };
-
-private:
-  boost::math::students_t d_;
-  double mean_;
-  double std_;
-  size_t dof_;
-};
-
-
+} //namespace bayesopt
 
 #endif

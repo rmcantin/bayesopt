@@ -100,16 +100,15 @@ namespace bayesopt
     vectord yPoints(nSamples);
 
     sampleInitialPoints(xPoints,yPoints);
-
     mModel->setSamples(xPoints,yPoints);
-    
-    mModel->updateHyperParameters();
-    mModel->fitSurrogateModel();
-    
+ 
     if(mParameters.verbose_level > 0)
       {
 	mModel->plotDataset(logDEBUG);
       }
+    
+    mModel->updateHyperParameters();
+    mModel->fitSurrogateModel();
   }
 
 
@@ -166,6 +165,7 @@ namespace bayesopt
       }
     else  // Standard "Bayesian optimization"
       {
+	FILE_LOG(logDEBUG) << "------ Optimizing criteria ------";
 	findOptimal(Xnext);
       }
     return Xnext;

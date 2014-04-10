@@ -61,10 +61,20 @@ namespace bayesopt {
     /** Limits of the hypercube assuming that all dimensions have the same limits. */
     void setLimits(double down, double up);
 
-    /** Compute the inner optimization algorithm
+    /** Launch the inner optimization algorithm
+     *
      * @param Xnext input: initial guess, output: result
+     * @return minimum value
      */
-    void run(vectord &Xnext);
+    double run(vectord &Xnext);
+
+    /** 
+     * Try some local optimization around a point
+     * 
+     * @param Xnext input: initial guess, output: result
+     * @return minimum value
+     */
+    double localTrialAround(vectord& Xnext);
 
     /** 
      * Wrapper of inner optimization to be evaluated by NLOPT

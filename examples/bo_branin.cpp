@@ -74,25 +74,27 @@ public:
 int main(int nargs, char *args[])
 {
   bopt_params par = initialize_parameters_to_default();
-  par.n_iterations = 200;
+  par.n_iterations = 100;
   par.n_inner_iterations = 1000;
-  par.n_init_samples = 50;
-  par.n_iter_relearn = 5;
+  par.n_init_samples = 2;
+  par.n_iter_relearn = 1;
+  par.use_random_seed = 0;
   
   par.l_all = 0;
-  par.l_type = L_EMPIRICAL;
+  par.l_type = L_MCMC;
   par.sc_type = SC_MAP;
-  par.verbose_level = 2;
+  par.verbose_level = 1;
 
-  par.kernel.name = "kMaternARD3";
+  par.kernel.name = "kMaternARD5";
   par.kernel.hp_mean[0] = 1.0;
   par.kernel.hp_std[0] = 10.0;
   par.kernel.hp_mean[1] = 1.0;
   par.kernel.hp_std[1] = 10.0;
   par.kernel.n_hp = 2;
 
-  par.surr_name = "sGaussianProcess";
-  par.noise = 0.005;
+  par.surr_name = "sStudentTProcessNIG";
+  par.sigma_s = 10;
+  par.noise = 0.01;
 
   // par.mean.name = new char[128];
   // strcpy(par.mean.name,"mConst");
@@ -110,7 +112,8 @@ int main(int nargs, char *args[])
   vectord result(2);
 
   branin.optimize(result);
-  std::cout << "Result:" << result << std::endl;
+  std::cout << "Result: " << result << "->" 
+	    << branin.evaluateSample(result) << std::endl;
   branin.printOptimal();
 
   return 0;

@@ -40,7 +40,7 @@ extern "C" {
 
 
 /** 
- * @brief C functional wrapper for the Bayesian optimization algorithm. 
+ * @brief C procedural wrapper for the Bayesian optimization algorithm. 
  * This is an efficient, C/C++ implementation of the Bayesian optimization.
  * Basically, it uses the active learning strategy to optimize an "arbitrary" 
  * funtion using few iterations. This assumes continuous optimization.
@@ -63,7 +63,7 @@ extern "C" {
 
 
 /** 
- * @brief C functional wrapper for the Bayesian optimization algorithm. 
+ * @brief C procedural wrapper for the Bayesian optimization algorithm. 
  * This is an efficient, C/C++ implementation of the Bayesian optimization.
  * Basically, it uses the active learning strategy to optimize an "arbitrary" 
  * funtion using few iterations. This assumes the discrete optimization.

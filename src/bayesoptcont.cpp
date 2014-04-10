@@ -74,7 +74,34 @@ namespace bayesopt  {
   { return evaluateSample(mBB->unnormalizeVector(query));  };
 
   void ContinuousModel::findOptimal(vectord &xOpt)
-  { cOptimizer->run(xOpt); };
+  { 
+    double minf = cOptimizer->run(xOpt);
+
+    //Let's try some local exploration like spearmint
+    randNFloat drawSample(mEngine,normalDist(0,0.001));
+    for(size_t ii = 0;ii<5; ++ii)
+      {
+	vectord pert = getPointAtMinimum();
+	for(size_t j=0; j<xOpt.size(); ++j)
+	  {
+	    pert(j) += drawSample();
+	  }
+	try
+	  {
+	    double minf2 = cOptimizer->localTrialAround(pert);	    
+	    if (minf2<minf) 
+	      {
+		minf = minf2;
+		FILE_LOG(logINFO) << "Local beats Global";
+		xOpt = pert;
+	      }
+	  }
+	catch(std::invalid_argument& e)
+	  {
+	    //We ignore this one
+	  }
+      }
+  };
 
   vectord ContinuousModel::samplePoint()
   {	    

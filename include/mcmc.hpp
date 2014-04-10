@@ -122,8 +122,10 @@ namespace bayesopt {
   inline void MCMCSampler::printParticles()
   {
     for(size_t i=0; i<mParticles.size(); ++i)
-      std::cout << i << "->" << mParticles[i] 
-		<< " | Log-lik " << obj->evaluate(mParticles[i]) << std::endl;
+      { 
+	FILE_LOG(logDEBUG) << i << "->" << mParticles[i] 
+			   << " | Log-lik " << -obj->evaluate(mParticles[i]);
+      }
   }
 
 

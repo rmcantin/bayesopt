@@ -49,7 +49,8 @@ namespace bayesopt
 	kOptimizer->setAlgorithm(COMBINED);
       }
     // kOptimizer->setLimits(svectord(nhp,1e-10),svectord(nhp,100.));
-    kOptimizer->setLimits(svectord(nhp,-6),svectord(nhp,6));
+    //Limits in log space
+    kOptimizer->setLimits(svectord(nhp,-6.0),svectord(nhp,1.0));
   } // __init__
 
   EmpiricalBayes::~EmpiricalBayes()
@@ -58,12 +59,13 @@ namespace bayesopt
 
   void EmpiricalBayes::updateHyperParameters()
   {
+    FILE_LOG(logDEBUG) << "------ Optimizing hyperparameters ------";
     vectord optimalTheta = mGP->getHyperParameters();
 
-    FILE_LOG(logDEBUG) << "Initial kernel parameters: " << optimalTheta;
+    FILE_LOG(logDEBUG) << "Initial hyper parameters: " << optimalTheta;
     kOptimizer->run(optimalTheta);
     mGP->setHyperParameters(optimalTheta);
-    FILE_LOG(logDEBUG) << "Final kernel parameters: " << optimalTheta;	
+    FILE_LOG(logDEBUG) << "Final hyper parameters: " << optimalTheta;	
   };
 
 

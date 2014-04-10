@@ -164,6 +164,7 @@ bopt_params initialize_parameters_to_default(void)
   params.noise = DEFAULT_NOISE;
   params.alpha = PRIOR_ALPHA;
   params.beta = PRIOR_BETA;
+  params.l_all = 0;
   params.l_type = L_EMPIRICAL;
   params.sc_type = SC_MAP;
   params.epsilon = 0.0;

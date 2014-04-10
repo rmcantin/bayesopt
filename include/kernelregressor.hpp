@@ -51,12 +51,6 @@ namespace bayesopt
     virtual ~KernelRegressor();
 
     /** 
-     * \brief Updates the kernel parameters with a point estimate
-     * (empirical Bayes) or a full Bayesian distribution
-     */
-    virtual void updateKernelParameters() = 0;
-
-    /** 
      * \brief Computes the initial surrogate model and updates the
      * kernel parameters estimation. 
      *
@@ -110,6 +104,7 @@ namespace bayesopt
     matrixd mL;             ///< Cholesky decomposition of the Correlation matrix
     score_type mScoreType;
     learning_type mLearnType;
+    int mLearnAll;
     KernelModel mKernel;
 
   private:
@@ -125,19 +120,68 @@ namespace bayesopt
   //// Inline methods
   inline void KernelRegressor::fitSurrogateModel()
   {
-    //updateKernelParameters();
     computeCholeskyCorrelation();
     precomputePrediction(); 
   };
 
   inline size_t KernelRegressor::nHyperParameters()
-  { return mKernel.nHyperParameters(); }
+  { 
+    if (mLearnAll)
+      {
+	return mKernel.nHyperParameters()
+	+ mMean.nParameters() + 1;
+      }     
+    else
+      {
+	return mKernel.nHyperParameters(); 	
+      }
+  }
 
   inline vectord KernelRegressor::getHyperParameters()
-  { return mKernel.getHyperParameters(); }
+  { 
+    using boost::numeric::ublas::subrange;
+    if (mLearnAll)
+      {
+	vectord result(nHyperParameters());
+	size_t nk = mKernel.nHyperParameters();
+	size_t nm = mMean.nParameters();
+
+	subrange(result,0,nk) = mKernel.getHyperParameters();
+
+	vectord mean = mMean.getParameters();
+	std::transform(mean.begin(), mean.end(), result.begin()+nk, (double (*)(double)) log);
+
+	result(nk+nm) = std::log(mSigma);
+	return result;
+      }     
+    else
+      {
+	return mKernel.getHyperParameters(); 
+      }
+  };
 
   inline void KernelRegressor::setHyperParameters(const vectord &theta)
-  { mKernel.setHyperParameters(theta); };
+  { 
+    using boost::numeric::ublas::subrange;
+    if (mLearnAll)
+      {
+	size_t nk = mKernel.nHyperParameters();
+	size_t nm = mMean.nParameters();
+
+	mKernel.setHyperParameters(subrange(theta,0,nk));
+
+	vectord result(nm);
+	std::transform(theta.begin()+nk, theta.begin()+nk+nm, 
+		       result.begin(), (double (*)(double)) log);
+	mMean.setParameters(result);
+
+	mSigma = std::exp(theta(nk+nm));
+      }     
+    else
+      {
+	mKernel.setHyperParameters(theta); 
+      }
+  };
 
   // inline void KernelRegressor::setLearnType(learning_type l_type) 
   // { mLearnType = l_type; };

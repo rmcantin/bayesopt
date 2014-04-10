@@ -45,7 +45,7 @@ namespace bayesopt
     virtual int init(size_t input_dim, ParametricFunction* left, 
 		     ParametricFunction* right) {return 0;};
 
-    virtual int setParameters(const vectord& params) = 0;
+    virtual void setParameters(const vectord& params) = 0;
     virtual vectord getParameters() = 0;
     virtual size_t nParameters() = 0;
 
@@ -120,7 +120,7 @@ namespace bayesopt
 
     ParametricFunction* getMeanFunc();
    
-    int setParameters(const vectord &theta);
+    void setParameters(const vectord &theta);
     vectord getParameters();
     size_t nParameters();
 
@@ -143,11 +143,11 @@ namespace bayesopt
      * @param dim number of input dimensions
      * @return error_code
      */
-    int setMean (const vectord &muv, const vectord &smu, 
+    void setMean (const vectord &muv, const vectord &smu, 
 		 std::string m_name, size_t dim);
 
     /** Wrapper of setMean for the C structure */
-    int setMean (mean_parameters mean, size_t dim);
+    void setMean (mean_parameters mean, size_t dim);
 
     matrixd mFeatM;           ///< Value of the mean features at the input points
 
@@ -163,8 +163,8 @@ namespace bayesopt
   inline ParametricFunction* MeanModel::getMeanFunc()
   { return mMean.get(); }
 
-  inline int MeanModel::setParameters(const vectord &theta)
-  { return mMean->setParameters(theta); };
+  inline void MeanModel::setParameters(const vectord &theta)
+  { mMean->setParameters(theta); };
     
   inline vectord MeanModel::getParameters(){return mMean->getParameters();};
   inline size_t MeanModel::nParameters(){return mMean->nParameters();};

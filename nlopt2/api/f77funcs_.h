@@ -102,7 +102,7 @@ void F77_(nlo_add_inequality_mconstraint,NLO_ADD_INEQUALITY_MCONSTRAINT)(
      nlopt_f77_mfunc mfc, void *mfc_data, double *tol)
 {
      f77_func_data *d;
-     if (*m < 0) { *ret = (int) NLOPT_INVALID_ARGS; return; }
+     if (*m < 0) { printf("Who %d\n",*m); *ret = (int) NLOPT_INVALID_ARGS; return; }
      if (*m == 0) { *ret = (int) NLOPT_SUCCESS; return; }
      d = (f77_func_data*) malloc(sizeof(f77_func_data));
      if (!d) { *ret = (int) NLOPT_OUT_OF_MEMORY; return; }
@@ -132,7 +132,7 @@ void F77_(nlo_add_equality_mconstraint,NLO_ADD_EQUALITY_MCONSTRAINT)(
      nlopt_f77_mfunc mfc, void *mfc_data, double *tol)
 {
      f77_func_data *d;
-     if (*m < 0) { *ret = (int) NLOPT_INVALID_ARGS; return; }
+     if (*m < 0) { printf("Which %d\n",*m); *ret = (int) NLOPT_INVALID_ARGS; return; }
      if (*m == 0) { *ret = (int) NLOPT_SUCCESS; return; }
      d = (f77_func_data*) malloc(sizeof(f77_func_data));
      if (!d) { *ret = (int) NLOPT_OUT_OF_MEMORY; return; }

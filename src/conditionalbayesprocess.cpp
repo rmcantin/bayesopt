@@ -39,16 +39,6 @@ namespace bayesopt
   {}
 
 
-  void ConditionalBayesProcess::updateKernelParameters()
-  {
-    // vectord optimalTheta = mKernel.getHyperParameters();
-	
-  //   FILE_LOG(logDEBUG) << "Initial kernel parameters: " << optimalTheta;
-  //   kOptimizer->run(optimalTheta);
-  //   mKernel.setHyperParameters(optimalTheta);
-  //   FILE_LOG(logDEBUG) << "Final kernel parameters: " << optimalTheta;	
-  };
-
   double ConditionalBayesProcess::evaluateKernelParams()
   { 
     switch(mScoreType)

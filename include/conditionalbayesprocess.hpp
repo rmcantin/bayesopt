@@ -57,12 +57,6 @@ namespace bayesopt
     virtual ProbabilityDistribution* prediction(const vectord &query) = 0;
 		 		 
     /** 
-     * \brief Updates the kernel parameters acording with a point
-     * estimate (ML, MAP, etc.)
-     */
-    void updateKernelParameters();
-
-    /** 
      * \brief Computes the score (eg:likelihood) of the kernel
      * parameters.  
      * Warning: To evaluate the score, it is necessary to change the parameters
@@ -110,7 +104,7 @@ namespace bayesopt
   // log-score (likelihood, LOO, MAP, etc.). 
   inline double ConditionalBayesProcess::evaluate(const vectord& x)
   { 
-    mKernel.setHyperParameters(x);
+    setHyperParameters(x);
     return evaluateKernelParams();
   };
 

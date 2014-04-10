@@ -97,7 +97,8 @@ extern "C" {
     double beta;                 /**< Inverse Gamma prior for signal var*/
 
     score_type sc_type;          /**< Score type for kernel hyperparameters (ML,MAP,etc) */
-    learning_type l_type;        /**< Type of learning for the kernel params*/
+    learning_type l_type;        /**< Type of learning for the kernel params */
+    int l_all;                   /**< Learn all hyperparameters or only kernel */
 
     double epsilon;              /**< For epsilon-greedy exploration */
 

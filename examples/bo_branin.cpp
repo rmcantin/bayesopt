@@ -75,9 +75,12 @@ int main(int nargs, char *args[])
 {
   bopt_params par = initialize_parameters_to_default();
   par.n_iterations = 200;
+  par.n_inner_iterations = 1000;
   par.n_init_samples = 50;
+  par.n_iter_relearn = 5;
   
-  par.l_type = L_MCMC;
+  par.l_all = 0;
+  par.l_type = L_EMPIRICAL;
   par.sc_type = SC_MAP;
   par.verbose_level = 2;
 
@@ -88,16 +91,20 @@ int main(int nargs, char *args[])
   par.kernel.hp_std[1] = 10.0;
   par.kernel.n_hp = 2;
 
-  par.surr_name = "sGaussianProcessNormal";
+  par.surr_name = "sGaussianProcess";
   par.noise = 0.005;
+
+  // par.mean.name = new char[128];
+  // strcpy(par.mean.name,"mConst");
+  // par.mean.coef_mean[0] = 50;
+  // par.mean.coef_std[0] = 10;
+  // par.mean.n_coef = 1;
   
-  par.mean.coef_mean[0] = 50;
-  
-  par.crit_name = "cHedge(cLCB,cEI,cPOI)";
-  par.n_iter_relearn = 20;
-  double cParams[] = {5.0, 1.0, 0.01};
-  std::copy(cParams, cParams+3, par.crit_params);
-  par.n_crit_params = 3;
+  // par.crit_name = "cHedge(cLCB,cEI,cPOI)";
+  // par.n_iter_relearn = 20;
+  // double cParams[] = {5.0, 1.0, 0.01};
+  // std::copy(cParams, cParams+3, par.crit_params);
+  // par.n_crit_params = 3;
   
   ExampleBranin branin(2,par);
   vectord result(2);

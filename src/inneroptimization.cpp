@@ -161,31 +161,6 @@ namespace bayesopt
 	  }
 	std::copy(xstd.begin(),xstd.end(),Xnext.begin());
       }
-    // nlopt_set_lower_bounds(opt, &mDown(0));
-    // nlopt_set_upper_bounds(opt, &mUp(0));
-    // nlopt_set_min_objective(opt, fpointer, objPointer);
-    // nlopt_set_maxeval(opt, maxf1) ;
-
-    // nlopt_result errortype = nlopt_optimize(opt, &Xnext(0), &fmin);
-    // checkNLOPTerror(errortype);
-
-    // if (maxf2)
-    //   {
-    // 	nlopt_destroy(opt);  // Destroy previous one
-    // 	opt = nlopt_create(NLOPT_LN_BOBYQA, n); /* algorithm and dims */
-    // 	nlopt_set_lower_bounds(opt, &mDown(0));
-    // 	nlopt_set_upper_bounds(opt, &mUp(0));
-    // 	nlopt_set_min_objective(opt, fpointer, objPointer);
-    // 	nlopt_set_maxeval(opt, maxf2) ;
-	
-    // 	errortype = nlopt_optimize(opt, &Xnext(0), &fmin);
-    // 	checkNLOPTerror(errortype);
-    //   }
-      
-    // nlopt_destroy(opt);  // Destroy opt
-
-    // ierror = static_cast<int>(errortype);
-    // return ierror;
   } // innerOptimize (uBlas)
 
   double NLOPT_Optimization::evaluate_nlopt (unsigned int n, const double *x,

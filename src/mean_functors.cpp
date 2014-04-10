@@ -59,15 +59,10 @@ namespace bayesopt
 
   MeanModel::MeanModel(size_t dim, bopt_params parameters)
   {
-    int error = setMean(parameters.mean,dim);
-    if (error)
-      {
-	FILE_LOG(logERROR) << "Error initializing nonparametric process.";
-	exit(EXIT_FAILURE);
-      }
+    setMean(parameters.mean,dim);
   }
 
-  int MeanModel::setMean (const vectord &muv,
+  void MeanModel::setMean (const vectord &muv,
 				     const vectord &smu,
 				     std::string m_name,
 				     size_t dim)
@@ -91,17 +86,15 @@ namespace bayesopt
 	mMu = muv; mS_Mu = smu;
       }
 
-    if (mMean == NULL) 	return -1; 
-
-    return mMean->setParameters(mMu);
+    mMean->setParameters(mMu);
   }
 
-  int MeanModel::setMean (mean_parameters mean, size_t dim)
+  void MeanModel::setMean (mean_parameters mean, size_t dim)
   {
     size_t n_mu = mean.n_coef;
     vectord vmu = utils::array2vector(mean.coef_mean,n_mu);
     vectord smu = utils::array2vector(mean.coef_std,n_mu);
-    return setMean(vmu, smu, mean.name, dim);
+    setMean(vmu, smu, mean.name, dim);
   };
 
 }//namespace bayesopt

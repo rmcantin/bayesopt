@@ -41,7 +41,8 @@ namespace bayesopt
     mRegularizer(parameters.noise),
     mKernel(dim, parameters),
     mScoreType(parameters.sc_type),
-    mLearnType(parameters.l_type)
+    mLearnType(parameters.l_type),
+    mLearnAll(parameters.l_all)
   { }
 
   KernelRegressor::~KernelRegressor(){}

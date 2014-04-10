@@ -26,10 +26,8 @@
 namespace bayesopt
 {
   MCMCSampler::MCMCSampler(RBOptimizable* rbo, size_t dim, randEngine& eng):
-    mtRandom(eng)
+    mtRandom(eng), obj(new RBOptimizableWrapper(rbo))
   {
-    obj = new RBOptimizableWrapper(rbo);
-
     mAlg = SLICE_MCMC;
     mDims = dim;
     nBurnOut = 500;
@@ -39,9 +37,7 @@ namespace bayesopt
   };
 
   MCMCSampler::~MCMCSampler()
-  {
-    if (obj != NULL) delete obj;
-  };
+  {};
 
   void MCMCSampler::randomJump(vectord &x)
   {
@@ -89,6 +85,8 @@ namespace bayesopt
 	const double y_max = obj->evaluate(x);
 	const double y = y_max-std::log(sample());  
 	//y = y_max * sample(), but we are in negative log space
+
+	std::cout << y_max << "|||" << y << std::endl;
 
 	if (y == 0.0) 
 	  {
@@ -151,8 +149,8 @@ namespace bayesopt
 	    randomJump(Xnext);
 	  }
 	mParticles.push_back(Xnext);
-
       }
+    printParticles();
   }
 
   //////////////////////////////////////////////////////////////////////

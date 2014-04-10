@@ -90,7 +90,7 @@ namespace bayesopt {
     void burnOut(vectord &x);
     void sliceSample(vectord &x);
 
-    RBOptimizableWrapper* obj;
+    boost::scoped_ptr<RBOptimizableWrapper> obj;
 
     McmcAlgorithms mAlg;
     size_t mDims;
@@ -122,7 +122,8 @@ namespace bayesopt {
   inline void MCMCSampler::printParticles()
   {
     for(size_t i=0; i<mParticles.size(); ++i)
-      std::cout << i << "->" << mParticles[i] << std::endl;
+      std::cout << i << "->" << mParticles[i] 
+		<< " | Log-lik " << obj->evaluate(mParticles[i]) << std::endl;
   }
 
 

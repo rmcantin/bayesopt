@@ -39,7 +39,7 @@ namespace bayesopt
 	RUN, STEP, STOP, NOT_READY
       };
 
-    class DisplayProblem :public MatPlot
+    class DisplayProblem1D :public MatPlot
     { 
     private:
       RunningStatus status;
@@ -48,7 +48,7 @@ namespace bayesopt
       std::vector<double> lx,ly;
 
     public:
-      DisplayProblem(): MatPlot()
+      DisplayProblem1D(): MatPlot()
       {
 	status = NOT_READY;
       }
@@ -149,6 +149,105 @@ namespace bayesopt
 	  }
       };
     };
+
+    class DisplayProblem2D :public MatPlot
+    { 
+    private:
+      RunningStatus status;
+      size_t state_ii;
+      BayesOptBase* bopt_model;
+      std::vector<double> lx,ly;
+      std::vector<double> solx, soly;
+
+    public:
+      DisplayProblem2D(): MatPlot()
+      {
+	status = NOT_READY;
+      }
+
+      void setSolution(vectord sol)
+      {
+	solx.push_back(sol(0));
+	soly.push_back(sol(1));
+      }
+
+      void init(BayesOptBase* bopt, size_t dim)
+      {
+	if (dim != 2) 
+	  { 
+	    throw std::invalid_argument("This display only works for 2D problems"); 
+	  }
+
+	bopt_model = bopt;
+	bopt->initializeOptimization();
+	size_t n_points = bopt->getSurrogateModel()->getData()->getNSamples();
+	for (size_t i = 0; i<n_points;++i)
+	  {
+	    const vectord last = bopt->getSurrogateModel()->getData()->getSampleX(i);
+	    lx.push_back(last(0));
+	    ly.push_back(last(1));
+	  }
+	state_ii = 0;    
+	status = STOP;
+      };
+
+      void setSTEP()
+      {
+	if (status != NOT_READY)
+	  {
+	    status = STEP;
+	  }
+      };
+
+      void toogleRUN()
+      {
+	if (status != NOT_READY)
+	  {
+	    if(status != RUN)
+	      {
+		status = RUN;
+	      }
+	    else
+	      {
+		status = STOP;
+	      }
+	  }
+      }
+
+      void DISPLAY()
+      {
+	if (status != NOT_READY)
+	  {
+	    size_t nruns = bopt_model->getParameters()->n_iterations;
+	    std::vector<double> cx(1), cy(1);
+	    if ((status != STOP) && (state_ii < nruns))
+	      {
+		// We are moving. Next iteration
+		++state_ii;
+		bopt_model->stepOptimization(state_ii); 
+		const vectord last = bopt_model->getSurrogateModel()->getData()->getLastSampleX();
+		//GP subplot
+		cx[0] = last(0);
+		cy[0] = last(1);
+
+		if (!lx.empty())
+		  {
+		    plot(lx,ly);set("k");set("o");set(4);         // Data points as black star
+		  }
+
+		lx.push_back(last(0));
+		ly.push_back(last(1));
+
+		if (status == STEP) { status = STOP; }
+	      }	    
+	    title("Press r to run and stop, s to run a step and q to quit.");
+	    plot(cx,cy);set("g");set("o");set(4);         // Data points as black star
+	    plot(solx,soly);set("r"); set("o");set(4);    // Solutions as red points
+
+	  }
+      };
+    };
+
 
   } //namespace utils
 

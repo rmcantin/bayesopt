@@ -136,7 +136,7 @@ namespace bayesopt
     mVf = mData.mY - prod(trans(mMean.mFeatM),mWMap);
     inplace_solve(mL,mVf,ublas::lower_tag());
 
-    if ((boost::math::isnan(mWMap(0))) || (boost::math::isnan(mSigma)))
+    if (boost::math::isnan(mWMap(0)))
       {
 	throw std::runtime_error("Error in precomputed prediction. NaN found.");
       }

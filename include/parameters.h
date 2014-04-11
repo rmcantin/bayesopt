@@ -91,10 +91,10 @@ extern "C" {
     char* save_filename;          /**< Sava data file path (if applicable) */
 
     char* surr_name;             /**< Name of the surrogate function */
-    double sigma_s;              /**< Signal variance (if known) */
+    double sigma_s;              /**< Signal variance (if known). Used in GaussianProcess and GaussianProcessNormal */
     double noise;                /**< Observation noise (and nugget) */
-    double alpha;                /**< Inverse Gamma prior for signal var */
-    double beta;                 /**< Inverse Gamma prior for signal var*/
+    double alpha;                /**< Inverse Gamma prior for signal var. Used in StudentTProcessNIG */
+    double beta;                 /**< Inverse Gamma prior for signal var. Used in StudentTProcessNIG */
 
     score_type sc_type;          /**< Score type for kernel hyperparameters (ML,MAP,etc) */
     learning_type l_type;        /**< Type of learning for the kernel params */

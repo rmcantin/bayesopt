@@ -50,7 +50,7 @@ public:
 };
 
 // Unfortunately OpenGL functions require no parameters, so the object has to be global.
-bayesopt::utils::DisplayProblem GLOBAL_MATPLOT;
+bayesopt::utils::DisplayProblem1D GLOBAL_MATPLOT;
 
 void display( void ){ GLOBAL_MATPLOT.display(); }
 void reshape( int w,int h ){ GLOBAL_MATPLOT.reshape(w,h); }

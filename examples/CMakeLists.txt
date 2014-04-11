@@ -57,4 +57,12 @@ if(OPENGL_FOUND AND GLUT_FOUND)
   add_dependencies(bo_display3 bayesopt)
   TARGET_LINK_LIBRARIES(bo_display3 bayesopt ${GLUT_LIBRARY} ${OPENGL_LIBRARY})
 
+  ADD_EXECUTABLE(bo_branin_display
+    ./bo_branin_display.cpp 
+    ../matplotpp/matplotpp.cc 
+    ../matplotpp/gl2ps.c)
+  add_dependencies(bo_branin_display bayesopt)
+  TARGET_LINK_LIBRARIES(bo_branin_display bayesopt ${GLUT_LIBRARY} ${OPENGL_LIBRARY})
+
+
 endif()

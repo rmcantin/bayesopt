@@ -106,28 +106,15 @@ int main(int nargs, char *args[])
   par.sc_type = SC_MAP;
   par.verbose_level = 1;
 
-  par.kernel.name = "kMaternARD5";
+  set_kernel(&par,"kMaternARD5");
   par.kernel.hp_mean[0] = 1.0;
   par.kernel.hp_std[0] = 10.0;
   par.kernel.hp_mean[1] = 1.0;
   par.kernel.hp_std[1] = 10.0;
   par.kernel.n_hp = 2;
 
-  par.surr_name = "sStudentTProcessNIG";
-  par.sigma_s = 10;
-  par.noise = 0.01;
-
-  // par.mean.name = new char[128];
-  // strcpy(par.mean.name,"mConst");
-  // par.mean.coef_mean[0] = 50;
-  // par.mean.coef_std[0] = 10;
-  // par.mean.n_coef = 1;
-  
-  // par.crit_name = "cHedge(cLCB,cEI,cPOI)";
-  // par.n_iter_relearn = 20;
-  // double cParams[] = {5.0, 1.0, 0.01};
-  // std::copy(cParams, cParams+3, par.crit_params);
-  // par.n_crit_params = 3;
+  set_surrogate(&par,"sStudentTProcessNIG");
+  par.noise = 1e-6;
   
   boost::scoped_ptr<ExampleBranin> branin(new ExampleBranin(2,par));
   GLOBAL_MATPLOT.init(branin.get(),2);
@@ -152,14 +139,6 @@ int main(int nargs, char *args[])
   glutPassiveMotionFunc(passive);    
   glutKeyboardFunc( keyboard );        
   glutMainLoop();    
-
-
-  // vectord result(2);
-
-  // branin.optimize(result);
-  // std::cout << "Result: " << result << "->" 
-  // 	    << branin.evaluateSample(result) << std::endl;
-  // branin.printOptimal();
 
   return 0;
 }

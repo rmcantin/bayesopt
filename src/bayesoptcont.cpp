@@ -92,7 +92,7 @@ namespace bayesopt  {
 	    if (minf2<minf) 
 	      {
 		minf = minf2;
-		FILE_LOG(logINFO) << "Local beats Global";
+		FILE_LOG(logDEBUG) << "Local beats Global";
 		xOpt = pert;
 	      }
 	  }

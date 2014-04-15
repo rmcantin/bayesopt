@@ -157,10 +157,12 @@ namespace bayesopt
       size_t state_ii;
       BayesOptBase* bopt_model;
       std::vector<double> lx,ly;
+      std::vector<double> cx, cy;
       std::vector<double> solx, soly;
 
     public:
-      DisplayProblem2D(): MatPlot()
+      DisplayProblem2D(): 
+	MatPlot(), cx(1), cy(1)
       {
 	status = NOT_READY;
       }
@@ -219,7 +221,10 @@ namespace bayesopt
 	if (status != NOT_READY)
 	  {
 	    size_t nruns = bopt_model->getParameters()->n_iterations;
-	    std::vector<double> cx(1), cy(1);
+	    title("Press r to run and stop, s to run a step and q to quit.");
+	    plot(cx,cy);set("g");set("o");set(4);         // Data points as black star
+	    plot(solx,soly);set("r"); set("o");set(4);    // Solutions as red points
+
 	    if ((status != STOP) && (state_ii < nruns))
 	      {
 		// We are moving. Next iteration
@@ -231,7 +236,7 @@ namespace bayesopt
 		cy[0] = last(1);
 
 		if (!lx.empty())
-		  {
+		  {	
 		    plot(lx,ly);set("k");set("o");set(4);         // Data points as black star
 		  }
 
@@ -240,9 +245,10 @@ namespace bayesopt
 
 		if (status == STEP) { status = STOP; }
 	      }	    
-	    title("Press r to run and stop, s to run a step and q to quit.");
-	    plot(cx,cy);set("g");set("o");set(4);         // Data points as black star
-	    plot(solx,soly);set("r"); set("o");set(4);    // Solutions as red points
+	    else
+	      {
+		plot(lx,ly);set("k");set("o");set(4);         // Data points as black star
+	      }
 
 	  }
       };

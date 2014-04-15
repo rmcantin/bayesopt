@@ -82,16 +82,16 @@ int main(int nargs, char *args[])
   par.alpha = PRIOR_ALPHA;
   par.beta = PRIOR_BETA;
   par.noise = DEFAULT_NOISE;
-  par.surr_name = "sStudentTProcessJef";
-  par.kernel.name = "kSum(kSEISO,kConst)";
-  par.mean.name = "mConst";
+  set_surrogate(&par,"sStudentTProcessJef");
+  set_kernel(&par,"kSum(kSEISO,kConst)");
+  set_mean(&par,"mConst");
   par.sc_type = SC_MAP;
   par.l_type = L_MCMC;
   par.n_iterations = 200;    // Number of iterations
   par.init_method = 1;
   par.n_init_samples = 50;
   par.n_iter_relearn = 20;
-  par.verbose_level = 2;
+  par.verbose_level = 1;
   /*******************************************/
 
   clock_t start, end;

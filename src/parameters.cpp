@@ -76,48 +76,36 @@ const char* score2str(score_type name)
 }
 
 
-/*
-char DEF_LOG_FILE[128] = "bayesopt.log";
-char DEF_SUR_NAME[128] = "sGaussianProcess";
-char DEF_KERNEL_NAME[128] = "kMaternISO3";
-char DEF_MEAN_NAME[128] = "mOne";
-char DEF_CRITERIA_NAME[128] = "cEI";
-
-static const kernel_parameters DEFAULT_KERNEL = {
-  DEF_KERNEL_NAME, {KERNEL_THETA}, {KERNEL_SIGMA}, 1 
+void set_kernel(bopt_params* params, const char* name)
+{
+  strcpy(params->kernel.name, name);
 };
 
-static const mean_parameters DEFAULT_MEAN = {
-  DEF_MEAN_NAME, {MEAN_MU}, {MEAN_SIGMA}, 1
+void set_mean(bopt_params* params, const char* name)
+{
+  strcpy(params->mean.name, name);
 };
 
-
-static const bopt_params DEFAULT_PARAMS = {
-  DEFAULT_ITERATIONS, 
-  MAX_INNER_EVALUATIONS, 
-  DEFAULT_SAMPLES, 
-  0, 
-  1,
-
-  DEFAULT_VERBOSE, 
-  &DEF_LOG_FILE[0],
-  
-  &DEF_SUR_NAME[0],
-  DEFAULT_SIGMA, 
-  DEFAULT_NOISE,
-  PRIOR_ALPHA, 
-  PRIOR_BETA, 
-  L_MAP, 
-  0.0,
-  
-  DEFAULT_KERNEL, 
-  DEFAULT_MEAN,
-  
-  DEF_CRITERIA_NAME, 
-  {1.0}, 
-  1
+void set_criteria(bopt_params* params, const char* name)
+{
+  strcpy(params->crit_name, name);
 };
-*/
+
+void set_surrogate(bopt_params* params, const char* name)
+{
+  strcpy(params->surr_name, name);
+};
+
+void set_load_file(bopt_params* params, const char* name)
+{
+  strcpy(params->load_filename, name);
+};
+
+void set_save_file(bopt_params* params, const char* name)
+{
+  strcpy(params->save_filename, name);
+};
+
 
 bopt_params initialize_parameters_to_default(void)
 {

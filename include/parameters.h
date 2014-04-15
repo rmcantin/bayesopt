@@ -132,31 +132,25 @@ extern "C" {
 
   /* Algorithm limits */
   const size_t MAX_ITERATIONS  = 1000;        /**< Used if n_iterations <0 */
-  /*  const size_t MAX_DIM         = 40;         Not used */
 
   /* INNER Optimizer default values */
   const size_t MAX_INNER_EVALUATIONS = 500;   /**< Used per dimmension */
-  /*  const size_t MAX_INNER_ITERATIONS  = 3000;  Not used */
-
-  /* Latin Hypercube Sampling (LHS) default values */
-  /*  const size_t N_LHS_EVALS_PER_DIM = 30;      Not used */
-  /*  const size_t MAX_LHS_EVALUATIONS = 100;     Not used */
 						    
-  /*************************************************************/
+  /*-----------------------------------------------------------*/
   /* These functions are added to simplify wrapping code       */
-  /*************************************************************/
-  /* surrogate_name str2surrogate (const char* name); */
+  /*-----------------------------------------------------------*/
   BAYESOPT_API learning_type str2learn(const char* name);
-
-  /* BAYESOPT_API const char* surrogate2str(surrogate_name name); */
   BAYESOPT_API const char* learn2str(learning_type name);
 
-  /* surrogate_name str2surrogate (const char* name); */
   BAYESOPT_API score_type str2score(const char* name);
-
-  /* BAYESOPT_API const char* surrogate2str(surrogate_name name); */
   BAYESOPT_API const char* score2str(score_type name);
 
+  BAYESOPT_API void set_kernel(bopt_params* params, const char* name);
+  BAYESOPT_API void set_mean(bopt_params* params, const char* name);
+  BAYESOPT_API void set_criteria(bopt_params* params, const char* name);
+  BAYESOPT_API void set_surrogate(bopt_params* params, const char* name);
+  BAYESOPT_API void set_load_file(bopt_params* params, const char* name);
+  BAYESOPT_API void set_save_file(bopt_params* params, const char* name);
 
   BAYESOPT_API bopt_params initialize_parameters_to_default(void);
 

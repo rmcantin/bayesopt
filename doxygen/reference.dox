@@ -5,11 +5,15 @@ The library is intended to be both fast and clear for development and
 research. At the same time, it does everything the "right way". For
 example:
 
-- latin hypercube sampling is used for the preliminary design step,
+- latin hypercube sampling or Sobol sequences are used for the
+  preliminary design step,
 - extensive use of Cholesky decomposition and related tecniques to 
   improve numeral stability and reduce computational cost,
-- kernels, criteria and parametric functions can be combined to 
-  produce more advanced functions,
+- many of the implemented algorithms have been subtly modified to
+  avoid over- or underflow,
+- all building blocks of the model, such as: kernels, criteria and
+  parametric functions can be combined to produce more advanced
+  functions,
 - etc.
 
 
@@ -32,7 +36,7 @@ default. This is specially critical when building shared libraries
 sure that the folder with the libraries is included in all the
 necessary paths.
 
-After that, there are 3 steps that should be follow:
+After that, there are 3 steps that should be followed:
 \li Define the function to optimize.
 \li Set or modify the parameters of the optimization process. The set of
 parameters and the default set can be found in parameters.h.  

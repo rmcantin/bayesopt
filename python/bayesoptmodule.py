@@ -44,7 +44,7 @@ class BayesOptContinuous:
     # to a default value.
     def __init__(self):
         ## Library parameters 
-        self.params = bo.initialize_params()
+        self.params = {} #bo.initialize_params()
         ## n dimensions
         self.n_dim = 5
         ## Lower bounds
@@ -82,7 +82,7 @@ class BayesOptDiscrete:
     # to a default value.
     def __init__(self):
         ## Library parameters 
-        self.params = bo.initialize_params()
+        self.params = {} #bo.initialize_params()
         n_dim = 5    ## n dimensions
         n_sam = 100  ## n samples
         ## Set of discrete points

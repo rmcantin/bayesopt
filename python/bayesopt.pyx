@@ -58,12 +58,15 @@ cdef extern from "parameters.h":
         unsigned int use_random_seed
         unsigned int verbose_level
         char* log_filename
+        unsigned int load_save_flag
+        char* load_filename
+        char* save_filename
         char* surr_name
         double sigma_s
         double noise
         double alpha, beta
-        learning_type l_type
         score_type sc_type
+        learning_type l_type
         double epsilon
         kernel_parameters kernel
         mean_parameters mean
@@ -71,13 +74,22 @@ cdef extern from "parameters.h":
         double* crit_params
         unsigned int n_crit_params
 
-
     learning_type str2learn(char* name)
     char* learn2str(learning_type name)
 
     score_type str2score(char* name)
     char* score2str(score_type name)
 
+    void set_kernel(bopt_params* params, char* name)
+    void set_mean(bopt_params* params, char* name)
+    void set_criteria(bopt_params* params, char* name)
+    void set_surrogate(bopt_params* params, char* name)
+    void set_log_file(bopt_params* params, char* name)
+    void set_load_file(bopt_params* params, char* name)
+    void set_save_file(bopt_params* params, char* name)
+    void set_learning(bopt_params* params, const char* name)
+    void set_score(bopt_params* params, const char* name)
+    
     bopt_params initialize_parameters_to_default()
 
 ###########################################################################
@@ -110,11 +122,12 @@ cdef bopt_params dict2structparams(dict dparams):
     params.use_random_seed = dparams.get('use_random_seed',params.use_random_seed)
 
     params.verbose_level = dparams.get('verbose_level',params.verbose_level)
-    logname = dparams.get('log_filename',params.log_filename)
-    params.log_filename = logname
+    name = dparams.get('log_filename',params.log_filename)
+    set_log_file(&params,name)
 
-    sname = dparams.get('surr_name',params.surr_name)
-    params.surr_name = sname;
+    name = dparams.get('surr_name',params.surr_name)
+    set_surrogate(&params,name)
+
     params.sigma_s = dparams.get('sigma_s',params.sigma_s)
     params.noise = dparams.get('noise',params.noise)
     params.alpha = dparams.get('alpha',params.alpha)
@@ -122,17 +135,16 @@ cdef bopt_params dict2structparams(dict dparams):
 
     learning = dparams.get('l_type', None)
     if learning is not None:
-        params.l_type = str2learn(learning)
+        set_learning(&params,learning)
 
     score = dparams.get('sc_type', None)
     if score is not None:
-        params.sc_type = str2score(score)
-
-        
+        set_score(&params,score)
+    
     params.epsilon = dparams.get('epsilon',params.epsilon)
 
-    kname = dparams.get('kernel_name',params.kernel.name)
-    params.kernel.name = kname;
+    name = dparams.get('kernel_name',params.kernel.name)
+    set_kernel(&params,name)
 
     theta = dparams.get('kernel_hp_mean',None)
     stheta = dparams.get('kernel_hp_std',None)
@@ -142,9 +154,9 @@ cdef bopt_params dict2structparams(dict dparams):
             params.kernel.hp_mean[i] = theta[i]
             params.kernel.hp_std[i] = stheta[i]
 
-    mname = dparams.get('mean_name',params.mean.name)
-    params.mean.name = mname
-
+    name = dparams.get('mean_name',params.mean.name)
+    set_mean(&params,name)
+    
     mu = dparams.get('mean_coef_mean',None)
     smu = dparams.get('mean_coef_std',None)
     if mu is not None and smu is not None:
@@ -153,8 +165,8 @@ cdef bopt_params dict2structparams(dict dparams):
             params.mean.coef_mean[i] = mu[i]
             params.mean.coef_std[i] = smu[i]
 
-    cname = dparams.get('crit_name',params.crit_name)
-    params.crit_name = cname
+    name = dparams.get('crit_name',params.crit_name)
+    set_criteria(&params,name)
 
     cp = dparams.get('crit_params',None)
     if cp is not None:
@@ -172,41 +184,40 @@ cdef double callback(unsigned int n, const_double_ptr x,
     result = (<object>func_data)(x_np)
     return result
 
-
-def initialize_params():
-    params = {
-        "n_iterations"   : 300,
-        "n_inner_iterations" : 500,
-        "n_init_samples" : 30,
-        "n_iter_relearn" : 0,
-        "init_method" : 1,
-        "use_random_seed" : 1,
-        "verbose_level"  : 1,
-        "log_filename"   : "bayesopt.log" ,
-        "surr_name" : "sGaussianProcess" ,
-        "sigma_s"  : 1.0,
-        "noise"  : 0.001,
-        "alpha"  : 1.0,
-        "beta"   : 1.0,
-        "sc_type" : "SC_MAP",
-        "l_type" : "L_EMPIRICAL",
-        "epsilon" : 0.0,
-        "kernel_name" : "kMaternISO3",
-        "kernel_hp_mean"  : [1.0],
-        "kernel_hp_std": [100.0],
-        "mean_name" : "mConst",
-        "mean_coef_mean"     : [1.0],
-        "mean_coef_std"   : [1000.0],
-        "crit_name" : "cEI",
-        "crit_params" : [1.0],
-        }
-    return params
+# def initialize_params():
+#     params = {
+#         "n_iterations"   : 300,
+#         "n_inner_iterations" : 500,
+#         "n_init_samples" : 30,
+#         "n_iter_relearn" : 0,
+#         "init_method" : 1,
+#         "use_random_seed" : 1,
+#         "verbose_level"  : 1,
+#         "log_filename"   : "bayesopt.log" ,
+#         "surr_name" : "sGaussianProcess" ,
+#         "sigma_s"  : 1.0,
+#         "noise"  : 0.001,
+#         "alpha"  : 1.0,
+#         "beta"   : 1.0,
+#         "sc_type" : "SC_MAP",
+#         "l_type" : "L_EMPIRICAL",
+#         "epsilon" : 0.0,
+#         "kernel_name" : "kMaternISO3",
+#         "kernel_hp_mean"  : [1.0],
+#         "kernel_hp_std": [100.0],
+#         "mean_name" : "mConst",
+#         "mean_coef_mean"     : [1.0],
+#         "mean_coef_std"   : [1000.0],
+#         "crit_name" : "cEI",
+#         "crit_params" : [1.0],
+#         }
+#     return params
 
 def optimize(f, int nDim, np.ndarray[np.double_t] np_lb,
              np.ndarray[np.double_t] np_ub, dict dparams):
 
     cdef bopt_params params = dict2structparams(dparams)
-    cdef double minf[1000]
+    cdef double minf[1]
     cdef np.ndarray np_x = np.zeros([nDim], dtype=np.double)
 
     cdef np.ndarray[np.double_t, ndim=1, mode="c"] lb
@@ -222,6 +233,7 @@ def optimize(f, int nDim, np.ndarray[np.double_t] np_lb,
     error_code = bayes_optimization(nDim, callback, <void *> f,
                                     &lb[0], &ub[0], &x[0], minf, params)
 
+    
     Py_DECREF(f)
     min_value = minf[0]
     return min_value,np_x,error_code
@@ -230,10 +242,11 @@ def optimize(f, int nDim, np.ndarray[np.double_t] np_lb,
 def optimize_discrete(f, np.ndarray[np.double_t,ndim=2] np_valid_x,
                       dict dparams):
 
+    cdef bopt_params params = dict2structparams(dparams)
+    
     nDim = np_valid_x.shape[1]
 
-    cdef bopt_params params = dict2structparams(dparams)
-    cdef double minf[1000]
+    cdef double minf[1]
     cdef np.ndarray np_x = np.zeros([nDim], dtype=np.double)
 
     cdef np.ndarray[np.double_t, ndim=1, mode="c"] x

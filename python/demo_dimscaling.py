@@ -42,7 +42,7 @@ def func(x):
     return e
 
 # Initialize the parameters by default
-params = bayesopt.initialize_params()
+params = {} #bayesopt.initialize_params()
 
 # We decided to change some of them
 params['n_init_samples'] = 150

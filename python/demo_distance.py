@@ -43,10 +43,9 @@ class BayesOptTest(bayesoptmodule.BayesOptContinuous):
 # For different options: see parameters.h and cpp
 # If a parameter is not define, it will be automatically set
 # to a default value.
-params = bayesopt.initialize_params()
+params = {} #bayesopt.initialize_params()
 params['n_iterations'] = 50
 params['n_init_samples'] = 20
-#params['surr_name'] = "GAUSSIAN_PROCESS_INV_GAMMA_NORMAL"
 params['crit_name'] = "cSum(cEI,cDistance)"
 params['crit_params'] = [1, 0.5]
 params['kernel_name'] = "kMaternISO3"

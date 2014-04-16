@@ -32,10 +32,9 @@
 extern "C" {
 #endif 
 
-  /*************************************************************/
-  /*** Type definitions                                       **/
-  /*************************************************************/
-  
+  /*-----------------------------------------------------------*/
+  /* Configuration parameters                                  */
+  /*-----------------------------------------------------------*/
   typedef enum {
     L_FIXED,
     L_EMPIRICAL,
@@ -111,10 +110,9 @@ extern "C" {
   } bopt_params;
 
 
-  /*************************************************************/
-  /*** Default values                                        ***/
-  /*************************************************************/
-
+  /*-----------------------------------------------------------*/
+  /* Default parameters                                        */
+  /*-----------------------------------------------------------*/
   /* Nonparametric process "parameters" */
   const double KERNEL_THETA    = 1.0;
   const double KERNEL_SIGMA    = 10.0;
@@ -149,8 +147,11 @@ extern "C" {
   BAYESOPT_API void set_mean(bopt_params* params, const char* name);
   BAYESOPT_API void set_criteria(bopt_params* params, const char* name);
   BAYESOPT_API void set_surrogate(bopt_params* params, const char* name);
+  BAYESOPT_API void set_log_file(bopt_params* params, const char* name);
   BAYESOPT_API void set_load_file(bopt_params* params, const char* name);
   BAYESOPT_API void set_save_file(bopt_params* params, const char* name);
+  BAYESOPT_API void set_learning(bopt_params* params, const char* name);
+  BAYESOPT_API void set_score(bopt_params* params, const char* name);
 
   BAYESOPT_API bopt_params initialize_parameters_to_default(void);
 

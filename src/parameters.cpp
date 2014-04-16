@@ -26,10 +26,10 @@
 
 learning_type str2learn(const char* name)
 {
-  if      (!strcmp(name,"L_FIXED"))     return L_FIXED;
-  else if (!strcmp(name,"L_EMPIRICAL")) return L_EMPIRICAL;
-  else if (!strcmp(name,"L_DISCRETE"))  return L_DISCRETE;
-  else if (!strcmp(name,"L_MCMC"))      return L_MCMC;
+  if      (!strcmp(name,"L_FIXED")     || !strcmp(name,"fixed"))     return L_FIXED;
+  else if (!strcmp(name,"L_EMPIRICAL") || !strcmp(name,"empirical")) return L_EMPIRICAL;
+  else if (!strcmp(name,"L_DISCRETE")  || !strcmp(name,"discrete"))  return L_DISCRETE;
+  else if (!strcmp(name,"L_MCMC")      || !strcmp(name,"mcmc"))      return L_MCMC;
   else return L_ERROR;
 }
 
@@ -52,10 +52,10 @@ const char* learn2str(learning_type name)
 
 score_type str2score(const char* name)
 {
-  if      (!strcmp(name,  "SC_MTL"))   return SC_MTL;
-  else if (!strcmp(name,  "SC_ML"))    return SC_ML;
-  else if (!strcmp(name,  "SC_MAP"))   return SC_MAP;
-  else if (!strcmp(name,  "SC_LOOCV")) return SC_LOOCV;
+  if      (!strcmp(name,"SC_MTL")   || !strcmp(name,"mtl"))   return SC_MTL;
+  else if (!strcmp(name,"SC_ML")    || !strcmp(name,"ml"))    return SC_ML;
+  else if (!strcmp(name,"SC_MAP")   || !strcmp(name,"map"))   return SC_MAP;
+  else if (!strcmp(name,"SC_LOOCV") || !strcmp(name,"loocv")) return SC_LOOCV;
   else return SC_ERROR;
 }
 
@@ -96,6 +96,11 @@ void set_surrogate(bopt_params* params, const char* name)
   strcpy(params->surr_name, name);
 };
 
+void set_log_file(bopt_params* params, const char* name)
+{
+  strcpy(params->log_filename, name);
+};
+
 void set_load_file(bopt_params* params, const char* name)
 {
   strcpy(params->load_filename, name);
@@ -106,6 +111,15 @@ void set_save_file(bopt_params* params, const char* name)
   strcpy(params->save_filename, name);
 };
 
+void set_learning(bopt_params* params, const char* name)
+{
+  params->l_type = str2learn(name);
+};
+
+void set_score(bopt_params* params, const char* name)
+{
+  params->sc_type = str2score(name);
+};
 
 bopt_params initialize_parameters_to_default(void)
 {

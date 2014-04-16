@@ -159,10 +159,14 @@ namespace bayesopt
       std::vector<double> lx,ly;
       std::vector<double> cx, cy;
       std::vector<double> solx, soly;
+      size_t c_points;
+      std::vector<double> cX,cY;
+      std::vector<std::vector<double> > cZ;
 
     public:
       DisplayProblem2D(): 
-	MatPlot(), cx(1), cy(1)
+	MatPlot(), cx(1), cy(1), c_points(100), cX(c_points),
+	cY(c_points), cZ(c_points,std::vector<double>(c_points))
       {
 	status = NOT_READY;
       }
@@ -173,14 +177,33 @@ namespace bayesopt
 	soly.push_back(sol(1));
       }
 
+      void prepareContourPlot()
+      {
+	cX=linspace(0,1,c_points);
+	cY=linspace(0,1,c_points);
+
+	for(int i=0;i<c_points;++i)
+	  {
+	    for(int j=0;j<c_points;++j)
+	      {
+		vectord q(2);
+		q(0) = cX[j]; q(1) = cY[i];
+		cZ[i][j]= bopt_model->evaluateSample(q);
+	      }
+	  }
+      }
+
       void init(BayesOptBase* bopt, size_t dim)
       {
 	if (dim != 2) 
 	  { 
-	    throw std::invalid_argument("This display only works for 2D problems"); 
+	    throw std::invalid_argument("This display only works "
+					"for 2D problems"); 
 	  }
 
 	bopt_model = bopt;
+	prepareContourPlot();
+
 	bopt->initializeOptimization();
 	size_t n_points = bopt->getSurrogateModel()->getData()->getNSamples();
 	for (size_t i = 0; i<n_points;++i)
@@ -222,6 +245,7 @@ namespace bayesopt
 	  {
 	    size_t nruns = bopt_model->getParameters()->n_iterations;
 	    title("Press r to run and stop, s to run a step and q to quit.");
+	    contour(cX,cY,cZ,50);                         // Contour plot (50 lines)
 	    plot(cx,cy);set("g");set("o");set(4);         // Data points as black star
 	    plot(solx,soly);set("r"); set("o");set(4);    // Solutions as red points
 

@@ -27,6 +27,7 @@
 
 #include <boost/scoped_ptr.hpp>
 #include "inneroptimization.hpp"
+#include "criteria_functors.hpp"
 #include "posteriormodel.hpp"
 
 namespace bayesopt {
@@ -64,8 +65,7 @@ namespace bayesopt {
     bool setNextCriterium(const vectord& prevResult);
     std::string getBestCriteria(vectord& best);
 
-    Criteria* getCriteria();
-    NonParametricProcess* getSurrogateModel();
+    ProbabilityDistribution* getPrediction(const vectord& query);
 
   private:
 
@@ -104,12 +104,8 @@ namespace bayesopt {
   inline std::string EmpiricalBayes::getBestCriteria(vectord& best)
   { return mCrit->name(); };
 
-
-  inline  Criteria* EmpiricalBayes::getCriteria()
-  { return mCrit.get(); };
-
-  inline  NonParametricProcess* EmpiricalBayes::getSurrogateModel()
-  { return mGP.get(); };
+  inline  ProbabilityDistribution* EmpiricalBayes::getPrediction(const vectord& query)
+  { return mGP->prediction(query); };
 
 
 } //namespace bayesopt

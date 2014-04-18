@@ -62,11 +62,11 @@ namespace bayesopt
 
 	bopt_model = bopt;
 	bopt->initializeOptimization();
-	size_t n_points = bopt->getSurrogateModel()->getData()->getNSamples();
+	size_t n_points = bopt->getData()->getNSamples();
 	for (size_t i = 0; i<n_points;++i)
 	  {
-	    const double res = bopt->getSurrogateModel()->getData()->getSampleY(i);
-	    const vectord last = bopt->getSurrogateModel()->getData()->getSampleX(i);
+	    const double res = bopt->getData()->getSampleY(i);
+	    const vectord last = bopt->getData()->getSampleX(i);
 	    ly.push_back(res);
 	    lx.push_back(last(0));
 	  }
@@ -107,8 +107,8 @@ namespace bayesopt
 		// We are moving. Next iteration
 		++state_ii;
 		bopt_model->stepOptimization(state_ii); 
-		const double res = bopt_model->getSurrogateModel()->getData()->getLastSampleY();
-		const vectord last = bopt_model->getSurrogateModel()->getData()->getLastSampleX();
+		const double res = bopt_model->getData()->getLastSampleY();
+		const vectord last = bopt_model->getData()->getLastSampleX();
 		ly.push_back(res);
 		lx.push_back(last(0));
 	  
@@ -126,11 +126,11 @@ namespace bayesopt
 	    for(size_t i=0; i<n; ++i)
 	      {
 		q(0) = x[i];                                                 // Query
-		ProbabilityDistribution* pd = bopt_model->getSurrogateModel()->prediction(q);
+		ProbabilityDistribution* pd = bopt_model->getPrediction(q);
 		y[i] = pd->getMean();                                //Expected value
 		su[i] = y[i] + 2*pd->getStd();                       //Upper bound (95 %)
 		sl[i] = y[i] - 2*pd->getStd();                       //Lower bound (95 %)
-		c[i] = -bopt_model->getCriteria()->evaluate(q);      //Criteria value
+		c[i] = -bopt_model->evaluateCriteria(q);             //Criteria value
 		z[i] = bopt_model->evaluateSample(q);                //Target function true value
 	      }
  
@@ -205,10 +205,10 @@ namespace bayesopt
 	prepareContourPlot();
 
 	bopt->initializeOptimization();
-	size_t n_points = bopt->getSurrogateModel()->getData()->getNSamples();
+	size_t n_points = bopt->getData()->getNSamples();
 	for (size_t i = 0; i<n_points;++i)
 	  {
-	    const vectord last = bopt->getSurrogateModel()->getData()->getSampleX(i);
+	    const vectord last = bopt->getData()->getSampleX(i);
 	    lx.push_back(last(0));
 	    ly.push_back(last(1));
 	  }
@@ -254,7 +254,7 @@ namespace bayesopt
 		// We are moving. Next iteration
 		++state_ii;
 		bopt_model->stepOptimization(state_ii); 
-		const vectord last = bopt_model->getSurrogateModel()->getData()->getLastSampleX();
+		const vectord last = bopt_model->getData()->getLastSampleX();
 		//GP subplot
 		cx[0] = last(0);
 		cy[0] = last(1);

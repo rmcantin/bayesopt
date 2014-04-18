@@ -28,6 +28,7 @@
 #include <boost/ptr_container/ptr_vector.hpp>
 #include "randgen.hpp"
 #include "optimizable.hpp"
+#include "criteria_functors.hpp"
 #include "posteriormodel.hpp"
 
 namespace bayesopt {
@@ -168,8 +169,7 @@ namespace bayesopt {
     bool setNextCriterium(const vectord& prevResult);
     std::string getBestCriteria(vectord& best);
 
-    Criteria* getCriteria();
-    NonParametricProcess* getSurrogateModel();
+    ProbabilityDistribution* getPrediction(const vectord& query);
    
   private:
     void setSurrogateModel(randEngine& eng);    
@@ -240,12 +240,8 @@ namespace bayesopt {
   inline std::string MCMCModel::getBestCriteria(vectord& best)
   { return mCrit[0].getBestCriteria(best); };
 
-
-  inline  Criteria* MCMCModel::getCriteria()
-  { return &mCrit[0]; };
-
-  inline  NonParametricProcess* MCMCModel::getSurrogateModel()
-  { return &mGP[0]; };
+  inline ProbabilityDistribution* MCMCModel::getPrediction(const vectord& query)
+  { return mGP[0].prediction(query); };
 
 
 

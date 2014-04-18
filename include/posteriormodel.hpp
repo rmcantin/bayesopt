@@ -25,8 +25,9 @@
 #ifndef  _POSTERIORMODEL_HPP_
 #define  _POSTERIORMODEL_HPP_
 
-#include "criteria_functors.hpp"
-
+#include "prob_distribution.hpp"
+#include "dataset.hpp"
+#include "mean_functors.hpp"
 
 namespace bayesopt {
 
@@ -42,7 +43,8 @@ namespace bayesopt {
   class PosteriorModel
   {
   public:
-    static PosteriorModel* create(size_t dim, bopt_params params, randEngine& eng);
+    static PosteriorModel* create(size_t dim, bopt_params params, 
+				  randEngine& eng);
 
     /** 
      * Constructor
@@ -75,14 +77,14 @@ namespace bayesopt {
 
     void plotDataset(TLogLevel level);
 
-    virtual Criteria* getCriteria() = 0;
-    virtual NonParametricProcess* getSurrogateModel() = 0;
+    const Dataset* getData();
+    virtual ProbabilityDistribution* getPrediction(const vectord& query) = 0;
 
 
   protected:
-    bopt_params mParameters;                       ///< Configuration parameters
-    size_t mDims;                                      ///< Number of dimensions
-    Dataset mData;                  ///< Dataset (x-> inputs, y-> labels/output)
+    bopt_params mParameters;                     ///< Configuration parameters
+    size_t mDims;                                    ///< Number of dimensions
+    Dataset mData;                ///< Dataset (x-> inputs, y-> labels/output)
     MeanModel mMean;
 
   private:
@@ -98,6 +100,8 @@ namespace bayesopt {
   inline void PosteriorModel::plotDataset(TLogLevel level)
   { mData.plotData(level); }
 
+  inline const Dataset* PosteriorModel::getData()
+  { return &mData; }
 
 } //namespace bayesopt
 

@@ -114,9 +114,8 @@ namespace bayesopt {
     /** Once the optimization has been perfomed, return the optimal point. */
     virtual vectord getFinalResult() = 0;
 
-   
-    Criteria* getCriteria();
-    NonParametricProcess* getSurrogateModel();
+    ProbabilityDistribution* getPrediction(const vectord& query);
+    const Dataset* getData();
     bopt_params* getParameters();
     double getValueAtMinimum();
     double evaluateCriteria(const vectord& query);
@@ -194,11 +193,11 @@ namespace bayesopt {
   inline double BayesOptBase::getValueAtMinimum()
   { return mModel->getValueAtMinimum(); };
 
-  inline  Criteria* BayesOptBase::getCriteria()
-  { return mModel->getCriteria(); };
+  inline ProbabilityDistribution* BayesOptBase::getPrediction(const vectord& query)
+  { return mModel->getPrediction(query); };
 
-  inline  NonParametricProcess* BayesOptBase::getSurrogateModel()
-  { return mModel->getSurrogateModel(); };
+  inline  const Dataset* BayesOptBase::getData()
+  { return mModel->getData(); };
 
   inline bopt_params* BayesOptBase::getParameters() 
   {return &mParameters;};

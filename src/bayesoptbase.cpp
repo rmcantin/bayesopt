@@ -147,7 +147,6 @@ namespace bayesopt
     //TODO: Try to solve this without bringing the pointer to the
     //criteria. Right now it does not work with MCMC.
     vectord Xnext(mDims);    
-    //    Criteria* crit = mModel->getCriteria();
 
     // GP-Hedge and related algorithms
     if (mModel->criteriaRequiresComparison())

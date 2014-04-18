@@ -479,6 +479,25 @@ void MatPlot::print(){
     printf("Done!\n");
 }
 
+void MatPlot::print(std::string filename, std::string title, GLint format){
+    FILE *fp;
+    int state = GL2PS_OVERFLOW, buffsize = 0;
+    
+    fp = fopen(filename.c_str(), "wb");
+    cout << "Writing '" << filename << "'... ";
+    while(state == GL2PS_OVERFLOW){
+	buffsize += 2024*2024;
+	gl2psBeginPage(title.c_str(), "", NULL, format, GL2PS_SIMPLE_SORT, 
+		       GL2PS_USE_CURRENT_VIEWPORT, 
+		       GL_RGBA, 0, NULL, 0, 0, 0, buffsize, fp, filename.c_str());
+	display();
+	state = gl2psEndPage();
+    }
+    fclose(fp);
+    cout << "Done!" << endl;
+}
+
+
 // Figure ///
 
 int MatPlot::figure(){

@@ -706,6 +706,7 @@ class MatPlot{///
 
     // print ///
     void print();
+    void print(std::string filename, std::string title, GLint format);
 
 };
 

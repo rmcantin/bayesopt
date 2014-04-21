@@ -33,6 +33,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
   double* xset;
   bopt_params parameters;
   double fmin = 0.0;
+  int error_code;
     
   /* Check correct number of parameters */
   CHECK0(nlhs != 2 || nrhs != 3, "wrong number of arguments");
@@ -62,7 +63,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
 #endif
   else
     {
-      mexErrMsgTxt("First term should be a function name (Matlab/Octave) or function handle (Matlab)");
+      mexErrMsgTxt("First term should be a function name "
+		   "(Matlab/Octave) or function handle (Matlab)");
     }
 
   /* Second parameter. Set of values. */
@@ -94,8 +96,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
   parameters = load_parameters(params);
   
-  bayes_optimization_disc(nDim,user_function,&udata,xset,nPoints,
-			  xptr,&fmin,parameters);
+  error_code = bayes_optimization_disc(nDim,user_function,&udata,xset,nPoints,
+				       xptr,&fmin,parameters);
 
   mxDestroyArray(udata.prhs[udata.xrhs]);
   plhs[0] = xopt;
@@ -105,4 +107,11 @@ void mexFunction(int nlhs, mxArray *plhs[],
       *(mxGetPr(plhs[1])) = fmin;
     }
     
+  if (nlhs > 2)
+    {
+      plhs[2] = mxCreateDoubleMatrix(1, 1, mxREAL);
+      *(mxGetPr(plhs[2])) = (double)(error_code);
+    }
+    
+
 }

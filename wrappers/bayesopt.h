@@ -40,10 +40,8 @@ extern "C" {
 
 
 /** 
- * @brief C procedural wrapper for the Bayesian optimization algorithm. 
- * This is an efficient, C/C++ implementation of the Bayesian optimization.
- * Basically, it uses the active learning strategy to optimize an "arbitrary" 
- * funtion using few iterations. This assumes continuous optimization.
+ * @brief C wrapper for the Bayesian optimization algorithm. 
+ * This function assumes continuous optimization.
  * 
  * @param nDim number of input dimensions
  * @param f pointer to the function to optimize
@@ -57,16 +55,14 @@ extern "C" {
  * @return error code
  */
   BAYESOPT_API int bayes_optimization(int nDim, eval_func f, void* f_data,
-			 const double *lb, const double *ub,
-			 double *x, double *minf,
-			 bopt_params parameters);
+				      const double *lb, const double *ub,
+				      double *x, double *minf,
+				      bopt_params parameters);
 
 
 /** 
- * @brief C procedural wrapper for the Bayesian optimization algorithm. 
- * This is an efficient, C/C++ implementation of the Bayesian optimization.
- * Basically, it uses the active learning strategy to optimize an "arbitrary" 
- * funtion using few iterations. This assumes the discrete optimization.
+ * @brief C wrapper for the Bayesian optimization algorithm. 
+ * This function assumes discrete optimization.
  * 
  * @param nDim number of input dimensions
  * @param f pointer to the function to optimize
@@ -83,6 +79,29 @@ extern "C" {
 			      double *valid_x, size_t n_points,
 			      double *x, double *minf,
 			      bopt_params parameters);
+
+  /** 
+   * @brief C wrapper for the Bayesian optimization algorithm.  
+   * This assumes the input variables are categories. Use of the
+   * Hamming kernel is highly recommended.
+   * 
+   * @param nDim number of input dimensions
+   * @param f pointer to the function to optimize
+   * @param f_data pointer to extra data to be used by f
+   * @param categories number of categories on each dimension
+   * @param x input: initial query, output: result (minimum)
+   * @param minf value of the function at the minimum
+   * @param parameters parameters for the Bayesian optimization.
+   * 
+   * @return error code
+   */
+  BAYESOPT_API int bayes_optimization_categorical(int nDim, eval_func f, 
+						  void* f_data, 
+						  int *categories, 
+						  double *x, 
+						  double *minf, 
+						  bopt_params parameters);
+
 
   
 #ifdef __cplusplus

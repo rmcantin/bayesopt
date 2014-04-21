@@ -74,6 +74,11 @@ namespace bayesopt
     const vectord xNext = nextPoint(); 
     const double yNext = evaluateSampleInternal(xNext);
 
+    if (yNext == HUGE_VAL)
+      {
+	throw std::runtime_error("Function evaluation out of range");
+      }
+
     mModel->addSample(xNext,yNext);
 
     // Update surrogate model

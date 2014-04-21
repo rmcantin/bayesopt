@@ -23,7 +23,7 @@
 % You can also change ../lib for the correspoding install path
 % Octave
 mkoctfile -L../lib -lbayesopt -lnlopt -I../include -I../wrappers ...
-    --mex --output bayesoptcont.mex bayesoptmex.c
+    --mex --output bayesoptcont.mex bayesoptmex.c 
 
 mkoctfile -L../lib -lbayesopt -lnlopt -I../include -I../wrappers ...
     --mex --output bayesoptdisc.mex bayesoptdiscmex.c

@@ -33,10 +33,35 @@
 
 #include "bayesopt.h"
 
+/* Declaration */
+
+static void struct_value(const mxArray *s, const char *name, double *result);
+static void struct_array(const mxArray *s, const char *name, size_t *n, double *result);
+static void struct_size(const mxArray *s, const char *name, size_t *result);
+static void struct_string(const mxArray *s, const char *name, char* result);
+
+static double user_function(unsigned n, const double *x,
+		     double *gradient, /* NULL if not needed */
+		     void *d_);
+
+/* See parameters.h for the available options */
+static bopt_params load_parameters(const mxArray* params);
+
+#define FLEN 128 /* max length of user function name */
+#define MAXRHS 2 /* max nrhs for user function */
+typedef struct {
+     char f[FLEN];
+     mxArray *plhs[2];
+     mxArray *prhs[MAXRHS];
+     int xrhs, nrhs;
+     int verbose, neval;
+} user_function_data;
+
+/* Implementation */
 
 #define CHECK0(cond, msg) if (!(cond)) mexErrMsgTxt(msg);
 
-static void struct_value(const mxArray *s, const char *name, double *result)
+void struct_value(const mxArray *s, const char *name, double *result)
 {
   mxArray *val = mxGetField(s, 0, name);
   if (val) 
@@ -58,7 +83,7 @@ static void struct_value(const mxArray *s, const char *name, double *result)
   return;
 }
 
-static void struct_array(const mxArray *s, const char *name, size_t *n, double *result)
+void struct_array(const mxArray *s, const char *name, size_t *n, double *result)
 {
   mxArray *val = mxGetField(s, 0, name);
   if (val) 
@@ -81,7 +106,7 @@ static void struct_array(const mxArray *s, const char *name, size_t *n, double *
 }
 
 
-static void struct_size(const mxArray *s, const char *name, size_t *result)
+void struct_size(const mxArray *s, const char *name, size_t *result)
 {
   mxArray *val = mxGetField(s, 0, name);
   if (val) 
@@ -104,7 +129,7 @@ static void struct_size(const mxArray *s, const char *name, size_t *result)
 }
 
 
-static void struct_string(const mxArray *s, const char *name, char* result)
+void struct_string(const mxArray *s, const char *name, char* result)
 {
   mxArray *val = mxGetField(s, 0, name);
 
@@ -121,19 +146,8 @@ static void struct_string(const mxArray *s, const char *name, char* result)
 }
 
 
-#define FLEN 128 /* max length of user function name */
-#define MAXRHS 2 /* max nrhs for user function */
-typedef struct {
-     char f[FLEN];
-     mxArray *plhs[2];
-     mxArray *prhs[MAXRHS];
-     int xrhs, nrhs;
-     int verbose, neval;
-} user_function_data;
 
-
-
-static double user_function(unsigned n, const double *x,
+double user_function(unsigned n, const double *x,
 			    double *gradient, /* NULL if not needed */
 			    void *d_)
 {
@@ -169,7 +183,7 @@ static double user_function(unsigned n, const double *x,
   return f;
 }
 
-static bopt_params load_parameters(const mxArray* params)
+bopt_params load_parameters(const mxArray* params)
 {  
   
   /* See parameters.h for the available options */
@@ -240,5 +254,6 @@ static bopt_params load_parameters(const mxArray* params)
 
   return parameters;
 }
+
 
 #endif

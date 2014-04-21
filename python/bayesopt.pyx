@@ -25,6 +25,12 @@ cimport numpy as np
 #from python_ref cimport Py_INCREF, Py_DECREF
 from cpython cimport Py_INCREF, Py_DECREF
 
+# Cython > 0.20
+#from libc.math cimport HUGE_VAL
+# Cython <= 0.19
+cdef extern from "math.h" nogil:
+    double HUGE_VAL
+
 cdef extern from *:
     ctypedef double* const_double_ptr "const double*"
 
@@ -107,6 +113,10 @@ cdef extern from "bayesopt.h":
                                 double *x, double *minf,
                                 bopt_params parameters)
 
+    int bayes_optimization_categorical(int nDim, eval_func f, void* f_data,
+                                        int *categories, double *x,
+                                        double *minf, bopt_params parameters)
+
 ###########################################################################
 cdef bopt_params dict2structparams(dict dparams):
 
@@ -178,47 +188,39 @@ cdef bopt_params dict2structparams(dict dparams):
 
 cdef double callback(unsigned int n, const_double_ptr x,
                      double *gradient, void *func_data):
-    x_np = np.zeros(n)
-    for i in range(0,n):
-        x_np[i] = <double>x[i]
-    result = (<object>func_data)(x_np)
-    return result
+    try:
+        x_np = np.zeros(n)
 
-# def initialize_params():
-#     params = {
-#         "n_iterations"   : 300,
-#         "n_inner_iterations" : 500,
-#         "n_init_samples" : 30,
-#         "n_iter_relearn" : 0,
-#         "init_method" : 1,
-#         "use_random_seed" : 1,
-#         "verbose_level"  : 1,
-#         "log_filename"   : "bayesopt.log" ,
-#         "surr_name" : "sGaussianProcess" ,
-#         "sigma_s"  : 1.0,
-#         "noise"  : 0.001,
-#         "alpha"  : 1.0,
-#         "beta"   : 1.0,
-#         "sc_type" : "SC_MAP",
-#         "l_type" : "L_EMPIRICAL",
-#         "epsilon" : 0.0,
-#         "kernel_name" : "kMaternISO3",
-#         "kernel_hp_mean"  : [1.0],
-#         "kernel_hp_std": [100.0],
-#         "mean_name" : "mConst",
-#         "mean_coef_mean"     : [1.0],
-#         "mean_coef_std"   : [1000.0],
-#         "crit_name" : "cEI",
-#         "crit_params" : [1.0],
-#         }
-#     return params
+        for i in range(0,n):
+            x_np[i] = <double>x[i]
+
+        result = (<object>func_data)(x_np)
+        return result
+    except:
+        return HUGE_VAL
+
+def raise_problem(error_code):
+    # This is a little bit hacky, but we lose track of the C++
+    # exception since we use the C wrapper for interface:
+    # C++ (excep) <-> C (error codes) <-> Python (excep)
+
+    # From bayesoptwpr.cpp
+    #static const int BAYESOPT_FAILURE = -1; 
+    #static const int BAYESOPT_INVALID_ARGS = -2;
+    #static const int BAYESOPT_OUT_OF_MEMORY = -3;
+    #static const int BAYESOPT_RUNTIME_ERROR = -4;
+    
+    if error_code == -1: raise Exception('Unknown error');
+    elif error_code == -2: raise ValueError('Invalid argument');
+    elif error_code == -3: raise MemoryError;
+    elif error_code == -4: raise RuntimeError;
 
 def optimize(f, int nDim, np.ndarray[np.double_t] np_lb,
              np.ndarray[np.double_t] np_ub, dict dparams):
 
     cdef bopt_params params = dict2structparams(dparams)
     cdef double minf[1]
-    cdef np.ndarray np_x = np.zeros([nDim], dtype=np.double)
+    cdef np.ndarray np_x = np.ones([nDim], dtype=np.double)*0.5
 
     cdef np.ndarray[np.double_t, ndim=1, mode="c"] lb
     cdef np.ndarray[np.double_t, ndim=1, mode="c"] ub
@@ -235,6 +237,9 @@ def optimize(f, int nDim, np.ndarray[np.double_t] np_lb,
 
     
     Py_DECREF(f)
+
+    raise_problem(error_code)
+    
     min_value = minf[0]
     return min_value,np_x,error_code
 
@@ -262,5 +267,37 @@ def optimize_discrete(f, np.ndarray[np.double_t,ndim=2] np_valid_x,
                                          &x[0], minf, params)
 
     Py_DECREF(f)
+
+    raise_problem(error_code)
+    
+    min_value = minf[0]
+    return min_value,np_x,error_code
+
+def optimize_categorical(f, np.ndarray[np.int_t,ndim=1] np_categories,
+                         dict dparams):
+
+    cdef bopt_params params = dict2structparams(dparams)
+    
+    nDim = np_categories.shape[0]
+
+    cdef double minf[1]
+    cdef np.ndarray np_x = np.zeros([nDim], dtype=np.double)
+
+    cdef np.ndarray[np.double_t, ndim=1, mode="c"] x
+    cdef np.ndarray[np.int_t, ndim=1, mode="c"] categories
+
+    x  = np.ascontiguousarray(np_x,dtype=np.double)
+    categories = np.ascontiguousarray(np_categories,dtype=np.int)
+
+    Py_INCREF(f)
+
+    error_code = bayes_optimization_categorical(nDim, callback, <void *> f,
+                                                <int *>&categories[0], &x[0],
+                                                minf, params)
+
+    Py_DECREF(f)
+
+    raise_problem(error_code)
+    
     min_value = minf[0]
     return min_value,np_x,error_code

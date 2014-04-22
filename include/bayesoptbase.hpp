@@ -27,13 +27,22 @@
 #define  _BAYESOPTBASE_HPP_
 
 #include <boost/scoped_ptr.hpp>
-#include "posteriormodel.hpp"
+#include <boost/random.hpp>
+#include "parameters.h"
+#include "specialtypes.hpp"
+//#include "posteriormodel.hpp"
 
 
 /**
  * Namespace of the library interface
  */
 namespace bayesopt {
+
+
+  //Forward declaration
+  class PosteriorModel;
+  class ProbabilityDistribution;
+  class Dataset;
 
   /** \addtogroup BayesOpt
    *  \brief Main module for Bayesian optimization
@@ -154,13 +163,14 @@ namespace bayesopt {
     /** Selects the initial set of points to build the surrogate model. */
     virtual void sampleInitialPoints(matrixd& xPoints, vectord& yPoints) = 0;
 
-    /** Sample a single point in the input space. Used for epsilon greedy exploration. */
+    /** Sample a single point in the input space. Used for epsilon
+	greedy exploration. */
     virtual vectord samplePoint() = 0;
 
   protected:
-    bopt_params mParameters;                       ///< Configuration parameters
-    size_t mDims;                                      ///< Number of dimensions
-    randEngine mEngine;                             ///< Random number generator
+    bopt_params mParameters;                    ///< Configuration parameters
+    size_t mDims;                                   ///< Number of dimensions
+    boost::mt19937 mEngine;                      ///< Random number generator
 
   private:
     boost::scoped_ptr<PosteriorModel> mModel;
@@ -181,26 +191,6 @@ namespace bayesopt {
 
   /**@}*/
 
-  inline double BayesOptBase::evaluateCriteria(const vectord& query)
-  {
-    if (checkReachability(query)) return mModel->evaluateCriteria(query);
-    else return 0.0;
-  }
-
-  inline vectord BayesOptBase::getPointAtMinimum() 
-  { return mModel->getPointAtMinimum(); };
-  
-  inline double BayesOptBase::getValueAtMinimum()
-  { return mModel->getValueAtMinimum(); };
-
-  inline ProbabilityDistribution* BayesOptBase::getPrediction(const vectord& query)
-  { return mModel->getPrediction(query); };
-
-  inline  const Dataset* BayesOptBase::getData()
-  { return mModel->getData(); };
-
-  inline bopt_params* BayesOptBase::getParameters() 
-  {return &mParameters;};
 
 
 } //namespace bayesopt

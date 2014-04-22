@@ -20,10 +20,12 @@
 ------------------------------------------------------------------------
 */
 
+#include "bayesoptbase.hpp"
+
 #include <ctime>
 #include <cstdlib>
 #include "log.hpp"
-#include "bayesoptbase.hpp"
+#include "posteriormodel.hpp"
 
 namespace bayesopt
 {
@@ -54,10 +56,6 @@ namespace bayesopt
       }
 
     // Configure iteration parameters
-    if ((mParameters.n_iterations <= 0) || 
-	(mParameters.n_iterations > MAX_ITERATIONS))
-      mParameters.n_iterations = MAX_ITERATIONS;
-
     if (mParameters.n_init_samples <= 0)
       mParameters.n_init_samples = 
 	static_cast<size_t>(ceil(0.1*mParameters.n_iterations));
@@ -174,6 +172,31 @@ namespace bayesopt
       }
     return Xnext;
   }
+
+
+  // Potential inline functions. Moved here to simplify API and header
+  // structure.
+  double BayesOptBase::evaluateCriteria(const vectord& query)
+  {
+    if (checkReachability(query)) return mModel->evaluateCriteria(query);
+    else return 0.0;
+  }
+
+  vectord BayesOptBase::getPointAtMinimum() 
+  { return mModel->getPointAtMinimum(); };
+  
+  double BayesOptBase::getValueAtMinimum()
+  { return mModel->getValueAtMinimum(); };
+
+  ProbabilityDistribution* BayesOptBase::getPrediction(const vectord& query)
+  { return mModel->getPrediction(query); };
+
+   const Dataset* BayesOptBase::getData()
+  { return mModel->getData(); };
+
+  bopt_params* BayesOptBase::getParameters() 
+  {return &mParameters;};
+
 
 } //namespace bayesopt
 

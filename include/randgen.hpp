@@ -25,7 +25,7 @@
 #ifndef  _RANDGEN_HPP_
 #define  _RANDGEN_HPP_
 
-#include <boost/version.hpp>
+//#include <boost/version.hpp>
 #include <boost/random.hpp>
 
 // Types for pseudorandom number generators.

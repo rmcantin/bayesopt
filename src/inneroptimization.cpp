@@ -41,6 +41,8 @@ namespace bayesopt
       }
   }
 
+  const size_t MAX_INNER_EVALUATIONS = 500;   /**< Used per dimmension */
+
   /* TODO: make it const double *x */
   typedef double (*eval_func)(unsigned int n, const double *x,
 			      double *gradient, /* NULL if not needed */

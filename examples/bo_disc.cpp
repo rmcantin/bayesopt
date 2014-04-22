@@ -20,6 +20,8 @@
 ------------------------------------------------------------------------
 */
 
+#include <boost/numeric/ublas/matrix_proxy.hpp>  // For row()
+
 #include "bayesopt.h"               // For the C API
 #include "bayesopt.hpp"             // For the C++ API
 #include "lhs.hpp"
@@ -69,13 +71,12 @@ int main(int nargs, char *args[])
   // the we can optionally change only few of them 
   bopt_params par = initialize_parameters_to_default();
 
-  par.kernel.hp_mean[0] = KERNEL_THETA;
+  par.kernel.hp_mean[0] = 1.0;
   par.kernel.hp_std[0] = 1.0;
   par.kernel.n_hp = 1;
   par.mean.coef_mean[0] = 0.0;
-  par.mean.coef_std[0] = MEAN_SIGMA;
+  par.mean.coef_std[0] = 10.0;
   par.mean.n_coef = 1;
-  par.noise = DEFAULT_NOISE;
   par.surr_name = "sStudentTProcessJef";
   par.n_iterations = 20;       // Number of iterations
   par.n_init_samples = 20;

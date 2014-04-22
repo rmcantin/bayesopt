@@ -21,11 +21,13 @@
 ------------------------------------------------------------------------
 */
 
-#include "randgen.hpp"
+#include "bayesopt.hpp"
+
+#include <boost/numeric/ublas/matrix_proxy.hpp>
+//#include "randgen.hpp"
 #include "lhs.hpp"
 #include "gridsampling.hpp"
 #include "log.hpp"
-#include "bayesopt.hpp"
 
 namespace bayesopt
 {
@@ -111,7 +113,7 @@ namespace bayesopt
     xOpt = *mInputSet.begin();
     double min = evaluateCriteria(xOpt);
     
-    for(vecOfvecIterator it = mInputSet.begin();
+    for(vecOfvec::iterator it = mInputSet.begin();
 	it != mInputSet.end(); ++it)
       {
 	double current = evaluateCriteria(*it);

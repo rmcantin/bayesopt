@@ -67,15 +67,6 @@ namespace bayesopt
 
 
   //// Inline methods
-  inline void Dataset::setSamples(const matrixd &x, const vectord &y)
-  {
-    mY = y;
-    for (size_t i=0; i<x.size1(); ++i)
-      {
-	mX.push_back(row(x,i));
-	updateMinMax(i);
-      } 
-  };
   
   inline void Dataset::addSample(const vectord &x, double y)
   {

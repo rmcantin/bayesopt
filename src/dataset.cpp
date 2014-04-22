@@ -22,6 +22,7 @@
 
 #include "dataset.hpp"
 
+#include <boost/numeric/ublas/matrix_proxy.hpp>
 
 namespace bayesopt
 {
@@ -35,6 +36,17 @@ namespace bayesopt
   };
 
   Dataset::~Dataset(){};
+
+  void Dataset::setSamples(const matrixd &x, const vectord &y)
+  {
+    mY = y;
+    for (size_t i=0; i<x.size1(); ++i)
+      {
+	mX.push_back(row(x,i));
+	updateMinMax(i);
+      } 
+  };
+
 
   void Dataset::plotData(TLogLevel level)
   {

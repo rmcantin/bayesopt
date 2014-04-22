@@ -108,31 +108,6 @@ extern "C" {
     double crit_params[128];     /**< Criterion hyperparameters (if needed) */
     size_t n_crit_params;        /**< Number of criterion hyperparameters */
   } bopt_params;
-
-
-  /*-----------------------------------------------------------*/
-  /* Default parameters                                        */
-  /*-----------------------------------------------------------*/
-  /* Nonparametric process "parameters" */
-  const double KERNEL_THETA    = 1.0;
-  const double KERNEL_SIGMA    = 10.0;
-  const double MEAN_MU         = 1.0;
-  const double MEAN_SIGMA      = 1000.0;
-  const double PRIOR_ALPHA     = 1.0;
-  const double PRIOR_BETA      = 1.0;
-  const double DEFAULT_SIGMA   = 1.0;
-  const double DEFAULT_NOISE   = 1e-4;
-
-  /* Algorithm parameters */
-  const size_t DEFAULT_ITERATIONS  = 300;
-  const size_t DEFAULT_SAMPLES     = 30;
-  const size_t DEFAULT_VERBOSE     = 1;
-
-  /* Algorithm limits */
-  const size_t MAX_ITERATIONS  = 1000;        /**< Used if n_iterations <0 */
-
-  /* INNER Optimizer default values */
-  const size_t MAX_INNER_EVALUATIONS = 500;   /**< Used per dimmension */
 						    
   /*-----------------------------------------------------------*/
   /* These functions are added to simplify wrapping code       */

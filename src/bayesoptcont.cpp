@@ -20,11 +20,14 @@
 ------------------------------------------------------------------------
 */
 
+#include "bayesopt.hpp"
+
 #include <limits>
+#include <boost/numeric/ublas/matrix_proxy.hpp>
+
 #include "lhs.hpp"
 #include "randgen.hpp"
 #include "log.hpp"
-#include "bayesopt.hpp"
 #include "boundingbox.hpp"
 #include "inneroptimization.hpp"
 

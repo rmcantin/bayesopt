@@ -71,26 +71,23 @@ int main(int nargs, char *args[])
   // the we can optionally change only few of them 
   bopt_params par = initialize_parameters_to_default();
 
-  par.kernel.hp_mean[0] = KERNEL_THETA;
-  par.kernel.hp_mean[1] = KERNEL_THETA;
-  par.kernel.hp_std[0] = 1;
-  par.kernel.hp_std[1] = 1;
+  par.kernel.hp_mean[0] = 1.0;
+  par.kernel.hp_mean[1] = 1.0;
+  par.kernel.hp_std[0] = 1.0;
+  par.kernel.hp_std[1] = 1.0;
   par.kernel.n_hp = 2;
   par.mean.coef_mean[0] = 1.0;
-  par.mean.coef_std[0] = MEAN_SIGMA;
+  par.mean.coef_std[0] = 10.0;
   par.mean.n_coef = 1;
-  par.alpha = PRIOR_ALPHA;
-  par.beta = PRIOR_BETA;
-  par.noise = DEFAULT_NOISE;
   set_surrogate(&par,"sStudentTProcessJef");
   set_kernel(&par,"kSum(kSEISO,kConst)");
   set_mean(&par,"mConst");
   par.sc_type = SC_MAP;
-  par.l_type = L_MCMC;
+  par.l_type = L_EMPIRICAL;
   par.n_iterations = 200;    // Number of iterations
   par.init_method = 1;
   par.n_init_samples = 50;
-  par.n_iter_relearn = 20;
+  par.n_iter_relearn = 0;
   par.verbose_level = 1;
   /*******************************************/
 

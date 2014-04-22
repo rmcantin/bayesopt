@@ -26,6 +26,7 @@
 
 #include <map>
 #include <boost/scoped_ptr.hpp>
+#include <boost/numeric/ublas/matrix_proxy.hpp>
 #include "parameters.h"
 #include "specialtypes.hpp"
 

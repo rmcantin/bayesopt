@@ -23,6 +23,31 @@
 #include "parameters.h"
 
 
+/*-----------------------------------------------------------*/
+/* Default parameters                                        */
+/*-----------------------------------------------------------*/
+
+/* Nonparametric process "parameters" */
+const double KERNEL_THETA    = 1.0;
+const double KERNEL_SIGMA    = 10.0;
+const double MEAN_MU         = 1.0;
+const double MEAN_SIGMA      = 1000.0;
+const double PRIOR_ALPHA     = 1.0;
+const double PRIOR_BETA      = 1.0;
+const double DEFAULT_SIGMA   = 1.0;
+const double DEFAULT_NOISE   = 1e-4;
+
+/* Algorithm parameters */
+const size_t DEFAULT_ITERATIONS  = 300;
+const size_t DEFAULT_SAMPLES     = 30;
+const size_t DEFAULT_VERBOSE     = 1;
+
+/* Algorithm limits */
+const size_t MAX_ITERATIONS  = 1000;        /**< Used if n_iterations <0 */
+
+/* INNER Optimizer default values */
+const size_t MAX_INNER_EVALUATIONS = 500;   /**< Used per dimmension */
+
 
 learning_type str2learn(const char* name)
 {

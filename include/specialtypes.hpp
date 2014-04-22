@@ -25,7 +25,7 @@
 #define __SPECIALTYPES_HPP__
 
 #include <boost/numeric/ublas/matrix.hpp>
-#include <boost/numeric/ublas/matrix_proxy.hpp>
+//#include <boost/numeric/ublas/matrix_proxy.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/io.hpp>
 
@@ -37,11 +37,10 @@ typedef boost::numeric::ublas::matrix<double>                   matrixd;
 typedef boost::numeric::ublas::zero_matrix<double>             zmatrixd;
 
 typedef std::vector<vectord>                                   vecOfvec;
-typedef std::vector<vectord>::iterator                 vecOfvecIterator;
 
-// Surprisingly, this is the most efficient version of a growing matrix 
-// for uBlas, but I leave here the old trial because it might change in
-// the future.
+// Surprisingly, this is the most efficient version of a growing
+// matrix for uBlas, but I leave here the old experiments because it
+// might change in the future.
 typedef boost::numeric::ublas::matrix<double>                 covMatrix;
 
 // typedef boost::numeric::ublas::bounded_matrix<double, MAX_ITERATIONS, 

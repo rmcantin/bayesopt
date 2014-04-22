@@ -361,7 +361,7 @@ namespace bayesopt
     double operator()( const vectord &x1, const vectord &x2)
     {
       double xx = boost::numeric::ublas::inner_prod(x1,x2); 
-      return params(0)*params(0) * pow((params(1)+xx),mExp);
+      return params(0)*params(0) * std::pow((params(1)+xx),static_cast<int>(mExp));
     };
 
     //TODO:
@@ -439,7 +439,7 @@ namespace bayesopt
     {
       double rl = computeWeightedNorm2(x1,x2);
       double k = rl*rl/(2*params(1));
-      return pow(1+k,-params(1));
+      return std::pow(1+k,-params(1));
     };
 
     // TODO:

@@ -22,46 +22,53 @@
 clear all, close all
 addpath('testfunctions')
 
-params.n_iterations = 300;
-params.n_init_samples = 50;
+% BayesOpt parameters
+params.n_iterations = 200;
+params.n_init_samples = 10;
 params.crit_name = 'cEI';
-params.surr_name = 'sGaussianProcessNormal';
-params.noise = 0.005;
-params.kernel_name = 'kMaternISO3';
-params.kernel_hp_mean = [0.5];
-params.kernel_hp_std = [10];
-params.verbose_level = 0;
+params.surr_name = 'sStudentTProcessNIG';
+params.noise = 1e-6;
+params.kernel_name = 'kMaternARD5';
+params.kernel_hp_mean = [1 1];
+params.kernel_hp_std = [10 10];
+params.verbose_level = 5;
 params.log_filename = 'matbopt.log';
 
-n = 2;          % number of low dims (effective)
-nh = 1000;      % number of actual dims
-nreembo = 5;    % number of reembo iterations
+fun = 'braninhighdim';    % the function has an effective 2D
+n = 2;                    % number of low dims (effective)
+nh = 1000;                % number of actual dims
 
+global MATRIX_A            % random proyection matrix
+global TRUE_I               % indexes of relevant components
 
-global MATRIX_A
-global truei
+TRUE_I = [150,237];
 
-truei = [150,237];
-
+% Bounds of proyected (low-dim) space
 lb = ones(n,1)*-sqrt(n);
 ub = ones(n,1)*sqrt(n);
-fun = 'braninhighdim';    % the function has an effective 2D
-values = zeros(nreembo,1);
-points = zeros(nreembo,n);
 
-for i=1:nreembo
-    disp('Continuous optimization');
+% rembo iterations results
+nrembo = 10;                  % number of rembo iterations
+values = zeros(nrembo,1);  
+points = zeros(nrembo,n);    
+
+for i=1:nrembo
+    disp('Running optimization');
     MATRIX_A = randn(nh,n);
+    
     tic;
-    result = bayesoptcont(fun,n,params,lb,ub);
+    [result, val, error] = bayesoptcont(fun,n,params,lb,ub);
     toc;
-
-    values(i) = braninhighdim(result);
-    hd_res = MATRIX_A*result';
-    points(i,:) = hd_res(truei)';
-    disp(hd_res(truei)); disp(values(i));
+    
+    % We project the result back to the real low-dim space
+    hd_res = MATRIX_A*result';  
+    points(i,:) = hd_res(TRUE_I)';
+    values(i) = val;
+    
+    fprintf('Opt point: %f, %f ||', hd_res(TRUE_I)); 
+    fprintf('Opt value: %f || Error: %d\n',val, error);
 end;
 
 [foo,id] = min(values);
-disp('Final result');
-disp(points(id,:));
+fprintf('Final point: %f, %f ||', points(id,:));  
+fprintf('Final value: %f\n',values(id));

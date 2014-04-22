@@ -94,7 +94,7 @@ int main(int nargs, char *args[])
 
   par.surr_name = "sStudentTProcessNIG";
   par.sigma_s = 10;
-  par.noise = 0.01;
+  par.noise = 1e-6;
 
   // par.mean.name = new char[128];
   // strcpy(par.mean.name,"mConst");

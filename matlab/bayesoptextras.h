@@ -60,6 +60,8 @@ typedef struct {
 /* Implementation */
 
 #define CHECK0(cond, msg) if (!(cond)) mexErrMsgTxt(msg);
+#define PRINT_DEBUG(msg) /*mexPrintf(msg);*/
+
 
 void struct_value(const mxArray *s, const char *name, double *result)
 {
@@ -78,7 +80,7 @@ void struct_value(const mxArray *s, const char *name, double *result)
     }
   else
     {
-      mexPrintf("Field %s not found. Default not modified.\n", name);
+      PRINT_DEBUG("Field %s not found. Default not modified.\n", name);
     }
   return;
 }
@@ -100,7 +102,7 @@ void struct_array(const mxArray *s, const char *name, size_t *n, double *result)
     }
   else
     {
-      mexPrintf("Field %s not found. Default not modified.\n", name);
+      PRINT_DEBUG("Field %s not found. Default not modified.\n", name);
     }
   return;
 }
@@ -123,7 +125,7 @@ void struct_size(const mxArray *s, const char *name, size_t *result)
     }
   else
     {
-      mexPrintf("Field %s not found. Default not modified.\n", name);
+      PRINT_DEBUG("Field %s not found. Default not modified.\n", name);
     }
   return;
 }
@@ -133,15 +135,24 @@ void struct_string(const mxArray *s, const char *name, char* result)
 {
   mxArray *val = mxGetField(s, 0, name);
 
-  if (val) {
-    if( mxIsChar(val) ) {
-      result = mxArrayToString(val);
-    } else {
-      mexErrMsgTxt("Method name must be a string");
+  if (val) 
+    {
+      if( mxIsChar(val) ) 
+	{
+	  //Using MSVC 2010, data is lost unless we copy it. It seems
+	  //that mxGetField does not get the pointer and create a new
+	  //array or mxArrayToString fails to copy the string.
+	  strcpy(result,mxArrayToString(val));
+	} 
+      else 
+	{
+	  mexErrMsgTxt("Method name must be a string");
+	}
+    } 
+  else 
+    {
+      PRINT_DEBUG("Field %s not found. Default not modified.\n", name);
     }
-  } else {
-    mexPrintf("Field %s not found. Default not modified.\n", name);
-  }
   return;
 }
 
@@ -188,7 +199,7 @@ bopt_params load_parameters(const mxArray* params)
   
   /* See parameters.h for the available options */
   
-  char l_str[100], sc_str[100];
+  char l_str[100], sc_str[100], name[100];
   size_t n_hp_test, n_coef_test;
 
   bopt_params parameters = initialize_parameters_to_default();

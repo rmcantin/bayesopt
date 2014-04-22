@@ -25,8 +25,19 @@
 #include "parser.hpp"
 #include "ublas_extra.hpp"
 #include "kernel_functors.hpp"
-#include "kernel_atomic.hpp"
-#include "kernel_combined.hpp"
+
+#include "kernels/kernel_atomic.hpp"
+#include "kernels/kernel_const.hpp"
+#include "kernels/kernel_linear.hpp"
+#include "kernels/kernel_hamming.hpp"
+#include "kernels/kernel_matern.hpp"
+#include "kernels/kernel_polynomial.hpp"
+#include "kernels/kernel_gaussian.hpp"
+#include "kernels/kernel_rq.hpp"
+
+#include "kernels/kernel_combined.hpp"
+#include "kernels/kernel_sum.hpp"
+#include "kernels/kernel_prod.hpp"
 
 namespace bayesopt
 {

@@ -92,33 +92,6 @@ namespace bayesopt
     Kernel* right;
   };
 
-
-  /** \brief Sum of two kernels */
-  class KernelSum: public CombinedKernel
-  {
-  public:
-    double operator()(const vectord &x1, const vectord &x2)
-    { return (*left)(x1,x2) + (*right)(x1,x2); };
-
-    double gradient(const vectord &x1, const vectord &x2,
-		    size_t component)
-    { return left->gradient(x1,x2,component) + right->gradient(x1,x2,component); };
-  };
-
-
-  /** \brief Product of two kernels */
-  class KernelProd: public CombinedKernel
-  {
-  public:
-    double operator()(const vectord &x1, const vectord &x2)
-    { return (*left)(x1,x2) * (*right)(x1,x2); };
-
-    //TODO: Not implemented
-    double gradient(const vectord &x1, const vectord &x2,
-		    size_t component)
-    { return 0.0; };
-  };
-
   //@}
 
 } //namespace bayesopt

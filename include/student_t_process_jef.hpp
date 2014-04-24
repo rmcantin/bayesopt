@@ -27,7 +27,7 @@
 #define __STUDENT_T_PROCESS_JEF_HPP__
 
 #include "student_t_distribution.hpp"
-#include "hierarchical_gaussian_process.hpp"
+#include "gaussian_process_hierarchical.hpp"
 
 
 namespace bayesopt

@@ -17,8 +17,7 @@
 -----------------------------------------------------------------------------
 */
 
-#include "cholesky.hpp"
-#include "trace_ublas.hpp"
+#include "ublas_trace.hpp"
 #include "student_t_process_jef.hpp"
 
 namespace bayesopt

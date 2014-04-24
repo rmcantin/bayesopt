@@ -1,6 +1,5 @@
-/**  \file displaygp.hpp 
-     \brief Plots the evolution (nonparametric process and criteria)
-     of a 1D problem. */
+/**  \file displaygp.hpp \brief Plots the evolution (nonparametric
+     process, criteria or contour plots) of 1D and 2D problems. */
 /*
 -------------------------------------------------------------------------
    This file is part of BayesOpt, an efficient C++ library for 
@@ -26,7 +25,6 @@
 #ifndef _DISPLAYGP_HPP_
 #define _DISPLAYGP_HPP_
 
-//#include <stdexcept>
 #include "bayesopt.hpp"
 #include "matplotpp.h"  
 

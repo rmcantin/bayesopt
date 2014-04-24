@@ -1,4 +1,4 @@
-/**  \file boundingbox.hpp \brief Functions for bounding box limits */
+/**  \file boundingbox.hpp \brief Module for box constrain management */
 /*
 -----------------------------------------------------------------------------
    Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
@@ -22,7 +22,7 @@
 
 // BOOST Libraries
 #include <boost/numeric/ublas/vector.hpp>
-#include "elementwise_ublas.hpp"
+#include "ublas_elementwise.hpp"
 
 namespace bayesopt {
   

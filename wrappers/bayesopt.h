@@ -1,4 +1,4 @@
-/**  \file bayesopt.h \brief C-wrapper for Bayesian optimization */
+/**  \file bayesopt.h \brief BayesOpt wrapper for C interface */
 /*
 -----------------------------------------------------------------------------
    This file is part of BayesOptimization, an efficient C++ library for 

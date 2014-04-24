@@ -1,6 +1,6 @@
-/** \file conditionalbayesprocess.hpp
-    \brief Implementes a empirical Bayesian nonparametric process with a 
-    ML, MAP or similar estimate of kernel parameters. */
+/** \file conditionalbayesprocess.hpp 
+    \brief Kernel based nonparametric process, conditional 
+           on kernel hyperparameters. */
 /*
 -------------------------------------------------------------------------
    This file is part of BayesOpt, an efficient C++ library for 

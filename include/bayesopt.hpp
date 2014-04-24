@@ -1,4 +1,4 @@
-/**  \file bayesopt.hpp \brief Bayesian optimization C++-API*/
+/**  \file bayesopt.hpp \brief BayesOpt main C++ interface */
 /*
 -------------------------------------------------------------------------
    This file is part of BayesOpt, an efficient C++ library for 

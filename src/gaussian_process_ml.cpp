@@ -20,8 +20,7 @@
 ------------------------------------------------------------------------
 */
 
-#include "cholesky.hpp"
-#include "trace_ublas.hpp"
+#include "ublas_trace.hpp"
 #include "gaussian_process_ml.hpp"
 
 namespace bayesopt

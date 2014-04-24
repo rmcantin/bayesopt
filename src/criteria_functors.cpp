@@ -19,11 +19,22 @@
    along with BayesOpt.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------
 */
-#include "log.hpp"
+#include <string>
 #include "parser.hpp"
 #include "criteria_functors.hpp"
-#include "criteria_atomic.hpp"
-#include "criteria_combined.hpp"
+
+#include "criteria/criteria_a_opt.hpp"
+#include "criteria/criteria_distance.hpp"
+#include "criteria/criteria_ei.hpp"
+#include "criteria/criteria_expected.hpp"
+#include "criteria/criteria_lcb.hpp"
+#include "criteria/criteria_poi.hpp"
+#include "criteria/criteria_thompson.hpp"
+
+#include "criteria/criteria_combined.hpp"
+#include "criteria/criteria_sum.hpp"
+#include "criteria/criteria_prod.hpp"
+#include "criteria/criteria_hedge.hpp"
 
 namespace bayesopt
 {

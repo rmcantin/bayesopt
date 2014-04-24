@@ -26,7 +26,7 @@
 #ifndef __NONPARAMETRICPROCESS_HPP__
 #define __NONPARAMETRICPROCESS_HPP__
 
-#include "cholesky.hpp"
+#include "ublas_cholesky.hpp"
 #include "nonparametricprocess.hpp"
 #include "kernel_functors.hpp"
 

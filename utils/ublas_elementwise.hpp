@@ -1,4 +1,4 @@
-/**  \file elementwise_ublas.hpp \brief Elementwise operations */
+/**  \file ublas_elementwise.hpp \brief Elementwise operations for ublas vector/matrix */
 /*
 -------------------------------------------------------------------------
    This file is part of BayesOpt, an efficient C++ library for 
@@ -24,7 +24,6 @@
 #ifndef  _ELEMENTWISE_UBLAS_HPP_
 #define  _ELEMENTWISE_UBLAS_HPP_
 
-// BOOST Libraries
 #include <algorithm>
 #include <boost/numeric/ublas/vector.hpp>
 

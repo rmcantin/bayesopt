@@ -1,4 +1,5 @@
-/**  \file criteria_functors.hpp \brief Criteria functions */
+/**  \file criteria_functors.hpp \brief Abstract and factory modules
+     for criteria */
 /*
 -------------------------------------------------------------------------
    This file is part of BayesOpt, an efficient C++ library for 
@@ -25,8 +26,6 @@
 #define  _CRITERIA_FUNCTORS_HPP_
 
 #include <map>
-#include <algorithm>
-#include "optimizable.hpp"
 #include "nonparametricprocess.hpp"
 
 namespace bayesopt
@@ -41,7 +40,7 @@ namespace bayesopt
   /**
    * \brief Abstract interface for criteria functors.
    */
-  class Criteria//: public RBOptimizable
+  class Criteria
   {
   public:
     virtual ~Criteria() {};

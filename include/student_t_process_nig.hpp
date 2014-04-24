@@ -28,7 +28,7 @@
 #define  _STUDENT_T_PROCESS_NIG_HPP_
 
 #include "student_t_distribution.hpp"
-#include "hierarchical_gaussian_process.hpp"
+#include "gaussian_process_hierarchical.hpp"
 
 namespace bayesopt
 {

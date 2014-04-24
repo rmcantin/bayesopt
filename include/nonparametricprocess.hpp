@@ -26,8 +26,6 @@
 #ifndef __BAYESIANREGRESSOR_HPP__
 #define __BAYESIANREGRESSOR_HPP__
 
-#include <boost/scoped_ptr.hpp>
-#include "dll_stuff.h"
 #include "dataset.hpp"
 #include "prob_distribution.hpp"
 #include "mean_functors.hpp"
@@ -42,7 +40,7 @@ namespace bayesopt
   /**
    * \brief Abstract class to implement Bayesian regressors
    */
-  class BAYESOPT_API NonParametricProcess: public RBOptimizable
+  class NonParametricProcess: public RBOptimizable
   {
   public:
     NonParametricProcess(size_t dim, bopt_params parameters, 

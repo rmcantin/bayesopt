@@ -27,7 +27,7 @@
 #define __GAUSSIAN_PROCESS_NORMAL_HPP__
 
 #include "gauss_distribution.hpp"
-#include "hierarchical_gaussian_process.hpp"
+#include "gaussian_process_hierarchical.hpp"
 
 
 namespace bayesopt

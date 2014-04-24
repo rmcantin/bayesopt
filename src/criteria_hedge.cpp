@@ -23,7 +23,7 @@
 #include <algorithm>
 #include "boost/bind.hpp"
 #include "log.hpp"
-#include "criteria_combined.hpp"
+#include "criteria/criteria_hedge.hpp"
 
 namespace bayesopt
 {

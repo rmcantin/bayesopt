@@ -26,7 +26,7 @@
 
 #include <valarray>
 #include "kernel_functors.hpp"
-#include "elementwise_ublas.hpp"
+#include "ublas_elementwise.hpp"
 
 namespace bayesopt
 {

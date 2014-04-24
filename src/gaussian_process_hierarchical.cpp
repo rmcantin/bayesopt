@@ -19,9 +19,9 @@
    along with BayesOpt.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------
 */
-#include "hierarchical_gaussian_process.hpp"
-#include "cholesky.hpp"
-#include "trace_ublas.hpp"
+
+#include "gaussian_process_hierarchical.hpp"
+#include "ublas_trace.hpp"
 
 namespace bayesopt
 {

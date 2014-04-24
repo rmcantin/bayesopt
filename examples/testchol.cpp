@@ -37,7 +37,7 @@
 
 #include <boost/numeric/ublas/io.hpp>
 
-#include "cholesky.hpp"
+#include "ublas_cholesky.hpp"
 
 namespace ublas = boost::numeric::ublas;
 

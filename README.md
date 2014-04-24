@@ -1,11 +1,12 @@
 BayesOpt: A Bayesian optimization toolbox
 =========================================
 
-BayesOpt is an free, efficient, implementation of the Bayesian
-optimization methodology for nonlinear-optimization, experimental
-design and stochastic bandits. In the literature it is also called
-Sequential Kriging Optimization (SKO) or Efficient Global
-Optimization (EGO). 
+BayesOpt is an efficient implementation of the Bayesian optimization
+methodology for nonlinear-optimization, experimental design,
+stochastic bandits and hyperparameter tunning. In the literature it is
+also called Sequential Kriging Optimization (SKO), Sequential
+Model-Based Optimization (SMBO) or Efficient Global Optimization
+(EGO).
 
 The online HTML version of these docs:
 <http://rmcantin.bitbucket.org/html/>

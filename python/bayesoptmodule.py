@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-## \file bayesoptmodule.py \brief Python BayesOpt module
+## \file bayesoptmodule.py \brief BayesOpt wrapper for Python interface (OOP)
 
 # ----------------------------------------------------------------------------
 #    This file is part of BayesOptimization, an efficient C++ library for 

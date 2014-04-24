@@ -95,16 +95,16 @@ SET( BAYESOPT_SRCS
   ./src/nonparametricprocess.cpp
   ./src/kernelregressor.cpp
   ./src/conditionalbayesprocess.cpp
-  ./src/hierarchical_gaussian_process.cpp
   ./src/gaussian_process.cpp
   ./src/gaussian_process_ml.cpp
   ./src/gaussian_process_normal.cpp
+  ./src/gaussian_process_hierarchical.cpp
   ./src/student_t_process_jef.cpp
   ./src/student_t_process_nig.cpp
   ./src/parameters.cpp
   ./src/kernel_functors.cpp
   ./src/criteria_functors.cpp
-  ./src/criteria_combined.cpp
+  ./src/criteria_hedge.cpp
   ./src/mean_functors.cpp
   ./src/gauss_distribution.cpp
   ./src/student_t_distribution.cpp

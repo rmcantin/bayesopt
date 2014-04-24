@@ -25,9 +25,8 @@
 #include <boost/numeric/ublas/banded.hpp>
 #include "log.hpp"
 #include "student_t_process_nig.hpp"
-#include "cholesky.hpp"
-#include "trace_ublas.hpp"
-#include "elementwise_ublas.hpp"
+#include "ublas_trace.hpp"
+#include "ublas_elementwise.hpp"
 #include "student_t_distribution.hpp"
 
 namespace bayesopt
@@ -80,8 +79,7 @@ namespace bayesopt
 
     if ((boost::math::isnan(yPred)) || (boost::math::isnan(sPred)))
       {
-	FILE_LOG(logERROR) << "Error in prediction. NaN found.";
-	exit(EXIT_FAILURE);
+	throw std::runtime_error("Error in prediction. NaN found.");
       }
 					
 

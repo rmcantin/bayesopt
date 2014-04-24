@@ -1,5 +1,5 @@
 
-/**  \file bayesoptbase.hpp \brief Bayesian optimization module */
+/**  \file bayesoptbase.hpp \brief BayesOpt common module for interfaces */
 /*
 -------------------------------------------------------------------------
    This file is part of BayesOpt, an efficient C++ library for 

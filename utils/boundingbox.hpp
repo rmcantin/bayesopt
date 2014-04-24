@@ -1,7 +1,7 @@
 /**  \file boundingbox.hpp \brief Functions for bounding box limits */
 /*
 -----------------------------------------------------------------------------
-   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by

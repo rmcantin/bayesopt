@@ -3,7 +3,7 @@
 %    This file is part of BayesOpt, an efficient C++ library for 
 %    Bayesian optimization.
 %
-%    Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+%    Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
 %
 %    BayesOpt is free software: you can redistribute it and/or modify it 
 %    under the terms of the GNU General Public License as published by

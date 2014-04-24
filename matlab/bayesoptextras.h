@@ -60,7 +60,6 @@ typedef struct {
 /* Implementation */
 
 #define CHECK0(cond, msg) if (!(cond)) mexErrMsgTxt(msg);
-#define PRINT_DEBUG(msg) /*mexPrintf(msg);*/
 
 
 void struct_value(const mxArray *s, const char *name, double *result)
@@ -80,7 +79,7 @@ void struct_value(const mxArray *s, const char *name, double *result)
     }
   else
     {
-      PRINT_DEBUG("Field %s not found. Default not modified.\n", name);
+      mexPrintf("Field %s not found. Default not modified.\n", name);
     }
   return;
 }
@@ -102,7 +101,7 @@ void struct_array(const mxArray *s, const char *name, size_t *n, double *result)
     }
   else
     {
-      PRINT_DEBUG("Field %s not found. Default not modified.\n", name);
+      mexPrintf("Field %s not found. Default not modified.\n", name);
     }
   return;
 }
@@ -125,7 +124,7 @@ void struct_size(const mxArray *s, const char *name, size_t *result)
     }
   else
     {
-      PRINT_DEBUG("Field %s not found. Default not modified.\n", name);
+      mexPrintf("Field %s not found. Default not modified.\n", name);
     }
   return;
 }
@@ -139,9 +138,9 @@ void struct_string(const mxArray *s, const char *name, char* result)
     {
       if( mxIsChar(val) ) 
 	{
-	  //Using MSVC 2010, data is lost unless we copy it. It seems
-	  //that mxGetField does not get the pointer and create a new
-	  //array or mxArrayToString fails to copy the string.
+	  /* Using MSVC 2010, data is lost unless we copy it. It seems
+	     that mxGetField does not get the pointer and create a new
+	     array or mxArrayToString fails to copy the string.   */
 	  strcpy(result,mxArrayToString(val));
 	} 
       else 
@@ -151,7 +150,7 @@ void struct_string(const mxArray *s, const char *name, char* result)
     } 
   else 
     {
-      PRINT_DEBUG("Field %s not found. Default not modified.\n", name);
+      mexPrintf("Field %s not found. Default not modified.\n", name);
     }
   return;
 }

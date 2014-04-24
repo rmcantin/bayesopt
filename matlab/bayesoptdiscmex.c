@@ -75,7 +75,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
   nDim = mxGetM(prhs[1]);
   nPoints = mxGetN(prhs[1]);
   xset = mxGetPr(prhs[1]);
-  PRINT_DEBUG("Loading set of values. nDims=%i, nPoints=%i\n",nDim,nPoints);
+  mexPrintf("Loading set of values. nDims=%i, nPoints=%i\n",nDim,nPoints);
 
   udata.prhs[udata.xrhs] = mxCreateDoubleMatrix(1, nDim, mxREAL);
 

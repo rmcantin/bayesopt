@@ -19,52 +19,26 @@
 %    along with BayesOpt.  If not, see <http://www.gnu.org/licenses/>.
 % ------------------------------------------------------------------------
 %
-clear all, close all
-addpath('testfunctions')
 
-params.n_iterations = 100;
-params.n_init_samples = 5;
-params.crit_name = 'cEI';
-params.surr_name = 'sStudentTProcessNIG';
-params.noise = 1e-6;
-params.kernel_name = 'kMaternARD5';
-params.kernel_hp_mean = [1 1];
-params.kernel_hp_std = [10 10];
-params.verbose_level = 1;
-params.log_filename = 'matbopt.log';
-
-% n = 5;
-% lb = ones(n,1)*pi/2;
-% ub = ones(n,1)*pi;
-% fun = 'michalewicz';
-
-n = 2;
-lb = zeros(n,1);
-ub = ones(n,1);
-fun = 'branin';
-
-disp('Continuous optimization');
-tic;
-bayesoptcont(fun,n,params,lb,ub)
-toc;
-pause;
-disp('Discrete optimization');
-% The set of points must be numDimension x numPoints.
-np = 100;
-xset = repmat((ub-lb),1,np) .* rand(n,np) - repmat(lb,1,np);
-
-tic;
-bayesoptdisc(fun,xset, params);
-toc;
-pause;
-
-fun = 'hartmann';
-params.kernel_hp_mean = ones(1,6);
-params.kernel_hp_std = ones(1,6)*10;
-n = 6;
-lb = zeros(n,1);
-ub = ones(n,1);
-
-tic;
-bayesoptcont(fun,n,params,lb,ub)
-toc;
+function y = hartmann(x)
+%Bounds [0,1]^2
+% Min = (0.20169, 0.150011, 0.476874, 0.275332, 0.311652, 0.6573),
+%        => -3.32236
+    a = [10.0,   3.0, 17.0,   3.5,  1.7,  8.0;
+          0.05, 10.0, 17.0,   0.1,  8.0, 14.0;
+          3.0,   3.5,  1.7,  10.0, 17.0,  8.0;
+         17.0,   8.0,  0.05, 10.0,  0.1, 14.0];
+    c = [1.0, 1.2, 3.0, 3.2];
+    p = [0.1312, 0.1696, 0.5569, 0.0124, 0.8283, 0.5886;
+         0.2329, 0.4135, 0.8307, 0.3736, 0.1004, 0.9991;
+         0.2348, 0.1451, 0.3522, 0.2883, 0.3047, 0.6650;
+         0.4047, 0.8828, 0.8732, 0.5743, 0.1091, 0.0381];
+    
+    y = 0;
+    for i=1:4
+        sum = 0;
+        for j=1:6
+            sum = sum - a(i,j)*(x(j)-p(i,j))^2;
+        end;
+        y = y - c(i)*exp(sum);
+    end;

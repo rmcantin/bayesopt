@@ -87,8 +87,9 @@ SET( BAYESOPT_SRCS
   ./src/bayesoptdisc.cpp
   ./src/bayesoptbase.cpp
   ./src/posteriormodel.cpp
-  ./src/empiricalbayes.cpp
-  ./src/mcmc.cpp
+  ./src/posterior_fixed.cpp
+  ./src/posterior_empirical.cpp
+  ./src/posterior_mcmc.cpp
   ./src/inneroptimization.cpp
   ./src/dataset.cpp
   ./src/nonparametricprocess.cpp

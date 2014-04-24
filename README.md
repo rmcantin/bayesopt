@@ -1,4 +1,4 @@
-BayesOpt: A Bayesian optimization toolbox            {#mainpage}
+BayesOpt: A Bayesian optimization toolbox
 =========================================
 
 BayesOpt is an free, efficient, implementation of the Bayesian

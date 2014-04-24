@@ -22,8 +22,9 @@
 
 #include "log.hpp"
 #include "posteriormodel.hpp"
-#include "empiricalbayes.hpp"
-#include "mcmc.hpp"
+#include "posterior_fixed.hpp"
+#include "posterior_empirical.hpp"
+#include "posterior_mcmc.hpp"
 
 namespace bayesopt
 {
@@ -32,7 +33,7 @@ namespace bayesopt
   {
     switch (params.l_type)
       {
-      case L_FIXED: // TODO:return new
+      case L_FIXED: return new PosteriorFixed(dim,params,eng);
       case L_EMPIRICAL: return new EmpiricalBayes(dim,params,eng);
       case L_DISCRETE: // TODO:return new
       case L_MCMC: return new MCMCModel(dim,params,eng);

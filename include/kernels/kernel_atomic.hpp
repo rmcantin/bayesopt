@@ -46,7 +46,6 @@ namespace bayesopt
     {
       if(theta.size() != n_params)
 	{
-	  FILE_LOG(logERROR) << "Wrong number of kernel hyperparameters"; 
 	  throw std::invalid_argument("Wrong number of kernel hyperparameters");
 	}
       params = theta; //TODO: To make enough space. Make it more efficient.

@@ -3,7 +3,7 @@
 #include <boost/numeric/ublas/lu.hpp>
 #include "specialtypes.hpp"
 #include "cholesky.hpp"
-#include "mcmc.hpp"
+#include "posterior_mcmc.hpp"
 
 namespace bnu = boost::numeric::ublas;
  

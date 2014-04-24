@@ -26,7 +26,6 @@
 #define  _EMPIRICALBAYES_HPP_
 
 #include <boost/scoped_ptr.hpp>
-#include "inneroptimization.hpp"
 #include "criteria_functors.hpp"
 #include "posteriormodel.hpp"
 
@@ -36,6 +35,8 @@ namespace bayesopt {
    *  \brief Main module for Bayesian optimization
    */
   /*@{*/
+
+  class NLOPT_Optimization;
 
  /**
    * \brief Bayesian optimization using different non-parametric 
@@ -68,7 +69,6 @@ namespace bayesopt {
     ProbabilityDistribution* getPrediction(const vectord& query);
 
   private:
-
     EmpiricalBayes();
 
     void setSurrogateModel(randEngine& eng);    

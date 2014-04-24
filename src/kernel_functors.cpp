@@ -123,8 +123,26 @@ namespace bayesopt
     KernelFactory mKFactory;
 
     mKernel.reset(mKFactory.create(k_name, dim));
-    setKernelPrior(thetav,stheta);
-    mKernel->setHyperParameters(thetav);
+
+    if ((thetav.size() == 1) && (stheta.size() == 1) && (mKernel->nHyperParameters() != 1))
+      {
+	// We assume isotropic prior, so we replicate the vectors for all dimensions
+	size_t n = mKernel->nHyperParameters();
+
+	FILE_LOG(logINFO) << "Expected " << n << " hyperparameters."
+			  << " Replicating given prior.";
+
+	vectord newthetav = svectord(n,thetav(0));
+	vectord newstheta = svectord(n,stheta(0));
+
+	setKernelPrior(newthetav,newstheta);
+	mKernel->setHyperParameters(newthetav);
+      }
+    else
+      {
+	setKernelPrior(thetav,stheta);
+	mKernel->setHyperParameters(thetav);
+      }
   }
 
   void KernelModel::setKernel (kernel_parameters kernel, 

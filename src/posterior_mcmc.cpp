@@ -21,7 +21,7 @@
 */
 #include "log.hpp"
 #include "lhs.hpp"
-#include "mcmc.hpp"
+#include "posterior_mcmc.hpp"
 
 namespace bayesopt
 {

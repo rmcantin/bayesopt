@@ -21,7 +21,8 @@
 */
 
 #include "log.hpp"
-#include "empiricalbayes.hpp"
+#include "inneroptimization.hpp"
+#include "posterior_empirical.hpp"
 
 namespace bayesopt
 {
@@ -51,7 +52,7 @@ namespace bayesopt
     // kOptimizer->setLimits(svectord(nhp,1e-10),svectord(nhp,100.));
     //Limits in log space
     kOptimizer->setLimits(svectord(nhp,-6.0),svectord(nhp,1.0));
-  } // __init__
+  } 
 
   EmpiricalBayes::~EmpiricalBayes()
   { } // Default destructor

@@ -22,46 +22,51 @@
 clear all, close all
 addpath('testfunctions')
 
-params.n_iterations = 100;
-params.n_init_samples = 5;
+params.n_iterations = 190;
+params.n_init_samples = 10;
 params.crit_name = 'cEI';
 params.surr_name = 'sStudentTProcessNIG';
 params.noise = 1e-6;
 params.kernel_name = 'kMaternARD5';
-params.kernel_hp_mean = [1 1];
-params.kernel_hp_std = [10 10];
+params.kernel_hp_mean = [1];
+params.kernel_hp_std = [10];
 params.verbose_level = 1;
 params.log_filename = 'matbopt.log';
 
-% n = 5;
-% lb = ones(n,1)*pi/2;
-% ub = ones(n,1)*pi;
-% fun = 'michalewicz';
 
-n = 2;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+disp('Continuous optimization');
+fun = 'branin'; n = 2;
 lb = zeros(n,1);
 ub = ones(n,1);
-fun = 'branin';
 
-disp('Continuous optimization');
 tic;
 bayesoptcont(fun,n,params,lb,ub)
 toc;
 pause;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 disp('Discrete optimization');
+% We still use branin
 % The set of points must be numDimension x numPoints.
 np = 100;
 xset = repmat((ub-lb),1,np) .* rand(n,np) - repmat(lb,1,np);
 
 tic;
-bayesoptdisc(fun,xset, params);
+bayesoptdisc(fun, xset, params);
 toc;
+yset = zeros(np,1);
+for i=1:np
+    yset(i) = feval(fun,xset(:,i));
+end;
+[y_min,id] = min(yset);
+disp(xset(:,id));
+disp(y_min);
 pause;
 
-fun = 'hartmann';
-params.kernel_hp_mean = ones(1,6);
-params.kernel_hp_std = ones(1,6)*10;
-n = 6;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+disp('Continuous optimization');
+fun = 'hartmann'; n = 6;
 lb = zeros(n,1);
 ub = ones(n,1);
 

@@ -177,7 +177,7 @@ bopt_params initialize_parameters_to_default(void)
   strcpy(params.log_filename,"bayesopt.dat");
 
   params.surr_name = new char[128];
-  strcpy(params.surr_name,"sStudentTProcessJef");
+  strcpy(params.surr_name,"sStudentTProcessNIG");
 
   params.sigma_s = DEFAULT_SIGMA;
   params.noise   = DEFAULT_NOISE;

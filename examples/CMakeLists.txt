@@ -33,15 +33,16 @@ if(OPENGL_FOUND AND GLUT_FOUND)
     ../matplotpp/gl2ps.c
     )
 
-  INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/matplotpp)
+  INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/matplotpp
+		      ${GLUT_INCLUDE_DIRS} 
+		      ${GLUT_INCLUDE_DIR} 
+		      ${OpenGL_INCLUDE_DIRS})			  
 
-  include_directories(${GLUT_INCLUDE_DIRS})
-  link_directories(${GLUT_LIBRARY_DIRS})
-  add_definitions(${GLUT_DEFINITIONS})
+  link_directories(${GLUT_LIBRARY_DIRS}
+		   ${OpenGL_LIBRARY_DIRS})
 
-  include_directories(${OpenGL_INCLUDE_DIRS})
-  link_directories(${OpenGL_LIBRARY_DIRS})
-  add_definitions(${OpenGL_DEFINITIONS})
+  add_definitions(${GLUT_DEFINITIONS}
+		  ${OpenGL_DEFINITIONS})
  
   ADD_EXECUTABLE(bo_display 
     ./bo_display.cpp 

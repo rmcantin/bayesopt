@@ -31,9 +31,6 @@ The library can be download from any of this sources:
 The install guide for Windows, Linux and MacOS:
 - [Install guide](http://rmcantin.bitbucket.org/html/install.html) or \ref install
 
-For a complete description of supported systems:
-- [Supported OS, compilers, versions...](https://bitbucket.org/rmcantin/bayesopt/wiki/Compatibility)
-
 
 Using BayesOpt
 --------------

@@ -40,7 +40,10 @@
 #include "ublas_cholesky.hpp"
 
 namespace ublas = boost::numeric::ublas;
-
+namespace bayesopt 
+{
+  namespace utils
+  {
 /** \brief make a immutable triangular adaptor from a matrix
  *
  * \usage: 
@@ -106,7 +109,7 @@ void fill_symm(MATRIX & L, const size_t bands = std::numeric_limits<size_t>::max
   return;
 }
 
-int main(int argc, char * argv[] )
+int main_(int argc, char * argv[] )
 {
   size_t size = 10;
   if (argc > 1)
@@ -250,6 +253,11 @@ int main(int argc, char * argv[] )
   return EXIT_SUCCESS;
 }
 
+  }
+}
+
+int main(int argc, char * argv[] )
+{ return bayesopt::utils::main_(argc,argv); }
 
 /****************
 

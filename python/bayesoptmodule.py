@@ -42,11 +42,11 @@ class BayesOptContinuous:
     # For different options: see parameters.h and parameters.cpp .
     # If a parameter is not defined, it will be automatically set
     # to a default value.
-    def __init__(self):
+    def __init__(self,n_dim):
         ## Library parameters 
-        self.params = {} #bo.initialize_params()
+        self.params = {}
         ## n dimensions
-        self.n_dim = 5
+        self.n_dim = n_dim
         ## Lower bounds
         self.lower_bound = np.zeros((self.n_dim,))
         ## Upper bounds
@@ -55,10 +55,7 @@ class BayesOptContinuous:
     ## Function for testing.
     # It should be overriden.
     def evalfunc(self, x_in):
-        total = 10.0
-        for value in x_in:
-            total = total + (value -0.53)*(value-0.53)
-        return total
+        raise NotImplementedError("Please Implement this method")
 
     ## Main function. Starts the optimization process.
     def optimize(self):
@@ -80,21 +77,20 @@ class BayesOptDiscrete:
     # For different options: see parameters.h and parameters.cpp .
     # If a parameter is not define, it will be automatically set
     # to a default value.
-    def __init__(self):
+    def __init__(self, x_set=None, n_dim=None, n_samples=None):
         ## Library parameters 
         self.params = {} #bo.initialize_params()
-        n_dim = 5    ## n dimensions
-        n_sam = 100  ## n samples
-        ## Set of discrete points
-        self.x_set = np.random.rand(n_sam, n_dim)
+        if x_set is None:
+            ## Set of discrete points
+            if n_dim is None or n_samples is None:
+                raise ValueError
+            else:
+                self.x_set = np.random.rand(n_samples, n_dim)
         
     ## Function for testing.
     # It should be overriden.
     def evalfunc(self, x_in):
-        total = 10.0
-        for value in x_in:
-            total = total + (value -0.53)*(value-0.53)
-        return total
+        raise NotImplementedError("Please Implement this method")
 
     ## Main function. Starts the optimization process.
     def optimize(self):
@@ -105,6 +101,37 @@ class BayesOptDiscrete:
         return min_val, x_out, error
 
 
+## Python Module for BayesOptCategorical
+#
+# Python module to get run BayesOpt library in a OO pattern.
+# The objective module should inherit this one and override evalfunc.
+class BayesOptCategorical:
+    
+    ## Let's define the parameters.
+    #
+    # For different options: see parameters.h and parameters.cpp .
+    # If a parameter is not define, it will be automatically set
+    # to a default value.
+    def __init__(self, categories=None):
+        ## Library parameters 
+        self.params = {}
+        self.categories = categories
+        
+    ## Function for testing.
+    # It should be overriden.
+    def evalfunc(self, x_in):
+        raise NotImplementedError("Please Implement this method")
+    
+    ## Main function. Starts the optimization process.
+    def optimize(self):
+        min_val, x_out, error = bo.optimize_categorical(self.evalfunc,
+                                                        self.categories,
+                                                        self.params)
+        
+        return min_val, x_out, error
+
+
+    
 if __name__ == "__main__":
     BO = BayesOptContinuous()
     __value__, __x__, __err__ = BO.optimize()

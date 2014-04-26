@@ -86,7 +86,7 @@ namespace bayesopt
 	    {
 	      // We are moving. Next iteration
 	      ++state_ii;
-	      bopt_model->stepOptimization(state_ii); 
+	      bopt_model->stepOptimization(); 
 	      const double res = bopt_model->getData()->getLastSampleY();
 	      const vectord last = bopt_model->getData()->getLastSampleX();
 	      ly.push_back(res);
@@ -218,7 +218,7 @@ namespace bayesopt
 	    {
 	      // We are moving. Next iteration
 	      ++state_ii;
-	      bopt_model->stepOptimization(state_ii); 
+	      bopt_model->stepOptimization(); 
 	      const vectord last = bopt_model->getData()->getLastSampleX();
 	      //GP subplot
 	      cx[0] = last(0);

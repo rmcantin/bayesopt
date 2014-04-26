@@ -20,35 +20,8 @@
 ------------------------------------------------------------------------
 */
 
-#include "bayesopt.hpp"
 #include "displaygp.hpp"
-
-class ExampleOneD: public bayesopt::ContinuousModel
-{
-public:
-  ExampleOneD(size_t dim, bopt_params par):
-    ContinuousModel(dim,par) {}
-
-  double evaluateSample(const vectord& xin)
-  {
-    if (xin.size() > 1)
-      {
-	std::cout << "WARNING: This only works for 1D inputs." << std::endl
-		  << "WARNING: Using only first component." << std::endl;
-      }
-
-    double x = xin(0);
-    return (x-0.3)*(x-0.3) + sin(20*x)*0.2;
-  };
-
-  bool checkReachability(const vectord &query) {return true;};
-
-  void printOptimal()
-  {
-    std::cout << "Optimal:" << 0.5 << std::endl;
-  }
-
-};
+#include "testfunctions.hpp"
 
 
 // Unfortunately OpenGL functions require no parameters, so the object has to be global.
@@ -75,44 +48,64 @@ void keyboard(unsigned char key, int x, int y)
       }
 }
 
+int menu()
+{
+  std::string input;
+  int option = 0;
+  while ((option < 1) || (option > 5))
+    {
+      std::cout << "Please select an option for the parameters:\n\n"
+		<< "  1- Default parameters.\n"
+		<< "  2- Fixed Gaussian process model.\n"
+		<< "  3- Combined kernel.\n"
+		<< "  4- Lower Confidence Bound.\n"
+		<< "  5- A-optimality criteria.\n\n"
+		<< "Select [1-5]>";
+
+      std::cin >> input;
+      std::istringstream is(input);
+      is >> option;
+    }
+  return option;
+}
+
 int main(int nargs, char *args[])
 {
   size_t dim = 1;
   bopt_params parameters = initialize_parameters_to_default();
   parameters.n_init_samples = 7;
-  parameters.n_iter_relearn = 0;
-  parameters.n_iterations = 300;
+  parameters.n_iterations = 100;
   parameters.verbose_level = 2;
 
-  // Surrogate models
-  //  parameters.surr_name = "sStudentTProcessNIG";
-  parameters.surr_name = "sGaussianProcessNormal";
-
-  // Criterion model
-  // parameters.crit_name = "cAopt";
-  // parameters.n_crit_params = 0;
-
-  parameters.crit_name = "cEI";
-  parameters.crit_params[0] = 1;
-  parameters.n_crit_params = 1;
-
-  // parameters.crit_name = "cLCB";
-  // parameters.crit_params[0] = 5;
-  // parameters.n_crit_params = 1;
-
-  // Kernel models
-  // parameters.kernel.name = "kSum(kPoly3,kRQISO)";
-  // double mean[128] = {1, 1, 1, 1};
-  // double std[128] = {10, 10, 10, 10};
-  // size_t nhp = 4;
-  // memcpy(parameters.kernel.hp_mean, mean, nhp * sizeof(double));
-  // memcpy(parameters.kernel.hp_std,std, nhp * sizeof(double));
-  // parameters.kernel.n_hp = nhp;
-
-  parameters.kernel.name = "kMaternISO3";
-  parameters.kernel.hp_mean[0] = 1;
-  parameters.kernel.hp_std[0] = 5;
-  parameters.kernel.n_hp = 1;
+  switch( menu() )
+    {
+    case 1: break;
+    case 2: set_surrogate(&parameters,"sGaussianProcess"); break;
+    case 3:   
+      { 
+	set_kernel(&parameters,"kSum(kPoly3,kRQISO)");
+	double mean[128] = {1, 1, 1, 1};
+	double std[128] = {5, 5, 5, 5};
+	size_t nhp = 4;
+	memcpy(parameters.kernel.hp_mean, mean, nhp * sizeof(double));
+	memcpy(parameters.kernel.hp_std,std, nhp * sizeof(double));
+	parameters.kernel.n_hp = nhp;
+	break;
+      }
+    case 4:
+      set_surrogate(&parameters,"sGaussianProcess");
+      set_criteria(&parameters,"cLCB");
+      parameters.crit_params[0] = 5;
+      parameters.n_crit_params = 1;
+      break;      
+    case 5:
+      set_surrogate(&parameters,"sGaussianProcess");
+      set_criteria(&parameters,"cAopt");
+      parameters.n_crit_params = 0;
+      break;
+    default:
+      break;
+    };
 
   boost::scoped_ptr<ExampleOneD> opt(new ExampleOneD(dim,parameters));
   GLOBAL_MATPLOT.init(opt.get(),1);

@@ -50,8 +50,17 @@ namespace bayesopt {
   /*@{*/
 
   /**
-   * \brief Bayesian optimization using different non-parametric 
-   * processes as distributions over surrogate functions. 
+   * \brief Abstract module for Bayesian optimization.
+   *
+   * This module provides Bayesian optimization using different
+   * non-parametric processes (Gaussian process or Student's t
+   * process) as distributions over surrogate functions.
+   *
+   * \see ContinuousModel for implementations of this module for
+   * a continuous input spaces
+   *
+   * \see DiscreteModel for implementations of this module for
+   * a discrete input spaces or categorical input variables
    */
   class BAYESOPT_API BayesOptBase
   {
@@ -106,16 +115,14 @@ namespace bayesopt {
      * @see checkReachability
      *
      * @param bestPoint returns point with the optimum value in a ublas::vector.
-     * @return 0 if terminate successfully, any other value otherwise
      */
-    int optimize(vectord &bestPoint);
+    void optimize(vectord &bestPoint);
 
     /** 
      * \brief Execute ONE step the optimization process of the
      * function defined in evaluateSample.  
-     * @param ii iteration number.
      */  
-    void stepOptimization(size_t ii);
+    void stepOptimization();
 
     /** Initialize the optimization process.  */
     void initializeOptimization();
@@ -170,6 +177,7 @@ namespace bayesopt {
   protected:
     bopt_params mParameters;                    ///< Configuration parameters
     size_t mDims;                                   ///< Number of dimensions
+    size_t mCurrentIter;                        ///< Current iteration number
     boost::mt19937 mEngine;                      ///< Random number generator
 
   private:

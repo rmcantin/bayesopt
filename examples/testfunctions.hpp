@@ -23,12 +23,36 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <algorithm>
-//#include <valarray>
 #include "bayesopt.hpp"
 
-#ifndef M_PI
-#define M_PI           3.14159265358979323846
-#endif
+class ExampleOneD: public bayesopt::ContinuousModel
+{
+public:
+  ExampleOneD(size_t dim, bopt_params par):
+    ContinuousModel(dim,par) {}
+
+  double evaluateSample(const vectord& xin)
+  {
+    if (xin.size() != 1)
+      {
+	std::cout << "WARNING: This only works for 1D inputs." << std::endl
+		  << "WARNING: Using only first component." << std::endl;
+      }
+
+    double x = xin(0);
+    return (x-0.3)*(x-0.3) + sin(20*x)*0.2;
+  };
+
+  bool checkReachability(const vectord &query)
+  {return true;};
+
+  void printOptimal()
+  {
+    std::cout << "Optimal:" << 0.23719 << std::endl;
+  }
+
+};
+
 
 class ExampleBranin: public bayesopt::ContinuousModel
 {
@@ -47,7 +71,8 @@ public:
     double x = xin(0) * 15 - 5;
     double y = xin(1) * 15;
 
-    return sqr(y-(5.1/(4*sqr(M_PI)))*sqr(x)+5*x/M_PI-6)+10*(1-1/(8*M_PI))*cos(x)+10;
+    return sqr(y-(5.1/(4*sqr(M_PI)))*sqr(x)
+	       +5*x/M_PI-6)+10*(1-1/(8*M_PI))*cos(x)+10;
   };
 
   bool checkReachability(const vectord &query)
@@ -70,51 +95,3 @@ public:
   }
 
 };
-
-int main(int nargs, char *args[])
-{
-  bopt_params par = initialize_parameters_to_default();
-  par.n_iterations = 100;
-  par.n_inner_iterations = 1000;
-  par.n_init_samples = 2;
-  par.n_iter_relearn = 1;
-  par.use_random_seed = 0;
-  
-  par.l_all = 0;
-  par.l_type = L_MCMC;
-  par.sc_type = SC_MAP;
-  par.verbose_level = 1;
-
-  par.kernel.name = "kMaternARD5";
-  par.kernel.hp_mean[0] = 1.0;
-  par.kernel.hp_std[0] = 10.0;
-  par.kernel.hp_mean[1] = 1.0;
-  par.kernel.hp_std[1] = 10.0;
-  par.kernel.n_hp = 2;
-
-  par.surr_name = "sStudentTProcessNIG";
-  par.sigma_s = 10;
-  par.noise = 1e-6;
-
-  // par.mean.name = new char[128];
-  // strcpy(par.mean.name,"mConst");
-  // par.mean.coef_mean[0] = 50;
-  // par.mean.coef_std[0] = 10;
-  // par.mean.n_coef = 1;
-  
-  // par.crit_name = "cHedge(cLCB,cEI,cPOI)";
-  // par.n_iter_relearn = 20;
-  // double cParams[] = {5.0, 1.0, 0.01};
-  // std::copy(cParams, cParams+3, par.crit_params);
-  // par.n_crit_params = 3;
-  
-  ExampleBranin branin(2,par);
-  vectord result(2);
-
-  branin.optimize(result);
-  std::cout << "Result: " << result << "->" 
-	    << branin.evaluateSample(result) << std::endl;
-  branin.printOptimal();
-
-  return 0;
-}

@@ -90,6 +90,7 @@ SET( BAYESOPT_SRCS
   ./src/posterior_fixed.cpp
   ./src/posterior_empirical.cpp
   ./src/posterior_mcmc.cpp
+  ./src/mcmc_sampler.cpp
   ./src/inneroptimization.cpp
   ./src/dataset.cpp
   ./src/nonparametricprocess.cpp

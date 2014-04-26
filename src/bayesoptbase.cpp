@@ -66,7 +66,7 @@ namespace bayesopt
   { } // Default destructor
 
 
-  void BayesOptBase::stepOptimization(size_t ii)
+  void BayesOptBase::stepOptimization()
   {
     // Find what is the next point.
     const vectord xNext = nextPoint(); 
@@ -81,7 +81,7 @@ namespace bayesopt
 
     // Update surrogate model
     bool retrain = ((mParameters.n_iter_relearn > 0) && 
-		    ((ii + 1) % mParameters.n_iter_relearn == 0));
+		    ((mCurrentIter + 1) % mParameters.n_iter_relearn == 0));
     
     if (retrain)  // Full update
       {
@@ -92,7 +92,8 @@ namespace bayesopt
       {
 	mModel->updateSurrogateModel();
       } 
-    plotStepData(ii,xNext,yNext);
+    plotStepData(mCurrentIter,xNext,yNext);
+    mCurrentIter++;
   }
 
   void BayesOptBase::initializeOptimization()
@@ -112,22 +113,21 @@ namespace bayesopt
     
     mModel->updateHyperParameters();
     mModel->fitSurrogateModel();
+    mCurrentIter = 0;
   }
 
 
-  int BayesOptBase::optimize(vectord &bestPoint)
+  void BayesOptBase::optimize(vectord &bestPoint)
   {
     initializeOptimization();
     assert(mDims == bestPoint.size());
     
     for (size_t ii = 0; ii < mParameters.n_iterations; ++ii)
       {      
-	stepOptimization(ii);
+	stepOptimization();
       }
    
     bestPoint = getFinalResult();
-
-    return 0;
   } // optimize
   
 

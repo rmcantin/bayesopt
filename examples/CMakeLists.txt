@@ -20,6 +20,11 @@ ADD_EXECUTABLE(bo_branin ./bo_branin.cpp )
 add_dependencies(bo_branin bayesopt)
 TARGET_LINK_LIBRARIES(bo_branin bayesopt)
 
+ADD_EXECUTABLE(bo_branin_mcmc ./bo_branin_mcmc.cpp )
+add_dependencies(bo_branin_mcmc bayesopt)
+TARGET_LINK_LIBRARIES(bo_branin_mcmc bayesopt)
+
+
 enable_language(C)  #For OpenGL and bo_display demo
 
 #Display test
@@ -48,25 +53,15 @@ if(OPENGL_FOUND AND GLUT_FOUND)
     ./bo_display.cpp 
     ${DISPLAY_SRC})
   add_dependencies(bo_display bayesopt)
-  TARGET_LINK_LIBRARIES(bo_display bayesopt ${GLUT_LIBRARY} ${OPENGL_LIBRARY})
-
-  ADD_EXECUTABLE(bo_display2 
-    ./bo_display2.cpp 
-    ${DISPLAY_SRC})
-  add_dependencies(bo_display2 bayesopt)
-  TARGET_LINK_LIBRARIES(bo_display2 bayesopt ${GLUT_LIBRARY} ${OPENGL_LIBRARY})
-
-  ADD_EXECUTABLE(bo_display3 
-    ./bo_display3.cpp 
-    ${DISPLAY_SRC})
-  add_dependencies(bo_display3 bayesopt)
-  TARGET_LINK_LIBRARIES(bo_display3 bayesopt ${GLUT_LIBRARY} ${OPENGL_LIBRARY})
+  TARGET_LINK_LIBRARIES(bo_display bayesopt 
+    ${GLUT_LIBRARY} ${OPENGL_LIBRARY})
 
   ADD_EXECUTABLE(bo_branin_display
     ./bo_branin_display.cpp 
     ${DISPLAY_SRC})
   add_dependencies(bo_branin_display bayesopt)
-  TARGET_LINK_LIBRARIES(bo_branin_display bayesopt ${GLUT_LIBRARY} ${OPENGL_LIBRARY})
+  TARGET_LINK_LIBRARIES(bo_branin_display bayesopt 
+    ${GLUT_LIBRARY} ${OPENGL_LIBRARY})
 
 
 endif()

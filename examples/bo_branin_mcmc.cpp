@@ -24,25 +24,23 @@
 
 int main(int nargs, char *args[])
 {
-  size_t dim = 1;
-
-  bopt_params parameters = initialize_parameters_to_default();
-  parameters.n_init_samples = 10;
-  parameters.n_iterations = 300;
-  set_surrogate(&parameters,"sGaussianProcess");
-  parameters.kernel.hp_mean[0] = 1.0;
-  parameters.kernel.hp_std[0] = 100.0;
-  parameters.kernel.n_hp = 1;
-
-  // parameters.crit_name = "cHedge(cEI,cLCB,cExpReturn,cOptimisticSampling)";
-  // parameters.epsilon = 0.0;
-
-  ExampleOneD opt(dim,parameters);
-  vectord result(dim);
-  opt.optimize(result);
+  bopt_params par = initialize_parameters_to_default();
+  par.n_iterations = 100;
+  par.n_init_samples = 2;
+  par.n_iter_relearn = 1;
+  par.use_random_seed = 0;
   
-  std::cout << "Result:" << result << std::endl;
-  opt.printOptimal();
+  par.l_type = L_MCMC;
+  par.sc_type = SC_MAP;
+  par.verbose_level = 1;
+  
+  ExampleBranin branin(2,par);
+  vectord result(2);
+
+  branin.optimize(result);
+  std::cout << "Result: " << result << "->" 
+	    << branin.evaluateSample(result) << std::endl;
+  branin.printOptimal();
 
   return 0;
 }

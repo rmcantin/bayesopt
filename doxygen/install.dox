@@ -3,36 +3,46 @@
 
 The core of BayesOpt uses standard C/C++ code (C++98) so it can be
 compiled from many C++ compilers (gcc, clang, MSVC...). The library
-also include wrappers for Python, Matlab and Octave interfaces which requires
-extra dependencies or compilation steps. Note that the
-Python or Matlab/Octave interfaces are not included by default.
+also include wrappers for Python, Matlab and Octave interfaces.
 
-\section unixinst Installing in Linux/MacOS:
+\section getDepend Dependencies:
+
+CMake: The easiest way to compile this library is using the cross platform
+and cross compiler tool <a href="http://www.cmake.org/">CMake</a>.
+
+Boost: This code uses Boost libraries for matrix operations (uBlas), random
+number generation, math functions and smart pointers. Boost can
+be found in many Linux and MacOS repositories. It can also be
+downloaded from http://www.boost.org.
+
+OpenGL/FreeGLUT (optional): It is used for the demos that include visualization.
+
+Python/Numpy (optional): Both Python development files (Python.h) and
+Numpy are needed if you want the Python interface. The library has
+been tested with Python 2.6 and 2.7. The interface relies on Numpy
+arrays.
+
+Matlab/Octave (optional): The library is compatible with any Matlab
+from 2010 and Octave. If you want the Matlab interface, just make sure
+you have a C++ compiler compatible with your Matlab version.
+
+NLOPT (included): A LGPL library for nonlinear optimization. It has been slightly
+modified and include the corresponding CMake files.
+
+Sobol (included): A LGPL library to generate Sobol sequences. 
+
+Matplotpp (included): A GPL library for visualization and plotting. The code
+included in this package includes some bug-fixes and compiling
+issues. It requires OpenGL/GLUT.
+
+\section unixinst Install in Linux/MacOS:
 
 The compilation is very similar in any *nix system. Following these
 instructions, the library will be compiled using the default
 configuration. You can modify that easily as explained in 
 \ref confinst
 
-\subsection getDepend Getting dependencies:
-
-The easiest way to compile this library is using the cross platform
-and cross compiler tool <a href="http://www.cmake.org/">CMake</a>.
-
-This code uses Boost libraries for matrix operations (uBlas), random
-number generation, math functions and smart pointers. Being only
-include files, Boost does not require any speciall install. Boost can
-be found in many Linux and MacOS repositories. It can also be
-downloaded from http://www.boost.org.
-
-Both Python development files (Python.h) and Numpy are needed if you
-want the Python interface. The library has been tested with Python 2.6
-and 2.7. The interface relies on Numpy arrays.
-
-Finally, if you want the Matlab interface, just make sure your C++
-compiler is compatible with your Matlab version.
-
-\subsubsection cinlinux Linux:
+\subsection cinlinux Linux:
 For Ubuntu/Debian, the minimum dependencies (C/C++) can be optained by running:
 \verbatim
 >> sudo apt-get install libboost-dev cmake cmake-curses-gui g++
@@ -50,10 +60,10 @@ If you want the Octave interface (note that the \a octave package does not inclu
 
 And for all dependencies:
 \verbatim
->> sudo apt-get install libboost-dev python-dev python-numpy cmake cmake-curses-gui g++ cython octave-headers
+>> sudo apt-get install libboost-dev python-dev python-numpy cmake cmake-curses-gui g++ cython octave-headers freeglut3-dev
 \endverbatim
 
-\subsubsection cinmac MacOS:
+\subsection cinmac MacOS:
 This section assumes \b macports is installed. Similar packages can be
 found in \b fink or \b homebrew. For the minimal install, run:
 \verbatim
@@ -72,7 +82,7 @@ If you want the Octave interface:
 
 Again, for all dependencies:
 \verbatim
->> sudo port install boost python27 py27-numpy gcc47 cmake py27-cython octave
+>> sudo port install boost python27 py27-numpy gcc47 cmake py27-cython octave freeglut
 \endverbatim
 
 
@@ -100,13 +110,12 @@ documentation right after compiling the code by running.
 Thid documentation will appear in the "doc" subdirectory.
 
 
-
 \subsection instpython Python interface:
 
 Both Python development files (Python.h) and Numpy are needed if you
-want the python interface. The library has been tested with Python 2.6
-and 2.7. The interface relies on Numpy arrays. If we want to select
-the option to compile the Python interface we can just run:
+want the python interface. The library has been tested with Python
+2.5, 2.6 and 2.7. The interface relies on Numpy arrays. If we want to
+select the option to compile the Python interface we can just run:
 \verbatim
 >> cmake -DBAYESOPT_PYTHON_INTERFACE=ON . 
 \endverbatim
@@ -116,29 +125,61 @@ or
 \endverbatim
 and select the corresponding option.
 
-\b Important: Python requires a special module with shared access and nonstandard
-name. Thus, it will build a separate module called "bayesopt.so". This module can be
-accessible from Python provided that it is in the PYTHONPATH or sys.path. It cannot be
-linked to any executable or other libraries. Use libbayesopt.* instead.
+\b Important: Python requires a special module with shared access and
+nonstandard name. Thus, it will build a separate module called
+"bayesopt.so". This module can be accessible from Python provided that
+it is in the PYTHONPATH or sys.path. It cannot be linked to any
+executable or other libraries. Use libbayesopt.* instead.
+
+\subsubsection notepython Issues with multiple Python versions:
+
+CMake has a special system to find the Python dependencies. However,
+sometimes, in systems where there are several instances of Python
+installed, it can find mixed dependencies.
+
+If you find an error about incorrect Python versions or include files,
+you can fix this by checking the Python depencies found by CMake. Run:
+\verbatim
+>> ccmake . 
+\endverbatim
+and press "t" to select advanced features. Then, look if the PYTHON_*
+variables point to the same install/version. Once it has been
+fixed. Press "c" several times to run the CMake processor. Finally,
+press "g" to generate the corresponding Makefiles.
 
 \subsection instmatlab MATLAB/Octave interface:
 
 Make sure the library is compiled with the MATLAB_COMPATIBLE option
-using ccmake. Undex Mac OS they must be shared. Also, configure 
-Matlab/Octave to compile mex files. For example, in Matlab you can run
-to check the supported compilers:
+using ccmake. For Mac OS they must be shared. 
+
+\subsubsection Generate interface from Octave 
+
+Run the script compile_octave.m, which can be found in the \em
+/matlab/ directory.
+
+If bayesopt or nlopt are compiled as \b shared libraries, then, at run
+time, Octave also needs to access to the libraries. For example,
+LD_LIBRARY_PATH must include the folder where the libraries are. If
+the install path is the default, you can execute the
+exportlocalpath.sh script before calling MATLAB.
+
+\subsubsection Generate interface from Matlab 
+
+First, configure Matlab to compile mex files if you have not done that
+before. Run to check the supported compilers and select the appropiate:
 \verbatim
 >> mex -setup
 \endverbatim
 
-Run the corresponding script compile_matlab.m or compile_octave.m,
-which can be found in the \em /matlab/ directory.
+Run the script compile_matlab.m, which can be found in the \em
+/matlab/ directory.
 
 If bayesopt or nlopt are compiled as \b shared libraries, then, at run
-time, MATLAB/Octave also needs to access to the libraries. For
-example, LD_LIBRARY_PATH must include the folder where the libraries
-are. If the install path is the default, you can execute the
+time, MATLAB also needs to access to the libraries. For example,
+LD_LIBRARY_PATH must include the folder where the libraries are. If
+the install path is the default, you can execute the
 exportlocalpath.sh script before calling MATLAB.
+
 
 \subsubsection notematlab Issues on libstdc++ linking:
 
@@ -165,7 +206,7 @@ the worng std++ library for different reasons. See:
 
 <HR>
 
-\section cinwin Windows and other systems:
+\section cinwin Install in Windows and other systems:
 Install this components:
 \li CMake: http://www.cmake.org
 
@@ -291,4 +332,29 @@ BAYESOPT_BUILD_EXAMPLES=OFF
 \endverbatim
 
 
- */
+\section comptests Compatibility tests
+
+| API    |  Linux |  MacOS |  Win/MinGW   |  Win/MSVC |
+|--------|--------|--------|--------------|-----------|
+| C/C++  | OK     | OK     | OK           | OK        |
+| Matlab | OK     | OK     | OK (32 bits) | OK        |
+| Octave | OK     | OK     | No test      | No test   |
+| Python | OK     | OK     | No test      | No test   |
+
+\subsection notetests Notes on tested systems: 
+- Linux: Debian 6.0, Ubuntu from 11.04
+- MacOS: 10.6 (Snow Leopard)
+- MS Windows: XP, Vista, 7
+
+Compilers:
+- gcc: different versions from 4.1
+- clang: version 2.7
+- MinGW: version from 0.5
+- MSVC: Visual Studio Professional 2012, Express 2010-2012
+
+Interfaces
+- Matlab from 2010a
+- Octave from version 3.2
+- Python from version 2.5 (not tested on Python 3)
+
+*/

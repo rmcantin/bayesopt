@@ -44,9 +44,9 @@ def worker(pipe):
 
 class BayesOptProcess(Process,BayesOptContinuous):
 
-    def __init__ (self, pipe):
+    def __init__ (self, pipe, n_dim):
         Process.__init__(self)
-        BayesOptContinuous.__init__(self)
+        BayesOptContinuous.__init__(self, n_dim)
         self.pipe = pipe
 
     def run(self):
@@ -67,7 +67,7 @@ class BayesOptProcess(Process,BayesOptContinuous):
 if __name__ == '__main__':
     pipe_par, pipe_child = Pipe()
 
-    bo = BayesOptProcess(pipe_child)
+    bo = BayesOptProcess(pipe_child,n_dim=5)
     bo.params['n_iterations'] = 50
     bo.params['n_init_samples'] = 20
     bo.params['s_name'] = "sGaussianProcessNormal"

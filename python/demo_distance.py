@@ -64,7 +64,7 @@ print "Seconds", clock() - start
 
 
 print "OO implementation"
-bo_test = BayesOptTest()
+bo_test = BayesOptTest(n)
 bo_test.params = params
 bo_test.n = n
 bo_test.lb = lb

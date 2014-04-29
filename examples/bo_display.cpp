@@ -20,8 +20,9 @@
 ------------------------------------------------------------------------
 */
 
-#include "displaygp.hpp"
 #include "testfunctions.hpp"
+#include "displaygp.hpp"
+
 
 
 // Unfortunately OpenGL functions require no parameters, so the object has to be global.

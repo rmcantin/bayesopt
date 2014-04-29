@@ -16,9 +16,9 @@ add_dependencies(bo_oned bayesopt)
 TARGET_LINK_LIBRARIES(bo_oned bayesopt)
 
 #Branin
-ADD_EXECUTABLE(bo_branin ./bo_branin.cpp )
-add_dependencies(bo_branin bayesopt)
-TARGET_LINK_LIBRARIES(bo_branin bayesopt)
+#ADD_EXECUTABLE(bo_branin ./bo_branin.cpp )
+#add_dependencies(bo_branin bayesopt)
+#TARGET_LINK_LIBRARIES(bo_branin bayesopt)
 
 ADD_EXECUTABLE(bo_branin_mcmc ./bo_branin_mcmc.cpp )
 add_dependencies(bo_branin_mcmc bayesopt)

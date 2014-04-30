@@ -113,14 +113,15 @@ namespace bayesopt
 	if (Xnext(i) < mDown[i] || Xnext(i) > mUp[i])
 	  {
 	    FILE_LOG(logDEBUG) << Xnext;
-	    throw std::invalid_argument("Local trial withour proper initial point.");
+	    throw std::invalid_argument("Local trial withour proper"
+					" initial point.");
 	  }
       }
 
     nlopt::algorithm algo = nlopt::LN_BOBYQA;
     eval_func fpointer = &(NLOPT_Optimization::evaluate_nlopt);
     void* objPointer = static_cast<void *>(rbobj);
-    const size_t nIter = 50;
+    const size_t nIter = 20;
     std::vector<double> vd(n);
     std::vector<double> vu(n);
 
@@ -193,18 +194,21 @@ namespace bayesopt
 	objPointer = static_cast<void *>(rgbobj);
 	break;
       default: 
-	throw std::invalid_argument("Inner optimization algorithm not supported");
+	throw std::invalid_argument("Inner optimization algorithm"
+				    " not supported");
       }
 
     if (objPointer == NULL)
       {
-	throw std::invalid_argument("Wrong object model (gradient/no gradient)");
+	throw std::invalid_argument("Wrong object model "
+				    "(gradient/no gradient)");
       }
 
     fmin = run_nlopt(algo,fpointer,Xnext,maxf1,
 		     mDown,mUp,objPointer);
 
-    FILE_LOG(logDEBUG) << "1st opt " << maxf1 << "-> " << Xnext << " f() ->" << fmin;
+    FILE_LOG(logDEBUG) << "1st opt " << maxf1 << "-> " << Xnext 
+		       << " f() ->" << fmin;
     if (maxf2)
       {
 	//If the point is exactly at the limit, we may have trouble.
@@ -215,7 +219,8 @@ namespace bayesopt
 	  }
 	fmin = run_nlopt(nlopt::LN_BOBYQA,fpointer,Xnext,maxf2,
 			 mDown,mUp,objPointer);
-	FILE_LOG(logDEBUG) << "2nd opt " << maxf2 << "-> " << Xnext << " f() ->" << fmin;
+	FILE_LOG(logDEBUG) << "2nd opt " << maxf2 << "-> " << Xnext 
+			   << " f() ->" << fmin;
       }
 
     return fmin;

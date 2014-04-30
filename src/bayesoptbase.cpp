@@ -22,12 +22,9 @@
 
 #include "bayesoptbase.hpp"
 
-#include <ctime>
-#include <cstdlib>
 #include "log.hpp"
 #include "posteriormodel.hpp"
 
-#define BAYESOPT_TIME_IT 1
 
 namespace bayesopt
 {
@@ -84,7 +81,7 @@ namespace bayesopt
     // Update surrogate model
     bool retrain = ((mParameters.n_iter_relearn > 0) && 
 		    ((mCurrentIter + 1) % mParameters.n_iter_relearn == 0));
-    
+
     if (retrain)  // Full update
       {
 	mModel->updateHyperParameters();
@@ -121,20 +118,12 @@ namespace bayesopt
 
   void BayesOptBase::optimize(vectord &bestPoint)
   {
-#if BAYESOPT_TIME_IT
-    double curr_t, prev_t = (double)clock() / CLOCKS_PER_SEC;
-#endif
     initializeOptimization();
     assert(mDims == bestPoint.size());
     
     for (size_t ii = 0; ii < mParameters.n_iterations; ++ii)
       {      
 	stepOptimization();
-#if BAYESOPT_TIME_IT
-	curr_t = (double)clock() / CLOCKS_PER_SEC;
-	std::cout << "Time:" << curr_t - prev_t << std::endl;
-	prev_t = curr_t;
-#endif
       }
    
     bestPoint = getFinalResult();

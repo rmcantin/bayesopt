@@ -43,13 +43,15 @@ namespace bayesopt
     //TODO: Generalize
     if (mParameters.sc_type == SC_ML)
       {
-	kOptimizer->setAlgorithm(BOBYQA);    // local search to avoid underfitting
+	// local search to avoid underfitting
+	kOptimizer->setAlgorithm(BOBYQA); 
+	kOptimizer->setMaxEvals(20*nhp);
       }
     else
       {
 	kOptimizer->setAlgorithm(COMBINED);
+	kOptimizer->setMaxEvals(50*nhp);
       }
-    // kOptimizer->setLimits(svectord(nhp,1e-10),svectord(nhp,100.));
     //Limits in log space
     kOptimizer->setLimits(svectord(nhp,-6.0),svectord(nhp,1.0));
   } 

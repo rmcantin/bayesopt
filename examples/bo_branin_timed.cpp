@@ -20,6 +20,8 @@
 ------------------------------------------------------------------------
 */
 
+#include <ctime>
+#include <fstream>
 #include "testfunctions.hpp"
 
 int main(int nargs, char *args[])
@@ -31,9 +33,28 @@ int main(int nargs, char *args[])
   par.verbose_level = 1;
   
   ExampleBranin branin(2,par);
-  vectord result(2);
 
-  branin.optimize(result);
+  std::ofstream timelog;
+  timelog.open("time.log");
+  std::clock_t curr_t;
+  std::clock_t prev_t = clock();
+
+  branin.initializeOptimization();
+      
+  for (size_t ii = 0; ii < par.n_iterations; ++ii)
+    {      
+      branin.stepOptimization();
+
+      curr_t = clock();
+      timelog << ii << ","
+	      << static_cast<double>(curr_t - prev_t) / CLOCKS_PER_SEC 
+	      << std::endl;
+      prev_t = curr_t;
+      }
+
+  timelog.close();
+
+  vectord result = branin.getFinalResult();
   std::cout << "Result: " << result << "->" 
 	    << branin.evaluateSample(result) << std::endl;
   branin.printOptimal();

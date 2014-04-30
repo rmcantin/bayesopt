@@ -20,9 +20,18 @@ ADD_EXECUTABLE(bo_branin ./bo_branin.cpp )
 add_dependencies(bo_branin bayesopt)
 TARGET_LINK_LIBRARIES(bo_branin bayesopt)
 
+ADD_EXECUTABLE(bo_branin_timed ./bo_branin_timed.cpp )
+add_dependencies(bo_branin_timed bayesopt)
+TARGET_LINK_LIBRARIES(bo_branin_timed bayesopt)
+
 ADD_EXECUTABLE(bo_branin_mcmc ./bo_branin_mcmc.cpp )
 add_dependencies(bo_branin_mcmc bayesopt)
 TARGET_LINK_LIBRARIES(bo_branin_mcmc bayesopt)
+
+#Hartmann
+ADD_EXECUTABLE(bo_hartmann_timed ./bo_hartmann_timed.cpp )
+add_dependencies(bo_hartmann_timed bayesopt)
+TARGET_LINK_LIBRARIES(bo_hartmann_timed bayesopt)
 
 
 enable_language(C)  #For OpenGL and bo_display demo

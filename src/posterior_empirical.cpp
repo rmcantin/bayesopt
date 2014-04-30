@@ -45,12 +45,12 @@ namespace bayesopt
       {
 	// local search to avoid underfitting
 	kOptimizer->setAlgorithm(BOBYQA); 
-	kOptimizer->setMaxEvals(20*nhp);
+	kOptimizer->setMaxEvals(10*nhp);
       }
     else
       {
 	kOptimizer->setAlgorithm(COMBINED);
-	kOptimizer->setMaxEvals(50*nhp);
+	kOptimizer->setMaxEvals(20*nhp);
       }
     //Limits in log space
     kOptimizer->setLimits(svectord(nhp,-6.0),svectord(nhp,1.0));

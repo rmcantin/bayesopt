@@ -29,10 +29,10 @@ int main(int nargs, char *args[])
   bopt_params par = initialize_parameters_to_default();
   par.n_iterations = 190;
   //  par.n_iter_relearn = 0;
-  par.use_random_seed = 0;
+  par.random_seed = 0;
   par.verbose_level = 1;
   
-  ExampleBranin branin(2,par);
+  BraninNormalized branin(2,par);
 
   std::ofstream timelog;
   timelog.open("time.log");

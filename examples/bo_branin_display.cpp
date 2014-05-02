@@ -56,13 +56,13 @@ int main(int nargs, char *args[])
   par.n_iterations = 100;
   par.n_init_samples = 2;
   par.n_iter_relearn = 1;
-  par.use_random_seed = 0;
+  par.random_seed = 0;
   
   par.l_type = L_MCMC;
   par.sc_type = SC_MAP;
   par.verbose_level = 1;
   
-  boost::scoped_ptr<ExampleBranin> branin(new ExampleBranin(2,par));
+  boost::scoped_ptr<BraninNormalized> branin(new BraninNormalized(2,par));
   GLOBAL_MATPLOT.init(branin.get(),2);
 
   vectord sv(2);  

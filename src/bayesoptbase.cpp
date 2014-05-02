@@ -33,7 +33,8 @@ namespace bayesopt
   BayesOptBase::BayesOptBase(size_t dim, bopt_params parameters):
     mParameters(parameters), mDims(dim)
   {
-    if (mParameters.use_random_seed) mEngine.seed(std::time(0));
+    if (mParameters.random_seed < 0) mParameters.random_seed = std::time(0); 
+    mEngine.seed(mParameters.random_seed);
 
     mModel.reset(PosteriorModel::create(dim,parameters,mEngine));
     

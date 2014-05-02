@@ -79,7 +79,7 @@ extern "C" {
     /** Sampling method for initial set 1-LHS, 2-Sobol (if available),
      *  other value-uniformly distributed */
     size_t init_method;          
-    size_t use_random_seed;      /**< 0-Fixed seed, 1-Random (time) seed.*/    
+    int random_seed;             /**< >=0 -> Fixed seed, <0 -> Time based (variable). */    
 
     size_t verbose_level;        /**< 1-Error,2-Warning,3-Info. 4-6 log file*/
     char* log_filename;          /**< Log file path (if applicable) */
@@ -90,10 +90,14 @@ extern "C" {
     char* save_filename;          /**< Sava data file path (if applicable) */
 
     char* surr_name;             /**< Name of the surrogate function */
-    double sigma_s;              /**< Signal variance (if known). Used in GaussianProcess and GaussianProcessNormal */
+    double sigma_s;              /**< Signal variance (if known). 
+				    Used in GaussianProcess and GaussianProcessNormal */
     double noise;                /**< Observation noise (and nugget) */
-    double alpha;                /**< Inverse Gamma prior for signal var. Used in StudentTProcessNIG */
-    double beta;                 /**< Inverse Gamma prior for signal var. Used in StudentTProcessNIG */
+
+    double alpha;                /**< Inverse Gamma prior for signal var. 
+				    Used in StudentTProcessNIG */
+    double beta;                 /**< Inverse Gamma prior for signal var. 
+				    Used in StudentTProcessNIG */
 
     score_type sc_type;          /**< Score type for kernel hyperparameters (ML,MAP,etc) */
     learning_type l_type;        /**< Type of learning for the kernel params */

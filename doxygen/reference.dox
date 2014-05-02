@@ -92,7 +92,7 @@ iterations between recomputing the kernel parameters. If it is set to
 optimization, we can choose among different strategies for the initial
 design (1-Latin Hypercube Sampling (LHS), 2-Sobol sequences (if available,
 see \ref mininst), Other-Uniform Sampling) [Default 1, LHS].
-\li \b use_random_seed: 0-Fixed seed, 1-Time based (variable)
+\li \b random_seed: >=0 -> Fixed seed, <0 -> Time based (variable)
 seed. For debugging purposes, it might be useful to freeze the random
 seed. [Default 1, variable seed].
 

@@ -28,13 +28,12 @@ int main(int nargs, char *args[])
 {
   bopt_params par = initialize_parameters_to_default();
   par.n_iterations = 190;
-  //  par.n_iter_relearn = 0;
-  par.noise = 1e-6;
-  par.use_random_seed = 0;
+  par.noise = 1e-10;
+  par.random_seed = 0;
   par.verbose_level = 1;
 
   
-  ExampleHartmann6 branin(6,par);
+  ExampleHartmann6 branin(par);
 
   std::ofstream timelog;
   timelog.open("time_hartmann.log");

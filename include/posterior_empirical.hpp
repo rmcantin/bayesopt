@@ -99,10 +99,13 @@ namespace bayesopt {
   { mCrit->initialCriteria(); };
 
   inline bool EmpiricalBayes::setNextCriterium(const vectord& prevResult)
-  { return false; };
+  { 
+    mCrit->pushResult(prevResult);
+    return mCrit->rotateCriteria(); 
+  };
 
   inline std::string EmpiricalBayes::getBestCriteria(vectord& best)
-  { return mCrit->name(); };
+  { return mCrit->getBestCriteria(best); };
 
   inline  ProbabilityDistribution* EmpiricalBayes::getPrediction(const vectord& query)
   { return mGP->prediction(query); };

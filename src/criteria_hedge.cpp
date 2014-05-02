@@ -76,7 +76,7 @@ namespace bayesopt
       }
     else
       {
-	mCurrentCriterium = &mCriteriaList[mIndex];	
+	mCurrentCriterium = &mCriteriaList[mIndex];
 	return true;
       }
   };

@@ -35,7 +35,7 @@ const double MEAN_SIGMA      = 1000.0;
 const double PRIOR_ALPHA     = 1.0;
 const double PRIOR_BETA      = 1.0;
 const double DEFAULT_SIGMA   = 1.0;
-const double DEFAULT_NOISE   = 1e-4;
+const double DEFAULT_NOISE   = 1e-6;
 
 /* Algorithm parameters */
 const size_t DEFAULT_ITERATIONS        = 190;
@@ -163,8 +163,8 @@ bopt_params initialize_parameters_to_default(void)
   params.n_init_samples     = DEFAULT_INIT_SAMPLES;
   params.n_iter_relearn     = DEFAULT_ITERATIONS_RELEAR;
 
-  params.init_method      = 1;
-  params.use_random_seed  = 1;
+  params.init_method      =  1;
+  params.random_seed      = -1;
 
   params.verbose_level = DEFAULT_VERBOSE;
   params.log_filename  = new char[128];
@@ -177,7 +177,8 @@ bopt_params initialize_parameters_to_default(void)
   strcpy(params.log_filename,"bayesopt.dat");
 
   params.surr_name = new char[128];
-  strcpy(params.surr_name,"sStudentTProcessNIG");
+  //  strcpy(params.surr_name,"sStudentTProcessNIG");
+  strcpy(params.surr_name,"sGaussianProcess");
 
   params.sigma_s = DEFAULT_SIGMA;
   params.noise   = DEFAULT_NOISE;

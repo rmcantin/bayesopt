@@ -29,8 +29,8 @@
 class ExampleOneD: public bayesopt::ContinuousModel
 {
 public:
-  ExampleOneD(size_t dim, bopt_params par):
-    ContinuousModel(dim,par) {}
+  ExampleOneD(bopt_params par):
+    ContinuousModel(1,par) {}
 
   double evaluateSample(const vectord& xin)
   {
@@ -55,10 +55,10 @@ public:
 };
 
 
-class ExampleBranin: public bayesopt::ContinuousModel
+class BraninNormalized: public bayesopt::ContinuousModel
 {
 public:
-  ExampleBranin(size_t dim,bopt_params par):
+  BraninNormalized(size_t dim,bopt_params par):
     ContinuousModel(dim,par) {}
 
   double evaluateSample( const vectord& xin)
@@ -71,7 +71,12 @@ public:
 
     double x = xin(0) * 15 - 5;
     double y = xin(1) * 15;
+    
+    return branin(x,y);
+  }
 
+  double branin(double x, double y)
+  {
     return sqr(y-(5.1/(4*sqr(M_PI)))*sqr(x)
 	       +5*x/M_PI-6)+10*(1-1/(8*M_PI))*cos(x)+10;
   };
@@ -84,13 +89,13 @@ public:
   void printOptimal()
   {
     vectord sv(2);  
-    sv(0) = 0.1239; sv(1) = 0.8183;
+    sv(0) = 0.1238938; sv(1) = 0.818333;
     std::cout << "Solutions: " << sv << "->" 
 	      << evaluateSample(sv) << std::endl;
-    sv(0) = 0.5428; sv(1) = 0.1517;
+    sv(0) = 0.5427728; sv(1) = 0.151667;
     std::cout << "Solutions: " << sv << "->" 
 	      << evaluateSample(sv) << std::endl;
-    sv(0) = 0.9617; sv(1) = 0.1650;
+    sv(0) = 0.961652; sv(1) = 0.1650;
     std::cout << "Solutions: " << sv << "->" 
 	      << evaluateSample(sv) << std::endl;
   }
@@ -100,8 +105,8 @@ public:
 class ExampleHartmann6: public bayesopt::ContinuousModel
 {
 public:
-  ExampleHartmann6(size_t dim,bopt_params par):
-    ContinuousModel(dim,par), mA(4,6), mC(4), mP(4,6)
+  ExampleHartmann6(bopt_params par):
+    ContinuousModel(6,par), mA(4,6), mC(4), mP(4,6)
   {
     mA <<= 10.0,   3.0, 17.0,   3.5,  1.7,  8.0,
       0.05, 10.0, 17.0,   0.1,  8.0, 14.0,

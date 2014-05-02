@@ -63,8 +63,6 @@ class ExampleDisc: public bayesopt::DiscreteModel
 
 int main(int nargs, char *args[])
 {    
-  int n = 6;                   // Number of dimensions
-
   // Common configuration
   // See parameters.h for the available options
   // If we initialize the struct with the DEFAUL_PARAMS,
@@ -77,12 +75,13 @@ int main(int nargs, char *args[])
   par.mean.coef_mean[0] = 0.0;
   par.mean.coef_std[0] = 10.0;
   par.mean.n_coef = 1;
-  par.surr_name = "sStudentTProcessJef";
+  set_surrogate(&par,"sStudentTProcessJef");
   par.n_iterations = 20;       // Number of iterations
   par.n_init_samples = 20;
   /*******************************************/
   
-  size_t nPoints = 1000;
+  const size_t nPoints = 1000;
+  const size_t n = 6;                   // Number of dimensions
 
   randEngine mtRandom;
   matrixd xPoints(nPoints,n);

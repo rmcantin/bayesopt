@@ -57,7 +57,7 @@ int menu()
     {
       std::cout << "Please select an option for the parameters:\n\n"
 		<< "  1- Default parameters.\n"
-		<< "  2- Fixed Gaussian process model.\n"
+		<< "  2- Student t process model.\n"
 		<< "  3- Combined kernel.\n"
 		<< "  4- Lower Confidence Bound.\n"
 		<< "  5- A-optimality criteria.\n\n"
@@ -72,7 +72,6 @@ int menu()
 
 int main(int nargs, char *args[])
 {
-  size_t dim = 1;
   bopt_params parameters = initialize_parameters_to_default();
   parameters.n_init_samples = 7;
   parameters.n_iterations = 100;
@@ -81,7 +80,12 @@ int main(int nargs, char *args[])
   switch( menu() )
     {
     case 1: break;
-    case 2: set_surrogate(&parameters,"sGaussianProcess"); break;
+    case 2: 
+      {
+	set_surrogate(&parameters,"sStudentTProcessNIG"); 
+	parameters.n_iter_relearn = 5;
+	break;
+      }
     case 3:   
       { 
 	set_kernel(&parameters,"kSum(kPoly3,kRQISO)");
@@ -94,13 +98,11 @@ int main(int nargs, char *args[])
 	break;
       }
     case 4:
-      set_surrogate(&parameters,"sGaussianProcess");
       set_criteria(&parameters,"cLCB");
       parameters.crit_params[0] = 5;
       parameters.n_crit_params = 1;
       break;      
     case 5:
-      set_surrogate(&parameters,"sGaussianProcess");
       set_criteria(&parameters,"cAopt");
       parameters.n_crit_params = 0;
       break;
@@ -108,7 +110,7 @@ int main(int nargs, char *args[])
       break;
     };
 
-  boost::scoped_ptr<ExampleOneD> opt(new ExampleOneD(dim,parameters));
+  boost::scoped_ptr<ExampleOneD> opt(new ExampleOneD(parameters));
   GLOBAL_MATPLOT.init(opt.get(),1);
 
   glutInit(&nargs, args);

@@ -5,37 +5,18 @@ The core of BayesOpt uses standard C/C++ code (C++98) so it can be
 compiled from many C++ compilers (gcc, clang, MSVC...). The library
 also include wrappers for Python, Matlab and Octave interfaces.
 
-\section getDepend Dependencies:
+First, choose the install instructions based on your operating system:
+\li \ref unixinst
+\li \ref cinwin
 
-CMake: The easiest way to compile this library is using the cross platform
-and cross compiler tool <a href="http://www.cmake.org/">CMake</a>.
+Once you have installed the library with your desired interface, you can \ref testing
 
-Boost: This code uses Boost libraries for matrix operations (uBlas), random
-number generation, math functions and smart pointers. Boost can
-be found in many Linux and MacOS repositories. It can also be
-downloaded from http://www.boost.org.
+For an advanced installation, you can read \ref confinst and you can get a detailed explanation of
+the dependencies needed in \ref getDepend.
 
-OpenGL/FreeGLUT (optional): It is used for the demos that include visualization.
+<HR>
 
-Python/Numpy (optional): Both Python development files (Python.h) and
-Numpy are needed if you want the Python interface. The library has
-been tested with Python 2.6 and 2.7. The interface relies on Numpy
-arrays.
-
-Matlab/Octave (optional): The library is compatible with any Matlab
-from 2010 and Octave. If you want the Matlab interface, just make sure
-you have a C++ compiler compatible with your Matlab version.
-
-NLOPT (included): A LGPL library for nonlinear optimization. It has been slightly
-modified and include the corresponding CMake files.
-
-Sobol (included): A LGPL library to generate Sobol sequences. 
-
-Matplotpp (included): A GPL library for visualization and plotting. The code
-included in this package includes some bug-fixes and compiling
-issues. It requires OpenGL/GLUT.
-
-\section unixinst Install in Linux/MacOS:
+\section unixinst Install in Linux/MacOS
 
 The compilation is very similar in any *nix system. Following these
 instructions, the library will be compiled using the default
@@ -206,7 +187,7 @@ the worng std++ library for different reasons. See:
 
 <HR>
 
-\section cinwin Install in Windows and other systems:
+\section cinwin Install in Windows and other systems
 Install this components:
 \li CMake: http://www.cmake.org
 
@@ -275,7 +256,44 @@ download and install:
 Also, read this article about how to link everything:
 http://docs.python.org/2/extending/windows.html#building-on-windows
 
+<HR>
 
+\section testing Test the installation.
+
+The library includes several test program that can be found in the \em
+bin folder. Furthermore, there are test programs respectively under
+the \em python and \em matlab folders.  They provide examples of the
+different interfaces that BayesOpt provide.
+
+<ol>
+<li> Run \b bo_branin. It should found one of the minima
+shown at the end of the run.
+
+If this does not work, it might be because the program is not finding
+the correct dynamic libraries:
+<ul>
+<li> In Windows, you can copy the DLLs to your working folder or
+include the lib folder in the system PATH.
+
+<li> In some *nix systems, including Ubuntu, Debian and Mac OS, the
+library is installed by default in /usr/local/lib/. However, this
+folder is not included by default in the linker, Python or Matlab
+paths by default. This is specially critical when building shared
+libraries (mandatory for Python usage). The script \em
+exportlocalpaths.sh makes sure that the folder with the libraries is
+included in all the necessary paths.
+</ul>
+
+<li> Python: the scrip \b demo_quad gives a quick overview of all the
+features of the Python interface. The function to optimize is a
+5-dimensional quadratic function \f$x^* = [0.3]^5\f$ and \f$y^* =
+5.0\f$. The discrete version just consider only 100 points randomly
+distributed in the \f$[0,1]^5\f$ box, so the result might differ from
+the actual optimum.
+
+<li> Matlab/Octave: the scrip \b runtest also is configured to run
+different sets of test, the first one also on the Branin function.
+</ol>
 <HR>
 
 \section confinst Configure the compilation/install
@@ -330,6 +348,38 @@ Similarly, we can avoid to compile the example files and demos:
 \verbatim
 BAYESOPT_BUILD_EXAMPLES=OFF
 \endverbatim
+
+<HR>
+
+\section getDepend Dependencies
+
+CMake: The easiest way to compile this library is using the cross platform
+and cross compiler tool <a href="http://www.cmake.org/">CMake</a>.
+
+Boost: This code uses Boost libraries for matrix operations (uBlas), random
+number generation, math functions and smart pointers. Boost can
+be found in many Linux and MacOS repositories. It can also be
+downloaded from http://www.boost.org.
+
+OpenGL/FreeGLUT (optional): It is used for the demos that include visualization.
+
+Python/Numpy (optional): Both Python development files (Python.h) and
+Numpy are needed if you want the Python interface. The library has
+been tested with Python 2.6 and 2.7. The interface relies on Numpy
+arrays.
+
+Matlab/Octave (optional): The library is compatible with any Matlab
+from 2010 and Octave. If you want the Matlab interface, just make sure
+you have a C++ compiler compatible with your Matlab version.
+
+NLOPT (included): A LGPL library for nonlinear optimization. It has been slightly
+modified and include the corresponding CMake files.
+
+Sobol (included): A LGPL library to generate Sobol sequences. 
+
+Matplotpp (included): A GPL library for visualization and plotting. The code
+included in this package includes some bug-fixes and compiling
+issues. It requires OpenGL/GLUT.
 
 
 \section comptests Compatibility tests

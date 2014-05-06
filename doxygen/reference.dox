@@ -17,7 +17,11 @@ example:
 - etc.
 
 
-\section testing Testing the installation.
+\section running Running your own problems.
+
+First, make sure the library works for your desired interface by
+running one of the provided examples
+
 
 The library includes several test program that can be found in the \em
 bin folder. Furthermore, there are test programs respectively under

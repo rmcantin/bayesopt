@@ -38,10 +38,10 @@ const double DEFAULT_SIGMA   = 1.0;
 const double DEFAULT_NOISE   = 1e-6;
 
 /* Algorithm parameters */
-const size_t DEFAULT_ITERATIONS        = 190;
-const size_t DEFAULT_INIT_SAMPLES      = 10;
-const size_t DEFAULT_ITERATIONS_RELEAR = 50;
-const size_t DEFAULT_INNER_EVALUATIONS = 500;   /**< Used per dimmension */
+const size_t DEFAULT_ITERATIONS         = 190;
+const size_t DEFAULT_INIT_SAMPLES       = 10;
+const size_t DEFAULT_ITERATIONS_RELEARN = 50;
+const size_t DEFAULT_INNER_EVALUATIONS  = 500; /**< Used per dimmension */
 
 const size_t DEFAULT_VERBOSE           = 1;
 
@@ -161,7 +161,7 @@ bopt_params initialize_parameters_to_default(void)
   params.n_iterations       = DEFAULT_ITERATIONS;
   params.n_inner_iterations = DEFAULT_INNER_EVALUATIONS;
   params.n_init_samples     = DEFAULT_INIT_SAMPLES;
-  params.n_iter_relearn     = DEFAULT_ITERATIONS_RELEAR;
+  params.n_iter_relearn     = DEFAULT_ITERATIONS_RELEARN;
 
   params.init_method      =  1;
   params.random_seed      = -1;

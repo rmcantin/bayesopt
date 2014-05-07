@@ -1,0 +1,447 @@
+/*! \page usemanual Using the library
+\tableofcontents
+
+The library is intended to be both fast and clear for development and
+research. At the same time, it allows great level of costumization and
+guarantees a high level of accuracy and numerical robustness.
+
+
+\section running Running your own problems.
+
+The best way to design your own problem is by following one of the
+examples. Basically, there are 3 steps that should be followed:
+- Define the function to optimize.
+- Modify the parameters of the optimization process. In general, many
+  problems can be solved with the default set of parameters, but some
+  of them will require some tunning.
+   - The set of parameters and the default set can be found in
+     parameters.h. 
+   - In general most users will need to modify onlyare described in \ref basicparams.
+   - Advanced users should read \ref params for a full description of the parameters.
+- Set and run the corresponding optimizer (continuous, discrete,
+categorical, etc.). In this step, the corresponding restriction should
+be defined.
+   - Continuous optimization requires box constraints (upper and lower bounds).
+   - Discrete optimization requires the set of discrete values.
+   - Categorical optimization requires the number of categories per dimension.
+
+<HR>
+
+\section basicparams Basic parameter setup
+
+Many users will only need to change the following parametes. Advanced
+users should read \ref params for a full description of the
+parameters.
+
+- \b n_iterations: Number of iterations of BayesOpt. Each iteration
+corresponds with a target function evaluation. In general, more
+evaluations result in higher precision [Default 190]
+
+- \b noise: Observation noise/signal ratio. [Default 1e-6]
+  - For stochastic functions (if several evaluations of the same point
+  produce different results) it should match as close as possible the
+  variance of the noise with respect to the variance of the
+  signal. Too much noise results in slow convergence while not enough
+  noise might result in not converging at all.
+  - For simulations and deterministic functions, it should be close to
+  0. However, to avoid numerical instability due to model inaccuracies,
+  make it always greater than 0. For example, between 1e-10 and 1e-14.
+
+If execution time is not an issue, accuracy might be improving
+modifying the following parameters.
+
+- \b l_type: Learning method for the kernel hyperparameters. Setting
+  this parameter to L_MCMC uses a more robust learning method which
+  might result in better accuracy, but the overall execution time will
+  increase. [Default L_EMPIRICAL]
+
+- \b n_iter_relearn: Number of iterations between re-learning kernel
+  parameters. That is, kernel learning ocur 1 out of \em
+  n_iter_relearn iterations. Ideally, the best precision is obtained
+  when the kernel parameters are learned every iteration
+  (n_iter_relearn = 1). However, this \i learning part is
+  computationaly expensive and implies a higher cost per
+  iteration. [Default 50]
+
+- \b n_inner_iterations: (only for continuous optimization) Maximum
+  number of iterations (per dimension!) to optimize the acquisition
+  function (criteria). That is, each iteration corresponds with a
+  criterion evaluation. If the original problem is high dimensional or
+  the result is needed with high precision, we might need to increase
+  this value.  [Default 500]
+
+<HR>
+
+\section usage Using the library
+
+Here we show a brief summary of the different ways to use the library:
+
+\subsection cusage C/C++ callback usage
+
+This interface is the most standard approach. Due to the large
+compatibility with C code with other languages it could also be used
+for other languages such as Fortran, Ada, etc.
+
+The function to optimize must agree with the template provided in
+bayesopt.h
+
+\code{.c}
+double my_function (unsigned int n, const double *x, double *gradient, void *func_data);
+\endcode
+
+Note that the gradient has been included for future compatibility,
+although in the current implementation, it is not used. You can just
+ignore it or send a NULL pointer.
+
+The parameters are defined in the bopt_params struct. The easiest way
+to set the parameters is to use
+\code{.c}
+bopt_params initialize_parameters_to_default(void);
+\endcode
+and then, modify the necesary fields. For the non-numeric parameters,
+there are a set of functions that can help to set the corresponding
+parameters:
+\code{.c}
+void set_kernel(bopt_params* params, const char* name);
+void set_mean(bopt_params* params, const char* name);
+void set_criteria(bopt_params* params, const char* name);
+void set_surrogate(bopt_params* params, const char* name);
+void set_log_file(bopt_params* params, const char* name);
+void set_load_file(bopt_params* params, const char* name);
+void set_save_file(bopt_params* params, const char* name);
+void set_learning(bopt_params* params, const char* name);
+void set_score(bopt_params* params, const char* name);
+\endcode
+Basically, it just need a pointer to the parameters and a string for
+the parameter value. For example:
+\code{.c}
+bopt_params params = initialize_parameters_to_default();
+set_learning(&params,"L_MCMC");
+\endcode
+
+Once we have set the parameters and the function, we can called the
+optimizer according to our problem.
+
+-For the continuous case:
+\code{.cpp}
+int bayes_optimization(int nDim, // number of dimensions 
+		       eval_func f, // function to optimize 
+		       void* f_data, // extra data that is transfered directly to f 
+		       const double *lb, const double *ub, // bounds 
+		       double *x, // out: minimizer 
+		       double *minf, // out: minimum 
+		       bopt_params parameters);
+\endcode
+
+-For the discrete case:
+\code{.cpp}
+int bayes_optimization_disc(int nDim, // number of dimensions 
+		            eval_func f, // function to optimize 
+			    void* f_data, // extra data that is transfered directly to f 
+			    double *valid_x, size_t n_points, // set of discrete points
+			    double *x, // out: minimizer 
+			    double *minf, // out: minimum 
+			    bopt_params parameters);
+\endcode
+
+-For the categorical case:
+\code{.cpp}
+int bayes_optimization_categorical(int nDim, // number of dimensions 
+		 eval_func f, // function to optimize 
+		 void* f_data, // extra data that is transfered directly to f 
+		 int *categories, // array of size nDim with the number of categories per dim 
+		 double *x, // out: minimizer 
+		 double *minf, // out: minimum 
+		 bopt_params parameters);
+\endcode
+
+
+\subsection cppusage C++ inheritance usage 
+
+This is the most straighforward and complete method to use the
+library. The object that must be optimized must inherit from one of
+the models defined in bayesopt.hpp.
+
+Then, we just need to override the virtual functions called \b
+evaluateSample which correspond to the function to be
+optimized. 
+
+Optionally, we can redefine \b checkReachability to declare nonlinear
+constrain (if a point is invalid, checkReachability should return \i
+false and if it is valid, \i true). Note that the latter feature is
+experimental. There is no convergence guarantees if used.
+
+For example, with for a continous problem, we will define out optimizer as:
+\code{.cpp}
+class MyOptimization: public ContinuousModel
+{
+ public:
+  MyOptimization(bopt_params param):
+    ContinuosModel(input_dimension,param) 
+  {
+     // My constructor 
+  }
+
+  double evaluateSample( const boost::numeric::ublas::vector<double> &query ) 
+  {
+     // My function here
+  };
+
+  bool checkReachability( const boost::numeric::ublas::vector<double> &query )
+  { 
+     // My restrictions here 
+  };
+};
+\endcode
+
+Then, we use it like:
+\code{.cpp}
+bopt_params params = initialize_parameters_to_default();
+set_learning(&params,"L_MCMC");
+
+MyOptimization optimizer(params);
+
+//Set the bounds. This is optional. Default is [0,1]
+optimizer.setBoundingBox(lowerBounds,upperBounds);
+
+//Collect the result in bestPoint
+boost::numeric::ublas::vector<double> bestPoint(dim);
+optimizer.optimize(bestPoint);
+\endcode
+
+Optionally, we can also choose to run every iteration
+independently. See bayesopt.hpp and bayesoptbase.hpp
+
+\subsection pyusage Python callback/inheritance usage
+
+The file python/demo_quad.py provides examples of the two Python
+interfaces.
+
+\b Parameters: For both interfaces, the parameters are defined as a
+Python dictionary with the same structure as the bopt_params struct in
+the C/C++ interface. The enumerate values are replaced by strings
+without the prefix. For example, the C_EI criteria is replaced by the
+string "EI" and the M_ZERO mean function is replaced by the string
+"ZERO".
+
+The parameter dictionary can be initialized using 
+\code{.py}
+parameters = bayesopt.initialize_params()
+\endcode
+
+however, this is not necesary in general. If any of the parameter is
+not included in the dictionary, the default value is included instead.
+
+\b Callback: The callback interface is just a wrapper of the C
+interface. In this case, the callback function should have the form
+\code{.py}
+def my_function (query):
+\endcode
+where \em query is a numpy array and the function returns a double
+scalar.
+	
+The optimization process can be called as
+\code{.py}
+y_out, x_out, error = bayesopt.optimize(my_function, n_dimensions, lower_bound, upper_bound, parameters)
+\endcode
+where the result is a tuple with the minimum as a numpy array (x_out),
+the value of the function at the minimum (y_out) and the error code.
+
+\b Inheritance: The object oriented construction is similar to the C++ interface.
+
+\code{.py}
+class MyModule(bayesoptmodule.BayesOptModule):
+    def evalfunc(self,query):
+        """ My function """
+\endcode
+
+The BayesOptModule include atributes for the parameters (\em params),
+number of dimensions (\em n) and bounds (\em lb and \em up).
+
+Then, the optimization process can be called as
+\code{.py}
+my_instance = MyModule()
+# set parameters, bounds and number of dimensions.
+y_out, x_out, error = my_instance.optimize()
+\endcode
+wher the result is a tuple with the minimum as a numpy array (x_out),
+the value of the function at the minimum (y_out) and the error code.
+
+\subsection matusage Matlab/Octave callback usage
+
+The file matlab/runtest.m provides an example of the Matlab/Octave
+interface.
+
+\b Parameters: The parameters are defined as a Matlab struct
+equivalent to bopt_params struct in the C/C++ interface, except for
+the \em theta and \em mu arrays which are replaced by Matlab
+vectors. Thus, the number of elements (\em n_theta and \em n_mu) are not
+needed. The enumerate values are replaced by strings without the
+prefix. For example, the C_EI criteria is replaced by the string "EI"
+and the M_ZERO mean function is replaced by the string "ZERO".
+
+If any of the parameter is not included in the Matlab struct, the
+default value is automatically included instead.
+
+\b Callback: The callback interface is just a wrapper of the C
+interface. In this case, the callback function should have the form
+\code{.m}
+function y = my_function (query):
+\endcode
+where \em query is a Matlab vector and the function returns a scalar.
+
+The optimization process can be called (both in Matlab and Octave) as
+\code{.m}
+[x_out, y_out] = bayesopt('my_function', n_dimensions, parameters, lower_bound, upper_bound)
+\endcode
+where the result is the minimum as a vector (x_out) and the value of
+the function at the minimum (y_out).
+
+In Matlab, but not in Octave, the optimization can also be called with
+function handlers
+\code{.m}
+[x_out, y_out] = bayesopt(@my_function, n_dimensions, parameters, lower_bound, upper_bound)
+\endcode
+
+<HR>
+
+\section params Understanding the parameters
+
+BayesOpt relies on a complex and highly configurable mathematical
+model. In theory, it should work reasonably well for many problems in
+its default configuration. However, Bayesian optimization shines when
+we can include as much knowledge as possible about the target function
+or about the problem. Or, if the knowledge is not available, keep the
+model as general as possible (to avoid bias). In this part, knowledge
+about Gaussian processes or nonparametric models in general might be
+useful. 
+
+For example, with the parameters we can select the kind of kernel,
+mean function or surrogate model that we want to use. With the kernel
+we can play with the smoothness of the function and it's
+derivatives. The mean function can be use to model the overall trend
+(flat, linear, etc.). If we know the overall signal variance we better
+use a Gaussian process, if we don't, we should use a Student's t
+process instead.
+
+For that reason, the parameters are bundled in a structure
+(C/C++/Matlab/Octave) or dictionary (Python), depending on the API
+that we use. This is a brief explanation of every parameter
+
+\subsection budgetpar Budget parameters
+
+\li \b n_iterations: Maximum number of iterations of BayesOpt. Each
+iteration corresponds with a target function evaluation. This is
+related with the budget of the application [Default 300]
+\li \b n_inner_iterations: Maximum number of iterations of the inner
+optimization process. Each iteration corresponds with a criterion
+evaluation. The inner optimization results in the "most interest
+point" to evaluate the target function. In order to scale the process for
+increasing dimensional spaces, the actual number of iterations is this
+number times the number of dimensions. [Default 500]
+\li \b n_init_samples: BayesOpt requires an initial set of samples to
+learn a preliminary model of the target function. Each sample is also
+a target function evaluation. [Default 30]
+\li \b n_iter_relearn: Although most of the parameters of the model
+are updated after every iteration, the kernel parameters cannot be
+updated continuously as it has a very large computational overhead and
+it might introduce bias in the result. This represents the number of
+iterations between recomputing the kernel parameters. If it is set to
+0, they are only learned after the initial set of samples. [Default 0]
+
+\subsection initpar Initialization parameters
+
+\li \b init_method: (unsigned integer value) For continuous
+optimization, we can choose among different strategies for the initial
+design (1-Latin Hypercube Sampling (LHS), 2-Sobol sequences (if available,
+see \ref mininst), Other-Uniform Sampling) [Default 1, LHS].
+\li \b random_seed: >=0 -> Fixed seed, <0 -> Time based (variable)
+seed. For debugging purposes, it might be useful to freeze the random
+seed. [Default 1, variable seed].
+
+
+\subsection logpar Logging parameters
+
+\li \b verbose_level: (unsigned integer value) Verbose level 0,3 ->
+warnings, 1,4 -> general information, 2,5 -> debug information, any
+other value -> only errors. Levels 0,1,2 -> send messages to
+stdout. Levels 3,4,5 -> send messages to a log file. [Default 1,
+general info->stdout].
+\li \b log_filename: Name of the log file (if applicable,
+verbose_level= 3, 4 or 5) [Default "bayesopt.log"]
+
+\subsection surrpar Surrogate model parameters
+
+\li \b surr_name: Name of the hierarchical surrogate function
+(nonparametric process and the hyperpriors on sigma and w). See
+Section \ref surrmod for a detailed description. [Default
+"sGaussianProcess"]
+\li \b sigma_s: Signal variance (if known) [Default 1.0]
+\li \b noise: Observation noise/signal ratio. For computer simulations
+or deterministic functions, it should be close to 0. However, to avoid
+numerical instability due to model inaccuracies, make it always <0.
+[Default 0.0001]
+\li \b alpha, \b beta: Inverse-Gamma prior hyperparameters (if
+applicable) [Default 1.0, 1.0]
+
+\subsection hyperlearn Hyperparameter learning
+
+Although BayesOpt tries to build a full analytic Bayesian model for
+the surrogate function, some hyperparameters cannot be estimated in
+closed form. Currently, the only parameters of BayesOpt models that
+require special treatment are the kernel hyperparameters. See Section
+\ref learnmod for a detailed description
+
+\li \b l_type: Learning method for the kernel
+hyperparameters. Currently, L_FIXED, L_EMPIRICAL and L_MCMC are
+implemented [Default L_EMPIRICAL]
+\li \b sc_type: Score function for the learning method. [Default
+SC_MAP]
+
+
+\subsection critpar Exploration/exploitation parameters
+
+\li \b epsilon: According to some authors, it is recommendable to
+include an epsilon-greedy strategy to achieve near optimal convergence
+rates. Epsilon is the probability of performing a random (blind)
+evaluation of the target function. Higher values implies forced
+exploration while lower values relies more on the
+exploration/exploitation policy of the criterion [Default 0.0
+(disabled)]
+\li \b crit_name: Name of the sample selection criterion or a
+combination of them. It is used to select which points to evaluate for
+each iteration of the optimization process. Could be a combination of
+functions like "cHedge(cEI,cLCB,cPOI,cThompsonSampling)". See section
+critmod for the different possibilities. [Default: "cEI"]
+\li \b crit_params, \b n_crit_params: Array with the set of parameters
+for the selected criteria. If there are more than one criterion, the
+parameters are split among them according to the number of parameters
+required for each criterion. If n_crit_params is 0, then the default
+parameter is selected for each criteria. [Default: n_crit_params = 0]
+
+\subsection kernelpar Kernel parameters
+
+\li \b kernel.name: Name of the kernel function. Could be a
+combination of functions like "kSum(kSEARD,kMaternARD3)". See section
+kermod for the different posibilities. [Default: "kMaternISO3"]
+\li \b kernel.hp_mean, \b kernel.hp_std, \b kernel.n_hp: Kernel
+hyperparameters prior in the log space. That is, if the
+hyperparameters are \f$\theta\f$, this prior is \f$p(\log(\theta))\f$. Any
+"ilegal" standard deviation (std<=0) results in a maximum likelihood
+estimate. Depends on the kernel selected. If there are more than one,
+the parameters are split among them according to the number of
+parameters required for each criterion. [Default: "1.0, 10.0, 1" ]
+
+\subsection meanpar Mean function parameters
+
+\li \b mean.name: Name of the mean function. Could be a combination of
+functions like "mSum(mOne, mLinear)". See Section parmod for the different
+posibilities. [Default: "mOne"]
+\li \b mean.coef_mean, \b kernel.coef_std, \b kernel.n_coef: Mean
+function coefficients. The standard deviation is only used if the
+surrogate model assumes a normal prior. If there are more than one,
+the parameters are split among them according to the number of
+parameters required for each criterion. [Default: "1.0, 30.0, 1" ]
+
+
+*/

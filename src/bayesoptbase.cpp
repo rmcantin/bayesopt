@@ -69,8 +69,28 @@ namespace bayesopt
   void BayesOptBase::stepOptimization()
   {
     // Find what is the next point.
-    const vectord xNext = nextPoint(); 
-    const double yNext = evaluateSampleInternal(xNext);
+    vectord xNext = nextPoint(); 
+    double yNext = evaluateSampleInternal(xNext);
+
+	if (std::pow(mYPrev - yNext,2) < mParameters.noise)
+	{
+		mCounterStuck++;
+		FILE_LOG(logINFO) << "Stuck for "<< mCounterStuck << " steps";
+	}
+	else
+	{
+		mCounterStuck = 0;
+	}
+	mYPrev = yNext;
+
+	// If we are stuck in the same point for several iterations, try a random jump!
+	if (mCounterStuck > 5)
+	{
+		FILE_LOG(logINFO) << "Epsilon-greedy random query!";
+		xNext = samplePoint();
+		yNext = evaluateSampleInternal(xNext);
+		mCounterStuck = 0;
+	}
 
     if (yNext == HUGE_VAL)
       {
@@ -114,6 +134,9 @@ namespace bayesopt
     mModel->updateHyperParameters();
     mModel->fitSurrogateModel();
     mCurrentIter = 0;
+
+	mCounterStuck = 0;
+	mYPrev = 0.0;
   }
 
 
@@ -129,7 +152,6 @@ namespace bayesopt
    
     bestPoint = getFinalResult();
   } // optimize
-  
 
   vectord BayesOptBase::nextPoint()
   {

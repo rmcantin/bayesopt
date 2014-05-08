@@ -182,7 +182,8 @@ namespace bayesopt {
 
   private:
     boost::scoped_ptr<PosteriorModel> mModel;
-
+	double mYPrev;
+	size_t mCounterStuck;
   private:
 
     BayesOptBase();

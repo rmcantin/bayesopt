@@ -130,7 +130,7 @@ void struct_size(const mxArray *s, const char *name, size_t *result)
   return;
 }
 
-void struct_size(const mxArray *s, const char *name, int *result)
+void struct_int(const mxArray *s, const char *name, int *result)
 {
   mxArray *val = mxGetField(s, 0, name);
   if (val) 

@@ -58,20 +58,24 @@ class BayesOptProcess(Process,BayesOptContinuous):
 
         return
 
-    def evalfunc(self, x):
+    def evaluateSample(self, x):
         self.pipe.send(x)
         result = self.pipe.recv()
         return result
 
 
 if __name__ == '__main__':
+    params = {
+        'n_iterations' : 50,
+        'n_init_samples' : 20,
+        's_name' : "sGaussianProcessNormal",
+        'c_name' : "cHedge(cEI,cLCB,cExpReturn,cOptimisticSampling)"
+    } 
+
     pipe_par, pipe_child = Pipe()
 
     bo = BayesOptProcess(pipe_child,n_dim=5)
-    bo.params['n_iterations'] = 50
-    bo.params['n_init_samples'] = 20
-    bo.params['s_name'] = "sGaussianProcessNormal"
-    bo.params['c_name'] = "cHedge(cEI,cLCB,cExpReturn,cOptimisticSampling)"
+    bo.parameters = params
 
     p = Process(target=worker, args=(pipe_par,))
 

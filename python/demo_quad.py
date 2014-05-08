@@ -20,7 +20,7 @@
 # ------------------------------------------------------------------------
 
 import bayesopt
-import bayesoptmodule
+from bayesoptmodule import BayesOptContinuous
 import numpy as np
 
 from time import clock
@@ -34,8 +34,8 @@ def testfunc(Xin):
     return total
 
 # Class for OO testing.
-class BayesOptTest(bayesoptmodule.BayesOptContinuous):
-    def evalfunc(self,Xin):
+class BayesOptTest(BayesOptContinuous):
+    def evaluateSample(self,Xin):
         return testfunc(Xin)
 
 
@@ -63,7 +63,7 @@ raw_input('Press INTRO to continue')
 
 print "OO implementation"
 bo_test = BayesOptTest(n)
-bo_test.params = params
+bo_test.parameters = params
 bo_test.lower_bound = lb
 bo_test.upper_bound = ub
 

@@ -34,8 +34,8 @@ import bayesopt as bo
 ## Python Module for BayesOptContinuous
 #
 # Python module to get run BayesOpt library in a OO pattern.
-# The objective module should inherit this one and override evalfunc.
-class BayesOptContinuous:
+# The objective module should inherit this one and override evaluateSample.
+class BayesOptContinuous(object):
     
     ## Let's define the parameters.
     #
@@ -48,19 +48,43 @@ class BayesOptContinuous:
         ## n dimensions
         self.n_dim = n_dim
         ## Lower bounds
-        self.lower_bound = np.zeros((self.n_dim,))
+        self.lb = np.zeros((self.n_dim,))
         ## Upper bounds
-        self.upper_bound = np.ones((self.n_dim,))
+        self.ub = np.ones((self.n_dim,))
+
+    @property
+    def parameters(self):
+        return self.params
+
+    @parameters.setter
+    def parameters(self,params):
+        self.params = params
+
+    @property
+    def lower_bound(self):
+        return self.lb
+
+    @lower_bound.setter
+    def lower_bound(self,lb):
+        self.lb = lb
+
+    @property
+    def upper_bound(self):
+        return self.ub
+
+    @upper_bound.setter
+    def upper_bound(self,ub):
+        self.ub = ub
 
     ## Function for testing.
     # It should be overriden.
-    def evalfunc(self, x_in):
+    def evaluateSample(self, x_in):
         raise NotImplementedError("Please Implement this method")
 
     ## Main function. Starts the optimization process.
     def optimize(self):
-        min_val, x_out, error = bo.optimize(self.evalfunc, self.n_dim,
-                                            self.lower_bound, self.upper_bound,
+        min_val, x_out, error = bo.optimize(self.evaluateSample, self.n_dim,
+                                            self.lb, self.ub,
                                             self.params)
         
         return min_val, x_out, error
@@ -69,7 +93,7 @@ class BayesOptContinuous:
 ## Python Module for BayesOptDiscrete
 #
 # Python module to get run BayesOpt library in a OO pattern.
-# The objective module should inherit this one and override evalfunc.
+# The objective module should inherit this one and override evaluateSample.
 class BayesOptDiscrete:
     
     ## Let's define the parameters.
@@ -86,15 +110,24 @@ class BayesOptDiscrete:
                 raise ValueError
             else:
                 self.x_set = np.random.rand(n_samples, n_dim)
+
+    @property
+    def parameters(self):
+        return self.params
+
+    @parameters.setter
+    def parameters(self,params):
+        self.params = params
+
         
     ## Function for testing.
     # It should be overriden.
-    def evalfunc(self, x_in):
+    def evaluateSample(self, x_in):
         raise NotImplementedError("Please Implement this method")
 
     ## Main function. Starts the optimization process.
     def optimize(self):
-        min_val, x_out, error = bo.optimize_discrete(self.evalfunc,
+        min_val, x_out, error = bo.optimize_discrete(self.evaluateSample,
                                                     self.x_set,
                                                     self.params)
         
@@ -104,7 +137,7 @@ class BayesOptDiscrete:
 ## Python Module for BayesOptCategorical
 #
 # Python module to get run BayesOpt library in a OO pattern.
-# The objective module should inherit this one and override evalfunc.
+# The objective module should inherit this one and override evaluateSample.
 class BayesOptCategorical:
     
     ## Let's define the parameters.
@@ -116,15 +149,24 @@ class BayesOptCategorical:
         ## Library parameters 
         self.params = {}
         self.categories = categories
+
+    @property
+    def parameters(self):
+        return self.params
+
+    @parameters.setter
+    def parameters(self,params):
+        self.params = params
+
         
     ## Function for testing.
     # It should be overriden.
-    def evalfunc(self, x_in):
+    def evaluateSample(self, x_in):
         raise NotImplementedError("Please Implement this method")
     
     ## Main function. Starts the optimization process.
     def optimize(self):
-        min_val, x_out, error = bo.optimize_categorical(self.evalfunc,
+        min_val, x_out, error = bo.optimize_categorical(self.evaluateSample,
                                                         self.categories,
                                                         self.params)
         

@@ -62,7 +62,7 @@ cdef extern from "parameters.h":
         unsigned int n_iter_relearn
         unsigned int init_method
         int random_seed
-        unsigned int verbose_level
+        int verbose_level
         char* log_filename
         unsigned int load_save_flag
         char* load_filename

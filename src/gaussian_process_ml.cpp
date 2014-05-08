@@ -33,7 +33,6 @@ namespace bayesopt
 				       MeanModel& mean, randEngine& eng):
     HierarchicalGaussianProcess(dim, params, data, mean, eng)
   {
-    mSigma = params.sigma_s;
     d_ = new GaussianDistribution(eng);
   }  // Constructor
 

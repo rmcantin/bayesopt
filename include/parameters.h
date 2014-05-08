@@ -81,7 +81,8 @@ extern "C" {
     size_t init_method;          
     int random_seed;             /**< >=0 -> Fixed seed, <0 -> Time based (variable). */    
 
-    size_t verbose_level;        /**< 1-Error,2-Warning,3-Info. 4-6 log file*/
+    int verbose_level;           /**< Neg-Error,0-Warning,1-Info,2-Debug -> stdout
+				      3-Error,4-Warning,5-Info,>5-Debug -> logfile*/
     char* log_filename;          /**< Log file path (if applicable) */
 
     size_t load_save_flag;       /**< 1-Load data,2-Save data,

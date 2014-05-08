@@ -38,7 +38,7 @@ namespace bayesopt
 
     mModel.reset(PosteriorModel::create(dim,parameters,mEngine));
     
-    size_t verbose = mParameters.verbose_level;
+    int verbose = mParameters.verbose_level;
     if (verbose>=3)
       {
 	FILE* log_fd = fopen( mParameters.log_filename , "w" );

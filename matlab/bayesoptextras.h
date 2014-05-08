@@ -38,6 +38,7 @@
 static void struct_value(const mxArray *s, const char *name, double *result);
 static void struct_array(const mxArray *s, const char *name, size_t *n, double *result);
 static void struct_size(const mxArray *s, const char *name, size_t *result);
+static void struct_int(const mxArray *s, const char *name, int *result);
 static void struct_string(const mxArray *s, const char *name, char* result);
 
 static double user_function(unsigned n, const double *x,
@@ -115,11 +116,11 @@ void struct_size(const mxArray *s, const char *name, size_t *result)
       if(!(mxIsNumeric(val) && !mxIsComplex(val) 
 	   && mxGetM(val) * mxGetN(val) == 1))
 	{
-	  mexErrMsgTxt("param fields must be real scalars");
+	  mexErrMsgTxt("param fields must be scalar");
 	}
       else
 	{
-	  *result = (size_t) mxGetScalar(val);
+	  *result = (size_t)(mxGetScalar(val));
 	}
     }
   else
@@ -128,6 +129,29 @@ void struct_size(const mxArray *s, const char *name, size_t *result)
     }
   return;
 }
+
+void struct_size(const mxArray *s, const char *name, int *result)
+{
+  mxArray *val = mxGetField(s, 0, name);
+  if (val) 
+    {
+      if(!(mxIsNumeric(val) && !mxIsComplex(val) 
+	   && mxGetM(val) * mxGetN(val) == 1))
+	{
+	  mexErrMsgTxt("param fields must be scalar");
+	}
+      else
+	{
+	  *result = (int)(mxGetScalar(val));
+	}
+    }
+  else
+    {
+      mexPrintf("Field %s not found. Default not modified.\n", name);
+    }
+  return;
+}
+
 
 
 void struct_string(const mxArray *s, const char *name, char* result)
@@ -212,9 +236,9 @@ bopt_params load_parameters(const mxArray* params)
   struct_size(params, "n_iter_relearn", &parameters.n_iter_relearn);
 
   struct_size(params, "init_method", &parameters.init_method);
-  struct_size(params, "random_seed", &parameters.random_seed);
+  struct_int(params, "random_seed", &parameters.random_seed);
   
-  struct_size(params, "verbose_level", &parameters.verbose_level);
+  struct_int(params, "verbose_level", &parameters.verbose_level);
   struct_string(params, "log_filename", parameters.log_filename);
   
   struct_string(params, "surr_name", parameters.surr_name);

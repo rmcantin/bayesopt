@@ -20,7 +20,7 @@
 # ------------------------------------------------------------------------
 
 import bayesopt
-import bayesoptmodule
+from bayesoptmodule import BayesOptContinuous
 import numpy as np
 
 from time import clock
@@ -34,8 +34,8 @@ def testfunc(Xin):
     return total
 
 # Class for OO testing.
-class BayesOptTest(bayesoptmodule.BayesOptContinuous):
-    def evalfunc(self,Xin):
+class BayesOptTest(BayesOptContinuous):
+    def evaluateSample(self,Xin):
         return testfunc(Xin)
 
 
@@ -43,7 +43,7 @@ class BayesOptTest(bayesoptmodule.BayesOptContinuous):
 # For different options: see parameters.h and cpp
 # If a parameter is not define, it will be automatically set
 # to a default value.
-params = {} #bayesopt.initialize_params()
+params = {} 
 params['n_iterations'] = 50
 params['n_init_samples'] = 20
 params['crit_name'] = "cSum(cEI,cDistance)"
@@ -65,10 +65,9 @@ print "Seconds", clock() - start
 
 print "OO implementation"
 bo_test = BayesOptTest(n)
-bo_test.params = params
-bo_test.n = n
-bo_test.lb = lb
-bo_test.ub = ub
+bo_test.parameters = params
+bo_test.lower_bound = lb
+bo_test.upper_bound = ub
 
 start = clock()
 mvalue, x_out, error = bo_test.optimize()

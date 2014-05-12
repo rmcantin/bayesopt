@@ -74,7 +74,15 @@ namespace bayesopt  {
   //////////////////////////////////////////////////////////////////////
 
   double ContinuousModel::evaluateSampleInternal( const vectord &query )
-  { return evaluateSample(mBB->unnormalizeVector(query));  };
+  { 
+    const double yNext = evaluateSample(mBB->unnormalizeVector(query)); 
+    if (yNext == HUGE_VAL)
+      {
+	throw std::runtime_error("Function evaluation out of range");
+      }
+    return yNext;
+  }; 
+
 
   void ContinuousModel::findOptimal(vectord &xOpt)
   { 

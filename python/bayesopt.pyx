@@ -74,6 +74,7 @@ cdef extern from "parameters.h":
         score_type sc_type
         learning_type l_type
         double epsilon
+        unsigned int force_jump
         kernel_parameters kernel
         mean_parameters mean
         char* crit_name
@@ -152,6 +153,7 @@ cdef bopt_params dict2structparams(dict dparams):
         set_score(&params,score)
     
     params.epsilon = dparams.get('epsilon',params.epsilon)
+    params.force_jump= dparams.get('force_jump',params.force_jump)
 
     name = dparams.get('kernel_name',params.kernel.name)
     set_kernel(&params,name)

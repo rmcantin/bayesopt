@@ -69,7 +69,14 @@ namespace bayesopt
   };
 
   double DiscreteModel::evaluateSampleInternal( const vectord &query )
-  { return evaluateSample(query); }; 
+  { 
+    const double yNext = evaluateSample(query); 
+    if (yNext == HUGE_VAL)
+      {
+	throw std::runtime_error("Function evaluation out of range");
+      }
+    return yNext;
+  }; 
 
 
   

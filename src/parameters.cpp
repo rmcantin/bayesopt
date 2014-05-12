@@ -188,7 +188,9 @@ bopt_params initialize_parameters_to_default(void)
   params.l_all   = 0;
   params.l_type  = L_EMPIRICAL;
   params.sc_type = SC_MAP;
+
   params.epsilon = 0.0;
+  params.force_jump = 20;
   
   params.crit_name = new char[128];
   strcpy(params.crit_name,"cEI");

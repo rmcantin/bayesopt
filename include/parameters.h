@@ -93,7 +93,7 @@ extern "C" {
     char* surr_name;             /**< Name of the surrogate function */
     double sigma_s;              /**< Signal variance (if known). 
 				    Used in GaussianProcess and GaussianProcessNormal */
-    double noise;                /**< Observation noise (and nugget) */
+    double noise;                /**< Variance of observation noise (and nugget) */
 
     double alpha;                /**< Inverse Gamma prior for signal var. 
 				    Used in StudentTProcessNIG */
@@ -105,6 +105,12 @@ extern "C" {
     int l_all;                   /**< Learn all hyperparameters or only kernel */
 
     double epsilon;              /**< For epsilon-greedy exploration */
+    size_t force_jump;           /**< If >0, and the difference between two 
+				    consecutive observations is pure noise, 
+				    for n consecutive steps, force a random 
+				    jump. Avoid getting stuck if model is bad 
+				    and there is few data, however, it might 
+				    reduce the accuracy. */
 
     kernel_parameters kernel;    /**< Kernel parameters */
     mean_parameters mean;        /**< Mean (parametric function) parameters */

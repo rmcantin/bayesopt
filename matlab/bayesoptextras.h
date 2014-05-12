@@ -259,6 +259,7 @@ bopt_params load_parameters(const mxArray* params)
 
 
   struct_value(params, "epsilon",  &parameters.epsilon);
+  struct_size(params, "force_jump",  &parameters.force_jump);
 
   struct_string(params, "crit_name", parameters.crit_name);
   struct_array(params, "crit_params", &parameters.n_crit_params, 

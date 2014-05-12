@@ -33,11 +33,14 @@ namespace bayesopt
   BayesOptBase::BayesOptBase(size_t dim, bopt_params parameters):
     mParameters(parameters), mDims(dim)
   {
+    // Random seed
     if (mParameters.random_seed < 0) mParameters.random_seed = std::time(0); 
     mEngine.seed(mParameters.random_seed);
 
+    // Posterior surrogate model
     mModel.reset(PosteriorModel::create(dim,parameters,mEngine));
     
+    // Setting verbose stuff (files, levels, etc.)
     int verbose = mParameters.verbose_level;
     if (verbose>=3)
       {
@@ -57,9 +60,10 @@ namespace bayesopt
 
     // Configure iteration parameters
     if (mParameters.n_init_samples <= 0)
-      mParameters.n_init_samples = 
-	static_cast<size_t>(ceil(0.1*mParameters.n_iterations));
-
+      {
+	mParameters.n_init_samples = 
+	  static_cast<size_t>(ceil(0.1*mParameters.n_iterations));	
+      }
   }
 
   BayesOptBase::~BayesOptBase()
@@ -72,29 +76,27 @@ namespace bayesopt
     vectord xNext = nextPoint(); 
     double yNext = evaluateSampleInternal(xNext);
 
-    if (std::pow(mYPrev - yNext,2) < mParameters.noise)
-      {
-	mCounterStuck++;
-	FILE_LOG(logINFO) << "Stuck for "<< mCounterStuck << " steps";
-      }
-    else
-      {
-	mCounterStuck = 0;
-      }
-    mYPrev = yNext;
-
     // If we are stuck in the same point for several iterations, try a random jump!
-    if (mCounterStuck > 5)
+    if (mParameters.force_jump)
       {
-	FILE_LOG(logINFO) << "Forced random query!";
-	xNext = samplePoint();
-	yNext = evaluateSampleInternal(xNext);
-	mCounterStuck = 0;
-      }
+	if (std::pow(mYPrev - yNext,2) < mParameters.noise)
+	  {
+	    mCounterStuck++;
+	    FILE_LOG(logDEBUG) << "Stuck for "<< mCounterStuck << " steps";
+	  }
+	else
+	  {
+	    mCounterStuck = 0;
+	  }
+	mYPrev = yNext;
 
-    if (yNext == HUGE_VAL)
-      {
-	throw std::runtime_error("Function evaluation out of range");
+	if (mCounterStuck > mParameters.force_jump)
+	  {
+	    FILE_LOG(logINFO) << "Forced random query!";
+	    xNext = samplePoint();
+	    yNext = evaluateSampleInternal(xNext);
+	    mCounterStuck = 0;
+	  }
       }
 
     mModel->addSample(xNext,yNext);

@@ -57,6 +57,7 @@ int main(int nargs, char *args[])
   par.n_init_samples = 2;
   par.n_iter_relearn = 1;
   par.random_seed = 0;
+  set_surrogate(&par,"sStudentTProcessNIG");
   
   par.l_type = L_MCMC;
   par.sc_type = SC_MAP;

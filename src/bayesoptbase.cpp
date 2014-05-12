@@ -72,25 +72,25 @@ namespace bayesopt
     vectord xNext = nextPoint(); 
     double yNext = evaluateSampleInternal(xNext);
 
-	if (std::pow(mYPrev - yNext,2) < mParameters.noise)
-	{
-		mCounterStuck++;
-		FILE_LOG(logINFO) << "Stuck for "<< mCounterStuck << " steps";
-	}
-	else
-	{
-		mCounterStuck = 0;
-	}
-	mYPrev = yNext;
+    if (std::pow(mYPrev - yNext,2) < mParameters.noise)
+      {
+	mCounterStuck++;
+	FILE_LOG(logINFO) << "Stuck for "<< mCounterStuck << " steps";
+      }
+    else
+      {
+	mCounterStuck = 0;
+      }
+    mYPrev = yNext;
 
-	// If we are stuck in the same point for several iterations, try a random jump!
-	if (mCounterStuck > 5)
-	{
-		FILE_LOG(logINFO) << "Epsilon-greedy random query!";
-		xNext = samplePoint();
-		yNext = evaluateSampleInternal(xNext);
-		mCounterStuck = 0;
-	}
+    // If we are stuck in the same point for several iterations, try a random jump!
+    if (mCounterStuck > 5)
+      {
+	FILE_LOG(logINFO) << "Forced random query!";
+	xNext = samplePoint();
+	yNext = evaluateSampleInternal(xNext);
+	mCounterStuck = 0;
+      }
 
     if (yNext == HUGE_VAL)
       {

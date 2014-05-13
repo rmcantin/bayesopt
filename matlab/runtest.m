@@ -43,6 +43,7 @@ ub = ones(n,1);
 tic;
 bayesoptcont(fun,n,params,lb,ub)
 toc;
+disp('Press INTRO');
 pause;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -53,15 +54,17 @@ np = 100;
 xset = repmat((ub-lb),1,np) .* rand(n,np) - repmat(lb,1,np);
 
 tic;
-bayesoptdisc(fun, xset, params);
+bayesoptdisc(fun, xset, params)
 toc;
 yset = zeros(np,1);
 for i=1:np
     yset(i) = feval(fun,xset(:,i));
 end;
 [y_min,id] = min(yset);
+disp('Actual optimal');
 disp(xset(:,id));
 disp(y_min);
+disp('Press INTRO');
 pause;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

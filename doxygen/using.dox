@@ -509,6 +509,16 @@ explore more unexplored regions or improve the best current result.
   exploration/exploitation policy of the criterion [Default 0.0
   (epsilon-greedy disabled)]
 
+- \b force-jump: Sometimes, specially when the number of initial
+  points is too small, the learned model might be wrong and the
+  optimization get stuck. Forced jumps measure the number of
+  iterations where the difference between consecutive observations is
+  smaller than the expected noise. Thus, we assume that any gain is
+  pure noise and we could get more information somewhere else. This
+  parameter sets the number of iterations with no gain before doing a
+  random jump. If the parameter is 0, then this is disable. [Default
+  20]
+
 \subsection surrpar Surrogate model parameters
 
 The main advantage of Bayesian optimization over other optimization

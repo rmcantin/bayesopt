@@ -130,7 +130,7 @@ namespace bayesopt
 	size_t n = mKernel->nHyperParameters();
 
 	FILE_LOG(logINFO) << "Expected " << n << " hyperparameters."
-			  << " Replicating given prior.";
+			  << " Replicating parameters and prior.";
 
 	vectord newthetav = svectord(n,thetav(0));
 	vectord newstheta = svectord(n,stheta(0));

@@ -52,7 +52,9 @@ class ExampleDisc: public bayesopt::DiscreteModel
   {
     double x[100];
     for (size_t i = 0; i < Xi.size(); ++i)
-	x[i] = Xi(i);
+      {
+	x[i] = Xi(i);	
+      }
     return testFunction(Xi.size(),x,NULL,NULL);
   };
 
@@ -65,32 +67,30 @@ int main(int nargs, char *args[])
 {    
   // Common configuration
   // See parameters.h for the available options
-  // If we initialize the struct with the DEFAUL_PARAMS,
-  // the we can optionally change only few of them 
+  // This is just an example of what can be done.
   bopt_params par = initialize_parameters_to_default();
 
-  par.kernel.hp_mean[0] = 1.0;
-  par.kernel.hp_std[0] = 1.0;
-  par.kernel.n_hp = 1;
-  par.mean.coef_mean[0] = 0.0;
-  par.mean.coef_std[0] = 10.0;
-  par.mean.n_coef = 1;
   set_surrogate(&par,"sStudentTProcessJef");
-  par.n_iterations = 20;       // Number of iterations
+  par.noise = 1e-10;
+  par.n_iterations = 70;       // Number of iterations
   par.n_init_samples = 20;
   /*******************************************/
   
-  const size_t nPoints = 1000;
+  const size_t nPoints = 1000;          // Number of discrete points
   const size_t n = 6;                   // Number of dimensions
 
+  // Let's generate a discrete grid by latin hypercube sampling in the n-dimensional
+  // space.
   randEngine mtRandom;
   matrixd xPoints(nPoints,n);
-  vecOfvec xP;
 
-  //Thanks to the quirks of Visual Studio, the following expression is invalid,
-  //so we have to replace it by a literal.
-  //WARNING: Make sure to update the size of the array if the number of points
-  //or dimensions change.
+  bayesopt::utils::lhs(xPoints,mtRandom);
+
+
+  // Set of discrete points using C arrays.  
+  // Thanks to the quirks of Visual Studio, the following expression is invalid, so we
+  // have to replace it by a literal.  WARNING: Make sure to update the size of the array
+  // if the number of points or dimensions change.
 #ifdef _MSC_VER
   double xPointsArray[6000];
 #else
@@ -98,8 +98,11 @@ int main(int nargs, char *args[])
   double xPointsArray[nPinArr];
 #endif
   
-  bayesopt::utils::lhs(xPoints,mtRandom);
+  // Set of discrete points using ublas vectors. For the C++ interface.
+  vecOfvec xP;   
 
+
+  // Lets copy the generated points to the specific structure for each interface.
   for(size_t i = 0; i<nPoints; ++i)
     {
       vectord point = row(xPoints,i);  
@@ -111,7 +114,7 @@ int main(int nargs, char *args[])
     }
     
 
-  
+  /*******************************************/
   // Run C++ interface
   std::cout << "Running C++ interface" << std::endl;
   ExampleDisc opt(xP,par);
@@ -125,7 +128,8 @@ int main(int nargs, char *args[])
   bayes_optimization_disc(n, &testFunction, NULL, xPointsArray, nPoints,
 			  x, fmin, par);
 
-  // Find the optimal value
+
+  // Find the optimal value by brute force
   size_t min = 0;
   double minvalue = opt.evaluateSample(row(xPoints,min));
   for(size_t i = 1; i<nPoints; ++i)
@@ -139,10 +143,10 @@ int main(int nargs, char *args[])
 	}
     }
 
-  std::cout << "Final result C++: " << result << std::endl;
-  std::cout << "Final result C: (";
+  std::cout << "Final result C++: " << result << " | Value:" << opt.evaluateSample(result) << std::endl;
+  std::cout << "Final result C: ["<< n << "](";
   for (int i = 0; i < n; i++ )
     std::cout << x[i] << ", ";
-  std::cout << ")" << std::endl;
-  std::cout << "Optimal: " << row(xPoints,min) << std::endl;
+  std::cout << ")" << " | Value:" << fmin[0] << std::endl;
+  std::cout << "Optimal: " << row(xPoints,min) << " | Value:" << minvalue << std::endl;
 }

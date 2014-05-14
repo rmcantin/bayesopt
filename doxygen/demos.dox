@@ -1,19 +1,23 @@
-/*! \page demos Description of demo files
+/*! \page demos Description of demos and examples
 \tableofcontents
 
 We have include a descriptions of the different demos than can be found in the
 library. Most of them are used to highlight the capabilities of the Bayesian optimization
 framework or the characteristics of the library.
 
-\b Important: note that some demos requires some extra dependencies to work (OpenGL, SimpleCV, etc.)
+\b Important: Some demos requires extra dependencies to work. They will be mention in each
+demo.
 
 \section cppdemos C/C++ demos
 
-These demos are automatically compiled and installed with the library. They can be found in the \c /bin subfolder. The source code of these demos is in \c /app
+These demos are automatically compiled and installed with the library. They can be found
+in the \c /bin subfolder. The source code of these demos is in \c /examples
 
-\subsection quadcpp Interface test (continuous and discrete)
+\subsection quadcpp Quadratic examples (continuous and discrete)
 
-\b bo_cont and \b bo_disc provides examples of the C (callback) and C++ (inheritance) interfaces for a simple quadratic function. They are the best starting point to start playing with the library.
+\b bo_cont and \b bo_disc provides examples of the C (callback) and C++ (inheritance)
+interfaces for a simple quadratic function. They are the best starting point to start
+playing with the library.
 
 \subsection onedcpp 1D test
 

@@ -1,4 +1,4 @@
-BayesOpt: A Bayesian optimization toolbox
+BayesOpt: A Bayesian optimization library
 =========================================
 
 BayesOpt is an efficient implementation of the Bayesian optimization
@@ -29,7 +29,7 @@ The library can be download from any of this sources:
 - Mirror: <http://mloss.org/software/view/453/>
 
 The install guide and documentation for Windows, Linux and MacOS:
-- [Install guide](http://rmcantin.bitbucket.org/html/install.html) or [Install guide](@ref install)
+- [Online install guide](http://rmcantin.bitbucket.org/html/install.html) or [Local install guide](@ref install)
 
 
 Getting involved
@@ -53,8 +53,8 @@ please consider these recomentations when using BayesOpt:
 publication, we would appreciate it if you would kindly cite BayesOpt
 in your manuscript. Cite BayesOpt as:
 
-> Ruben Martinez-Cantin, **BayesOpt: a toolbox for
-> nonlinear-optimization, experimental design and stochastic bandits**,
+> Ruben Martinez-Cantin, **BayesOpt: A Bayesian Optimization Library for Nonlinear
+> Optimization, Experimental Design and Bandits**,
 > <http://bitbucket.org/rmcantin/bayesopt>
 
 - In addition, if you use a specific algorithm (REMBO, GP-Hedge,

@@ -50,7 +50,9 @@ class ExampleQuadratic: public bayesopt::ContinuousModel
   {
     double x[100];
     for (size_t i = 0; i < Xi.size(); ++i)
-	x[i] = Xi(i);
+      {
+	x[i] = Xi(i);	
+      }
     return testFunction(Xi.size(),x,NULL,NULL);
   };
 
@@ -64,38 +66,40 @@ class ExampleQuadratic: public bayesopt::ContinuousModel
 int main(int nargs, char *args[])
 {    
   int n = 10;                   // Number of dimensions
+  clock_t start, end;
+  double diff,diff2;
 
   // Common configuration
-  // See parameters.h for the available options
-  // If we initialize the struct with the DEFAUL_PARAMS,
-  // the we can optionally change only few of them 
+  // See parameters.h for the available options.
+  // Some parameters did not need to be changed for default, but we have done it for
+  // illustrative purpose.
   bopt_params par = initialize_parameters_to_default();
 
+  set_kernel(&par,"kSum(kSEISO,kConst)");
   par.kernel.hp_mean[0] = 1.0;
   par.kernel.hp_mean[1] = 1.0;
   par.kernel.hp_std[0] = 1.0;
   par.kernel.hp_std[1] = 1.0;
   par.kernel.n_hp = 2;
+
+  set_mean(&par,"mConst");
   par.mean.coef_mean[0] = 1.0;
   par.mean.coef_std[0] = 10.0;
   par.mean.n_coef = 1;
+
   set_surrogate(&par,"sStudentTProcessJef");
-  set_kernel(&par,"kSum(kSEISO,kConst)");
-  set_mean(&par,"mConst");
+  par.noise = 1e-10;
+
   par.sc_type = SC_MAP;
   par.l_type = L_EMPIRICAL;
-  par.n_iterations = 200;    // Number of iterations
-  par.init_method = 1;
-  par.n_init_samples = 50;
+
+  par.n_iterations = 100;    // Number of iterations
+  par.random_seed = 0;
+  par.n_init_samples = 15;
   par.n_iter_relearn = 0;
-  par.verbose_level = 1;
+
   /*******************************************/
-
-  clock_t start, end;
-  double diff,diff2;
-
   std::cout << "Running C++ interface" << std::endl;
-  // Configure C++ interface
 
   ExampleQuadratic opt(n,par);
   vectord result(n);
@@ -105,21 +109,23 @@ int main(int nargs, char *args[])
   opt.optimize(result);
   end = clock();
   diff = (double)(end-start) / (double)CLOCKS_PER_SEC;
+
   /*******************************************/
-
-
   std::cout << "Running C inferface" << std::endl;
   
-  // Configure C interface
-  double u[128], x[128], l[128], fmin[128];
+  // Prepare C interface
+  double low[128], up[128], xmin[128], fmin[128];
 
-  for (int i = 0; i < n; ++i) {
-    l[i] = 0.;    u[i] = 1.;
-  }
+  // Lower and upper bounds
+  for (int i = 0; i < n; ++i) 
+    {
+      low[i] = 0.;    
+      up[i] = 1.;
+    }
 
   // Run C interface
   start = clock();
-  bayes_optimization(n,&testFunction,NULL,l,u,x,fmin,par);
+  bayes_optimization(n,&testFunction,NULL,low,up,xmin,fmin,par);
   end = clock();
   diff2 = (double)(end-start) / (double)CLOCKS_PER_SEC;
   /*******************************************/
@@ -129,10 +135,11 @@ int main(int nargs, char *args[])
   std::cout << "Final result C++: " << result << std::endl;
   std::cout << "Elapsed time in C++: " << diff << " seconds" << std::endl;
 
-  std::cout << "Final result C: [" << n <<"](" << x[0];
+  std::cout << "Final result C: [" << n <<"](" << xmin[0];
   for (int i = 1; i < n; ++i )
-    std::cout << "," << x[i];
-  
+    {
+      std::cout << "," << xmin[i];      
+    }
   std::cout << ")" << std::endl;
   std::cout << "Elapsed time in C: " << diff2 << " seconds" << std::endl;
 

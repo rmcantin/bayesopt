@@ -1,33 +1,43 @@
 /*! \page demos Description of demos and examples
 \tableofcontents
 
-We have include a descriptions of the different demos than can be found in the
-library. Most of them are used to highlight the capabilities of the Bayesian optimization
-framework or the characteristics of the library.
+We have include a descriptions of the different demos than can be
+found in the library. Most of them are used to highlight the
+capabilities of the Bayesian optimization framework or the
+characteristics of the library.
 
-\b Important: Some demos requires extra dependencies to work. They will be mention in each
-demo.
+\b Important: Some demos requires extra dependencies to work. They
+will be mention in each demo.
 
 \section cppdemos C/C++ demos
 
-These demos are automatically compiled and installed with the library. They can be found
-in the \c /bin subfolder. The source code of these demos is in \c /examples
+These demos are automatically compiled and installed with the
+library. They can be found in the \c /bin subfolder. The source code
+of these demos is in \c /examples
 
 \subsection quadcpp Quadratic examples (continuous and discrete)
 
-\b bo_cont and \b bo_disc provides examples of the C (callback) and C++ (inheritance)
-interfaces for a simple quadratic function. They are the best starting point to start
-playing with the library.
+\b bo_cont and \b bo_disc provides examples of the C (callback) and
+C++ (inheritance) interfaces for a simple quadratic function. They are
+the best starting point to start playing with the library.
 
-\subsection onedcpp 1D test
+\subsection onedcpp Interactive 1D test
 
-\b bo_oned deals with a more interesting, yet simple, multimodal 1D function. \b bo_display shows the same example, but includes a visualization tool (requires OpenGL and FreeGLUT).
+\b bo_oned deals with a more interesting, yet simple, multimodal 1D
+function. \b bo_display shows the same example, but includes an
+interactive visualization tool to show the features of different
+configurations, like different surrogate and criteria functions
+(Important: bo_display requires CMake to find OpenGL and GLUT/FreeGLUT
+to be compiled).
 
 \image html doxygen/oned.jpg
 
-\subsection brcpp Branin test
+\subsection brcpp Standard nonlinear function benchmarks
 
-\b bo_branin shows the a 2D example with the Branin function, which is a standard function to evaluate nonlinear optimization algorithms.
+\subsubsection braninfunc Branin function
+
+\b bo_branin_* are different examples using the 2D Branin function, which is
+a standard function to evaluate nonlinear optimization algorithms.
 
 \f[
 f(x,y) = \left(y-\frac{5.1}{4\pi^2}x^2 + \frac{5}{\pi}x-6\right)^2 + 10\left(1-\frac{1}{8\pi}\right) \cos(x) + 10
@@ -37,13 +47,53 @@ with a search domain \f$-5 \leq x \leq 10\f$, \f$0 \leq y \leq 15\f$.
 
 \image html doxygen/branin.jpg
 
-The function has three global minimum. The position of those points (after normalization to the [0,1] plane) are:
+For simplicity to display and use the function, the function used in
+the code has already been normalized in the [0,1] interval. Then, the
+function has three global minimum. The position of those points (after
+normalization) are:
 
 \f{align*}{
 x &= 0.1239, y = 0.8183\\
-x &= 0.5428, y = 0.1517\\
+x &= 0.5428, y = 0.1517  \qquad \qquad f(x,y) = 0.397887\\
 x &= 0.9617, y = 0.1650
 \f}
+
+\b bo_branin use sporadically an empirical estimator (MAP) for kernel
+hyperparameters. Really fast.
+
+\b bo_branin_mcmc use continuously a Bayesian estimator (MCMC) for
+kernel hyperparameters. Much slower but much more robuts. Although for
+this function the robustness is not as critical, it might be an issue
+for more complex or high-dimensional functions.
+
+\subsubsection hart6func Hartmann6 function
+
+\b bo_hartmann_* are different examples using the 6D Hartmann function, which is
+a standard function to evaluate nonlinear optimization algorithms.
+
+\f{align*}{
+f(\mathbf{x}) &= - \sum_{i=1}^{4} \alpha_i \left( -\sum_{j=1}^{6} A_{ij} \left( x_j - P_{ij}\right)^2 \right)\\
+\alpha &= \left( 1.0, 1.2, 3.0, 3.2 \right)^T\\
+A &= \left(\begin{array}{cccccc}
+  10   & 3  & 17 & 3.50 & 1.7 & 8 \\
+  0.05 & 10 & 17 & 0.1  & 8   & 14 \\
+  3    & 3.5 & 1.7 & 10  & 17 & 8 \\
+  17  & 8 & 0.05 & 10  & 0.1  & 14 
+  \end{array}\right) \\
+P &= 10^{-4} \left(\begin{array}{cccccc}
+  1312 & 1696 & 5569 & 124 & 8283 & 5886 \\
+  2329 & 4135 & 8307 & 3736 & 1004 & 9991 \\
+  2348 & 1451 & 3522 & 2883 & 3047 & 6650 \\
+  4047 & 8828 & 8732 & 5743 & 1091 & 381 
+  \end{array}\right)
+\f}
+with a search domain \f$x_i \in (0,1) \qquad \forall i=1\ldots6\f$.
+
+The global minimum is: 
+\f[
+\mathbf{x}^* = \left(0.2069, 0.150011, 0.476874, 0.275332, 0.311652, 0.6573 \right) \qquad \qquad f(\mathbf{x}^*) = -3.32237
+\f]
+
 
 \section pydemos Python demos
 

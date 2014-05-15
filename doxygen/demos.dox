@@ -94,6 +94,26 @@ The global minimum is:
 \mathbf{x}^* = \left(0.2069, 0.150011, 0.476874, 0.275332, 0.311652, 0.6573 \right) \qquad \qquad f(\mathbf{x}^*) = -3.32237
 \f]
 
+\subsubsection camelfunc Camelback function
+
+\b bo_camel_* are different examples using the 2D Camelback function, which is
+a standard function to evaluate nonlinear optimization algorithms.
+
+\f[
+f(x,y) = \left(4 - 2.1x^2 + \frac{x^4}{3}\right) x^2 + x y + \left(-4 + 4y^2\right) y^2
+\f]
+
+with a search domain \f$-2 \leq x \leq 2\f$, \f$-1 \leq y \leq 1\f$.
+
+\image html doxygen/camel.png
+
+There are two global minima:
+
+\f{align*}{
+x &= 0.0898, y = -0.7126\\
+x &= -0.0898, y = 0.7126 \qquad \qquad f(x,y) = -1.0316
+\f}
+
 
 \section pydemos Python demos
 

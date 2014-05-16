@@ -30,7 +30,7 @@ int main(int nargs, char *args[])
   par.verbose_level = 1;
   par.noise = 1e-10;
   
-  BraninNormalized branin(2,par);
+  BraninNormalized branin(par);
   vectord result(2);
 
   branin.optimize(result);

@@ -34,7 +34,7 @@ int main(int nargs, char *args[])
   par.sc_type = SC_MAP;
   par.verbose_level = 1;
   
-  BraninNormalized branin(2,par);
+  BraninNormalized branin(par);
   vectord result(2);
 
   branin.optimize(result);

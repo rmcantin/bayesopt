@@ -63,7 +63,7 @@ int main(int nargs, char *args[])
   par.sc_type = SC_MAP;
   par.verbose_level = 1;
   
-  boost::scoped_ptr<BraninNormalized> branin(new BraninNormalized(2,par));
+  boost::scoped_ptr<BraninNormalized> branin(new BraninNormalized(par));
   GLOBAL_MATPLOT.init(branin.get(),2);
 
   vectord sv(2);  

@@ -31,11 +31,12 @@ int main(int nargs, char *args[])
   //  par.n_iter_relearn = 0;
   par.random_seed = 0;
   par.verbose_level = 1;
-  
-  BraninNormalized branin(2,par);
+  par.noise = 1e-10;
+
+  BraninNormalized branin(par);
 
   std::ofstream timelog;
-  timelog.open("time.log");
+  timelog.open("time_branin.log");
   std::clock_t curr_t;
   std::clock_t prev_t = clock();
 

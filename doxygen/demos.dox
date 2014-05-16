@@ -1,4 +1,4 @@
-/*! \page demos Description of demos and examples
+/*! \page demos Demos and examples
 \tableofcontents
 
 We have include a descriptions of the different demos than can be
@@ -45,7 +45,7 @@ f(x,y) = \left(y-\frac{5.1}{4\pi^2}x^2 + \frac{5}{\pi}x-6\right)^2 + 10\left(1-\
 
 with a search domain \f$-5 \leq x \leq 10\f$, \f$0 \leq y \leq 15\f$.
 
-\image html doxygen/branin.jpg
+\image html doxygen/branin.png
 
 For simplicity to display and use the function, the function used in
 the code has already been normalized in the [0,1] interval. Then, the
@@ -105,7 +105,7 @@ f(x,y) = \left(4 - 2.1x^2 + \frac{x^4}{3}\right) x^2 + x y + \left(-4 + 4y^2\rig
 
 with a search domain \f$-2 \leq x \leq 2\f$, \f$-1 \leq y \leq 1\f$.
 
-\image html doxygen/camel.png
+\image html doxygen/camelback.png
 
 There are two global minima:
 

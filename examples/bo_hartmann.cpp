@@ -33,18 +33,18 @@ int main(int nargs, char *args[])
   par.verbose_level = 1;
 
   
-  ExampleHartmann6 branin(par);
+  ExampleHartmann6 hart6(par);
 
   std::ofstream timelog;
   timelog.open("time_hartmann.log");
   std::clock_t curr_t;
   std::clock_t prev_t = clock();
 
-  branin.initializeOptimization();
+  hart6.initializeOptimization();
       
   for (size_t ii = 0; ii < par.n_iterations; ++ii)
     {      
-      branin.stepOptimization();
+      hart6.stepOptimization();
 
       curr_t = clock();
       timelog << ii << ","
@@ -55,10 +55,10 @@ int main(int nargs, char *args[])
 
   timelog.close();
 
-  vectord result = branin.getFinalResult();
+  vectord result = hart6.getFinalResult();
   std::cout << "Result: " << result << "->" 
-	    << branin.evaluateSample(result) << std::endl;
-  branin.printOptimal();
+	    << hart6.evaluateSample(result) << std::endl;
+  hart6.printOptimal();
 
   return 0;
 }

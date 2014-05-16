@@ -58,8 +58,8 @@ public:
 class BraninNormalized: public bayesopt::ContinuousModel
 {
 public:
-  BraninNormalized(size_t dim,bopt_params par):
-    ContinuousModel(dim,par) {}
+  BraninNormalized(bopt_params par):
+    ContinuousModel(2,par) {}
 
   double evaluateSample( const vectord& xin)
   {
@@ -101,6 +101,49 @@ public:
   }
 
 };
+
+
+class ExampleCamelback: public bayesopt::ContinuousModel
+{
+public:
+  ExampleCamelback(bopt_params par):
+    ContinuousModel(2,par) {}
+
+  double evaluateSample( const vectord& x)
+  {
+     if (x.size() != 2)
+      {
+	std::cout << "WARNING: This only works for 2D inputs." << std::endl
+		  << "WARNING: Using only first two components." << std::endl;
+      }
+     double x1_2 = x(0)*x(0);
+     double x2_2 = x(1)*x(1);
+
+     double tmp1 = (4 - 2.1 * x1_2 + (x1_2*x1_2)/3) * x1_2;
+     double tmp2 = x(0)*x(1);
+     double tmp3 = (-4 + 4 * x2_2) * x2_2;
+     return tmp1 + tmp2 + tmp3;
+  }
+
+  bool checkReachability(const vectord &query)
+  {return true;};
+
+  inline double sqr( double x ){ return x*x; };
+
+  void printOptimal()
+  {
+    vectord sv(2);  
+    sv(0) = 0.0898; sv(1) = -0.7126;
+    std::cout << "Solutions: " << sv << "->" 
+	      << evaluateSample(sv) << std::endl;
+    sv(0) = 0.0898; sv(1) = 0.7126;
+    std::cout << "Solutions: " << sv << "->" 
+	      << evaluateSample(sv) << std::endl;
+  }
+
+};
+
+
 
 class ExampleHartmann6: public bayesopt::ContinuousModel
 {
@@ -156,3 +199,5 @@ private:
   vectord mC;
   matrixd mP;
 };
+
+

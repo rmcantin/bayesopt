@@ -30,8 +30,8 @@ namespace bayesopt
   {
     mAlg = SLICE_MCMC;
     mDims = dim;
-    nBurnOut = 500;
-    nSamples = 100;
+    nBurnOut = 100;
+    nSamples = 10;
     mStepOut = true;
     mSigma = svectord(dim,6);
   };

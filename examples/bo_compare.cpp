@@ -28,8 +28,9 @@ int main(int nargs, char *args[])
 {
   bopt_params par = initialize_parameters_to_default();
   par.n_iterations = 190;
-  par.verbose_level = 0;
+  par.verbose_level = 1;
   par.noise = 1e-10;
+  par.force_jump = 30;
 
   std::ofstream log;
   std::clock_t start_t;
@@ -49,19 +50,19 @@ int main(int nargs, char *args[])
       branin.initializeOptimization();
       
       for (size_t jj = 0; jj < par.n_iterations; ++jj)
-	{      
-	  branin.stepOptimization();
-	  if (jj == 50)
-	    {
-	      result = branin.getFinalResult();	      
-	      log << branin.evaluateSample(result) << ", ";
-	    }
-	}
+  	{      
+  	  branin.stepOptimization();
+  	  if (jj == 50)
+  	    {
+  	      result = branin.getFinalResult();	      
+  	      log << branin.evaluateSample(result) << ", ";
+  	    }
+  	}
       result = branin.getFinalResult();	      
       log << branin.evaluateSample(result) << ", ";
       
       log << static_cast<double>(clock() - start_t) / static_cast<double>(CLOCKS_PER_SEC)
-	  << std::endl;
+  	  << std::endl;
       }
 
   log.close();
@@ -86,19 +87,19 @@ int main(int nargs, char *args[])
       camel.initializeOptimization();
       
       for (size_t jj = 0; jj < par.n_iterations; ++jj)
-	{      
-	  camel.stepOptimization();
-	  if (jj == 50)
-	    {
-	      result = camel.getFinalResult();	      
-	      log << camel.evaluateSample(result) << ", ";
-	    }
-	}
+  	{      
+  	  camel.stepOptimization();
+  	  if (jj == 50)
+  	    {
+  	      result = camel.getFinalResult();	      
+  	      log << camel.evaluateSample(result) << ", ";
+  	    }
+  	}
       result = camel.getFinalResult();	      
       log << camel.evaluateSample(result) << ", ";
       
       log << static_cast<double>(clock() - start_t) / static_cast<double>(CLOCKS_PER_SEC)
-	  << std::endl;
+  	  << std::endl;
       }
 
   log.close();
@@ -118,19 +119,19 @@ int main(int nargs, char *args[])
       hart.initializeOptimization();
       
       for (size_t jj = 0; jj < par.n_iterations; ++jj)
-	{      
-	  hart.stepOptimization();
-	  if (jj == 50)
-	    {
-	      result = hart.getFinalResult();	      
-	      log << hart.evaluateSample(result) << ", ";
-	    }
-	}
+  	{      
+  	  hart.stepOptimization();
+  	  if (jj == 50)
+  	    {
+  	      result = hart.getFinalResult();	      
+  	      log << hart.evaluateSample(result) << ", ";
+  	    }
+  	}
       result = hart.getFinalResult();	      
       log << hart.evaluateSample(result) << ", ";
       
       log << static_cast<double>(clock() - start_t) / static_cast<double>(CLOCKS_PER_SEC)
-	  << std::endl;
+  	  << std::endl;
       }
 
   log.close();

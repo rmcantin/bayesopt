@@ -35,10 +35,6 @@ int main(int nargs, char *args[])
   
   ExampleCamelback camel(par);
 
-  vectord lb(2); lb(0) = -2; lb(1) = -1;
-  vectord ub(2); ub(0) =  2; ub(1) = 1;
-
-  camel.setBoundingBox(lb,ub);
 
   std::ofstream timelog;
   timelog.open("time_camel.log");

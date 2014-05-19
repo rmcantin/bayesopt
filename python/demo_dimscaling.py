@@ -47,8 +47,8 @@ params = {} #bayesopt.initialize_params()
 # We decided to change some of them
 params['n_init_samples'] = 150
 params['n_iter_relearn'] = 20
-#params['noise'] = 0.01
-params['kernel_name'] = "kMaternISO3"
+params['noise'] = 1e-10
+params['kernel_name'] = "kMaternISO5"
 params['kernel_hp_mean'] = [1]
 params['kernel_hp_std'] = [5]
 params['surr_name'] = "sStudentTProcessNIG"
@@ -63,4 +63,5 @@ print "Result", mvalue, x_out
 
 print "Global optimal", 0, np.arange(1,1+dim)
 
-print "Distance", math.sqrt(mvalue*dim)
+print "Y Gap", mvalue
+print "X Gap", math.sqrt(mvalue*dim)

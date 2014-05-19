@@ -38,11 +38,12 @@ int main(int nargs, char *args[])
 
   /* Branin */
   log.open("branin.log");
+  par.n_init_samples = 5;
+  par.n_iterations = 190;
 
   for (size_t ii = 0; ii < 10; ++ii)
     {
       par.random_seed = ii;
-      par.n_iterations = 190;
       BraninNormalized branin(par);
       vectord result(2);
 
@@ -70,11 +71,12 @@ int main(int nargs, char *args[])
 
   /* Camel */
   log.open("camel.log");
+  par.n_init_samples = 5;
+  par.n_iterations = 90;
 
   for (size_t ii = 0; ii < 10; ++ii)
     {
       par.random_seed = ii;
-      par.n_iterations = 90;
       ExampleCamelback camel(par);
       vectord result(2);
 
@@ -107,11 +109,12 @@ int main(int nargs, char *args[])
 
   /* Hart */
   log.open("hart.log");
+  par.n_init_samples = 10;
+  par.n_iterations = 190;
 
   for (size_t ii = 0; ii < 10; ++ii)
     {
       par.random_seed = ii;
-      par.n_iterations = 190;
       ExampleHartmann6 hart(par);
       vectord result(6);
 

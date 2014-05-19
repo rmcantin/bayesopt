@@ -117,42 +117,80 @@ x &= -0.0898, y = 0.7126 \qquad \qquad f(x,y) = -1.0316
 
 \section pydemos Python demos
 
-These demos use the Python interface of the library. They can be found in the \c /python subfolder.
+These demos use the Python interface of the library. They can be found
+in the \c /python subfolder.
 
-Make sure that the interface has been generated and that it can be found in the corresponding path (i.e. PYTHONPATH).
+Make sure that the interface has been generated and that it can be
+found in the corresponding path (i.e. PYTHONPATH).
 
 \subsection pyapidemo Interface test
 
-\b demo_quad provides an simple example (quadratic function). It shows the continuous and discrete cases and it also compares the callback and inheritance interfaces. It is the best starting point to start playing with the Python interface.
+\b demo_quad provides an simple example (quadratic function). It shows
+the continuous and discrete cases and it also compares the standard
+(Cython) and the object oriented interfaces. It is the best starting
+point to start playing with the Python interface.
 
-\b demo_dimscaling shows a 20D quadratic function with different smoothness in each dimension. It also show the speed of the library for <em>high dimensional functions</em>.
+\b demo_dimscaling shows a 20 dimensional quadratic function with
+different smoothness in each dimension. It also show the speed of the
+library for <em>high dimensional functions</em>.
 
-\b demo_distance is equivalent to the demo_quad example, but it includes a penalty term with respect to the distance between the current and previous sample. For example, it can be used to model sampling strategies which includes a mobile agent, like a robotic sensor as seen in \cite Marchant2012.
+\b demo_distance is equivalent to the demo_quad example, but it
+includes a penalty term with respect to the distance between the
+current and previous sample. For example, it can be used to model
+sampling strategies which includes a mobile agent, like a robotic
+sensor as seen in \cite Marchant2012.
 
 \subsection pyproc Multiprocess demo
 
-\b demo_multiprocess is a simple example that combines BayesOpt with the brilliant multiprocessing library. It shows how simple BayesOpt can be used in a parallelized setup, where one process is dedicated for the BayesOpt and the rests are dedicated to function evaluations.
+\b demo_multiprocess is a simple example that combines BayesOpt with
+the standard Python multiprocessing library. It shows how simple
+BayesOpt can be used in a parallelized setup, where one process is
+dedicated for the BayesOpt and the rests are dedicated to function
+evaluations. Also, it shows that BayesOpt is thread-safe.
 
 \subsection pycam Computer Vision demo
 
-\b demo_cam is a demonstration of the potetial of BayesOpt for parameter tuning. The advantage of using BayesOpt versus traditional strategies is that it only requires knowledge of the <em>desired behavior</em>, while traditional methods for parameter tuning requires deep knowledge of the algorithm and the meaning of the parameters.
+\b demo_cam is a demonstration of the potetial of BayesOpt for
+parameter tuning. The advantage of using BayesOpt versus traditional
+strategies is that it only requires knowledge of the <em>desired
+behavior</em>, while traditional methods for parameter tuning requires
+deep knowledge of the algorithm and the meaning of the parameters.
 
-In this case, it takes a simple example (image binarization) and show how a simple behavior (balanced white/black result) matches the result of the adaptive thresholding from Otsu's method -default in SimpleCV-. Besides, it find the optimal with few samples (typically between 10 and 20)
+In this case, it takes a simple example (image binarization) and show
+how optimizing a simple behavior (balanced white/black result) could
+match the result of the adaptive thresholding from Otsu's method
+-default in SimpleCV-. Besides, it finds the optimal with few samples
+(typically between 10 and 20). It can also be used as reference for
+hyperparameter optimization.
 
-demo_cam requires SimpleCV and a webcam.
+demo_cam requires SimpleCV and a compatible webcam.
 
 \section matdemos MATLAB/Octave demos
 
-These demos use the Matlab interface of the library. They can be found in the \c /matlab subfolder.
+These demos use the Matlab interface of the library. They can be found
+in the \c /matlab subfolder.
 
-Make sure that the interface has been generated. If the library has been generated as a shared library, make sure that it can be found in the corresponding path (i.e. LD_LIBRARY_PATH in Linux/MacOS) before running MATLAB/Octave.
+Make sure that the interface has been generated. If the library has
+been generated as a shared library, make sure that it can be found in
+the corresponding path (i.e. LD_LIBRARY_PATH in Linux/MacOS) before
+running MATLAB/Octave.
 
 \subsection matapidemo Interface test
 
-\b runtest shows the discrete and continuous interface. The objective function can be selected among all the functions defined in the \c /matlab/testfunctions subfolder, which includes a selection of standard test functions for nonlinear optimization:
+\b demo_test shows the discrete and continuous interface. The
+objective function can be selected among all the functions defined in
+the \c /matlab/testfunctions subfolder, which includes a selection of
+standard test functions for nonlinear optimization. By default, the
+test run these functions:
 
-- Quadratic function
 - Branin
+- Quadratic function (discrete version)
+- Hartmann 6D
+
+However, these functions are also available for testing:
+
+- Ackley
+- Camelback
 - Langermann
 - Michaelewicz
 - Rosenbrock

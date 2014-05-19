@@ -240,7 +240,6 @@ namespace bayesopt
     return OPTIMIZER->evaluate(vx);
   } /* evaluate_criteria_nlopt */
 
-
   double NLOPT_Optimization::evaluate_nlopt_grad (unsigned int n, const double *x,
 						  double *grad, void *my_func_data)
 

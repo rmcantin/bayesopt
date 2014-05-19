@@ -29,6 +29,7 @@
 
 namespace bayesopt {
 
+  
   class RBOptimizable
   {
   public:
@@ -48,6 +49,27 @@ namespace bayesopt {
     virtual double evaluate(const vectord& query, 
 			    vectord& grad) = 0;
 
+  };
+
+
+  class RBOptimizableWrapper
+  {
+  public:
+    explicit RBOptimizableWrapper(RBOptimizable* rbo): rbo_(rbo){};
+    virtual ~RBOptimizableWrapper(){};
+    double evaluate(const vectord& query){return rbo_->evaluate(query);}
+  private:
+    RBOptimizable* rbo_;
+  };
+
+  class RGBOptimizableWrapper
+  {
+  public:
+    explicit RGBOptimizableWrapper(RGBOptimizable* rgbo): rgbo_(rgbo){};
+    virtual ~RGBOptimizableWrapper(){};
+    double evaluate(const vectord& query, vectord& grad){return rgbo_->evaluate(query,grad);}
+  private:
+    RGBOptimizable* rgbo_;
   };
 
   

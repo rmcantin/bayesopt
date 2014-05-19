@@ -3,7 +3,7 @@
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
    under the terms of the GNU General Public License as published by
@@ -25,8 +25,19 @@
 #include "parser.hpp"
 #include "ublas_extra.hpp"
 #include "kernel_functors.hpp"
-#include "kernel_atomic.hpp"
-#include "kernel_combined.hpp"
+
+#include "kernels/kernel_atomic.hpp"
+#include "kernels/kernel_const.hpp"
+#include "kernels/kernel_linear.hpp"
+#include "kernels/kernel_hamming.hpp"
+#include "kernels/kernel_matern.hpp"
+#include "kernels/kernel_polynomial.hpp"
+#include "kernels/kernel_gaussian.hpp"
+#include "kernels/kernel_rq.hpp"
+
+#include "kernels/kernel_combined.hpp"
+#include "kernels/kernel_sum.hpp"
+#include "kernels/kernel_prod.hpp"
 
 namespace bayesopt
 {
@@ -36,6 +47,8 @@ namespace bayesopt
     registry["kConst"] = & create_func<ConstKernel>;
     registry["kLinear"] = & create_func<LinKernel>;
     registry["kLinearARD"] = & create_func<LinKernelARD>;
+
+    registry["kHamming"] = & create_func<HammingKernel>;
 
     registry["kMaternISO1"] = & create_func<MaternIso1>;
     registry["kMaternISO3"] = & create_func<MaternIso3>;
@@ -80,9 +93,8 @@ namespace bayesopt
     std::map<std::string,KernelFactory::create_func_definition>::iterator it = registry.find(os);
     if (it == registry.end()) 
       {
-	FILE_LOG(logERROR) << "Error: Fatal error while parsing "
-			   << "kernel function: " << os << " not found";
-	throw std::invalid_argument("Kernel not found " + os);
+	throw std::invalid_argument("Error while parsing kernel function: "
+				    "Kernel not found " + os);
 	return NULL;
       } 
     kFunc = it->second();
@@ -111,8 +123,26 @@ namespace bayesopt
     KernelFactory mKFactory;
 
     mKernel.reset(mKFactory.create(k_name, dim));
-    setKernelPrior(thetav,stheta);
-    mKernel->setHyperParameters(thetav);
+
+    if ((thetav.size() == 1) && (stheta.size() == 1) && (mKernel->nHyperParameters() != 1))
+      {
+	// We assume isotropic prior, so we replicate the vectors for all dimensions
+	size_t n = mKernel->nHyperParameters();
+
+	FILE_LOG(logINFO) << "Expected " << n << " hyperparameters."
+			  << " Replicating parameters and prior.";
+
+	vectord newthetav = svectord(n,thetav(0));
+	vectord newstheta = svectord(n,stheta(0));
+
+	setKernelPrior(newthetav,newstheta);
+	mKernel->setHyperParameters(newthetav);
+      }
+    else
+      {
+	setKernelPrior(thetav,stheta);
+	mKernel->setHyperParameters(thetav);
+      }
   }
 
   void KernelModel::setKernel (kernel_parameters kernel, 
@@ -172,7 +202,7 @@ namespace bayesopt
       {
 	if (priorKernel[i].standard_deviation() > 0)
 	  {
-	    prior += log(boost::math::pdf(priorKernel[i],th(i)));
+	    prior += std::log(boost::math::pdf(priorKernel[i],th(i)));
 	  }
       }
     return prior;

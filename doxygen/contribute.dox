@@ -6,14 +6,16 @@
 Thanks to the modular design, adding new components is very easy. Most
 of the inner functions (kernels, criteria, etc.) are designed as
 functors (function objects). Thus, we just need to inherit from the
-interface (abstract) functor or one of the existing functions. The new
-functor would be automatically integrated, including advanced usage
-(for example: annealing).
+interface (abstract) functor or one of the existing functions. Then,
+we need to include the reference in the corresponding factory module
+and the new functor would be automatically integrated, including
+advanced usage (for example: annealing).
 
 Although it would be more efficient to use a template system. The
 functors are instantiated dynamically using a factory model. This
-allows changes without recompiling the library, which is specially
-important while using dynamic languages (Python, Matlab, etc.).
+allows great flexibility without recompiling the library, which is
+specially important while using interpreted languages (Python, Matlab,
+etc.).
 
 \subsection addfunct Adding functors (kernels, criteria and mean functions)
 
@@ -28,7 +30,8 @@ kernel) and they return a value. Combined functors are used to combine
 combined (e.g.: a sum of products of kernels).
 
 Combined kernels and mean functions only allows binary expressions -2
-elements- while combined criteria support any number of elements (see
+elements- as they represent associative functions (sum, product,
+etc.). Meanwhile combined criteria support any number of elements (see
 cHedge function in \ref combcri).
 
 Finally, add the corresponding register with the new function name in
@@ -73,6 +76,7 @@ called exactly \c bayesopt.so
 \section relsoft Related software
 
 \li Spearmint (Python): A library based on \cite Snoek2012. It is more oriented to cluster computing https://github.com/JasperSnoek/spearmint
+\li DiceOptim (R) : A R package for kriging based optimization. See \cite Roustant2012 and http://cran.r-project.org/web/packages/DiceOptim/index.html
 \li Hyperopt (Python): A library mainly based on \cite Bergstra2011. It uses different models for the surrogate model https://github.com/jaberg/hyperopt
 \li Perk (Fortran+Shell): A library for surrogate modelling. It was mainly used in \cite Santner03. http://www.stat.osu.edu/~comp_exp/book.html
 \li SUMO (Matlab): A library for surrogate modelling. Its main purpose it is not optimization but it also includes the Expected Imporvement algorithm. http://www.sumowiki.intec.ugent.be/Main_Page

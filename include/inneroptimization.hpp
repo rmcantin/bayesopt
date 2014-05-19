@@ -5,7 +5,7 @@
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
    under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 #ifndef __INNEROPTIMIZATION_HPP__
 #define __INNEROPTIMIZATION_HPP__
 
-#include "dll_stuff.h"
+//#include "dll_stuff.h"
 #include "optimizable.hpp"
 //#include "optimization.hpp"
 
@@ -41,27 +41,6 @@ namespace bayesopt {
   } innerOptAlgorithms;
 
 
-  class RBOptimizableWrapper
-  {
-  public:
-    explicit RBOptimizableWrapper(RBOptimizable* rbo): rbo_(rbo){};
-    virtual ~RBOptimizableWrapper(){};
-    double evaluate(const vectord& query){return rbo_->evaluate(query);}
-  private:
-    RBOptimizable* rbo_;
-  };
-
-  class RGBOptimizableWrapper
-  {
-  public:
-    explicit RGBOptimizableWrapper(RGBOptimizable* rgbo): rgbo_(rgbo){};
-    virtual ~RGBOptimizableWrapper(){};
-    double evaluate(const vectord& query, vectord& grad){return rgbo_->evaluate(query,grad);}
-  private:
-    RGBOptimizable* rgbo_;
-  };
-
-
   class NLOPT_Optimization //: public Optimization
   {
   public:
@@ -72,7 +51,8 @@ namespace bayesopt {
     /** Sets the optimization algorithm  */
     void setAlgorithm(innerOptAlgorithms newAlg);
 
-    /** Sets the optimization algorithm  */
+    /** Sets the maximum number of function evaluations. Depending on
+	the algorithm, it might stops earlier if convergence is reached. */
     void setMaxEvals(size_t meval);
 
     /** Limits of the hypercube. */
@@ -81,10 +61,20 @@ namespace bayesopt {
     /** Limits of the hypercube assuming that all dimensions have the same limits. */
     void setLimits(double down, double up);
 
-    /** Compute the inner optimization algorithm
+    /** Launch the inner optimization algorithm
+     *
      * @param Xnext input: initial guess, output: result
+     * @return minimum value
      */
-    void run(vectord &Xnext);
+    double run(vectord &Xnext);
+
+    /** 
+     * Try some local optimization around a point
+     * 
+     * @param Xnext input: initial guess, output: result
+     * @return minimum value
+     */
+    double localTrialAround(vectord& Xnext);
 
     /** 
      * Wrapper of inner optimization to be evaluated by NLOPT
@@ -119,6 +109,10 @@ namespace bayesopt {
     innerOptAlgorithms alg;
     std::vector<double> mDown, mUp;
     size_t maxEvals;
+
+  private: //Forbidden
+    NLOPT_Optimization();
+    NLOPT_Optimization(NLOPT_Optimization& copy);
   };
 
 

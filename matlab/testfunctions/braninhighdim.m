@@ -27,19 +27,19 @@ function y = braninhighdim(x)
 % Min = 0.9617 0.1650
 
 global MATRIX_A
-global truei
+global TRUE_I
 
 z = MATRIX_A*x';
 
-if (z(truei(1)) < 0) z(truei(1)) = 0; end;
-if (z(truei(2)) < 0) z(truei(2)) = 0; end;
-if (z(truei(1)) > 1) z(truei(1)) = 1; end;
-if (z(truei(2)) > 1) z(truei(2)) = 1; end;
+if (z(TRUE_I(1)) < 0) z(TRUE_I(1)) = 0; end;
+if (z(TRUE_I(2)) < 0) z(TRUE_I(2)) = 0; end;
+if (z(TRUE_I(1)) > 1) z(TRUE_I(1)) = 1; end;
+if (z(TRUE_I(2)) > 1) z(TRUE_I(2)) = 1; end;
 
 % Trick: We assume the function has 1000 dims, but in reality, it is just
 % the traditional 2D branin.
 
-a = z(truei(1)) * 15 - 5;
-b = z(truei(2)) * 15;
+a = z(TRUE_I(1)) * 15 - 5;
+b = z(TRUE_I(2)) * 15;
 
 y = (b-(5.1/(4*pi^2))*a^2+5*a/pi-6)^2+10*(1-1/(8*pi))*cos(a)+10;

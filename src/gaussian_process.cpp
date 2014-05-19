@@ -3,7 +3,7 @@
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
    under the terms of the GNU General Public License as published by
@@ -20,8 +20,7 @@
 ------------------------------------------------------------------------
 */
 
-#include "cholesky.hpp"
-#include "trace_ublas.hpp"
+#include "ublas_trace.hpp"
 #include "gaussian_process.hpp"
 
 namespace bayesopt
@@ -30,8 +29,9 @@ namespace bayesopt
   namespace ublas = boost::numeric::ublas;
 
   GaussianProcess::GaussianProcess(size_t dim, bopt_params params, 
-				   const Dataset& data, randEngine& eng):
-    ConditionalBayesProcess(dim, params, data, eng)
+				   const Dataset& data, MeanModel& mean,
+				   randEngine& eng):
+    ConditionalBayesProcess(dim, params, data, mean, eng)
   {
     mSigma = params.sigma_s;
     d_ = new GaussianDistribution(eng);
@@ -60,8 +60,8 @@ namespace bayesopt
 
     vectord alpha(mData.mY-mMean.muTimesFeat());
     inplace_solve(L,alpha,ublas::lower_tag());
-    double loglik = ublas::inner_prod(alpha,alpha)/(2*mSigma) + 
-      utils::log_trace(L);
+    double loglik = ublas::inner_prod(alpha,alpha)/(2*mSigma);
+    loglik += utils::log_trace(L);
     return loglik;
   }
 

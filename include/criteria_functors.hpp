@@ -1,10 +1,11 @@
-/**  \file criteria_functors.hpp \brief Criteria functions */
+/**  \file criteria_functors.hpp \brief Abstract and factory modules
+     for criteria */
 /*
 -------------------------------------------------------------------------
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
    under the terms of the GNU General Public License as published by
@@ -25,8 +26,6 @@
 #define  _CRITERIA_FUNCTORS_HPP_
 
 #include <map>
-#include <algorithm>
-#include "optimizable.hpp"
 #include "nonparametricprocess.hpp"
 
 namespace bayesopt
@@ -41,16 +40,14 @@ namespace bayesopt
   /**
    * \brief Abstract interface for criteria functors.
    */
-  class Criteria: public RBOptimizable
+  class Criteria
   {
   public:
     virtual ~Criteria() {};
-    virtual void init(NonParametricProcess *proc) { };
-    virtual void init(NonParametricProcess *proc, 
-		     const std::vector<Criteria*>& list) { };
+    virtual void init(NonParametricProcess *proc) { mProc = proc; };
 
-    double evaluate(const vectord &x) {return (*this)(x);}
-    virtual double operator()(const vectord &x) = 0;
+    double evaluate(const vectord &x)  {return (*this)(x);}
+    virtual double operator() (const vectord &x)  = 0;
 
     virtual std::string name() = 0;
     virtual void setParameters(const vectord &params) = 0;
@@ -61,9 +58,14 @@ namespace bayesopt
     void setRandomEngine(randEngine& eng){ mtRandom = &eng; }
 
     // In general, most criteria does not support comparisons!
+    // TODO: Consider throwing exception when incorrect calls
+    virtual void pushCriteria(Criteria* crit){};
     virtual bool requireComparison(){ return false; };
-    virtual bool checkIfBest(vectord& xNext,std::string& name)
-    { assert(false); return false; };
+    virtual void initialCriteria(){};
+    virtual bool rotateCriteria(){return false;};
+    virtual void pushResult(const vectord& prevResult){};
+    virtual std::string getBestCriteria(vectord& best)
+    { assert(false); return name(); };
 
   protected:
     NonParametricProcess *mProc;

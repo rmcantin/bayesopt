@@ -3,7 +3,7 @@
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
    under the terms of the GNU General Public License as published by
@@ -36,21 +36,11 @@
 namespace bayesopt
 {
 
-  Dataset::Dataset(): mMinIndex(0), mMaxIndex(0) {};
-
-  Dataset::Dataset(const matrixd& x, const vectord& y):
-    mMinIndex(0), mMaxIndex(0)
-  {
-    setSamples(x,y);
-  };
-
-  Dataset::~Dataset(){};
-
-
-  ///////////////////////////////////////////////////////////////////////////
   NonParametricProcess::NonParametricProcess(size_t dim, bopt_params parameters, 
-					     const Dataset& data, randEngine& eng):
-    mData(data), dim_(dim), mMean(dim, parameters)
+					     const Dataset& data, 
+					     MeanModel& mean,
+					     randEngine& eng):
+    mData(data), dim_(dim), mMean(mean), mSigma(parameters.sigma_s)
   {}
 
   NonParametricProcess::~NonParametricProcess(){}
@@ -59,6 +49,7 @@ namespace bayesopt
   NonParametricProcess* NonParametricProcess::create(size_t dim, 
 						     bopt_params parameters, 
 						     const Dataset& data, 
+						     MeanModel& mean,
 						     randEngine& eng)
   {
     NonParametricProcess* s_ptr;
@@ -66,19 +57,18 @@ namespace bayesopt
     std::string name = parameters.surr_name;
 
     if (!name.compare("sGaussianProcess"))
-      s_ptr = new GaussianProcess(dim,parameters,data,eng);
+      s_ptr = new GaussianProcess(dim,parameters,data,mean,eng);
     else  if(!name.compare("sGaussianProcessML"))
-      s_ptr = new GaussianProcessML(dim,parameters,data,eng);
+      s_ptr = new GaussianProcessML(dim,parameters,data,mean,eng);
     else  if(!name.compare("sGaussianProcessNormal"))
-      s_ptr = new GaussianProcessNormal(dim,parameters,data,eng);
+      s_ptr = new GaussianProcessNormal(dim,parameters,data,mean,eng);
     else if (!name.compare("sStudentTProcessJef"))
-      s_ptr = new StudentTProcessJeffreys(dim,parameters,data,eng); 
+      s_ptr = new StudentTProcessJeffreys(dim,parameters,data,mean,eng); 
     else if (!name.compare("sStudentTProcessNIG"))
-      s_ptr = new StudentTProcessNIG(dim,parameters,data,eng); 
+      s_ptr = new StudentTProcessNIG(dim,parameters,data,mean,eng); 
     else
       {
-	FILE_LOG(logERROR) << "Error: surrogate function not supported.";
-	throw std::invalid_argument("surrogate function not supported");
+	throw std::invalid_argument("Surrogate function not supported");
       }
     return s_ptr;
   };

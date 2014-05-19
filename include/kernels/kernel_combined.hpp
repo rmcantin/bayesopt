@@ -5,7 +5,7 @@
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
    under the terms of the GNU General Public License as published by
@@ -90,33 +90,6 @@ namespace bayesopt
   protected:
     Kernel* left;
     Kernel* right;
-  };
-
-
-  /** \brief Sum of two kernels */
-  class KernelSum: public CombinedKernel
-  {
-  public:
-    double operator()(const vectord &x1, const vectord &x2)
-    { return (*left)(x1,x2) + (*right)(x1,x2); };
-
-    double gradient(const vectord &x1, const vectord &x2,
-		    size_t component)
-    { return left->gradient(x1,x2,component) + right->gradient(x1,x2,component); };
-  };
-
-
-  /** \brief Product of two kernels */
-  class KernelProd: public CombinedKernel
-  {
-  public:
-    double operator()(const vectord &x1, const vectord &x2)
-    { return (*left)(x1,x2) * (*right)(x1,x2); };
-
-    //TODO: Not implemented
-    double gradient(const vectord &x1, const vectord &x2,
-		    size_t component)
-    { return 0.0; };
   };
 
   //@}

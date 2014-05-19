@@ -3,7 +3,7 @@
 #    This file is part of BayesOpt, an efficient C++ library for
 #    Bayesian optimization.
 #
-#    Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+#    Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
 #
 #    BayesOpt is free software: you can redistribute it and/or modify it
 #    under the terms of the GNU General Public License as published by
@@ -24,6 +24,12 @@ import numpy as np
 cimport numpy as np
 #from python_ref cimport Py_INCREF, Py_DECREF
 from cpython cimport Py_INCREF, Py_DECREF
+
+# Cython > 0.20
+#from libc.math cimport HUGE_VAL
+# Cython <= 0.19
+cdef extern from "math.h" nogil:
+    double HUGE_VAL
 
 cdef extern from *:
     ctypedef double* const_double_ptr "const double*"
@@ -55,22 +61,25 @@ cdef extern from "parameters.h":
         unsigned int n_init_samples
         unsigned int n_iter_relearn
         unsigned int init_method
-        unsigned int use_random_seed
-        unsigned int verbose_level
+        int random_seed
+        int verbose_level
         char* log_filename
+        unsigned int load_save_flag
+        char* load_filename
+        char* save_filename
         char* surr_name
         double sigma_s
         double noise
         double alpha, beta
-        learning_type l_type
         score_type sc_type
+        learning_type l_type
         double epsilon
+        unsigned int force_jump
         kernel_parameters kernel
         mean_parameters mean
         char* crit_name
         double* crit_params
         unsigned int n_crit_params
-
 
     learning_type str2learn(char* name)
     char* learn2str(learning_type name)
@@ -78,6 +87,16 @@ cdef extern from "parameters.h":
     score_type str2score(char* name)
     char* score2str(score_type name)
 
+    void set_kernel(bopt_params* params, char* name)
+    void set_mean(bopt_params* params, char* name)
+    void set_criteria(bopt_params* params, char* name)
+    void set_surrogate(bopt_params* params, char* name)
+    void set_log_file(bopt_params* params, char* name)
+    void set_load_file(bopt_params* params, char* name)
+    void set_save_file(bopt_params* params, char* name)
+    void set_learning(bopt_params* params, const char* name)
+    void set_score(bopt_params* params, const char* name)
+    
     bopt_params initialize_parameters_to_default()
 
 ###########################################################################
@@ -95,6 +114,10 @@ cdef extern from "bayesopt.h":
                                 double *x, double *minf,
                                 bopt_params parameters)
 
+    int bayes_optimization_categorical(int nDim, eval_func f, void* f_data,
+                                        int *categories, double *x,
+                                        double *minf, bopt_params parameters)
+
 ###########################################################################
 cdef bopt_params dict2structparams(dict dparams):
 
@@ -107,14 +130,15 @@ cdef bopt_params dict2structparams(dict dparams):
     params.n_iter_relearn = dparams.get('n_iter_relearn',params.n_iter_relearn)
 
     params.init_method = dparams.get('init_method',params.init_method)
-    params.use_random_seed = dparams.get('use_random_seed',params.use_random_seed)
+    params.random_seed = dparams.get('random_seed',params.random_seed)
 
     params.verbose_level = dparams.get('verbose_level',params.verbose_level)
-    logname = dparams.get('log_filename',params.log_filename)
-    params.log_filename = logname
+    name = dparams.get('log_filename',params.log_filename)
+    set_log_file(&params,name)
 
-    sname = dparams.get('surr_name',params.surr_name)
-    params.surr_name = sname;
+    name = dparams.get('surr_name',params.surr_name)
+    set_surrogate(&params,name)
+
     params.sigma_s = dparams.get('sigma_s',params.sigma_s)
     params.noise = dparams.get('noise',params.noise)
     params.alpha = dparams.get('alpha',params.alpha)
@@ -122,17 +146,17 @@ cdef bopt_params dict2structparams(dict dparams):
 
     learning = dparams.get('l_type', None)
     if learning is not None:
-        params.l_type = str2learn(learning)
+        set_learning(&params,learning)
 
     score = dparams.get('sc_type', None)
     if score is not None:
-        params.sc_type = str2score(score)
-
-        
+        set_score(&params,score)
+    
     params.epsilon = dparams.get('epsilon',params.epsilon)
+    params.force_jump= dparams.get('force_jump',params.force_jump)
 
-    kname = dparams.get('kernel_name',params.kernel.name)
-    params.kernel.name = kname;
+    name = dparams.get('kernel_name',params.kernel.name)
+    set_kernel(&params,name)
 
     theta = dparams.get('kernel_hp_mean',None)
     stheta = dparams.get('kernel_hp_std',None)
@@ -142,9 +166,9 @@ cdef bopt_params dict2structparams(dict dparams):
             params.kernel.hp_mean[i] = theta[i]
             params.kernel.hp_std[i] = stheta[i]
 
-    mname = dparams.get('mean_name',params.mean.name)
-    params.mean.name = mname
-
+    name = dparams.get('mean_name',params.mean.name)
+    set_mean(&params,name)
+    
     mu = dparams.get('mean_coef_mean',None)
     smu = dparams.get('mean_coef_std',None)
     if mu is not None and smu is not None:
@@ -153,8 +177,8 @@ cdef bopt_params dict2structparams(dict dparams):
             params.mean.coef_mean[i] = mu[i]
             params.mean.coef_std[i] = smu[i]
 
-    cname = dparams.get('crit_name',params.crit_name)
-    params.crit_name = cname
+    name = dparams.get('crit_name',params.crit_name)
+    set_criteria(&params,name)
 
     cp = dparams.get('crit_params',None)
     if cp is not None:
@@ -166,48 +190,39 @@ cdef bopt_params dict2structparams(dict dparams):
 
 cdef double callback(unsigned int n, const_double_ptr x,
                      double *gradient, void *func_data):
-    x_np = np.zeros(n)
-    for i in range(0,n):
-        x_np[i] = <double>x[i]
-    result = (<object>func_data)(x_np)
-    return result
+    try:
+        x_np = np.zeros(n)
 
+        for i in range(0,n):
+            x_np[i] = <double>x[i]
 
-def initialize_params():
-    params = {
-        "n_iterations"   : 300,
-        "n_inner_iterations" : 500,
-        "n_init_samples" : 30,
-        "n_iter_relearn" : 0,
-        "init_method" : 1,
-        "use_random_seed" : 1,
-        "verbose_level"  : 1,
-        "log_filename"   : "bayesopt.log" ,
-        "surr_name" : "sGaussianProcess" ,
-        "sigma_s"  : 1.0,
-        "noise"  : 0.001,
-        "alpha"  : 1.0,
-        "beta"   : 1.0,
-        "sc_type" : "SC_MAP",
-        "l_type" : "L_EMPIRICAL",
-        "epsilon" : 0.0,
-        "kernel_name" : "kMaternISO3",
-        "kernel_hp_mean"  : [1.0],
-        "kernel_hp_std": [100.0],
-        "mean_name" : "mConst",
-        "mean_coef_mean"     : [1.0],
-        "mean_coef_std"   : [1000.0],
-        "crit_name" : "cEI",
-        "crit_params" : [1.0],
-        }
-    return params
+        result = (<object>func_data)(x_np)
+        return result
+    except:
+        return HUGE_VAL
+
+def raise_problem(error_code):
+    # This is a little bit hacky, but we lose track of the C++
+    # exception since we use the C wrapper for interface:
+    # C++ (excep) <-> C (error codes) <-> Python (excep)
+
+    # From bayesoptwpr.cpp
+    #static const int BAYESOPT_FAILURE = -1; 
+    #static const int BAYESOPT_INVALID_ARGS = -2;
+    #static const int BAYESOPT_OUT_OF_MEMORY = -3;
+    #static const int BAYESOPT_RUNTIME_ERROR = -4;
+    
+    if error_code == -1: raise Exception('Unknown error');
+    elif error_code == -2: raise ValueError('Invalid argument');
+    elif error_code == -3: raise MemoryError;
+    elif error_code == -4: raise RuntimeError;
 
 def optimize(f, int nDim, np.ndarray[np.double_t] np_lb,
              np.ndarray[np.double_t] np_ub, dict dparams):
 
     cdef bopt_params params = dict2structparams(dparams)
-    cdef double minf[1000]
-    cdef np.ndarray np_x = np.zeros([nDim], dtype=np.double)
+    cdef double minf[1]
+    cdef np.ndarray np_x = np.ones([nDim], dtype=np.double)*0.5
 
     cdef np.ndarray[np.double_t, ndim=1, mode="c"] lb
     cdef np.ndarray[np.double_t, ndim=1, mode="c"] ub
@@ -222,7 +237,11 @@ def optimize(f, int nDim, np.ndarray[np.double_t] np_lb,
     error_code = bayes_optimization(nDim, callback, <void *> f,
                                     &lb[0], &ub[0], &x[0], minf, params)
 
+    
     Py_DECREF(f)
+
+    raise_problem(error_code)
+    
     min_value = minf[0]
     return min_value,np_x,error_code
 
@@ -230,10 +249,11 @@ def optimize(f, int nDim, np.ndarray[np.double_t] np_lb,
 def optimize_discrete(f, np.ndarray[np.double_t,ndim=2] np_valid_x,
                       dict dparams):
 
+    cdef bopt_params params = dict2structparams(dparams)
+    
     nDim = np_valid_x.shape[1]
 
-    cdef bopt_params params = dict2structparams(dparams)
-    cdef double minf[1000]
+    cdef double minf[1]
     cdef np.ndarray np_x = np.zeros([nDim], dtype=np.double)
 
     cdef np.ndarray[np.double_t, ndim=1, mode="c"] x
@@ -249,5 +269,37 @@ def optimize_discrete(f, np.ndarray[np.double_t,ndim=2] np_valid_x,
                                          &x[0], minf, params)
 
     Py_DECREF(f)
+
+    raise_problem(error_code)
+    
+    min_value = minf[0]
+    return min_value,np_x,error_code
+
+def optimize_categorical(f, np.ndarray[np.int_t,ndim=1] np_categories,
+                         dict dparams):
+
+    cdef bopt_params params = dict2structparams(dparams)
+    
+    nDim = np_categories.shape[0]
+
+    cdef double minf[1]
+    cdef np.ndarray np_x = np.zeros([nDim], dtype=np.double)
+
+    cdef np.ndarray[np.double_t, ndim=1, mode="c"] x
+    cdef np.ndarray[np.int_t, ndim=1, mode="c"] categories
+
+    x  = np.ascontiguousarray(np_x,dtype=np.double)
+    categories = np.ascontiguousarray(np_categories,dtype=np.int)
+
+    Py_INCREF(f)
+
+    error_code = bayes_optimization_categorical(nDim, callback, <void *> f,
+                                                <int *>&categories[0], &x[0],
+                                                minf, params)
+
+    Py_DECREF(f)
+
+    raise_problem(error_code)
+    
     min_value = minf[0]
     return min_value,np_x,error_code

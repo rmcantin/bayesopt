@@ -3,7 +3,7 @@
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
    under the terms of the GNU General Public License as published by
@@ -20,34 +20,28 @@
 ------------------------------------------------------------------------
 */
 
-#include <ctime>
-#include <cstdlib>
-#include "log.hpp"
 #include "bayesoptbase.hpp"
+
+#include "log.hpp"
+#include "posteriormodel.hpp"
+
 
 namespace bayesopt
 {
-  
-  BayesOptBase::BayesOptBase():
-    mGP(NULL), mCrit(NULL)
-  {
-    mParameters = initialize_parameters_to_default();
-    __init__();
-  }
 
 
   BayesOptBase::BayesOptBase(size_t dim, bopt_params parameters):
-    mGP(NULL), mCrit(NULL),  mParameters(parameters), mDims(dim)
+    mParameters(parameters), mDims(dim)
   {
-    __init__();
-  }
+    // Random seed
+    if (mParameters.random_seed < 0) mParameters.random_seed = std::time(0); 
+    mEngine.seed(mParameters.random_seed);
 
-  void BayesOptBase::__init__()
-  { 
-    // Configure logging
-    if (mParameters.use_random_seed) mEngine.seed(std::time(0));
-
-    size_t verbose = mParameters.verbose_level;
+    // Posterior surrogate model
+    mModel.reset(PosteriorModel::create(dim,parameters,mEngine));
+    
+    // Setting verbose stuff (files, levels, etc.)
+    int verbose = mParameters.verbose_level;
     if (verbose>=3)
       {
 	FILE* log_fd = fopen( mParameters.log_filename , "w" );
@@ -65,89 +59,101 @@ namespace bayesopt
       }
 
     // Configure iteration parameters
-    if ((mParameters.n_iterations <= 0) || 
-	(mParameters.n_iterations > MAX_ITERATIONS))
-      mParameters.n_iterations = MAX_ITERATIONS;
-
     if (mParameters.n_init_samples <= 0)
-      mParameters.n_init_samples = 
-	static_cast<size_t>(ceil(0.1*mParameters.n_iterations));
-
-    // Configure Surrogate and Criteria Functions
-    
-    setSurrogateModel();
-    setCriteria();
-
-    // mData.reset(new Dataset());
-    // mGP->setData(mData.get());
-  } // __init__
+      {
+	mParameters.n_init_samples = 
+	  static_cast<size_t>(ceil(0.1*mParameters.n_iterations));	
+      }
+  }
 
   BayesOptBase::~BayesOptBase()
-  {} // Default destructor
+  { } // Default destructor
 
-  void BayesOptBase::setSurrogateModel()
-  {
-    mGP.reset(NonParametricProcess::create(mDims,mParameters,mData,mEngine));
-  } // setSurrogateModel
 
-  void BayesOptBase::setCriteria()
-  {
-    mCrit.reset(mCFactory.create(mParameters.crit_name,mGP.get()));
-    
-    if (mCrit->nParameters() == mParameters.n_crit_params)
-      {
-	mCrit->setParameters(utils::array2vector(mParameters.crit_params,
-					       mParameters.n_crit_params));
-      }
-    else // If the number of paramerters is different, use default.
-      {
-	if (mParameters.n_crit_params != 0)
-	  {
-	    FILE_LOG(logERROR) << "Expected " << mCrit->nParameters() 
-			       << " parameters. Got " 
-			       << mParameters.n_crit_params << " instead.";
-	  }
-	FILE_LOG(logINFO) << "Usign default parameters for criteria.";
-      }
-  } // setCriteria
-
-  void BayesOptBase::stepOptimization(size_t ii)
+  void BayesOptBase::stepOptimization()
   {
     // Find what is the next point.
     vectord xNext = nextPoint(); 
     double yNext = evaluateSampleInternal(xNext);
-    addSample(xNext,yNext);
+
+    // If we are stuck in the same point for several iterations, try a random jump!
+    if (mParameters.force_jump)
+      {
+	if (std::pow(mYPrev - yNext,2) < mParameters.noise)
+	  {
+	    mCounterStuck++;
+	    FILE_LOG(logDEBUG) << "Stuck for "<< mCounterStuck << " steps";
+	  }
+	else
+	  {
+	    mCounterStuck = 0;
+	  }
+	mYPrev = yNext;
+
+	if (mCounterStuck > mParameters.force_jump)
+	  {
+	    FILE_LOG(logINFO) << "Forced random query!";
+	    xNext = samplePoint();
+	    yNext = evaluateSampleInternal(xNext);
+	    mCounterStuck = 0;
+	  }
+      }
+
+    mModel->addSample(xNext,yNext);
 
     // Update surrogate model
     bool retrain = ((mParameters.n_iter_relearn > 0) && 
-		    ((ii + 1) % mParameters.n_iter_relearn == 0));
-    
+		    ((mCurrentIter + 1) % mParameters.n_iter_relearn == 0));
+
     if (retrain)  // Full update
       {
-	mGP->fitSurrogateModel();
+	mModel->updateHyperParameters();
+	mModel->fitSurrogateModel();
       }
     else          // Incremental update
       {
-	mGP->updateSurrogateModel(xNext);
+	mModel->updateSurrogateModel();
       } 
-    plotStepData(ii,xNext,yNext);
+    plotStepData(mCurrentIter,xNext,yNext);
+    mCurrentIter++;
   }
 
-  int BayesOptBase::optimize(vectord &bestPoint)
+  void BayesOptBase::initializeOptimization()
+  {
+    size_t nSamples = mParameters.n_init_samples;
+
+    matrixd xPoints(nSamples,mDims);
+    vectord yPoints(nSamples);
+
+    sampleInitialPoints(xPoints,yPoints);
+    mModel->setSamples(xPoints,yPoints);
+ 
+    if(mParameters.verbose_level > 0)
+      {
+	mModel->plotDataset(logDEBUG);
+      }
+    
+    mModel->updateHyperParameters();
+    mModel->fitSurrogateModel();
+    mCurrentIter = 0;
+
+	mCounterStuck = 0;
+	mYPrev = 0.0;
+  }
+
+
+  void BayesOptBase::optimize(vectord &bestPoint)
   {
     initializeOptimization();
     assert(mDims == bestPoint.size());
     
     for (size_t ii = 0; ii < mParameters.n_iterations; ++ii)
       {      
-	stepOptimization(ii);
+	stepOptimization();
       }
    
     bestPoint = getFinalResult();
-
-    return 0;
   } // optimize
-  
 
   vectord BayesOptBase::nextPoint()
   {
@@ -165,28 +171,56 @@ namespace bayesopt
 	  }
       }
 
+    //TODO: Try to solve this without bringing the pointer to the
+    //criteria. Right now it does not work with MCMC.
     vectord Xnext(mDims);    
 
     // GP-Hedge and related algorithms
-    if (mCrit->requireComparison())
+    if (mModel->criteriaRequiresComparison())
       {
-	bool check = false;
-	std::string name;
-	mCrit->setRandomEngine(mEngine);
-	
-	mCrit->reset();
-	while (!check)
+	bool changed = true;
+
+	mModel->setFirstCriterium();
+	while (changed)
 	  {
 	    findOptimal(Xnext);
-	    check = mCrit->checkIfBest(Xnext,name);
+	    changed = mModel->setNextCriterium(Xnext);
 	  }
+	std::string name = mModel->getBestCriteria(Xnext);
 	FILE_LOG(logINFO) << name << " was selected.";
       }
     else  // Standard "Bayesian optimization"
       {
+	FILE_LOG(logDEBUG) << "------ Optimizing criteria ------";
 	findOptimal(Xnext);
       }
     return Xnext;
   }
+
+
+  // Potential inline functions. Moved here to simplify API and header
+  // structure.
+  double BayesOptBase::evaluateCriteria(const vectord& query)
+  {
+    if (checkReachability(query)) return mModel->evaluateCriteria(query);
+    else return 0.0;
+  }
+
+  vectord BayesOptBase::getPointAtMinimum() 
+  { return mModel->getPointAtMinimum(); };
+  
+  double BayesOptBase::getValueAtMinimum()
+  { return mModel->getValueAtMinimum(); };
+
+  ProbabilityDistribution* BayesOptBase::getPrediction(const vectord& query)
+  { return mModel->getPrediction(query); };
+
+   const Dataset* BayesOptBase::getData()
+  { return mModel->getData(); };
+
+  bopt_params* BayesOptBase::getParameters() 
+  {return &mParameters;};
+
+
 } //namespace bayesopt
 

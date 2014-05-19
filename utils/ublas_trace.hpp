@@ -45,7 +45,7 @@ namespace bayesopt
       const size_t n = (std::min)(A.size1(),A.size2());
       typename E::value_type sum = 0;
       for (size_t i=0; i<n; ++i)
-	sum += log(A(i,i));
+	sum += std::log(A(i,i));
 
       return sum; 
     }

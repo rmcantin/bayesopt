@@ -3,7 +3,7 @@
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
    under the terms of the GNU General Public License as published by
@@ -19,9 +19,9 @@
    along with BayesOpt.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------
 */
-#include "hierarchical_gaussian_process.hpp"
-#include "cholesky.hpp"
-#include "trace_ublas.hpp"
+
+#include "gaussian_process_hierarchical.hpp"
+#include "ublas_trace.hpp"
 
 namespace bayesopt
 {
@@ -30,8 +30,9 @@ namespace bayesopt
   HierarchicalGaussianProcess::HierarchicalGaussianProcess(size_t dim, 
 							   bopt_params params, 
 							   const Dataset& data, 
+							   MeanModel& mean,
 							   randEngine& eng):
-    ConditionalBayesProcess(dim, params, data,eng) {};
+    ConditionalBayesProcess(dim, params, data, mean, eng) {};
 
   double HierarchicalGaussianProcess::negativeTotalLogLikelihood()
   {
@@ -59,7 +60,9 @@ namespace bayesopt
 
     vectord alpha = mData.mY - prod(wML,mMean.mFeatM);
     inplace_solve(L,alpha,ublas::lower_tag());
-    double sigma = ublas::inner_prod(alpha,alpha)/(n-p);
+
+    //TODO: Review this line
+    //    double sigma = ublas::inner_prod(alpha,alpha)/(n-p);
 
     double loglik = .5*(n-p)*log(ublas::inner_prod(alpha,alpha)) 
       + utils::log_trace(L) + utils::log_trace(L2);

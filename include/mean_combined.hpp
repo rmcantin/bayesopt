@@ -5,7 +5,7 @@
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
    under the terms of the GNU General Public License as published by
@@ -50,7 +50,7 @@ namespace bayesopt
       this->right = right;
       return 0;
     };
-    int setParameters(const vectord &theta) 
+    void setParameters(const vectord &theta) 
     {
       using boost::numeric::ublas::subrange;
 
@@ -58,14 +58,11 @@ namespace bayesopt
       size_t n_rhs = right->nParameters();
       if (theta.size() != n_lhs + n_rhs)
 	{
-	  FILE_LOG(logERROR) << "Wrong number of mean function parameters"; 
-	  return -1; 
+	  throw std::invalid_argument("Wrong number of mean function parameters"); 
 	}
 
       left->setParameters(subrange(theta,0,n_lhs));
       right->setParameters(subrange(theta,n_lhs,n_lhs+n_rhs));
-
-      return 0;
     };
 
     vectord getParameters() 

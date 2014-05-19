@@ -3,7 +3,7 @@
 #    This file is part of BayesOpt, an efficient C++ library for 
 #    Bayesian optimization.
 #
-#    Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+#    Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
 # 
 #    BayesOpt is free software: you can redistribute it and/or modify it 
 #    under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 # ------------------------------------------------------------------------
 
 import bayesopt
-import bayesoptmodule
+from bayesoptmodule import BayesOptContinuous
 import numpy as np
 
 from time import clock
@@ -34,8 +34,8 @@ def testfunc(Xin):
     return total
 
 # Class for OO testing.
-class BayesOptTest(bayesoptmodule.BayesOptContinuous):
-    def evalfunc(self,Xin):
+class BayesOptTest(BayesOptContinuous):
+    def evaluateSample(self,Xin):
         return testfunc(Xin)
 
 
@@ -43,12 +43,10 @@ class BayesOptTest(bayesoptmodule.BayesOptContinuous):
 # For different options: see parameters.h and cpp
 # If a parameter is not define, it will be automatically set
 # to a default value.
-params = bayesopt.initialize_params()
+params = {}
 params['n_iterations'] = 50
-params['n_init_samples'] = 20
-params['crit_name'] = "cEI"
-params['kernel_name'] = "kMaternISO3"
-
+params['n_iter_relearn'] = 5
+params['n_init_samples'] = 2
 
 print "Callback implementation"
 
@@ -60,13 +58,12 @@ start = clock()
 mvalue, x_out, error = bayesopt.optimize(testfunc, n, lb, ub, params)
 
 print "Result", mvalue, "at", x_out
-print "Seconds", clock() - start
+print "Running time:", clock() - start, "seconds"
 raw_input('Press INTRO to continue')
 
 print "OO implementation"
-bo_test = BayesOptTest()
-bo_test.params = params
-bo_test.n_dim = n
+bo_test = BayesOptTest(n)
+bo_test.parameters = params
 bo_test.lower_bound = lb
 bo_test.upper_bound = ub
 
@@ -74,7 +71,7 @@ start = clock()
 mvalue, x_out, error = bo_test.optimize()
 
 print "Result", mvalue, "at", x_out
-print "Seconds", clock() - start
+print "Running time:", clock() - start, "seconds"
 raw_input('Press INTRO to continue')
 
 print "Callback discrete implementation"
@@ -84,7 +81,7 @@ start = clock()
 mvalue, x_out, error = bayesopt.optimize_discrete(testfunc, x_set, params)
 
 print "Result", mvalue, "at", x_out
-print "Seconds", clock() - start
+print "Running time:", clock() - start, "seconds"
 
 value = np.array([testfunc(i) for i in x_set])
-print "Optimun", x_set[value.argmin()]
+print "Optimum", value.min(), "at", x_set[value.argmin()]

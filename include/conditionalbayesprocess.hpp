@@ -1,12 +1,12 @@
-/** \file conditionalbayesprocess.hpp
-    \brief Implementes a empirical Bayesian nonparametric process with a 
-    ML, MAP or similar estimate of kernel parameters. */
+/** \file conditionalbayesprocess.hpp 
+    \brief Kernel based nonparametric process, conditional 
+           on kernel hyperparameters. */
 /*
 -------------------------------------------------------------------------
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
    under the terms of the GNU General Public License as published by
@@ -28,7 +28,6 @@
 #define  _CONDITIONAL_BAYES_PROCESS_HPP_
 
 #include "kernelregressor.hpp"
-#include "inneroptimization.hpp"
 
 namespace bayesopt
 {
@@ -40,11 +39,12 @@ namespace bayesopt
   /**
    * \brief Empirical Bayesian NonParametric process.
    */
-  class ConditionalBayesProcess: public KernelRegressor, RBOptimizable
+  class ConditionalBayesProcess: public KernelRegressor
   {
   public:
-    ConditionalBayesProcess(size_t dim, bopt_params parameters,
-			  const Dataset& data, randEngine& eng);
+    ConditionalBayesProcess(size_t dim, bopt_params parameters, 
+			    const Dataset& data, 
+			    MeanModel& mean, randEngine& eng);
     virtual ~ConditionalBayesProcess();
 
     /** 
@@ -56,12 +56,6 @@ namespace bayesopt
      */	
     virtual ProbabilityDistribution* prediction(const vectord &query) = 0;
 		 		 
-    /** 
-     * \brief Updates the kernel parameters acording with a point
-     * estimate (ML, MAP, etc.)
-     */
-    void updateKernelParameters();
-
     /** 
      * \brief Computes the score (eg:likelihood) of the kernel
      * parameters.  
@@ -103,15 +97,14 @@ namespace bayesopt
      */
     double negativeCrossValidation();
 
-  private:
-    NLOPT_Optimization* kOptimizer;
   };
 
 
-
+  // WARNING!! evaluateKernelParams models return the NEGATIVE
+  // log-score (likelihood, LOO, MAP, etc.). 
   inline double ConditionalBayesProcess::evaluate(const vectord& x)
   { 
-    mKernel.setHyperParameters(x);
+    setHyperParameters(x);
     return evaluateKernelParams();
   };
 

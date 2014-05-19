@@ -3,7 +3,7 @@
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
    under the terms of the GNU General Public License as published by
@@ -19,11 +19,22 @@
    along with BayesOpt.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------
 */
-#include "log.hpp"
+#include <string>
 #include "parser.hpp"
 #include "criteria_functors.hpp"
-#include "criteria_atomic.hpp"
-#include "criteria_combined.hpp"
+
+#include "criteria/criteria_a_opt.hpp"
+#include "criteria/criteria_distance.hpp"
+#include "criteria/criteria_ei.hpp"
+#include "criteria/criteria_expected.hpp"
+#include "criteria/criteria_lcb.hpp"
+#include "criteria/criteria_poi.hpp"
+#include "criteria/criteria_thompson.hpp"
+
+#include "criteria/criteria_combined.hpp"
+#include "criteria/criteria_sum.hpp"
+#include "criteria/criteria_prod.hpp"
+#include "criteria/criteria_hedge.hpp"
 
 namespace bayesopt
 {
@@ -76,9 +87,6 @@ namespace bayesopt
     std::map<std::string,CriteriaFactory::create_func_definition>::iterator it = registry.find(os);
     if (it == registry.end()) 
       {
-	FILE_LOG(logERROR) << "Error: Fatal error while parsing "
-			   << "kernel function: " << os 
-			   << " not found";
 	throw std::invalid_argument("Parsing error: Criteria not found: " + os);
 	return NULL;
       } 
@@ -89,12 +97,11 @@ namespace bayesopt
       } 
     else 
       {
-	std::vector<Criteria*> list;
 	for(size_t i = 0; i < osc.size(); ++i)
 	  {
-	    list.push_back(create(osc[i],proc)); 
+	    cFunc->pushCriteria(create(osc[i],proc)); 
 	  }
-	cFunc->init(proc,list);
+	cFunc->init(proc);  //Requires to know the number of criteria
       }
     return cFunc;
   };

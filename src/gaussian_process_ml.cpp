@@ -3,7 +3,7 @@
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
    under the terms of the GNU General Public License as published by
@@ -20,8 +20,7 @@
 ------------------------------------------------------------------------
 */
 
-#include "cholesky.hpp"
-#include "trace_ublas.hpp"
+#include "ublas_trace.hpp"
 #include "gaussian_process_ml.hpp"
 
 namespace bayesopt
@@ -30,10 +29,10 @@ namespace bayesopt
   namespace ublas = boost::numeric::ublas;
 
   GaussianProcessML::GaussianProcessML(size_t dim, bopt_params params, 
-				       const Dataset& data, randEngine& eng):
-    HierarchicalGaussianProcess(dim, params, data, eng)
+				       const Dataset& data, 
+				       MeanModel& mean, randEngine& eng):
+    HierarchicalGaussianProcess(dim, params, data, mean, eng)
   {
-    mSigma = params.sigma_s;
     d_ = new GaussianDistribution(eng);
   }  // Constructor
 
@@ -79,7 +78,7 @@ namespace bayesopt
   void GaussianProcessML::precomputePrediction()
   {
     size_t n = mData.getNSamples();
-    size_t p = mMean.getMeanFunc()->nFeatures();
+    size_t p = mMean.nFeatures();
 
     mKF = trans(mMean.mFeatM);
     inplace_solve(mL,mKF,ublas::lower_tag());

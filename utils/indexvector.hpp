@@ -4,7 +4,7 @@
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
    under the terms of the GNU General Public License as published by
@@ -38,12 +38,12 @@ namespace bayesopt
     private:
       int current;
     public:
-      CUnique() {current=0;}
+      CUnique(int initial = 1) {current=initial-1;}
       int operator()() {return ++current;}
     };
 
     /** 
-     * Generates a vector of indexes (0..n)
+     * Generates a vector of indexes (1..n)
      * @param n vector size
      * @return index vector
      */
@@ -54,6 +54,21 @@ namespace bayesopt
       generate (arr.begin(), arr.end(), UniqueNumber);
       return arr;
     };
+
+    /** 
+     * Generates a vector of indexes starting at A and size_t n
+     * @param a starting point
+     * @param n vector size
+     * @return index vector
+     */
+    inline std::vector<int> return_index_vector(int a, size_t n)
+    {
+      CUnique UniqueNumber(a);
+      std::vector<int> arr(n);
+      generate (arr.begin(), arr.end(), UniqueNumber);
+      return arr;
+    };
+
 
     /** 
      * Modify a vector of indexes (0..n)

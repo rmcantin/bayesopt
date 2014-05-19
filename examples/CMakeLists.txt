@@ -20,41 +20,66 @@ ADD_EXECUTABLE(bo_branin ./bo_branin.cpp )
 add_dependencies(bo_branin bayesopt)
 TARGET_LINK_LIBRARIES(bo_branin bayesopt)
 
+ADD_EXECUTABLE(bo_branin_timed ./bo_branin_timed.cpp )
+add_dependencies(bo_branin_timed bayesopt)
+TARGET_LINK_LIBRARIES(bo_branin_timed bayesopt)
+
+ADD_EXECUTABLE(bo_branin_mcmc ./bo_branin_mcmc.cpp )
+add_dependencies(bo_branin_mcmc bayesopt)
+TARGET_LINK_LIBRARIES(bo_branin_mcmc bayesopt)
+
+#Hartmann
+ADD_EXECUTABLE(bo_hartmann ./bo_hartmann.cpp )
+add_dependencies(bo_hartmann bayesopt)
+TARGET_LINK_LIBRARIES(bo_hartmann bayesopt)
+
+#Camelback
+ADD_EXECUTABLE(bo_camelback ./bo_camelback.cpp )
+add_dependencies(bo_camelback bayesopt)
+TARGET_LINK_LIBRARIES(bo_camelback bayesopt)
+
+ADD_EXECUTABLE(bo_compare ./bo_compare.cpp )
+add_dependencies(bo_compare bayesopt)
+TARGET_LINK_LIBRARIES(bo_compare bayesopt)
+
+
 enable_language(C)  #For OpenGL and bo_display demo
 
 #Display test
 find_package(GLUT)
 find_package(OpenGL)
 if(OPENGL_FOUND AND GLUT_FOUND)
-  INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/matplotpp)
 
-  include_directories(${GLUT_INCLUDE_DIRS})
-  link_directories(${GLUT_LIBRARY_DIRS})
-  add_definitions(${GLUT_DEFINITIONS})
+  SET(DISPLAY_SRC     
+    ../utils/displaygp.cpp
+    ../matplotpp/matplotpp.cc 
+    ../matplotpp/gl2ps.c
+    )
 
-  include_directories(${OpenGL_INCLUDE_DIRS})
-  link_directories(${OpenGL_LIBRARY_DIRS})
-  add_definitions(${OpenGL_DEFINITIONS})
+  INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/matplotpp
+		      ${GLUT_INCLUDE_DIRS} 
+		      ${GLUT_INCLUDE_DIR} 
+		      ${OpenGL_INCLUDE_DIRS})			  
+
+  link_directories(${GLUT_LIBRARY_DIRS}
+		   ${OpenGL_LIBRARY_DIRS})
+
+  add_definitions(${GLUT_DEFINITIONS}
+		  ${OpenGL_DEFINITIONS})
  
   ADD_EXECUTABLE(bo_display 
     ./bo_display.cpp 
-    ../matplotpp/matplotpp.cc 
-    ../matplotpp/gl2ps.c)
+    ${DISPLAY_SRC})
   add_dependencies(bo_display bayesopt)
-  TARGET_LINK_LIBRARIES(bo_display bayesopt ${GLUT_LIBRARY} ${OPENGL_LIBRARY})
+  TARGET_LINK_LIBRARIES(bo_display bayesopt 
+    ${GLUT_LIBRARY} ${OPENGL_LIBRARY})
 
-  ADD_EXECUTABLE(bo_display2 
-    ./bo_display2.cpp 
-    ../matplotpp/matplotpp.cc 
-    ../matplotpp/gl2ps.c)
-  add_dependencies(bo_display2 bayesopt)
-  TARGET_LINK_LIBRARIES(bo_display2 bayesopt ${GLUT_LIBRARY} ${OPENGL_LIBRARY})
+  ADD_EXECUTABLE(bo_branin_display
+    ./bo_branin_display.cpp 
+    ${DISPLAY_SRC})
+  add_dependencies(bo_branin_display bayesopt)
+  TARGET_LINK_LIBRARIES(bo_branin_display bayesopt 
+    ${GLUT_LIBRARY} ${OPENGL_LIBRARY})
 
-  ADD_EXECUTABLE(bo_display3 
-    ./bo_display3.cpp 
-    ../matplotpp/matplotpp.cc 
-    ../matplotpp/gl2ps.c)
-  add_dependencies(bo_display3 bayesopt)
-  TARGET_LINK_LIBRARIES(bo_display3 bayesopt ${GLUT_LIBRARY} ${OPENGL_LIBRARY})
 
 endif()

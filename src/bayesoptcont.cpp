@@ -3,7 +3,7 @@
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
    under the terms of the GNU General Public License as published by
@@ -20,73 +20,122 @@
 ------------------------------------------------------------------------
 */
 
+#include "bayesopt.hpp"
+
 #include <limits>
+#include <boost/numeric/ublas/matrix_proxy.hpp>
+
 #include "lhs.hpp"
 #include "randgen.hpp"
 #include "log.hpp"
-#include "bayesopt.hpp"
+#include "boundingbox.hpp"
+#include "inneroptimization.hpp"
+
 
 
 namespace bayesopt  {
-  
-  ContinuousModel::ContinuousModel():
-    BayesOptBase(), mBB(NULL)
-  { 
-    if (mCrit == NULL)    throw(-1);
-    cOptimizer = new NLOPT_Optimization(mCrit.get(),1);
-    cOptimizer->setAlgorithm(DIRECT);
-  } // Def Constructor
 
+  class CritCallback: public RBOptimizable
+  {
+  public:
+    explicit CritCallback(ContinuousModel* model):mBO(model){};
+    double evaluate(const vectord &query) 
+    {
+      if (mBO->checkReachability(query))  return mBO->evaluateCriteria(query);
+      else return 0.0;
+    }
+  private:
+    ContinuousModel* mBO;
+  };
+  
   ContinuousModel::ContinuousModel(size_t dim, bopt_params parameters):
-    BayesOptBase(dim,parameters), mBB(NULL)
+    BayesOptBase(dim,parameters)
   { 
-    if (mCrit == NULL)    throw(-1);
-    cOptimizer = new NLOPT_Optimization(mCrit.get(),dim);
-    cOptimizer->setAlgorithm(DIRECT);
+    mCallback.reset(new CritCallback(this));
+    cOptimizer.reset(new NLOPT_Optimization(mCallback.get(),dim));
+    cOptimizer->setAlgorithm(COMBINED);
     cOptimizer->setMaxEvals(parameters.n_inner_iterations);
+
+    vectord lowerBound = zvectord(mDims);
+    vectord upperBound = svectord(mDims,1.0);
+    mBB.reset(new utils::BoundingBox<vectord>(lowerBound,upperBound));
   } // Constructor
 
   ContinuousModel::~ContinuousModel()
   {
-    delete cOptimizer;
-    if (mBB != NULL)
-      delete mBB;
+    //    delete cOptimizer;
   } // Default destructor
-
-  void ContinuousModel::initializeOptimization()
-  {
-    if (mBB == NULL)
-      {
-	vectord lowerBound = zvectord(mDims);
-	vectord upperBound = svectord(mDims,1.0);
-	mBB = new utils::BoundingBox<vectord>(lowerBound,upperBound);
-      }
-    sampleInitialPoints();
-  }
 
   vectord ContinuousModel::getFinalResult()
   {
     return mBB->unnormalizeVector(getPointAtMinimum());
   }
 
+  //////////////////////////////////////////////////////////////////////
 
-  int ContinuousModel::setBoundingBox(const vectord &lowerBound,
-			      const vectord &upperBound)
+  double ContinuousModel::evaluateSampleInternal( const vectord &query )
+  { 
+    const double yNext = evaluateSample(mBB->unnormalizeVector(query)); 
+    if (yNext == HUGE_VAL)
+      {
+	throw std::runtime_error("Function evaluation out of range");
+      }
+    return yNext;
+  }; 
+
+
+  void ContinuousModel::findOptimal(vectord &xOpt)
+  { 
+    double minf = cOptimizer->run(xOpt);
+
+    //Let's try some local exploration like spearmint
+    randNFloat drawSample(mEngine,normalDist(0,0.001));
+    for(size_t ii = 0;ii<5; ++ii)
+      {
+	vectord pert = getPointAtMinimum();
+	for(size_t j=0; j<xOpt.size(); ++j)
+	  {
+	    pert(j) += drawSample();
+	  }
+	try
+	  {
+	    double minf2 = cOptimizer->localTrialAround(pert);	    
+	    if (minf2<minf) 
+	      {
+		minf = minf2;
+		FILE_LOG(logDEBUG) << "Local beats Global";
+		xOpt = pert;
+	      }
+	  }
+	catch(std::invalid_argument& e)
+	  {
+	    //We ignore this one
+	  }
+      }
+  };
+
+  vectord ContinuousModel::samplePoint()
+  {	    
+    randFloat drawSample(mEngine,realUniformDist(0,1));
+    vectord Xnext(mDims);    
+    for(vectord::iterator x = Xnext.begin(); x != Xnext.end(); ++x)
+      {	*x = drawSample(); }
+    return Xnext;
+  };
+
+
+  void ContinuousModel::setBoundingBox(const vectord &lowerBound,
+				       const vectord &upperBound)
   {
     // We don't change the bounds of the inner optimization because,
     // thanks to this bounding box model, everything is mapped to the
     // unit hypercube, thus the default inner optimization are just
     // right.
-    if (mBB != NULL)
-      delete mBB;
-    
-    mBB = new utils::BoundingBox<vectord>(lowerBound,upperBound);
+    mBB.reset(new utils::BoundingBox<vectord>(lowerBound,upperBound));
     
     FILE_LOG(logINFO) << "Bounds: ";
     FILE_LOG(logINFO) << lowerBound;
     FILE_LOG(logINFO) << upperBound;
-    
-    return 0;
   } //setBoundingBox
 
 
@@ -107,42 +156,14 @@ namespace bayesopt  {
       }
   } //plotStepData
 
-  void ContinuousModel::sampleInitialPoints()
-  {
-    
-    size_t nSamples = mParameters.n_init_samples;
-    
-    matrixd xPoints(nSamples,mDims);
-    vectord yPoints(nSamples);
-    vectord sample(mDims);
-    
+  void ContinuousModel::sampleInitialPoints(matrixd& xPoints, vectord& yPoints)
+  {   
     utils::samplePoints(xPoints,mParameters.init_method,mEngine);
 
-    for(size_t i = 0; i < nSamples; i++)
+    for(size_t i = 0; i < yPoints.size(); i++)
       {
-	sample = row(xPoints,i);
+	const vectord sample = row(xPoints,i);
 	yPoints(i) = evaluateSampleInternal(sample);
       }
-    
-    setSamples(xPoints,yPoints);
-    mGP->fitSurrogateModel();
-    
-    // For logging purpose
-    if(mParameters.verbose_level > 0)
-      {
-	FILE_LOG(logDEBUG) << "Initial points:" ;
-	double ymin = (std::numeric_limits<double>::max)();
-	for(size_t i = 0; i < nSamples; i++)
-	  {
-	    sample = row(xPoints,i);
-	    FILE_LOG(logDEBUG) << "Normalized X:" << sample ;
-	    
-	    if (yPoints(i)<ymin)  ymin = yPoints(i);
-	      
-	    FILE_LOG(logDEBUG) << "X:" << mBB->unnormalizeVector(sample) 
-			       << "|Y:" << yPoints(i) << "|Min:" << ymin ;
-	  }  
-      }
-  } // sampleInitialPoints
-
+  }
 }  //namespace bayesopt

@@ -1,4 +1,4 @@
-/**  \file bayesopt.hpp \brief Bayesian optimization C++-API*/
+/**  \file bayesopt.hpp \brief BayesOpt main C++ interface */
 /*
 -------------------------------------------------------------------------
    This file is part of BayesOpt, an efficient C++ library for 
@@ -24,27 +24,58 @@
 #ifndef  _BAYESOPTAPI_HPP_
 #define  _BAYESOPTAPI_HPP_
 
-#include "boundingbox.hpp"
 #include "bayesoptbase.hpp"
-#include "inneroptimization.hpp"
 
 namespace bayesopt  {
+
+  // Forward declarations
+  namespace utils 
+  {  
+    template <class V> 
+    class BoundingBox;
+  }
+  class NLOPT_Optimization;
+  class CritCallback;
 
   /** \addtogroup BayesOpt */
   /**@{*/
 
   /**
-   * \brief Bayesian optimization using different non-parametric
-   * processes as distributions over surrogate functions. The
-   * exploration spaces is assumed to be continous and box-bounded.
+   * \brief Bayesian optimization for functions in continuous input spaces. 
+   *
+   * It requires box constrains for the input space. More exactly:
+   * \f$ f(x):\mathcal{D} \subset \mathbb{R}^n \Rightarrow \mathbb{R} \f$.
+   *
+   * Usage:
+   * \code{.cpp}
+   *   ContinuousModel opt(dim,params);
+   *   vectord result(dim), lBound(dim), uBound(dim);
+   *   \\.. Define bounds
+   *   opt.setBoundingBox(lBound,uBound);
+   * \endcode  
+   *
+   * Optimization can be run in batch mode calling
+   * \code{.cpp}
+   *   opt.optimize(result);
+   * \endcode  
+   * or step by step.
+   * \code{.cpp}
+   *   opt.initiliazeOptimization();
+   *   \\...
+   *   opt.stepOptimization();
+   *   \\...
+   *   result getFinalResult();
+   * \endcode  
+   *
+   * This model can also be used for discrete/integer data, provided
+   * that the callback function provides the corresponding casting or
+   * nearest neighbour.
+   * 
+   * \see BayesOptBase about how to run the optimization
    */
   class BAYESOPT_API ContinuousModel: public BayesOptBase
   {
   public:
-   
-    /** Default constructor */
-    ContinuousModel();
-
     /** 
      * Constructor
      * @param dim number of input dimensions
@@ -55,11 +86,7 @@ namespace bayesopt  {
     /**  Default destructor  */
     virtual ~ContinuousModel();
   
-    /** Initialize the optimization process.  */
-    void initializeOptimization();
-
-    /** 
-     * Once the optimization has been perfomed, return the optimal
+    /** Once the optimization has been perfomed, return the optimal
      * point.
      */
     vectord getFinalResult();
@@ -69,10 +96,8 @@ namespace bayesopt  {
      *
      * @param lowerBound vector with the lower bounds of the hypercube
      * @param upperBound vector with the upper bounds of the hypercube
-     * 
-     * @return 0 if terminate successfully, nonzero otherwise
      */
-    int setBoundingBox( const vectord &lowerBound,
+    void setBoundingBox( const vectord &lowerBound,
 			const vectord &upperBound);
 
 
@@ -89,58 +114,88 @@ namespace bayesopt  {
 		      double yNext);
 
     /** Selects the initial set of points to build the surrogate model. */
-    void sampleInitialPoints();
+    void sampleInitialPoints(matrixd& xPoints, vectord& yPoints);
 
-    /** Sample a single point in the input space. Used for epsilon greedy exploration. */
+    /** Sample a single point in the input space. Used for epsilon
+	greedy exploration. */
     vectord samplePoint();
 
-    /** 
-     * \brief Wrapper for the target function normalize in the hypercube
-     * [0,1]
-     * @param query point to evaluate in [0,1] hypercube
-     * @return actual return value of the target function
-     */
+    /** Wrapper for the target function adding any preprocessing or
+	constraint. It also maps the box constrains to the [0,1] hypercube. */
     double evaluateSampleInternal( const vectord &query );
     
     /** 
-     * \brief Wrapper of the innerOptimization class to find the optimal
-     * point acording to the criteria.
+     * \brief Call the inner optimization method to find the optimal
+     * point acording to the criteria.  
      * @param xOpt optimal point
      */
     void findOptimal(vectord &xOpt);
 
   private:
-    utils::BoundingBox<vectord> *mBB;      ///< Bounding Box (input space limits)
-    NLOPT_Optimization* cOptimizer;
+    boost::scoped_ptr<utils::BoundingBox<vectord> > mBB;      ///< Bounding Box (input space limits)
+    boost::scoped_ptr<NLOPT_Optimization> cOptimizer;
+    boost::scoped_ptr<CritCallback> mCallback;
+
+  private:
+    ContinuousModel();                       ///< Default constructor forbidden.
   };
   
 
   /**
-   * \brief Sequential Kriging Optimization using different non-parametric 
-   * processes as surrogate (kriging) functions. 
+   * \brief Bayesian optimization for functions in discrete spaces. 
+   *
+   * The discrete space can be created in two ways depending on the constructor used:
+   *  -# A set of discrete points (real vectors) in a real space. 
+   *  -# A set of categories with different values for each category.
+   *
+   * The kind of models used in this library are more suitable for
+   * problems of the first point. However, it can also be used with
+   * problems in the second category. In that case, we recommend to
+   * use the Hamming kernel function.
+   *
+   *
+   * Usage:
+   * \code{.cpp}
+   *   DiscreteModel opt(validSetOfPoints,params);
+   *   \\ or
+   *   DiscreteModel opt(categories,params);
+   * \endcode  
+   *
+   * Optimization can be run in batch mode calling
+   * \code{.cpp}
+   *   opt.optimize(result);
+   * \endcode  
+   * or step by step.
+   * \code{.cpp}
+   *   opt.initiliazeOptimization();
+   *   \\...
+   *   opt.stepOptimization();
+   *   \\...
+   *   result getFinalResult();
+   * \endcode  
+   *
+   * \see BayesOptBase about how to run the optimization
+   * \see HammingKernel for categorical data.
    */
   class BAYESOPT_API DiscreteModel : public BayesOptBase
   {
   public:
-
     /** 
-     * Constructor
-     * @param validSet  Set of potential inputs
-     */
-    DiscreteModel(const vecOfvec &validSet );
-
-    /** 
-     * Constructor
+     * Constructor for real-valued discrete data
      * @param validSet  Set of potential inputs
      * @param params set of parameters (see parameters.h)
      */
     DiscreteModel(const vecOfvec &validSet, bopt_params params);
+
+    /** 
+     * Constructor for categorical data
+     * @param number of categories per dimension
+     * @param params set of parameters (see parameters.h)
+     */
+    DiscreteModel(const vectori &categories, bopt_params params);
     
     /** Default destructor  */
     virtual ~DiscreteModel();
-
-    /** Initialize the optimization process. */
-    void initializeOptimization();
 
     /** Once the optimization has been perfomed, return the optimal point. */
     vectord getFinalResult();
@@ -154,59 +209,26 @@ namespace bayesopt  {
 		     double yNext);
 
     /** Selects the initial set of points to build the surrogate model. */
-    void sampleInitialPoints();
+    void sampleInitialPoints(matrixd& xPoints, vectord& yPoints);
 
-    /** Sample a single point in the input space. Used for epsilon greedy exploration. */
+    /** Sample a single point in the input space. Used for epsilon
+	greedy exploration. */
     vectord samplePoint();
 
-    /** 
-     * \brief Wrapper for the target function normalize in the hypercube
-     * [0,1]
-     * @param query point to evaluate in [0,1] hypercube
-     * @return actual return value of the target function
-     */
+    /** Wrapper for the target function adding any preprocessing or
+	constraint. */
     double evaluateSampleInternal( const vectord &query ); 
 
     void findOptimal(vectord &xOpt);
 
-  protected:
+  private:
     vecOfvec mInputSet;               ///< List of input points
+
+    DiscreteModel();         ///< Default constructor forbidden.
   };
 
 
   /**@}*/
-
-  //////////////////////////////////////////////////////////////////////
-  //                         Inline methods 
-  //////////////////////////////////////////////////////////////////////
-
-  inline double ContinuousModel::evaluateSampleInternal( const vectord &query )
-  { return evaluateSample(mBB->unnormalizeVector(query));  };
-
-  inline void ContinuousModel::findOptimal(vectord &xOpt)
-  { cOptimizer->run(xOpt); };
-
-  inline vectord ContinuousModel::samplePoint()
-  {	    
-    randFloat drawSample(mEngine,realUniformDist(0,1));
-    vectord Xnext(mDims);    
-    for(vectord::iterator x = Xnext.begin(); x != Xnext.end(); ++x)
-      {	*x = drawSample(); }
-    return Xnext;
-  };
-
-
-
-  inline vectord DiscreteModel::samplePoint()
-  {   
-    randInt sample(mEngine, intUniformDist(0,mInputSet.size()-1));
-    return mInputSet[sample()];
-  };
-
-  inline double DiscreteModel::evaluateSampleInternal( const vectord &query )
-  { return evaluateSample(query); }; 
-
-
 
 
 }  //namespace bayesopt

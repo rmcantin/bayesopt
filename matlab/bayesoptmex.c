@@ -3,7 +3,7 @@
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
    under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
   bopt_params parameters;
   double *ub, *lb;    /* Upper and lower bound */
   double fmin;
+  int error_code;
      
   /* Check correct number of parameters */
   CHECK0(nlhs != 2 || nrhs != 3 || nrhs != 5, 
@@ -124,8 +125,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
 	}
     }
 
-  bayes_optimization(nDim,user_function,&udata,lb,ub,xptr,
-		     &fmin,parameters);
+  error_code = bayes_optimization(nDim,user_function,&udata,lb,ub,xptr,
+				  &fmin,parameters);
 
   if(nrhs != 5)
     {
@@ -140,5 +141,10 @@ void mexFunction(int nlhs, mxArray *plhs[],
       plhs[1] = mxCreateDoubleMatrix(1, 1, mxREAL);
       *(mxGetPr(plhs[1])) = fmin;
     }
-    
+  if (nlhs > 2)
+    {
+      plhs[2] = mxCreateDoubleMatrix(1, 1, mxREAL);
+      *(mxGetPr(plhs[2])) = (double)(error_code);
+    }
+
 }

@@ -4,7 +4,7 @@
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
    under the terms of the GNU General Public License as published by
@@ -32,10 +32,9 @@
 extern "C" {
 #endif 
 
-  /*************************************************************/
-  /*** Type definitions                                       **/
-  /*************************************************************/
-  
+  /*-----------------------------------------------------------*/
+  /* Configuration parameters                                  */
+  /*-----------------------------------------------------------*/
   typedef enum {
     L_FIXED,
     L_EMPIRICAL,
@@ -80,9 +79,10 @@ extern "C" {
     /** Sampling method for initial set 1-LHS, 2-Sobol (if available),
      *  other value-uniformly distributed */
     size_t init_method;          
-    size_t use_random_seed;      /**< 0-Fixed seed, 1-Random (time) seed.*/    
+    int random_seed;             /**< >=0 -> Fixed seed, <0 -> Time based (variable). */    
 
-    size_t verbose_level;        /**< 1-Error,2-Warning,3-Info. 4-6 log file*/
+    int verbose_level;           /**< Neg-Error,0-Warning,1-Info,2-Debug -> stdout
+				      3-Error,4-Warning,5-Info,>5-Debug -> logfile*/
     char* log_filename;          /**< Log file path (if applicable) */
 
     size_t load_save_flag;       /**< 1-Load data,2-Save data,
@@ -91,15 +91,26 @@ extern "C" {
     char* save_filename;          /**< Sava data file path (if applicable) */
 
     char* surr_name;             /**< Name of the surrogate function */
-    double sigma_s;              /**< Signal variance (if known) */
-    double noise;                /**< Observation noise (and nugget) */
-    double alpha;                /**< Inverse Gamma prior for signal var */
-    double beta;                 /**< Inverse Gamma prior for signal var*/
+    double sigma_s;              /**< Signal variance (if known). 
+				    Used in GaussianProcess and GaussianProcessNormal */
+    double noise;                /**< Variance of observation noise (and nugget) */
+
+    double alpha;                /**< Inverse Gamma prior for signal var. 
+				    Used in StudentTProcessNIG */
+    double beta;                 /**< Inverse Gamma prior for signal var. 
+				    Used in StudentTProcessNIG */
 
     score_type sc_type;          /**< Score type for kernel hyperparameters (ML,MAP,etc) */
-    learning_type l_type;        /**< Type of learning for the kernel params*/
+    learning_type l_type;        /**< Type of learning for the kernel params */
+    int l_all;                   /**< Learn all hyperparameters or only kernel */
 
     double epsilon;              /**< For epsilon-greedy exploration */
+    size_t force_jump;           /**< If >0, and the difference between two 
+				    consecutive observations is pure noise, 
+				    for n consecutive steps, force a random 
+				    jump. Avoid getting stuck if model is bad 
+				    and there is few data, however, it might 
+				    reduce the accuracy. */
 
     kernel_parameters kernel;    /**< Kernel parameters */
     mean_parameters mean;        /**< Mean (parametric function) parameters */
@@ -108,54 +119,25 @@ extern "C" {
     double crit_params[128];     /**< Criterion hyperparameters (if needed) */
     size_t n_crit_params;        /**< Number of criterion hyperparameters */
   } bopt_params;
-
-
-  /*************************************************************/
-  /*** Default values                                        ***/
-  /*************************************************************/
-
-  /* Nonparametric process "parameters" */
-  const double KERNEL_THETA    = 1.0;
-  const double KERNEL_SIGMA    = 10.0;
-  const double MEAN_MU         = 1.0;
-  const double MEAN_SIGMA      = 1000.0;
-  const double PRIOR_ALPHA     = 1.0;
-  const double PRIOR_BETA      = 1.0;
-  const double DEFAULT_SIGMA   = 1.0;
-  const double DEFAULT_NOISE   = 1e-4;
-
-  /* Algorithm parameters */
-  const size_t DEFAULT_ITERATIONS  = 300;
-  const size_t DEFAULT_SAMPLES     = 30;
-  const size_t DEFAULT_VERBOSE     = 1;
-
-  /* Algorithm limits */
-  const size_t MAX_ITERATIONS  = 1000;        /**< Used if n_iterations <0 */
-  /*  const size_t MAX_DIM         = 40;         Not used */
-
-  /* INNER Optimizer default values */
-  const size_t MAX_INNER_EVALUATIONS = 500;   /**< Used per dimmension */
-  /*  const size_t MAX_INNER_ITERATIONS  = 3000;  Not used */
-
-  /* Latin Hypercube Sampling (LHS) default values */
-  /*  const size_t N_LHS_EVALS_PER_DIM = 30;      Not used */
-  /*  const size_t MAX_LHS_EVALUATIONS = 100;     Not used */
 						    
-  /*************************************************************/
+  /*-----------------------------------------------------------*/
   /* These functions are added to simplify wrapping code       */
-  /*************************************************************/
-  /* surrogate_name str2surrogate (const char* name); */
+  /*-----------------------------------------------------------*/
   BAYESOPT_API learning_type str2learn(const char* name);
-
-  /* BAYESOPT_API const char* surrogate2str(surrogate_name name); */
   BAYESOPT_API const char* learn2str(learning_type name);
 
-  /* surrogate_name str2surrogate (const char* name); */
   BAYESOPT_API score_type str2score(const char* name);
-
-  /* BAYESOPT_API const char* surrogate2str(surrogate_name name); */
   BAYESOPT_API const char* score2str(score_type name);
 
+  BAYESOPT_API void set_kernel(bopt_params* params, const char* name);
+  BAYESOPT_API void set_mean(bopt_params* params, const char* name);
+  BAYESOPT_API void set_criteria(bopt_params* params, const char* name);
+  BAYESOPT_API void set_surrogate(bopt_params* params, const char* name);
+  BAYESOPT_API void set_log_file(bopt_params* params, const char* name);
+  BAYESOPT_API void set_load_file(bopt_params* params, const char* name);
+  BAYESOPT_API void set_save_file(bopt_params* params, const char* name);
+  BAYESOPT_API void set_learning(bopt_params* params, const char* name);
+  BAYESOPT_API void set_score(bopt_params* params, const char* name);
 
   BAYESOPT_API bopt_params initialize_parameters_to_default(void);
 

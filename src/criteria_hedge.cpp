@@ -3,7 +3,7 @@
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
    under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 #include <algorithm>
 #include "boost/bind.hpp"
 #include "log.hpp"
-#include "criteria_combined.hpp"
+#include "criteria/criteria_hedge.hpp"
 
 namespace bayesopt
 {
@@ -43,45 +43,55 @@ namespace bayesopt
   //////////////////////////////////////////////////////////////////////
   GP_Hedge::GP_Hedge(){};
 
-  void GP_Hedge::init(NonParametricProcess *proc, 
-		     const std::vector<Criteria*>& list) 
+  void GP_Hedge::init(NonParametricProcess *proc) 
   { 
     mProc = proc;
-    mCriteriaList = list;
+
     size_t n = mCriteriaList.size();
+    if (!n)
+      {
+	throw std::logic_error("Criteria list should be created (pushed)"
+			       " before initializing combined criterion.");
+      }
+
     loss_ = zvectord(n); 
     gain_ = zvectord(n); 
     prob_ = zvectord(n);
     cumprob_ = zvectord(n);
   };
 
-  void GP_Hedge::reset()
+  void GP_Hedge::initialCriteria()
   {
     mIndex = 0;
-    mCurrentCriterium = mCriteriaList[mIndex];
+    mCurrentCriterium = &mCriteriaList[mIndex];
     mBestLists.clear();
   };
 
-  bool GP_Hedge::checkIfBest(vectord& best, 
-			     std::string& name)
+  bool GP_Hedge::rotateCriteria()
   { 
-    if (mIndex < mCriteriaList.size())
+    ++mIndex;
+    if (mIndex >= mCriteriaList.size())
       {
-	loss_(mIndex) = computeLoss(best);
-	mBestLists.push_back(best);
-	++mIndex;
-	if (mIndex < mCriteriaList.size())
-	  mCurrentCriterium = mCriteriaList[mIndex];
 	return false;
       }
     else
       {
-	int optIndex = update_hedge();
-	name = mCriteriaList[optIndex]->name();
-	best = mBestLists[optIndex];
-	return true;	
+	mCurrentCriterium = &mCriteriaList[mIndex];
+	return true;
       }
-
+  };
+  
+  void GP_Hedge::pushResult(const vectord& prevResult)
+  {
+    loss_(mIndex) = computeLoss(prevResult);
+    mBestLists.push_back(prevResult);    
+  };
+  
+  std::string GP_Hedge::getBestCriteria(vectord& best)
+  { 
+    int optIndex = update_hedge();
+    best = mBestLists[optIndex];
+    return mCriteriaList[optIndex].name();
   };
 
 

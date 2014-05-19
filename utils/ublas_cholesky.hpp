@@ -1,4 +1,4 @@
-/** \file cholesky.hpp \brief cholesky decomposition */
+/** \file ublas_cholesky.hpp \brief Cholesky decomposition */
 /*
  -   begin                : 2005-08-24
  -   copyright            : (C) 2005 by Gunter Winkler, Konstantin Kutzkow

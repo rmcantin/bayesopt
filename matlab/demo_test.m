@@ -3,7 +3,7 @@
 %    This file is part of BayesOpt, an efficient C++ library for 
 %    Bayesian optimization.
 %
-%    Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+%    Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
 %
 %    BayesOpt is free software: you can redistribute it and/or modify it 
 %    under the terms of the GNU General Public License as published by
@@ -22,37 +22,57 @@
 clear all, close all
 addpath('testfunctions')
 
-params.n_iterations = 100;
-params.n_init_samples = 5;
+params.n_iterations = 190;
+params.n_init_samples = 10;
 params.crit_name = 'cEI';
-params.surr_name = 'sGaussianProcessNormal';
-params.noise = 0.005;
-params.kernel_name = 'kMaternISO3';
-params.kernel_hp_mean = [0.5];
+params.surr_name = 'sStudentTProcessNIG';
+params.noise = 1e-6;
+params.kernel_name = 'kMaternARD5';
+params.kernel_hp_mean = [1];
 params.kernel_hp_std = [10];
 params.verbose_level = 1;
 params.log_filename = 'matbopt.log';
 
-% n = 5;
-% lb = ones(n,1)*pi/2;
-% ub = ones(n,1)*pi;
-% fun = 'michalewicz';
 
-n = 2;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+disp('Continuous optimization');
+fun = 'branin'; n = 2;
 lb = zeros(n,1);
 ub = ones(n,1);
-fun = 'branin';
 
-disp('Continuous optimization');
 tic;
 bayesoptcont(fun,n,params,lb,ub)
 toc;
+disp('Press INTRO');
+pause;
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 disp('Discrete optimization');
+% We still use branin
 % The set of points must be numDimension x numPoints.
 np = 100;
 xset = repmat((ub-lb),1,np) .* rand(n,np) - repmat(lb,1,np);
 
 tic;
-bayesoptdisc(fun,xset, params);
+bayesoptdisc(fun, xset, params)
+toc;
+yset = zeros(np,1);
+for i=1:np
+    yset(i) = feval(fun,xset(:,i));
+end;
+[y_min,id] = min(yset);
+disp('Actual optimal');
+disp(xset(:,id));
+disp(y_min);
+disp('Press INTRO');
+pause;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+disp('Continuous optimization');
+fun = 'hartmann'; n = 6;
+lb = zeros(n,1);
+ub = ones(n,1);
+
+tic;
+bayesoptcont(fun,n,params,lb,ub)
 toc;

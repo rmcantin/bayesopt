@@ -1,10 +1,11 @@
-/**  \file bayesoptbase.hpp \brief Bayesian optimization module */
+
+/**  \file bayesoptbase.hpp \brief BayesOpt common module for interfaces */
 /*
 -------------------------------------------------------------------------
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
    under the terms of the GNU General Public License as published by
@@ -26,12 +27,22 @@
 #define  _BAYESOPTBASE_HPP_
 
 #include <boost/scoped_ptr.hpp>
-#include "criteria_functors.hpp"
+#include <boost/random.hpp>
+#include "parameters.h"
+#include "specialtypes.hpp"
+//#include "posteriormodel.hpp"
+
 
 /**
  * Namespace of the library interface
  */
 namespace bayesopt {
+
+
+  //Forward declaration
+  class PosteriorModel;
+  class ProbabilityDistribution;
+  class Dataset;
 
   /** \addtogroup BayesOpt
    *  \brief Main module for Bayesian optimization
@@ -39,18 +50,21 @@ namespace bayesopt {
   /*@{*/
 
   /**
-   * \brief Bayesian optimization using different non-parametric 
-   * processes as distributions over surrogate functions. 
+   * \brief Abstract module for Bayesian optimization.
+   *
+   * This module provides Bayesian optimization using different
+   * non-parametric processes (Gaussian process or Student's t
+   * process) as distributions over surrogate functions.
+   *
+   * \see ContinuousModel for implementations of this module for
+   * a continuous input spaces
+   *
+   * \see DiscreteModel for implementations of this module for
+   * a discrete input spaces or categorical input variables
    */
   class BAYESOPT_API BayesOptBase
   {
   public:
-  
-    /** 
-     * Default constructor
-     */
-    BayesOptBase();
-    
     /** 
      * Constructor
      * @param params set of parameters (see parameters.h)
@@ -101,48 +115,30 @@ namespace bayesopt {
      * @see checkReachability
      *
      * @param bestPoint returns point with the optimum value in a ublas::vector.
-     * @return 0 if terminate successfully, any other value otherwise
      */
-    int optimize(vectord &bestPoint);
+    void optimize(vectord &bestPoint);
 
     /** 
      * \brief Execute ONE step the optimization process of the
      * function defined in evaluateSample.  
-     * @param ii iteration number.
      */  
-    void stepOptimization(size_t ii);
+    void stepOptimization();
 
     /** Initialize the optimization process.  */
-    virtual void initializeOptimization() = 0;
+    void initializeOptimization();
 
     /** Once the optimization has been perfomed, return the optimal point. */
     virtual vectord getFinalResult() = 0;
 
-    /** 
-     * \brief Evaluate the criteria considering if the query is
-     * reachable or not.  This is a way to include non-linear
-     * restrictions.
-     *
-     * @see checkReachability
-     *
-     * @param query query point
-     * @return value of the criteria, 0 otherwise.
-     */
-    double evaluateCriteria( const vectord &query );
-
-    void setSamples(const matrixd &x, const vectord &y);
-    void setSample(const vectord &x, double y);
-    void addSample(const vectord &x, double y);
-    vectord getPointAtMinimum();
-    double getValueAtMinimum();
-
-    NonParametricProcess* getSurrogateModel();
-    void setSurrogateModel();    
-    void  setCriteria();
+    ProbabilityDistribution* getPrediction(const vectord& query);
+    const Dataset* getData();
     bopt_params* getParameters();
-    randEngine& getRandomNumberGenerator();
+    double getValueAtMinimum();
+    double evaluateCriteria(const vectord& query);
 
   protected:
+    vectord getPointAtMinimum();
+
     /** 
      * Print data for every step according to the verbose level
      * 
@@ -172,10 +168,25 @@ namespace bayesopt {
     virtual void findOptimal(vectord &xOpt) = 0;
   
     /** Selects the initial set of points to build the surrogate model. */
-    virtual void sampleInitialPoints() = 0;
+    virtual void sampleInitialPoints(matrixd& xPoints, vectord& yPoints) = 0;
 
-    /** Sample a single point in the input space. Used for epsilon greedy exploration. */
+    /** Sample a single point in the input space. Used for epsilon
+	greedy exploration. */
     virtual vectord samplePoint() = 0;
+
+  protected:
+    bopt_params mParameters;                    ///< Configuration parameters
+    size_t mDims;                                   ///< Number of dimensions
+    size_t mCurrentIter;                        ///< Current iteration number
+    boost::mt19937 mEngine;                      ///< Random number generator
+
+  private:
+    boost::scoped_ptr<PosteriorModel> mModel;
+	double mYPrev;
+	size_t mCounterStuck;
+  private:
+
+    BayesOptBase();
 
     /** 
      * \brief Selects the next point to evaluate according to a certain
@@ -185,60 +196,11 @@ namespace bayesopt {
      */
     vectord nextPoint();  
 
-
-  protected:
-    Dataset mData;                  ///< Dataset (x-> inputs, y-> labels/output)
-    boost::scoped_ptr<NonParametricProcess> mGP; ///< Pointer to surrogate model
-    boost::scoped_ptr<Criteria> mCrit;                   ///< Metacriteria model
-    bopt_params mParameters;                       ///< Configuration parameters
-    size_t mDims;                                      ///< Number of dimensions
-    randEngine mEngine;                             ///< Random number generator
-
-  private:
-
-    /** 
-     * \brief Checks the parameters and setups the elements (criteria, 
-     * surrogate, etc.)
-     */
-    void __init__();
-
-    CriteriaFactory mCFactory;
   };
 
   /**@}*/
 
-  inline void BayesOptBase::setSamples(const matrixd &x, const vectord &y)
-  { mData.setSamples(x,y);  mGP->setSamples(x,y);  }
 
-  inline void BayesOptBase::setSample(const vectord &x, double y)
-  { 
-    matrixd xx(1,x.size());  vectord yy(1);
-    row(xx,0) = x;           yy(0) = y;
-    mData.setSamples(xx,yy);   mGP->setSamples(xx,yy);  }
-
-  inline void BayesOptBase::addSample(const vectord &x, double y)
-  {  mData.addSample(x,y); mGP->addSample(x,y);  };
-
-  inline vectord BayesOptBase::getPointAtMinimum() 
-  { return mData.getPointAtMinimum(); };
-  
-  inline double BayesOptBase::getValueAtMinimum() 
-  { return mData.getValueAtMinimum(); };
-
-  inline double BayesOptBase::evaluateCriteria( const vectord &query )
-  {
-    if (checkReachability(query))  return (*mCrit)(query);
-    else return 0.0;
-  };
-
-  inline NonParametricProcess* BayesOptBase::getSurrogateModel()
-  { return mGP.get(); };
-
-  inline bopt_params* BayesOptBase::getParameters() 
-  {return &mParameters;};
-
-  inline randEngine& BayesOptBase::getRandomNumberGenerator() 
-  {return mEngine;};
 
 } //namespace bayesopt
 

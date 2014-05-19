@@ -5,7 +5,7 @@
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
    under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 #define __STUDENT_T_PROCESS_JEF_HPP__
 
 #include "student_t_distribution.hpp"
-#include "hierarchical_gaussian_process.hpp"
+#include "gaussian_process_hierarchical.hpp"
 
 
 namespace bayesopt
@@ -42,7 +42,8 @@ namespace bayesopt
   class StudentTProcessJeffreys: public HierarchicalGaussianProcess
   {
   public:
-    StudentTProcessJeffreys(size_t dim, bopt_params params, const Dataset& data, randEngine& eng);
+    StudentTProcessJeffreys(size_t dim, bopt_params params, const Dataset& data, 
+			 MeanModel& mean, randEngine& eng);
     virtual ~StudentTProcessJeffreys();
 
     /** 

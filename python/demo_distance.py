@@ -3,7 +3,7 @@
 #    This file is part of BayesOpt, an efficient C++ library for
 #    Bayesian optimization.
 #
-#    Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+#    Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
 #
 #    BayesOpt is free software: you can redistribute it and/or modify it
 #    under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 # ------------------------------------------------------------------------
 
 import bayesopt
-import bayesoptmodule
+from bayesoptmodule import BayesOptContinuous
 import numpy as np
 
 from time import clock
@@ -34,8 +34,8 @@ def testfunc(Xin):
     return total
 
 # Class for OO testing.
-class BayesOptTest(bayesoptmodule.BayesOptContinuous):
-    def evalfunc(self,Xin):
+class BayesOptTest(BayesOptContinuous):
+    def evaluateSample(self,Xin):
         return testfunc(Xin)
 
 
@@ -43,10 +43,9 @@ class BayesOptTest(bayesoptmodule.BayesOptContinuous):
 # For different options: see parameters.h and cpp
 # If a parameter is not define, it will be automatically set
 # to a default value.
-params = bayesopt.initialize_params()
+params = {} 
 params['n_iterations'] = 50
 params['n_init_samples'] = 20
-#params['surr_name'] = "GAUSSIAN_PROCESS_INV_GAMMA_NORMAL"
 params['crit_name'] = "cSum(cEI,cDistance)"
 params['crit_params'] = [1, 0.5]
 params['kernel_name'] = "kMaternISO3"
@@ -65,11 +64,10 @@ print "Seconds", clock() - start
 
 
 print "OO implementation"
-bo_test = BayesOptTest()
-bo_test.params = params
-bo_test.n = n
-bo_test.lb = lb
-bo_test.ub = ub
+bo_test = BayesOptTest(n)
+bo_test.parameters = params
+bo_test.lower_bound = lb
+bo_test.upper_bound = ub
 
 start = clock()
 mvalue, x_out, error = bo_test.optimize()

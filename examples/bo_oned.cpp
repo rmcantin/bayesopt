@@ -20,54 +20,18 @@
 ------------------------------------------------------------------------
 */
 
-#include <valarray>
-#include "bayesopt.hpp"
-
-class ExampleOneD: public bayesopt::ContinuousModel
-{
-public:
-  ExampleOneD(size_t dim, bopt_params par):
-    ContinuousModel(dim,par) {}
-
-  double evaluateSample(const vectord& xin)
-  {
-    if (xin.size() > 1)
-      {
-	std::cout << "WARNING: This only works for 1D inputs." << std::endl
-		  << "WARNING: Using only first component." << std::endl;
-      }
-
-    double x = xin(0);
-    return sqr(x-0.5) + sin(20*x)*0.2;
-  };
-
-  bool checkReachability(const vectord &query)
-  {return true;};
-
-  inline double sqr( double x ){ return x*x; }
-
-  void printOptimal()
-  {
-    std::cout << "Optimal:" << 0.5 << std::endl;
-  }
-
-};
+#include "testfunctions.hpp"
 
 int main(int nargs, char *args[])
 {
-  size_t dim = 1;
   bopt_params parameters = initialize_parameters_to_default();
   parameters.n_init_samples = 10;
   parameters.n_iterations = 300;
-  parameters.surr_name = "sGaussianProcess";
-  parameters.kernel.hp_mean[0] = 1.0;
-  parameters.kernel.hp_std[0] = 100.0;
-  parameters.kernel.n_hp = 1;
-  /*  parameters.crit_name = "cHedge(cEI,cLCB,cExpReturn,cOptimisticSampling)";
-  parameters.epsilon = 0.0;*/
 
-  ExampleOneD opt(dim,parameters);
-  vectord result(dim);
+  set_criteria(&parameters,"cHedge(cEI,cLCB,cExpReturn,cOptimisticSampling)");
+  
+  ExampleOneD opt(parameters);
+  vectord result(1);
   opt.optimize(result);
   
   std::cout << "Result:" << result << std::endl;

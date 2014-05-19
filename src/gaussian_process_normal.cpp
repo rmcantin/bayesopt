@@ -3,7 +3,7 @@
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
    under the terms of the GNU General Public License as published by
@@ -23,10 +23,8 @@
 #include <cstdlib>
 #include <boost/math/special_functions/fpclassify.hpp>
 #include <boost/numeric/ublas/banded.hpp>
-#include "log.hpp"
-#include "cholesky.hpp"
-#include "trace_ublas.hpp"
-#include "elementwise_ublas.hpp"
+#include "ublas_trace.hpp"
+#include "ublas_elementwise.hpp"
 #include "gauss_distribution.hpp"
 #include "gaussian_process_normal.hpp"
 
@@ -38,8 +36,9 @@ namespace bayesopt
   GaussianProcessNormal::GaussianProcessNormal(size_t dim, 
 					       bopt_params params, 
 					       const Dataset& data, 
+					       MeanModel& mean,
 					       randEngine& eng):
-    HierarchicalGaussianProcess(dim,params,data,eng),
+    HierarchicalGaussianProcess(dim,params,data,mean,eng),
     mW0(params.mean.n_coef), mInvVarW(params.mean.n_coef), 
     mD(params.mean.n_coef,params.mean.n_coef)
   {  
@@ -64,11 +63,11 @@ namespace bayesopt
   ProbabilityDistribution* 
   GaussianProcessNormal::prediction(const vectord &query)
   {
-    double kq = computeSelfCorrelation(query);
-    vectord kn = computeCrossCorrelation(query);
-    vectord phi = mMean.getFeatures(query);
-  
-    vectord v(kn);
+    const double kq = computeSelfCorrelation(query);
+    const vectord phi = mMean.getFeatures(query);
+
+    vectord v = computeCrossCorrelation(query);
+
     inplace_solve(mL,v,ublas::lower_tag());
 
     vectord rq = phi - prod(v,mKF);
@@ -82,8 +81,7 @@ namespace bayesopt
 
     if ((boost::math::isnan(yPred)) || (boost::math::isnan(sPred)))
       {
-	FILE_LOG(logERROR) << "Error in prediction. NaN found.";
-	exit(EXIT_FAILURE);
+	throw std::runtime_error("Error in prediction. NaN found.");
       }
 					
 
@@ -96,7 +94,7 @@ namespace bayesopt
   {
     matrixd KK = computeCorrMatrix();
     const size_t n = KK.size1();
-    const size_t p = mMean.getMeanFunc()->nFeatures();
+    const size_t p = mMean.nFeatures();
   
     vectord v0 = mData.mY - prod(trans(mMean.mFeatM),mW0);
     matrixd WW = zmatrixd(p,p);  //TODO: diagonal matrix
@@ -117,8 +115,7 @@ namespace bayesopt
 
   void GaussianProcessNormal::precomputePrediction()
   {
-    size_t n = mData.getNSamples();
-    size_t p = mMean.getMeanFunc()->nFeatures();
+    const size_t p = mMean.nFeatures();
 
     mKF = trans(mMean.mFeatM);
     inplace_solve(mL,mKF,ublas::lower_tag());
@@ -136,9 +133,8 @@ namespace bayesopt
     mVf = mData.mY - prod(trans(mMean.mFeatM),mWMap);
     inplace_solve(mL,mVf,ublas::lower_tag());
 
-    if ((boost::math::isnan(mWMap(0))) || (boost::math::isnan(mSigma)))
+    if (boost::math::isnan(mWMap(0)))
       {
-	FILE_LOG(logERROR) << "Error in precomputed prediction. NaN found.";
 	throw std::runtime_error("Error in precomputed prediction. NaN found.");
       }
   }

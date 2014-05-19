@@ -33,10 +33,37 @@
 
 #include "bayesopt.h"
 
+/* Declaration */
+
+static void struct_value(const mxArray *s, const char *name, double *result);
+static void struct_array(const mxArray *s, const char *name, size_t *n, double *result);
+static void struct_size(const mxArray *s, const char *name, size_t *result);
+static void struct_int(const mxArray *s, const char *name, int *result);
+static void struct_string(const mxArray *s, const char *name, char* result);
+
+static double user_function(unsigned n, const double *x,
+		     double *gradient, /* NULL if not needed */
+		     void *d_);
+
+/* See parameters.h for the available options */
+static bopt_params load_parameters(const mxArray* params);
+
+#define FLEN 128 /* max length of user function name */
+#define MAXRHS 2 /* max nrhs for user function */
+typedef struct {
+     char f[FLEN];
+     mxArray *plhs[2];
+     mxArray *prhs[MAXRHS];
+     int xrhs, nrhs;
+     int verbose, neval;
+} user_function_data;
+
+/* Implementation */
 
 #define CHECK0(cond, msg) if (!(cond)) mexErrMsgTxt(msg);
 
-static void struct_value(const mxArray *s, const char *name, double *result)
+
+void struct_value(const mxArray *s, const char *name, double *result)
 {
   mxArray *val = mxGetField(s, 0, name);
   if (val) 
@@ -58,7 +85,7 @@ static void struct_value(const mxArray *s, const char *name, double *result)
   return;
 }
 
-static void struct_array(const mxArray *s, const char *name, size_t *n, double *result)
+void struct_array(const mxArray *s, const char *name, size_t *n, double *result)
 {
   mxArray *val = mxGetField(s, 0, name);
   if (val) 
@@ -81,7 +108,7 @@ static void struct_array(const mxArray *s, const char *name, size_t *n, double *
 }
 
 
-static void struct_size(const mxArray *s, const char *name, size_t *result)
+void struct_size(const mxArray *s, const char *name, size_t *result)
 {
   mxArray *val = mxGetField(s, 0, name);
   if (val) 
@@ -89,11 +116,33 @@ static void struct_size(const mxArray *s, const char *name, size_t *result)
       if(!(mxIsNumeric(val) && !mxIsComplex(val) 
 	   && mxGetM(val) * mxGetN(val) == 1))
 	{
-	  mexErrMsgTxt("param fields must be real scalars");
+	  mexErrMsgTxt("param fields must be scalar");
 	}
       else
 	{
-	  *result = (size_t) mxGetScalar(val);
+	  *result = (size_t)(mxGetScalar(val));
+	}
+    }
+  else
+    {
+      mexPrintf("Field %s not found. Default not modified.\n", name);
+    }
+  return;
+}
+
+void struct_int(const mxArray *s, const char *name, int *result)
+{
+  mxArray *val = mxGetField(s, 0, name);
+  if (val) 
+    {
+      if(!(mxIsNumeric(val) && !mxIsComplex(val) 
+	   && mxGetM(val) * mxGetN(val) == 1))
+	{
+	  mexErrMsgTxt("param fields must be scalar");
+	}
+      else
+	{
+	  *result = (int)(mxGetScalar(val));
 	}
     }
   else
@@ -104,36 +153,35 @@ static void struct_size(const mxArray *s, const char *name, size_t *result)
 }
 
 
-static void struct_string(const mxArray *s, const char *name, char* result)
+
+void struct_string(const mxArray *s, const char *name, char* result)
 {
   mxArray *val = mxGetField(s, 0, name);
 
-  if (val) {
-    if( mxIsChar(val) ) {
-      result = mxArrayToString(val);
-    } else {
-      mexErrMsgTxt("Method name must be a string");
+  if (val) 
+    {
+      if( mxIsChar(val) ) 
+	{
+	  /* Using MSVC 2010, data is lost unless we copy it. It seems
+	     that mxGetField does not get the pointer and create a new
+	     array or mxArrayToString fails to copy the string.   */
+	  strcpy(result,mxArrayToString(val));
+	} 
+      else 
+	{
+	  mexErrMsgTxt("Method name must be a string");
+	}
+    } 
+  else 
+    {
+      mexPrintf("Field %s not found. Default not modified.\n", name);
     }
-  } else {
-    mexPrintf("Field %s not found. Default not modified.\n", name);
-  }
   return;
 }
 
 
-#define FLEN 128 /* max length of user function name */
-#define MAXRHS 2 /* max nrhs for user function */
-typedef struct {
-     char f[FLEN];
-     mxArray *plhs[2];
-     mxArray *prhs[MAXRHS];
-     int xrhs, nrhs;
-     int verbose, neval;
-} user_function_data;
 
-
-
-static double user_function(unsigned n, const double *x,
+double user_function(unsigned n, const double *x,
 			    double *gradient, /* NULL if not needed */
 			    void *d_)
 {
@@ -169,12 +217,12 @@ static double user_function(unsigned n, const double *x,
   return f;
 }
 
-static bopt_params load_parameters(const mxArray* params)
+bopt_params load_parameters(const mxArray* params)
 {  
   
   /* See parameters.h for the available options */
   
-  char l_str[100], sc_str[100];
+  char l_str[100], sc_str[100], name[100];
   size_t n_hp_test, n_coef_test;
 
   bopt_params parameters = initialize_parameters_to_default();
@@ -188,9 +236,9 @@ static bopt_params load_parameters(const mxArray* params)
   struct_size(params, "n_iter_relearn", &parameters.n_iter_relearn);
 
   struct_size(params, "init_method", &parameters.init_method);
-  struct_size(params, "use_random_seed", &parameters.use_random_seed);
+  struct_int(params, "random_seed", &parameters.random_seed);
   
-  struct_size(params, "verbose_level", &parameters.verbose_level);
+  struct_int(params, "verbose_level", &parameters.verbose_level);
   struct_string(params, "log_filename", parameters.log_filename);
   
   struct_string(params, "surr_name", parameters.surr_name);
@@ -211,6 +259,7 @@ static bopt_params load_parameters(const mxArray* params)
 
 
   struct_value(params, "epsilon",  &parameters.epsilon);
+  struct_size(params, "force_jump",  &parameters.force_jump);
 
   struct_string(params, "crit_name", parameters.crit_name);
   struct_array(params, "crit_params", &parameters.n_crit_params, 
@@ -240,5 +289,6 @@ static bopt_params load_parameters(const mxArray* params)
 
   return parameters;
 }
+
 
 #endif

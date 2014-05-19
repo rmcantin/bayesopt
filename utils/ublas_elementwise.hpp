@@ -1,10 +1,10 @@
-/**  \file elementwise_ublas.hpp \brief Elementwise operations */
+/**  \file ublas_elementwise.hpp \brief Elementwise operations for ublas vector/matrix */
 /*
 -------------------------------------------------------------------------
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
    under the terms of the GNU General Public License as published by
@@ -24,7 +24,6 @@
 #ifndef  _ELEMENTWISE_UBLAS_HPP_
 #define  _ELEMENTWISE_UBLAS_HPP_
 
-// BOOST Libraries
 #include <algorithm>
 #include <boost/numeric/ublas/vector.hpp>
 

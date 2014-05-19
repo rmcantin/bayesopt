@@ -20,74 +20,22 @@
 ------------------------------------------------------------------------
 */
 
-#define _USE_MATH_DEFINES
-#include <cmath>
-#include <algorithm>
-//#include <valarray>
-#include "bayesopt.hpp"
-
-#ifndef M_PI
-#define M_PI           3.14159265358979323846
-#endif
-
-class ExampleBranin: public bayesopt::ContinuousModel
-{
-public:
-  ExampleBranin(size_t dim,bopt_params par):
-    ContinuousModel(dim,par) {}
-
-  double evaluateSample( const vectord& xin)
-  {
-     if (xin.size() != 2)
-      {
-	std::cout << "WARNING: This only works for 2D inputs." << std::endl
-		  << "WARNING: Using only first two components." << std::endl;
-      }
-
-    double x = xin(0) * 15 - 5;
-    double y = xin(1) * 15;
-
-    return sqr(y-(5.1/(4*sqr(M_PI)))*sqr(x)+5*x/M_PI-6)+10*(1-1/(8*M_PI))*cos(x)+10;
-  };
-
-  bool checkReachability(const vectord &query)
-  {return true;};
-
-  inline double sqr( double x ){ return x*x; };
-
-  void printOptimal()
-  {
-    vectord sv(2);  
-    sv(0) = 0.1239; sv(1) = 0.8183;
-    std::cout << "Solutions: " << sv << "->" 
-	      << evaluateSample(sv) << std::endl;
-    sv(0) = 0.5428; sv(1) = 0.1517;
-    std::cout << "Solutions: " << sv << "->" 
-	      << evaluateSample(sv) << std::endl;
-    sv(0) = 0.9617; sv(1) = 0.1650;
-    std::cout << "Solutions: " << sv << "->" 
-	      << evaluateSample(sv) << std::endl;
-  }
-
-};
+#include "testfunctions.hpp"
 
 int main(int nargs, char *args[])
 {
   bopt_params par = initialize_parameters_to_default();
-  par.n_iterations = 200;
-  par.n_init_samples = 50;
-  par.kernel.hp_mean[0] = 1.0;
-  par.kernel.n_hp = 1;
-  par.crit_name = "cHedge(cLCB,cEI,cPOI)";
-  double cParams[] = {5.0, 1.0, 0.01};
-  std::copy(cParams, cParams+3, par.crit_params);
-  par.n_crit_params = 3;
+  par.n_iterations = 190;
+  par.random_seed = 0;
+  par.verbose_level = 1;
+  par.noise = 1e-10;
   
-  ExampleBranin branin(2,par);
+  BraninNormalized branin(par);
   vectord result(2);
 
   branin.optimize(result);
-  std::cout << "Result:" << result << std::endl;
+  std::cout << "Result: " << result << "->" 
+	    << branin.evaluateSample(result) << std::endl;
   branin.printOptimal();
 
   return 0;

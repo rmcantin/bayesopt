@@ -3,7 +3,7 @@
 #    This file is part of BayesOpt, an efficient C++ library for 
 #    Bayesian optimization.
 #
-#    Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+#    Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
 # 
 #    BayesOpt is free software: you can redistribute it and/or modify it 
 #    under the terms of the GNU General Public License as published by
@@ -44,9 +44,9 @@ def worker(pipe):
 
 class BayesOptProcess(Process,BayesOptContinuous):
 
-    def __init__ (self, pipe):
+    def __init__ (self, pipe, n_dim):
         Process.__init__(self)
-        BayesOptContinuous.__init__(self)
+        BayesOptContinuous.__init__(self, n_dim)
         self.pipe = pipe
 
     def run(self):
@@ -58,20 +58,24 @@ class BayesOptProcess(Process,BayesOptContinuous):
 
         return
 
-    def evalfunc(self, x):
+    def evaluateSample(self, x):
         self.pipe.send(x)
         result = self.pipe.recv()
         return result
 
 
 if __name__ == '__main__':
+    params = {
+        'n_iterations' : 50,
+        'n_init_samples' : 20,
+        's_name' : "sGaussianProcessNormal",
+        'c_name' : "cHedge(cEI,cLCB,cExpReturn,cOptimisticSampling)"
+    } 
+
     pipe_par, pipe_child = Pipe()
 
-    bo = BayesOptProcess(pipe_child)
-    bo.params['n_iterations'] = 50
-    bo.params['n_init_samples'] = 20
-    bo.params['s_name'] = "sGaussianProcessNormal"
-    bo.params['c_name'] = "cHedge(cEI,cLCB,cExpReturn,cOptimisticSampling)"
+    bo = BayesOptProcess(pipe_child,n_dim=5)
+    bo.parameters = params
 
     p = Process(target=worker, args=(pipe_par,))
 

@@ -1,7 +1,7 @@
-/**  \file boundingbox.hpp \brief Functions for bounding box limits */
+/**  \file boundingbox.hpp \brief Module for box constrain management */
 /*
 -----------------------------------------------------------------------------
-   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 
 // BOOST Libraries
 #include <boost/numeric/ublas/vector.hpp>
-#include "elementwise_ublas.hpp"
+#include "ublas_elementwise.hpp"
 
 namespace bayesopt {
   

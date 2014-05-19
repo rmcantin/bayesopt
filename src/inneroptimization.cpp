@@ -3,7 +3,7 @@
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
    under the terms of the GNU General Public License as published by
@@ -41,6 +41,45 @@ namespace bayesopt
       }
   }
 
+  const size_t MAX_INNER_EVALUATIONS = 500;   /**< Used per dimmension */
+
+  /* TODO: make it const double *x */
+  typedef double (*eval_func)(unsigned int n, const double *x,
+			      double *gradient, /* NULL if not needed */
+			      void *func_data);
+
+
+  double run_nlopt(nlopt::algorithm algo, eval_func fpointer,
+		   vectord& Xnext, int maxf, const std::vector<double>& vd, 
+		   const std::vector<double>& vu, void* objPointer)
+  {
+    double fmin;
+    size_t n = Xnext.size(); 
+    nlopt::opt opt (algo,n);
+
+    std::vector<double> xstd(n);
+    opt.set_lower_bounds(vd);
+    opt.set_upper_bounds(vu);
+    opt.set_min_objective(fpointer, objPointer);
+    opt.set_maxeval(maxf) ;
+    
+    std::copy(Xnext.begin(),Xnext.end(),xstd.begin());
+      
+    try 
+      { 
+	opt.optimize(xstd, fmin);  
+      }
+    catch (nlopt::roundoff_limited& e)
+      {
+	FILE_LOG(logDEBUG) << "NLOPT Warning: Potential roundoff error. " 
+			   << "In general, this can be ignored.";
+      }
+    
+    std::copy(xstd.begin(),xstd.end(),Xnext.begin());
+    return fmin;
+  }
+
+
   NLOPT_Optimization::NLOPT_Optimization(RBOptimizable* rbo, size_t dim):
   mDown(dim),mUp(dim)
   { 
@@ -63,19 +102,60 @@ namespace bayesopt
     if(rgbobj != NULL) delete rgbobj;
   }
 
-  void NLOPT_Optimization::run(vectord &Xnext)
+  double NLOPT_Optimization::localTrialAround(vectord& Xnext)
+  {
+    assert(mDown.size() == Xnext.size());
+    assert(mUp.size() == Xnext.size());
+    const size_t n = Xnext.size();
+
+    for (size_t i = 0; i < n; ++i) 
+      {
+	if (Xnext(i) < mDown[i] || Xnext(i) > mUp[i])
+	  {
+	    FILE_LOG(logDEBUG) << Xnext;
+	    throw std::invalid_argument("Local trial withour proper"
+					" initial point.");
+	  }
+      }
+
+    nlopt::algorithm algo = nlopt::LN_BOBYQA;
+    eval_func fpointer = &(NLOPT_Optimization::evaluate_nlopt);
+    void* objPointer = static_cast<void *>(rbobj);
+    const size_t nIter = 20;
+    std::vector<double> vd(n);
+    std::vector<double> vu(n);
+
+    for (size_t i = 0; i < n; ++i) 
+      {
+	vd[i] = Xnext(i) - 0.01;
+	vu[i] = Xnext(i) + 0.01;
+      }
+
+    vectord start = Xnext;
+
+    double fmin = run_nlopt(algo,fpointer,Xnext,nIter,
+			    mDown,mUp,objPointer);
+
+    FILE_LOG(logDEBUG) << "Near trial " << nIter << "|" 
+		       << start << "-> " << Xnext << " f() ->" << fmin;
+    
+    return fmin;
+
+  }
+
+  double NLOPT_Optimization::run(vectord &Xnext)
   {   
     assert(mDown.size() == Xnext.size());
     assert(mUp.size() == Xnext.size());
 
-    double (*fpointer)(unsigned int, const double *, double *, void *);
+    eval_func fpointer;
     void *objPointer;
 
     size_t n = Xnext.size();
     double fmin = 1;
     int maxf1 = maxEvals*n;
     int maxf2 = 0;    // For a second pass
-    double coef_local = 0.2;
+    const double coef_local = 0.1;
     //int ierror;
 
     // If Xnext is outside the bounding box, maybe it is undefined
@@ -92,13 +172,11 @@ namespace bayesopt
     switch(alg)
       {
       case DIRECT: // Pure global. No gradient
-	//	opt = nlopt_create(NLOPT_GN_DIRECT_L, n); 
 	algo = nlopt::GN_DIRECT_L;
 	fpointer = &(NLOPT_Optimization::evaluate_nlopt);
 	objPointer = static_cast<void *>(rbobj);
 	break;
       case COMBINED: // Combined local-global (80% DIRECT -> 20% BOBYQA). No gradient
-	//	opt = nlopt_create(NLOPT_GN_DIRECT_L, n); 
 	algo = nlopt::GN_DIRECT_L;
 	maxf2 = static_cast<int>(static_cast<double>(maxf1)*coef_local);
 	maxf1 -= maxf2;  // That way, the number of evaluations is the same in all methods.
@@ -106,88 +184,47 @@ namespace bayesopt
 	objPointer = static_cast<void *>(rbobj);
 	break;
       case BOBYQA:  // Pure local. No gradient
-	//	opt = nlopt_create(NLOPT_LN_BOBYQA, n); 
 	algo = nlopt::LN_BOBYQA;
 	fpointer = &(NLOPT_Optimization::evaluate_nlopt);
 	objPointer = static_cast<void *>(rbobj);
 	break;
       case LBFGS:  // Pure local. Gradient based
-	//	opt = nlopt_create(NLOPT_LD_LBFGS, n); 	
 	algo = nlopt::LD_LBFGS;
 	fpointer = &(NLOPT_Optimization::evaluate_nlopt_grad);
 	objPointer = static_cast<void *>(rgbobj);
 	break;
       default: 
-	FILE_LOG(logERROR) << "Algorithm not supported"; 
-	throw std::invalid_argument("Inner optimization algorithm not supported");
+	throw std::invalid_argument("Inner optimization algorithm"
+				    " not supported");
       }
-
-    nlopt::opt opt (algo,n);
 
     if (objPointer == NULL)
       {
-	FILE_LOG(logERROR) << "Wrong object model (gradient/no gradient)"; 
-	throw std::invalid_argument("Wrong object model (gradient/no gradient)");
+	throw std::invalid_argument("Wrong object model "
+				    "(gradient/no gradient)");
       }
 
-    std::vector<double> xstd(n);
-    opt.set_lower_bounds(mDown);
-    opt.set_upper_bounds(mUp);
-    opt.set_min_objective(fpointer, objPointer);
-    opt.set_maxeval(maxf1) ;
-    
-    std::copy(Xnext.begin(),Xnext.end(),xstd.begin());
+    fmin = run_nlopt(algo,fpointer,Xnext,maxf1,
+		     mDown,mUp,objPointer);
 
-    try { opt.optimize(xstd, fmin);  }
-    catch (nlopt::roundoff_limited& e)
-      {
-		FILE_LOG(logERROR) << "NLOPT Warning: Potential roundoff error. " 
-						   << "In general, this can be ignored.";
-      }
-
-    std::copy(xstd.begin(),xstd.end(),Xnext.begin());
-	
+    FILE_LOG(logDEBUG) << "1st opt " << maxf1 << "-> " << Xnext 
+		       << " f() ->" << fmin;
     if (maxf2)
       {
-	nlopt::opt opt2(nlopt::LN_BOBYQA, n); /* algorithm and dims */
-	opt2.set_lower_bounds(mDown);
-	opt2.set_upper_bounds(mUp);
-	opt2.set_min_objective(fpointer, objPointer);
-	opt2.set_maxeval(maxf2) ;
-	
-	try { opt2.optimize(xstd, fmin);  }
-	catch (nlopt::roundoff_limited& e)
+	//If the point is exactly at the limit, we may have trouble.
+	for (size_t i = 0; i < n; ++i) 
 	  {
-	    FILE_LOG(logERROR) << "NLOPT Warning: Potential roundoff error. " 
-			       << "In general, this can be ignored.";
+	    if (Xnext(i)-mDown[i] < 0.0001) Xnext(i) += 0.0001;
+	    if (mUp[i] - Xnext(i) < 0.0001) Xnext(i) -= 0.0001;
 	  }
-	std::copy(xstd.begin(),xstd.end(),Xnext.begin());
+	fmin = run_nlopt(nlopt::LN_BOBYQA,fpointer,Xnext,maxf2,
+			 mDown,mUp,objPointer);
+	FILE_LOG(logDEBUG) << "2nd opt " << maxf2 << "-> " << Xnext 
+			   << " f() ->" << fmin;
       }
-    // nlopt_set_lower_bounds(opt, &mDown(0));
-    // nlopt_set_upper_bounds(opt, &mUp(0));
-    // nlopt_set_min_objective(opt, fpointer, objPointer);
-    // nlopt_set_maxeval(opt, maxf1) ;
 
-    // nlopt_result errortype = nlopt_optimize(opt, &Xnext(0), &fmin);
-    // checkNLOPTerror(errortype);
+    return fmin;
 
-    // if (maxf2)
-    //   {
-    // 	nlopt_destroy(opt);  // Destroy previous one
-    // 	opt = nlopt_create(NLOPT_LN_BOBYQA, n); /* algorithm and dims */
-    // 	nlopt_set_lower_bounds(opt, &mDown(0));
-    // 	nlopt_set_upper_bounds(opt, &mUp(0));
-    // 	nlopt_set_min_objective(opt, fpointer, objPointer);
-    // 	nlopt_set_maxeval(opt, maxf2) ;
-	
-    // 	errortype = nlopt_optimize(opt, &Xnext(0), &fmin);
-    // 	checkNLOPTerror(errortype);
-    //   }
-      
-    // nlopt_destroy(opt);  // Destroy opt
-
-    // ierror = static_cast<int>(errortype);
-    // return ierror;
   } // innerOptimize (uBlas)
 
   double NLOPT_Optimization::evaluate_nlopt (unsigned int n, const double *x,
@@ -202,7 +239,6 @@ namespace bayesopt
     
     return OPTIMIZER->evaluate(vx);
   } /* evaluate_criteria_nlopt */
-
 
   double NLOPT_Optimization::evaluate_nlopt_grad (unsigned int n, const double *x,
 						  double *grad, void *my_func_data)

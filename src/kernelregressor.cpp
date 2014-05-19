@@ -3,7 +3,7 @@
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
    under the terms of the GNU General Public License as published by
@@ -35,18 +35,24 @@
 namespace bayesopt
 {
   KernelRegressor::KernelRegressor(size_t dim, bopt_params parameters,
-				   const Dataset& data, randEngine& eng):
-    NonParametricProcess(dim,parameters,data,eng), mRegularizer(parameters.noise),
-    mKernel(dim, parameters),mScoreType(parameters.sc_type)
+				   const Dataset& data,
+				   MeanModel& mean, randEngine& eng):
+    NonParametricProcess(dim,parameters,data,mean,eng), 
+    mRegularizer(parameters.noise),
+    mKernel(dim, parameters),
+    mScoreType(parameters.sc_type),
+    mLearnType(parameters.l_type),
+    mLearnAll(parameters.l_all)
   { }
 
   KernelRegressor::~KernelRegressor(){}
 
 
 
-  void KernelRegressor::updateSurrogateModel(const vectord &Xnew)
+  void KernelRegressor::updateSurrogateModel()
   {
-    vectord newK = computeCrossCorrelation(Xnew);
+    const vectord lastX = mData.getLastSampleX();
+    vectord newK = computeCrossCorrelation(lastX);
     newK(newK.size()-1) += mRegularizer;   // We add it to the last element
     utils::cholesky_add_row(mL,newK);
     precomputePrediction(); 
@@ -63,8 +69,10 @@ namespace bayesopt
     computeCorrMatrix(K);
     size_t line_error = utils::cholesky_decompose(K,mL);
     if (line_error) 
-      throw std::runtime_error("Cholesky decomposition error at line " + 
-			       boost::lexical_cast<std::string>(line_error));
+      {
+	throw std::runtime_error("Cholesky decomposition error at line " + 
+				 boost::lexical_cast<std::string>(line_error));
+      }
   }
 
   matrixd KernelRegressor::computeDerivativeCorrMatrix(int dth_index)

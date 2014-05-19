@@ -10,7 +10,14 @@ Modified: Ruben Martinez-Cantin (2013)
     - Fixed bugs
 ****************************************************************************/
 
+#ifdef __APPLE__
+//#include <OpenGL/gl.h> //OS x libs
+//#include <OpenGL/glu.h>
+#include <GLUT/glut.h>
+#else
 #include <GL/glut.h>
+#endif
+
 #include <vector>
 #include <deque>
 #include <string>
@@ -699,6 +706,7 @@ class MatPlot{///
 
     // print ///
     void print();
+    void print(std::string filename, std::string title, GLint format);
 
 };
 

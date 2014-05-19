@@ -4,7 +4,7 @@
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
    under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@ namespace bayesopt
   namespace utils
   {      
     
+
     /** \brief Selects the sampling method.  */
     template<class M>
     void samplePoints(M& xPoints, int method, randEngine& mtRandom);
@@ -97,6 +98,7 @@ namespace bayesopt
   
       for (size_t i = 0; i < nB; i++)
 	{
+	  // TODO: perms starts at 1. Check this
 	  std::vector<int> perms = return_index_vector(nA);
 	  randomPerms(perms, mtRandom);
 

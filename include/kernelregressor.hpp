@@ -5,7 +5,7 @@
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
    under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 #ifndef __NONPARAMETRICPROCESS_HPP__
 #define __NONPARAMETRICPROCESS_HPP__
 
-#include "cholesky.hpp"
+#include "ublas_cholesky.hpp"
 #include "nonparametricprocess.hpp"
 #include "kernel_functors.hpp"
 
@@ -46,14 +46,9 @@ namespace bayesopt
   class KernelRegressor: public NonParametricProcess
   {
   public:
-    KernelRegressor(size_t dim, bopt_params parameters, const Dataset& data, randEngine& eng);
+    KernelRegressor(size_t dim, bopt_params parameters, const Dataset& data, 			 
+		    MeanModel& mean, randEngine& eng);
     virtual ~KernelRegressor();
-
-    /** 
-     * \brief Updates the kernel parameters with a point estimate
-     * (empirical Bayes) or a full Bayesian distribution
-     */
-    virtual void updateKernelParameters() = 0;
 
     /** 
      * \brief Computes the initial surrogate model and updates the
@@ -71,11 +66,14 @@ namespace bayesopt
      * 
      * It assumes that the kernel hyperparemeters do not change.
      */   
-    void updateSurrogateModel(const vectord &Xnew);
+    void updateSurrogateModel();
 
 
     // Getters and setters
     double getSignalVariance();
+    size_t nHyperParameters();
+    vectord getHyperParameters();
+    void setHyperParameters(const vectord& theta);
 
     /** Sets the kind of learning methodology for kernel hyperparameters */
     //void setLearnType(learning_type l_type);
@@ -105,7 +103,8 @@ namespace bayesopt
   protected:
     matrixd mL;             ///< Cholesky decomposition of the Correlation matrix
     score_type mScoreType;
-    //learning_type mLearnType;
+    learning_type mLearnType;
+    int mLearnAll;
     KernelModel mKernel;
 
   private:
@@ -121,9 +120,67 @@ namespace bayesopt
   //// Inline methods
   inline void KernelRegressor::fitSurrogateModel()
   {
-    updateKernelParameters();
     computeCholeskyCorrelation();
     precomputePrediction(); 
+  };
+
+  inline size_t KernelRegressor::nHyperParameters()
+  { 
+    if (mLearnAll)
+      {
+	return mKernel.nHyperParameters()
+	+ mMean.nParameters() + 1;
+      }     
+    else
+      {
+	return mKernel.nHyperParameters(); 	
+      }
+  }
+
+  inline vectord KernelRegressor::getHyperParameters()
+  { 
+    using boost::numeric::ublas::subrange;
+    if (mLearnAll)
+      {
+	vectord result(nHyperParameters());
+	size_t nk = mKernel.nHyperParameters();
+	size_t nm = mMean.nParameters();
+
+	subrange(result,0,nk) = mKernel.getHyperParameters();
+
+	vectord mean = mMean.getParameters();
+	std::transform(mean.begin(), mean.end(), result.begin()+nk, (double (*)(double)) log);
+
+	result(nk+nm) = std::log(mSigma);
+	return result;
+      }     
+    else
+      {
+	return mKernel.getHyperParameters(); 
+      }
+  };
+
+  inline void KernelRegressor::setHyperParameters(const vectord &theta)
+  { 
+    using boost::numeric::ublas::subrange;
+    if (mLearnAll)
+      {
+	size_t nk = mKernel.nHyperParameters();
+	size_t nm = mMean.nParameters();
+
+	mKernel.setHyperParameters(subrange(theta,0,nk));
+
+	vectord result(nm);
+	std::transform(theta.begin()+nk, theta.begin()+nk+nm, 
+		       result.begin(), (double (*)(double)) log);
+	mMean.setParameters(result);
+
+	mSigma = std::exp(theta(nk+nm));
+      }     
+    else
+      {
+	mKernel.setHyperParameters(theta); 
+      }
   };
 
   // inline void KernelRegressor::setLearnType(learning_type l_type) 

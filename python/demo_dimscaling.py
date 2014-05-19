@@ -3,7 +3,7 @@
 #    This file is part of BayesOpt, an efficient C++ library for
 #    Bayesian optimization.
 #
-#    Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+#    Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
 #
 #    BayesOpt is free software: you can redistribute it and/or modify it
 #    under the terms of the GNU General Public License as published by
@@ -42,13 +42,13 @@ def func(x):
     return e
 
 # Initialize the parameters by default
-params = bayesopt.initialize_params()
+params = {} #bayesopt.initialize_params()
 
 # We decided to change some of them
-params['n_init_samples'] = 150
+params['n_init_samples'] = 30
 params['n_iter_relearn'] = 20
-#params['noise'] = 0.01
-params['kernel_name'] = "kMaternISO3"
+params['noise'] = 1e-10
+params['kernel_name'] = "kMaternISO5"
 params['kernel_hp_mean'] = [1]
 params['kernel_hp_std'] = [5]
 params['surr_name'] = "sStudentTProcessNIG"
@@ -63,4 +63,5 @@ print "Result", mvalue, x_out
 
 print "Global optimal", 0, np.arange(1,1+dim)
 
-print "Distance", math.sqrt(mvalue*dim)
+print "Y Gap", mvalue
+print "X Gap", math.sqrt(mvalue*dim)

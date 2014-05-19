@@ -20,165 +20,98 @@
 ------------------------------------------------------------------------
 */
 
-#include <valarray>
-#include "bayesopt.hpp"
+#include "testfunctions.hpp"
+#include "displaygp.hpp"
 
-class ExampleOneD: public bayesopt::ContinuousModel
+
+
+// Unfortunately OpenGL functions require no parameters, so the object has to be global.
+bayesopt::utils::DisplayProblem1D GLOBAL_MATPLOT;
+
+void display( void ){ GLOBAL_MATPLOT.display(); }
+void reshape( int w,int h ){ GLOBAL_MATPLOT.reshape(w,h); }
+void idle( void ) { glutPostRedisplay(); } 
+
+void mouse(int button, int state, int x, int y ){ GLOBAL_MATPLOT.mouse(button,state,x,y); }
+void motion(int x, int y ){ GLOBAL_MATPLOT.motion(x,y); }
+void passive(int x, int y ){ GLOBAL_MATPLOT.passivemotion(x,y); }
+
+void keyboard(unsigned char key, int x, int y)
 {
-public:
-  ExampleOneD(size_t dim, bopt_params par):
-    ContinuousModel(dim,par) {}
-
-  double evaluateSample(const vectord& xin)
-  {
-    if (xin.size() > 1)
-      {
-	std::cout << "WARNING: This only works for 1D inputs." << std::endl
-		  << "WARNING: Using only first component." << std::endl;
+    GLOBAL_MATPLOT.keyboard(key, x, y); 
+    if(key=='r')   //Toogle run/stop
+      { 
+	GLOBAL_MATPLOT.toogleRUN();
       }
-
-    double x = xin(0);
-    return sqr(x-0.3) + sin(20*x)*0.2;
-  };
-
-  bool checkReachability(const vectord &query)
-  {return true;};
-
-  inline double sqr( double x ){ return x*x; }
-
-  void printOptimal()
-  {
-    std::cout << "Optimal:" << 0.5 << std::endl;
-  }
-
-};
-
-//#include "unistd.h"
-//using namespace std;
-#include "matplotpp.h"  
-
-using namespace bayesopt;
-
-int is_run=0;
-int is_step=0;
-size_t state_ii = 0;
-BayesOptBase* GLOBAL_MODEL;
-std::vector<double> lx,ly;
-
-class MP :public MatPlot{ 
-void DISPLAY(){
-  size_t nruns = GLOBAL_MODEL->getParameters()->n_iterations;
-  if ((is_run) && (state_ii < nruns))
-    {
-      ++state_ii;
-      GLOBAL_MODEL->stepOptimization(state_ii); 
-      const double res = GLOBAL_MODEL->getSurrogateModel()->getData()->getLastSampleY();
-      const vectord last = GLOBAL_MODEL->getSurrogateModel()->getData()->getLastSampleX();
-      ly.push_back(res);
-      lx.push_back(last(0));
-	  
-      if (is_step) { is_run = 0; is_step = 0; }
-    }
-    
-  int n=1000;
-  std::vector<double> x,y,z,su,sl,c;
-  x=linspace(0,1,n);
-  y = x; z = x; su = x; sl = x; c= x;
-  vectord q(1);
-  for(int i=0;i<n;++i)
-    {
-      q(0) = x[i];
-      ProbabilityDistribution* pd = GLOBAL_MODEL->getSurrogateModel()->prediction(q);
-      y[i] = pd->getMean();
-      su[i] = y[i] + 2*pd->getStd();
-      sl[i] = y[i] - 2*pd->getStd();
-      c[i] = -GLOBAL_MODEL->evaluateCriteria(q);
-      z[i] = GLOBAL_MODEL->evaluateSample(q);
-    }
- 
-  //plot
-  subplot(2,1,1);
-  title("Press r to run and stop, s to run a step and q to quit.");
-  plot(x,y); set(3);
-  plot(lx,ly);set("k");set("*");
-  plot(x,su);set("g"); set(2);
-  plot(x,sl);set("g"); set(2);
-  plot(x,z);set("r"); set(3);
-  
-  subplot(2,1,2);
-  plot(x,c); set(3);
+    if(key=='s')   //Activate one step
+      { 
+	GLOBAL_MATPLOT.setSTEP();
+      }
 }
-}mp;
 
-void display(){mp.display(); }
-void reshape(int w,int h){ mp.reshape(w,h); }
-void idle( void )
+int menu()
 {
-  glutPostRedisplay();
-}
+  std::string input;
+  int option = 0;
+  while ((option < 1) || (option > 5))
+    {
+      std::cout << "Please select an option for the parameters:\n\n"
+		<< "  1- Default parameters.\n"
+		<< "  2- Student t process model.\n"
+		<< "  3- Combined kernel.\n"
+		<< "  4- Lower Confidence Bound.\n"
+		<< "  5- A-optimality criteria.\n\n"
+		<< "Select [1-5]>";
 
-void mouse(int button, int state, int x, int y ){ mp.mouse(button,state,x,y); }
-void motion(int x, int y ){mp.motion(x,y); }
-void passive(int x, int y ){mp.passivemotion(x,y); }
-void keyboard(unsigned char key, int x, int y){
-    mp.keyboard(key, x, y); 
-    if(key=='r'){ if(is_run==0){is_run=1;}else{is_run=0;}}
-    if(key=='s'){ is_run=1; is_step=1; } 
+      std::cin >> input;
+      std::istringstream is(input);
+      is >> option;
+    }
+  return option;
 }
 
 int main(int nargs, char *args[])
 {
-  size_t dim = 1;
   bopt_params parameters = initialize_parameters_to_default();
   parameters.n_init_samples = 7;
-  parameters.n_iter_relearn = 0;
-  parameters.n_iterations = 300;
+  parameters.n_iterations = 100;
   parameters.verbose_level = 2;
 
-  // Surrogate models
-  //  parameters.surr_name = "sStudentTProcessNIG";
-  parameters.surr_name = "sGaussianProcessNormal";
-
-  // Criterion model
-  // parameters.crit_name = "cAopt";
-  // parameters.n_crit_params = 0;
-
-  parameters.crit_name = "cEI";
-  parameters.crit_params[0] = 1;
-  parameters.n_crit_params = 1;
-
-  // parameters.crit_name = "cLCB";
-  // parameters.crit_params[0] = 5;
-  // parameters.n_crit_params = 1;
-
-  // Kernel models
-  // parameters.kernel.name = "kSum(kPoly3,kRQISO)";
-  // double mean[128] = {1, 1, 1, 1};
-  // double std[128] = {10, 10, 10, 10};
-  // size_t nhp = 4;
-  // memcpy(parameters.kernel.hp_mean, mean, nhp * sizeof(double));
-  // memcpy(parameters.kernel.hp_std,std, nhp * sizeof(double));
-  // parameters.kernel.n_hp = nhp;
-
-  parameters.kernel.name = "kMaternISO3";
-  parameters.kernel.hp_mean[0] = 1;
-  parameters.kernel.hp_std[0] = 5;
-  parameters.kernel.n_hp = 1;
-
-  state_ii = 0;
-
-  ExampleOneD* opt = new ExampleOneD(dim,parameters);
-  vectord result(dim);
-  GLOBAL_MODEL = opt;
-  opt->initializeOptimization();
-  size_t n_points = GLOBAL_MODEL->getSurrogateModel()->getData()->getNSamples();
-  for (size_t i = 0; i<n_points;++i)
+  switch( menu() )
     {
-      const double res = GLOBAL_MODEL->getSurrogateModel()->getData()->getSampleY(i);
-      const vectord last = GLOBAL_MODEL->getSurrogateModel()->getData()->getSampleX(i);
-      ly.push_back(res);
-      lx.push_back(last(0));
-    }
+    case 1: break;
+    case 2: 
+      {
+	set_surrogate(&parameters,"sStudentTProcessNIG"); 
+	parameters.n_iter_relearn = 5;
+	break;
+      }
+    case 3:   
+      { 
+	set_kernel(&parameters,"kSum(kPoly3,kRQISO)");
+	double mean[128] = {1, 1, 1, 1};
+	double std[128] = {5, 5, 5, 5};
+	size_t nhp = 4;
+	memcpy(parameters.kernel.hp_mean, mean, nhp * sizeof(double));
+	memcpy(parameters.kernel.hp_std,std, nhp * sizeof(double));
+	parameters.kernel.n_hp = nhp;
+	break;
+      }
+    case 4:
+      set_criteria(&parameters,"cLCB");
+      parameters.crit_params[0] = 5;
+      parameters.n_crit_params = 1;
+      break;      
+    case 5:
+      set_criteria(&parameters,"cAopt");
+      parameters.n_crit_params = 0;
+      break;
+    default:
+      break;
+    };
+
+  boost::scoped_ptr<ExampleOneD> opt(new ExampleOneD(parameters));
+  GLOBAL_MATPLOT.init(opt.get(),1);
 
   glutInit(&nargs, args);
   glutCreateWindow(50,50,800,650);
@@ -191,6 +124,5 @@ int main(int nargs, char *args[])
   glutKeyboardFunc( keyboard );        
   glutMainLoop();    
 
-  delete opt;
   return 0;
 }

@@ -17,8 +17,7 @@
 -----------------------------------------------------------------------------
 */
 
-#include "cholesky.hpp"
-#include "trace_ublas.hpp"
+#include "ublas_trace.hpp"
 #include "student_t_process_jef.hpp"
 
 namespace bayesopt
@@ -29,10 +28,10 @@ namespace bayesopt
   StudentTProcessJeffreys::StudentTProcessJeffreys(size_t dim, 
 						   bopt_params params, 
 						   const Dataset& data, 
+						   MeanModel& mean,
 						   randEngine& eng):
-    HierarchicalGaussianProcess(dim, params, data,eng)
+    HierarchicalGaussianProcess(dim, params, data, mean, eng)
   {
-    mSigma = params.sigma_s;
     d_ = new StudentTDistribution(eng);
   }  // Constructor
 

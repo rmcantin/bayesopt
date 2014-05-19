@@ -1,11 +1,11 @@
-/** \file hierarchical_gaussian_process.hpp 
-    \brief Hierarchical Gaussian process abstract module */
+/**  \file criteria_expected.hpp \brief Criterion based on the expected
+     value of the function. */
 /*
 -------------------------------------------------------------------------
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
    under the terms of the GNU General Public License as published by
@@ -22,40 +22,33 @@
 ------------------------------------------------------------------------
 */
 
+#ifndef  _CRITERIA_EXPECTED_HPP_
+#define  _CRITERIA_EXPECTED_HPP_
 
-#ifndef __HIERARCHICAL_GAUSSIAN_PROCESS_HPP__
-#define __HIERARCHICAL_GAUSSIAN_PROCESS_HPP__
-
-#include "conditionalbayesprocess.hpp"
-
+#include "criteria_functors.hpp"
 
 namespace bayesopt
 {
-  
-  /** \addtogroup NonParametricProcesses */
-  /**@{*/
 
-  /**
-   * \brief Virtual class for hierarchical Gaussian processes.
-   */
-  class HierarchicalGaussianProcess: public ConditionalBayesProcess
+  /**\addtogroup CriteriaFunctions  */
+  //@{
+
+  /// Expected return criterion.
+  class ExpectedReturn: public Criteria
   {
   public:
-    HierarchicalGaussianProcess(size_t dim, bopt_params params, const Dataset& data, randEngine& eng);
-    virtual ~HierarchicalGaussianProcess() {};
-
-  protected:
-    /** 
-     * \brief Computes the negative log likelihood of the data for all
-     * the parameters.
-     * @return value negative log likelihood
-     */
-    double negativeTotalLogLikelihood();
-
+    virtual ~ExpectedReturn(){};
+    void setParameters(const vectord &params) { };
+    size_t nParameters() {return 0;};
+    double operator() (const vectord &x) 
+    { return mProc->prediction(x)->getMean(); };
+    std::string name() {return "cExpReturn";};
   };
 
-  /**@}*/
+
+  //@}
 
 } //namespace bayesopt
+
 
 #endif

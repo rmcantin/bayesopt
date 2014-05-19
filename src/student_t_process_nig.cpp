@@ -3,7 +3,7 @@
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
    under the terms of the GNU General Public License as published by
@@ -25,9 +25,8 @@
 #include <boost/numeric/ublas/banded.hpp>
 #include "log.hpp"
 #include "student_t_process_nig.hpp"
-#include "cholesky.hpp"
-#include "trace_ublas.hpp"
-#include "elementwise_ublas.hpp"
+#include "ublas_trace.hpp"
+#include "ublas_elementwise.hpp"
 #include "student_t_distribution.hpp"
 
 namespace bayesopt
@@ -36,8 +35,9 @@ namespace bayesopt
   namespace ublas = boost::numeric::ublas; 
   
   StudentTProcessNIG::StudentTProcessNIG(size_t dim, bopt_params params, 
-					 const Dataset& data, randEngine& eng):
-    HierarchicalGaussianProcess(dim,params,data, eng),
+					 const Dataset& data, 			 
+					 MeanModel& mean, randEngine& eng):
+    HierarchicalGaussianProcess(dim,params,data, mean, eng),
     mAlpha(params.alpha), mBeta (params.beta), 
     mW0(params.mean.n_coef), mInvVarW(params.mean.n_coef), 
     mD(params.mean.n_coef,params.mean.n_coef)
@@ -79,8 +79,7 @@ namespace bayesopt
 
     if ((boost::math::isnan(yPred)) || (boost::math::isnan(sPred)))
       {
-	FILE_LOG(logERROR) << "Error in prediction. NaN found.";
-	exit(EXIT_FAILURE);
+	throw std::runtime_error("Error in prediction. NaN found.");
       }
 					
 
@@ -93,7 +92,7 @@ namespace bayesopt
   {
     matrixd KK = computeCorrMatrix();
     const size_t n = KK.size1();
-    const size_t p = mMean.getMeanFunc()->nFeatures();
+    const size_t p = mMean.nFeatures();
     const size_t nalpha = (n+2*mAlpha);
 
     vectord v0 = mData.mY - prod(trans(mMean.mFeatM),mW0);
@@ -107,9 +106,9 @@ namespace bayesopt
     double zz = inner_prod(v0,v0);
     double sigmaMap = (mBeta/mAlpha + zz)/nalpha;
 
-    double lik = nalpha/2 * log(1+zz/(2*mBeta*sigmaMap));
+    double lik = nalpha/2 * std::log(1+zz/(2*mBeta*sigmaMap));
     lik += utils::log_trace(BB);
-    lik += n/2 * log(sigmaMap);
+    lik += n/2 * std::log(sigmaMap);
     return lik;
   }
 
@@ -118,7 +117,7 @@ namespace bayesopt
   void StudentTProcessNIG::precomputePrediction()
   {
     size_t n = mData.getNSamples();
-    size_t p = mMean.getMeanFunc()->nFeatures();
+    size_t p = mMean.nFeatures();
 
     mKF = trans(mMean.mFeatM);
     inplace_solve(mL,mKF,ublas::lower_tag());
@@ -153,7 +152,6 @@ namespace bayesopt
     
     if ((boost::math::isnan(mWMap(0))) || (boost::math::isnan(mSigma)))
       {
-	FILE_LOG(logERROR) << "Error in precomputed prediction. NaN found.";
 	throw std::runtime_error("Error in precomputed prediction. NaN found.");
       }
 

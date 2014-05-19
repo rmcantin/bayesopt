@@ -4,7 +4,7 @@
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
    under the terms of the GNU General Public License as published by
@@ -21,38 +21,64 @@
 ------------------------------------------------------------------------
 */
 
-#include "randgen.hpp"
-#include "lhs.hpp"
-#include "log.hpp"
 #include "bayesopt.hpp"
+
+#include <boost/numeric/ublas/matrix_proxy.hpp>
+//#include "randgen.hpp"
+#include "lhs.hpp"
+#include "gridsampling.hpp"
+#include "log.hpp"
 
 namespace bayesopt
 {
   
-  DiscreteModel::DiscreteModel(const vecOfvec &validSet):
-    BayesOptBase(), mInputSet(validSet)
-  {} // Constructor
+  // DiscreteModel::DiscreteModel(const vecOfvec &validSet):
+  //   BayesOptBase(), mInputSet(validSet)
+  // {} // Constructor
 
 
   DiscreteModel::DiscreteModel( const vecOfvec &validSet, 
-			    bopt_params parameters):
+				bopt_params parameters):
     BayesOptBase(validSet[0].size(),parameters), mInputSet(validSet)
-  {} // Constructor
+  {    
+    mDims = mInputSet[0].size();    
+  } // Constructor
+
+  DiscreteModel::DiscreteModel(const vectori &categories, 
+			       bopt_params parameters):
+   BayesOptBase(categories.size(),parameters)
+  {    
+    mDims = categories.size();    
+    utils::buildGrid(categories,mInputSet);
+  }
 
 
   DiscreteModel::~DiscreteModel()
   {} // Default destructor
 
-  void DiscreteModel::initializeOptimization()
-  {
-    mDims = mInputSet[0].size();    
-    sampleInitialPoints();
-  }
 
   vectord DiscreteModel::getFinalResult()
   {
     return getPointAtMinimum();
   }
+
+  vectord DiscreteModel::samplePoint()
+  {   
+    randInt sample(mEngine, intUniformDist(0,mInputSet.size()-1));
+    return mInputSet[sample()];
+  };
+
+  double DiscreteModel::evaluateSampleInternal( const vectord &query )
+  { 
+    const double yNext = evaluateSample(query); 
+    if (yNext == HUGE_VAL)
+      {
+	throw std::runtime_error("Function evaluation out of range");
+      }
+    return yNext;
+  }; 
+
+
   
   void DiscreteModel::plotStepData(size_t iteration, const vectord& xNext,
 				   double yNext)
@@ -70,9 +96,9 @@ namespace bayesopt
   }
 
 
-  void DiscreteModel::sampleInitialPoints()
+  void DiscreteModel::sampleInitialPoints(matrixd& xPoints, vectord& yPoints)
   {
-    size_t nSamples = mParameters.n_init_samples;
+
     vecOfvec perms = mInputSet;
     
     // By using random permutations, we guarantee that 
@@ -80,50 +106,24 @@ namespace bayesopt
     utils::randomPerms(perms,mEngine);
     
     // vectord xPoint(mInputSet[0].size());
-    for(size_t i = 0; i < nSamples; i++)
+    for(size_t i = 0; i < yPoints.size(); i++)
       {
-	const vectord xPoint = perms[i];
-	const double yPoint = evaluateSample(xPoint);
-	if (i == 0)  setSample(xPoint,yPoint);
-	else addSample(xPoint,yPoint);
+	const vectord xP = perms[i];
+	row(xPoints,i) = xP;
+	yPoints(i) = evaluateSample(xP);
       }
-
-    mGP->fitSurrogateModel();
-
-    // For logging purpose
-    if(mParameters.verbose_level > 0)
-      {
-	FILE_LOG(logDEBUG) << "Initial points:" ;
-	double ymin = (std::numeric_limits<double>::max)();
-	for(size_t i = 0; i < nSamples; i++)
-	  {
-	    const double yPoint = mGP->getData()->getSampleY(i);
-	    const vectord xPoint = mGP->getData()->getSampleX(i);
-	    FILE_LOG(logDEBUG) << xPoint ;
-	  
-	    if (mParameters.verbose_level > 1)
-	      { 
-		if(yPoint<ymin) 
-		  ymin = yPoint;
-	      
-		FILE_LOG(logDEBUG) << ymin << "|" << yPoint ;
-	      }
-	  }  
-      }
-  } // sampleInitialPoints
+  }
   
 
   void DiscreteModel::findOptimal(vectord &xOpt)
   {
-    double current, min;
-  
     xOpt = *mInputSet.begin();
-    min = evaluateCriteria(xOpt);
-  
-    for(vecOfvecIterator it = mInputSet.begin();
+    double min = evaluateCriteria(xOpt);
+    
+    for(vecOfvec::iterator it = mInputSet.begin();
 	it != mInputSet.end(); ++it)
       {
-	current = evaluateCriteria(*it);
+	double current = evaluateCriteria(*it);
 	if (current < min)
 	  {
 	    xOpt = *it;  

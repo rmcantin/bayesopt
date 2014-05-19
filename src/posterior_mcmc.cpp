@@ -42,7 +42,7 @@ namespace bayesopt
     kSampler.reset(new MCMCSampler(&mGP[0],nhp,eng));
 
     kSampler->setNParticles(nParticles);
-    kSampler->setNBurnOut(300);
+    kSampler->setNBurnOut(100);
   }
 
   MCMCModel::~MCMCModel()

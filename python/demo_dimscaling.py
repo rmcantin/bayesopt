@@ -45,7 +45,7 @@ def func(x):
 params = {} #bayesopt.initialize_params()
 
 # We decided to change some of them
-params['n_init_samples'] = 150
+params['n_init_samples'] = 30
 params['n_iter_relearn'] = 20
 params['noise'] = 1e-10
 params['kernel_name'] = "kMaternISO5"

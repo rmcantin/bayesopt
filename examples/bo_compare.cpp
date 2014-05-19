@@ -27,8 +27,7 @@
 int main(int nargs, char *args[])
 {
   bopt_params par = initialize_parameters_to_default();
-  par.n_iterations = 190;
-  par.verbose_level = 1;
+  par.verbose_level = 0;
   par.noise = 1e-10;
   par.force_jump = 30;
 
@@ -39,7 +38,7 @@ int main(int nargs, char *args[])
   /* Branin */
   log.open("branin.log");
   par.n_init_samples = 5;
-  par.n_iterations = 190;
+  par.n_iterations = 195;
 
   for (size_t ii = 0; ii < 10; ++ii)
     {
@@ -72,7 +71,7 @@ int main(int nargs, char *args[])
   /* Camel */
   log.open("camel.log");
   par.n_init_samples = 5;
-  par.n_iterations = 90;
+  par.n_iterations = 95;
 
   for (size_t ii = 0; ii < 10; ++ii)
     {
@@ -150,11 +149,11 @@ int main(int nargs, char *args[])
 
   /* Branin */
   log.open("branin_mcmc.log");
+  par.n_iterations = 198;
 
   for (size_t ii = 0; ii < 10; ++ii)
     {
       par.random_seed = ii;
-      par.n_iterations = 190;
       BraninNormalized branin(par);
       vectord result(2);
 
@@ -182,11 +181,11 @@ int main(int nargs, char *args[])
 
   /* Camel */
   log.open("camel_mcmc.log");
+  par.n_iterations = 98;
 
   for (size_t ii = 0; ii < 10; ++ii)
     {
       par.random_seed = ii;
-      par.n_iterations = 90;
       ExampleCamelback camel(par);
       vectord result(2);
 
@@ -219,11 +218,11 @@ int main(int nargs, char *args[])
 
   /* Hart */
   log.open("hart_mcmc.log");
+  par.n_iterations = 198;
 
   for (size_t ii = 0; ii < 10; ++ii)
     {
       par.random_seed = ii;
-      par.n_iterations = 190;
       ExampleHartmann6 hart(par);
       vectord result(6);
 

@@ -60,7 +60,7 @@ namespace bayesopt {
     void updateSurrogateModel();
 
     double evaluateCriteria(const vectord& query);
-    void updateCriteria();
+    void updateCriteria(const vectord& query);
 
     bool criteriaRequiresComparison();
     void setFirstCriterium();
@@ -94,8 +94,8 @@ namespace bayesopt {
   inline double PosteriorFixed::evaluateCriteria(const vectord& query)
   { return (*mCrit)(query); };
 
-  inline void PosteriorFixed::updateCriteria()
-  { return mCrit->update(); };
+  inline void PosteriorFixed::updateCriteria(const vectord& query)
+  { return mCrit->update(query); };
 
   inline bool PosteriorFixed::criteriaRequiresComparison()
   {return mCrit->requireComparison(); };

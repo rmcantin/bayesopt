@@ -115,7 +115,7 @@ namespace bayesopt
 	mModel->updateSurrogateModel();
       } 
     plotStepData(mCurrentIter,xNext,yNext);
-    mModel->updateCriteria();
+    mModel->updateCriteria(xNext);
     mCurrentIter++;
   }
 

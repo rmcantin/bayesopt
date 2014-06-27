@@ -67,7 +67,7 @@ namespace bayesopt {
     void updateSurrogateModel();
 
     double evaluateCriteria(const vectord& query);
-    void updateCriteria();
+    void updateCriteria(const vectord& query);
 
     bool criteriaRequiresComparison();
     void setFirstCriterium();
@@ -116,11 +116,11 @@ namespace bayesopt {
     return sum/static_cast<double>(nParticles);
   };
 
-  inline void MCMCModel::updateCriteria()
+  inline void MCMCModel::updateCriteria(const vectord& query)
   { 
     for(CritVect::iterator it=mCrit.begin(); it != mCrit.end(); ++it)
       {
-	it->update(); 
+	it->update(query); 
       }
   };
 

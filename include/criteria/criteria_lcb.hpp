@@ -82,7 +82,7 @@ namespace bayesopt
       ProbabilityDistribution* d_ = mProc->prediction(x);
       return d_->lowerConfidenceBound(beta); 
     };
-    void update(){ ++nCalls; }
+    void update(const vectord &x) { ++nCalls; }
 
     std::string name() {return "cLCBa";};
   private:

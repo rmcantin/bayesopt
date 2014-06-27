@@ -52,6 +52,7 @@ params['kernel_name'] = "kMaternISO5"
 params['kernel_hp_mean'] = [1]
 params['kernel_hp_std'] = [5]
 params['surr_name'] = "sStudentTProcessNIG"
+#params['crit_name'] = "cMI"
 
 dim = 20
 lb = np.ones((dim,))*0

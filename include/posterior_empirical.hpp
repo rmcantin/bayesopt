@@ -61,7 +61,7 @@ namespace bayesopt {
     void updateSurrogateModel();
 
     double evaluateCriteria(const vectord& query);
-    void updateCriteria();
+    void updateCriteria(const vectord& query);
 
     bool criteriaRequiresComparison();
     void setFirstCriterium();
@@ -94,8 +94,8 @@ namespace bayesopt {
   inline double EmpiricalBayes::evaluateCriteria(const vectord& query)
   { return (*mCrit)(query); };
 
-  inline void EmpiricalBayes::updateCriteria()
-  { return mCrit->update(); };
+  inline void EmpiricalBayes::updateCriteria(const vectord& query)
+  { return mCrit->update(query); };
 
   inline bool EmpiricalBayes::criteriaRequiresComparison()
   {return mCrit->requireComparison(); };

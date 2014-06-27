@@ -116,7 +116,7 @@ namespace bayesopt
       const double min = mProc->getValueAtMinimum();
       return d_->negativeExpectedImprovement(min,mExp); 
     };
-    void update()
+    void update(const vectord &x) 
     {
       ++nCalls;
       if (nCalls % 10)

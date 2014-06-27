@@ -109,17 +109,19 @@ namespace bayesopt
     { mExp = static_cast<size_t>(params(0)); };
 
     size_t nParameters() {return 1;};
-    void reset() { nCalls = 0; mExp = 10;};
+    void reset() { nCalls = 1; mExp = 10;};
     double operator() (const vectord &x) 
     {
-      ++nCalls;
-      if (nCalls % 10)
-	mExp = static_cast<size_t>(ceil(mExp/2.0));
-
       ProbabilityDistribution* d_ = mProc->prediction(x);
       const double min = mProc->getValueAtMinimum();
       return d_->negativeExpectedImprovement(min,mExp); 
     };
+    void update()
+    {
+      ++nCalls;
+      if (nCalls % 10)
+	mExp = static_cast<size_t>(ceil(mExp/2.0));
+    }
     std::string name() {return "cEIa";};
   private:
     size_t mExp;

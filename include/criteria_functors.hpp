@@ -62,6 +62,7 @@ namespace bayesopt
     virtual void pushCriteria(Criteria* crit){};
     virtual bool requireComparison(){ return false; };
     virtual void initialCriteria(){};
+    virtual void update(){};
     virtual bool rotateCriteria(){return false;};
     virtual void pushResult(const vectord& prevResult){};
     virtual std::string getBestCriteria(vectord& best)

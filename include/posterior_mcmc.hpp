@@ -65,7 +65,9 @@ namespace bayesopt {
     void updateHyperParameters();
     void fitSurrogateModel();
     void updateSurrogateModel();
+
     double evaluateCriteria(const vectord& query);
+    void updateCriteria();
 
     bool criteriaRequiresComparison();
     void setFirstCriterium();
@@ -113,6 +115,15 @@ namespace bayesopt {
       }
     return sum/static_cast<double>(nParticles);
   };
+
+  inline void MCMCModel::updateCriteria()
+  { 
+    for(CritVect::iterator it=mCrit.begin(); it != mCrit.end(); ++it)
+      {
+	it->update(); 
+      }
+  };
+
 
   inline bool MCMCModel::criteriaRequiresComparison()
   {return mCrit[0].requireComparison(); };

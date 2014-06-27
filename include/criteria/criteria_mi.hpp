@@ -21,8 +21,8 @@
 ------------------------------------------------------------------------
 */
 
-#ifndef  _CRITERIA_LCB_HPP_
-#define  _CRITERIA_LCB_HPP_
+#ifndef  _CRITERIA_MI_HPP_
+#define  _CRITERIA_MI_HPP_
 
 #include "criteria_functors.hpp"
 
@@ -32,62 +32,37 @@ namespace bayesopt
   /**\addtogroup CriteriaFunctions  */
   //@{
 
-  /// Lower (upper) confidence bound criterion by [Cox and John, 1992].
-  class LowerConfidenceBound: public Criteria
+  /// Mutual Information bound criterion b [Contal et al., 2014].
+  class MutualInformation: public Criteria
   {
   public:
-    virtual ~LowerConfidenceBound(){};
+    virtual ~MutualInformation(){};
     void init(NonParametricProcess* proc)
     { 
       mProc = proc;
-      mBeta = 1.0;
+      mSqAlpha = sqrt(std::log(2/1e-6));  // See [Contal et al., 2014].
+      mGamma = 0.0;
     };
     void setParameters(const vectord &params)
-    { mBeta = params(0); };
+    { mSqAlpha = sqrt(params(0)); };
 
     size_t nParameters() {return 1;};
 
     double operator() (const vectord &x) 
     { 
-      return mProc->prediction(x)->lowerConfidenceBound(mBeta); 
+      ProbabilityDistribution* d = mProc->prediction(x);
+      double mu = d->getMean();
+      double sigma2 = d->getStd() * d->getStd();
+      return mu + mSqAlpha * (sqrt(sigma2+mGamma) - sqrt(mGamma));
     };
-    std::string name() {return "cLCB";};
-  private:
-    double mBeta;
-  };
-
-
-  /// Lower (upper) confidence bound using Srinivas annealing \cite Srinivas10
-  class AnnealedLowerConfindenceBound: public Criteria
-  {
-  public:
-    virtual ~AnnealedLowerConfindenceBound(){};
-    void init(NonParametricProcess* proc)
-    { 
-      mProc = proc;
-      reset();
-    };
-
-    void setParameters(const vectord &params)
-    { mCoef = params(0); };
-
-    size_t nParameters() {return 1;};
-    void reset() { nCalls = 1; mCoef = 5.0;};
-    double operator() (const vectord &x) 
+    void update()
     {
-      size_t nDims = x.size();
-    
-      double beta = sqrt(2*log(static_cast<double>(nCalls*nCalls))*(nDims+1) 
-			 + log(static_cast<double>(nDims))*nDims*mCoef);
-      ProbabilityDistribution* d_ = mProc->prediction(x);
-      return d_->lowerConfidenceBound(beta); 
-    };
-    void update(){ ++nCalls; }
-
-    std::string name() {return "cLCBa";};
+      mGamma += sigma2; 
+    }
+    std::string name() {return "cMI";};
   private:
-    double mCoef;
-    unsigned int nCalls;
+    double mSqAlpha;
+    double mGamma;
   };
 
   //@}

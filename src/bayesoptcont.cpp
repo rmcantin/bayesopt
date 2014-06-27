@@ -41,8 +41,7 @@ namespace bayesopt  {
     explicit CritCallback(ContinuousModel* model):mBO(model){};
     double evaluate(const vectord &query) 
     {
-      if (mBO->checkReachability(query))  return mBO->evaluateCriteria(query);
-      else return 0.0;
+      return mBO->evaluateCriteria(query);
     }
   private:
     ContinuousModel* mBO;
@@ -119,7 +118,9 @@ namespace bayesopt  {
     randFloat drawSample(mEngine,realUniformDist(0,1));
     vectord Xnext(mDims);    
     for(vectord::iterator x = Xnext.begin(); x != Xnext.end(); ++x)
-      {	*x = drawSample(); }
+      {	
+	*x = drawSample(); 
+      }
     return Xnext;
   };
 

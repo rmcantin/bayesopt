@@ -26,6 +26,7 @@
 #include "criteria/criteria_a_opt.hpp"
 #include "criteria/criteria_distance.hpp"
 #include "criteria/criteria_ei.hpp"
+#include "criteria/criteria_mi.hpp"
 #include "criteria/criteria_expected.hpp"
 #include "criteria/criteria_lcb.hpp"
 #include "criteria/criteria_poi.hpp"
@@ -47,6 +48,7 @@ namespace bayesopt
 
   CriteriaFactory::CriteriaFactory()
   {
+    registry["cMI"] = & create_func<MutualInformation>;
     registry["cEI"] = & create_func<ExpectedImprovement>;
     registry["cBEI"] = & create_func<BiasedExpectedImprovement>;
     registry["cEIa"] = & create_func<AnnealedExpectedImprovement>;

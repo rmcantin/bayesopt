@@ -21,10 +21,6 @@
 
 # This example was provided by Janto Dreijer <jantod@gmail.com>
 
-import sys
-#Assume default install.
-sys.path.append('/usr/local/lib')
-
 import math
 import numpy as np
 import bayesopt

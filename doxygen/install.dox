@@ -277,11 +277,16 @@ include the lib folder in the system PATH.
 
 <li> In some *nix systems, including Ubuntu, Debian and Mac OS, the
 library is installed by default in /usr/local/lib/. However, this
-folder is not included by default in the linker, Python or Matlab
-paths by default. This is specially critical when building shared
-libraries (mandatory for Python usage). The script \em
-exportlocalpaths.sh makes sure that the folder with the libraries is
-included in all the necessary paths.
+folder is not included by default in the linker or Matlab paths by
+default. This is specially critical when building shared
+libraries. The script \em exportlocalpaths.sh makes sure that the
+folder with the libraries is included in all the necessary
+paths. 
+
+<li> The Python package is compiled in a different file and installed
+in the proper folder by default (site-packages). Thus, the Python
+interface should work out of the box in Linux and Mac OS.
+
 </ul>
 
 <li> Python: the scrip \b demo_quad gives a quick overview of all the

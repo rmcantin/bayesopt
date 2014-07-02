@@ -490,7 +490,7 @@ explore more unexplored regions or improve the best current result.
   combination of them. It is used to select which points to evaluate
   for each iteration of the optimization process. Could be a
   combination of functions like
-  "cHedge(cEI,cLCB,cPOI,cThompsonSampling)". See section critmod for
+  "cHedge(cEI,cLCB,cPOI,cThompsonSampling)". See section \ref critmod for
   the different possibilities. [Default: "cEI"]
 
 - \b crit_params, \b n_crit_params: Array with the set of parameters

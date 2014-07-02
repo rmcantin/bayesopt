@@ -21,10 +21,6 @@
 
 # This example was provided by Janto Dreijer <jantod@gmail.com>
 
-import sys
-#Assume default install.
-sys.path.append('/usr/local/lib')
-
 import math
 import numpy as np
 import bayesopt
@@ -52,6 +48,7 @@ params['kernel_name'] = "kMaternISO5"
 params['kernel_hp_mean'] = [1]
 params['kernel_hp_std'] = [5]
 params['surr_name'] = "sStudentTProcessNIG"
+#params['crit_name'] = "cMI"
 
 dim = 20
 lb = np.ones((dim,))*0

@@ -306,12 +306,17 @@ distributions, and the system automatically selected the correct one.
 \li "cEI","cBEI","cEIa": The most extended and reliable algorithm is
 the Expected Improvement algorithm \cite Mockus78. In this case we
 provide the general version from \cite Schonlau98 which includes an
-exponent to trade off exploration and exploitation "cEI". Whe also includes
-a variation from \cite Mockus1989 which add a \a bias or \a threshold
-to the improvement "cBEI".
+exponent to trade off exploration and exploitation "cEI". For an
+annealed version of the exploration/exploitation trade off, use
+"cEIa". Whe also includes a variation from \cite Mockus1989 which add
+a \a bias or \a threshold to the improvement "cBEI".
 \li "cLCB", "cLCBa": Another popular algorithm is the Lower Confidence
-Bound (LCB), or UCB in case of maximization. Introduced by 
-\cite cox1992statistical as Sequential Design for Optimization (SDO).
+Bound (LCB), or UCB in case of maximization. Introduced by \cite
+cox1992statistical as Sequential Design for Optimization
+(SDO). Analogously, "cLCBa" represents an annealed version of the
+exploration/exploitation trade off.
+\li "cMI": A generalized version of the LCB criterion which relies on
+the mutual information. See \cite Contal2014
 \li "cPOI": Probability of improvement, by \cite Kushner:1964
 \li "cExpReturn","cThompsonSampling","cOptimisticSampling": This
 criteria are related with the predicted return of the function. The
@@ -319,7 +324,6 @@ first one is literally the expected return of the function (mean
 value). The second one is based on the Thompson sampling (drawing a
 random sample from the predicted distribution). Finally, the
 optimistic sampling takes the minimum of the other two (mean vs random).
-
 \li "cAopt": This is based on the A-optimality criteria. It is the
 predicted variance at the query point. Thus, this criteria is intended
 for \b exploration of the input space, not for optimization.

@@ -212,9 +212,14 @@ IF(BAYESOPT_PYTHON_INTERFACE)
     SET_TARGET_PROPERTIES(esopt PROPERTIES PREFIX "libbay" SUFFIX ".dll")
   ENDIF()
 
+  #Find where to install Python libs
+  execute_process ( COMMAND 
+         python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()" 
+         OUTPUT_VARIABLE PYTHON_SITE_PACKAGES OUTPUT_STRIP_TRAILING_WHITESPACE)
+
   INSTALL(
     TARGETS esopt
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION ${PYTHON_SITE_PACKAGES}
+    ARCHIVE DESTINATION ${PYTHON_SITE_PACKAGES}
   )
 ENDIF(BAYESOPT_PYTHON_INTERFACE)

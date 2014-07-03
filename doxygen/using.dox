@@ -473,10 +473,10 @@ library.
   - 0 -> Warning -> stdout
   - 1 -> Info -> stdout
   - 2 -> Debug -> stdout
-  - 3 -> Error -> log file
-  - 4 -> Warning -> log file
-  - 5 -> Info -> log file
-  - >5 -> Debug -> log file
+  - 3 -> Warning -> log file
+  - 4 -> Info -> log file
+  - 5 -> Debug -> log file
+  - >5 -> Error -> log file
 
 - \b log_filename: Name/path of the log file (if applicable,
   verbose_level>=3) [Default "bayesopt.log"]

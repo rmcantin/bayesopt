@@ -53,7 +53,7 @@ namespace bayesopt
 		   vectord& Xnext, int maxf, const std::vector<double>& vd, 
 		   const std::vector<double>& vu, void* objPointer)
   {
-    double fmin;
+    double fmin = 0.0;
     size_t n = Xnext.size(); 
     nlopt::opt opt (algo,n);
 
@@ -61,8 +61,13 @@ namespace bayesopt
     opt.set_lower_bounds(vd);
     opt.set_upper_bounds(vu);
     opt.set_min_objective(fpointer, objPointer);
-    opt.set_maxeval(maxf) ;
+    opt.set_maxeval(maxf);
     
+    // It seems BOBYQA can be unstable if the same point is repeated
+    // tested over and over. NLOPT bug?
+    opt.set_ftol_rel(1e-12);	
+    opt.set_ftol_abs(1e-12);
+
     std::copy(Xnext.begin(),Xnext.end(),xstd.begin());
       
     try 
@@ -74,7 +79,7 @@ namespace bayesopt
 	FILE_LOG(logDEBUG) << "NLOPT Warning: Potential roundoff error. " 
 			   << "In general, this can be ignored.";
       }
-    
+
     std::copy(xstd.begin(),xstd.end(),Xnext.begin());
     return fmin;
   }
@@ -212,11 +217,12 @@ namespace bayesopt
     if (maxf2)
       {
 	//If the point is exactly at the limit, we may have trouble.
-	for (size_t i = 0; i < n; ++i) 
+    	for (size_t i = 0; i < n; ++i) 
 	  {
 	    if (Xnext(i)-mDown[i] < 0.0001) Xnext(i) += 0.0001;
 	    if (mUp[i] - Xnext(i) < 0.0001) Xnext(i) -= 0.0001;
 	  }
+
 	fmin = run_nlopt(nlopt::LN_BOBYQA,fpointer,Xnext,maxf2,
 			 mDown,mUp,objPointer);
 	FILE_LOG(logDEBUG) << "2nd opt " << maxf2 << "-> " << Xnext 
@@ -236,7 +242,7 @@ namespace bayesopt
 
     void *objPointer = my_func_data;
     RBOptimizableWrapper* OPTIMIZER = static_cast<RBOptimizableWrapper*>(objPointer);
-    
+
     return OPTIMIZER->evaluate(vx);
   } /* evaluate_criteria_nlopt */
 

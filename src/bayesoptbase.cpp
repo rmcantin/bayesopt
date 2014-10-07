@@ -20,6 +20,7 @@
 ------------------------------------------------------------------------
 */
 
+#include <ctime>
 #include "bayesoptbase.hpp"
 
 #include "log.hpp"

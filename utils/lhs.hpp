@@ -127,15 +127,11 @@ namespace bayesopt
 			randEngine& mtRandom)
     {
       randFloat sample( mtRandom, realUniformDist(0,1) );
-      //      sample.engine().seed(std::time(0));
-      //      std::cout << &mtRandom;
-      //      mtRandom.seed(std::time(0));
-      //      sample.distribution().reset();
       size_t nA = Result.size1();
       size_t nB = Result.size2();
 
-      //      std::generate(Result.begin2(),Result.end2(),sample);
       // TODO: Improve with iterators
+      // std::generate(Result.begin2(),Result.end2(),sample);
       for (size_t i = 0; i < nA; i++)
       	for (size_t j = 0; j < nB; j++)
       	  Result(i,j) = sample();

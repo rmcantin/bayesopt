@@ -10,12 +10,16 @@ Modified: Ruben Martinez-Cantin (2013)
     - Fixed bugs
 ****************************************************************************/
 
+//FreeGLUT does not need this. But Nate's GLUT for Windows does.
+#if defined(_WIN32) || defined(_WIN64)
+#    include <windows.h>
+#endif
+
+//Using default GLUT in Mac OS
 #ifdef __APPLE__
-//#include <OpenGL/gl.h> //OS x libs
-//#include <OpenGL/glu.h>
-#include <GLUT/glut.h>
+#    include <GLUT/glut.h>
 #else
-#include <GL/glut.h>
+#    include <GL/glut.h>
 #endif
 
 #include <vector>
@@ -24,7 +28,7 @@ Modified: Ruben Martinez-Cantin (2013)
 #include <valarray>
 #include <iostream>
 #include <cmath>
-#include <time.h>
+#include <ctime>
 #include "gl2ps.h"
 
 #define PI 3.14159265358979323846264

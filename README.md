@@ -29,7 +29,8 @@ The library can be download from any of this sources:
 - Mirror: <http://mloss.org/software/view/453/>
 
 The install guide and documentation for Windows, Linux and MacOS:
-- [Online install guide](http://rmcantin.bitbucket.org/html/install.html) or [Local install guide](@ref install)
+- [Online install guide](http://rmcantin.bitbucket.org/html/install.html) 
+  or [Local install guide](@ref install)
 
 
 Getting involved
@@ -53,9 +54,9 @@ please consider these recomentations when using BayesOpt:
 publication, we would appreciate it if you would kindly cite BayesOpt
 in your manuscript. Cite BayesOpt as:
 
-> Ruben Martinez-Cantin, **BayesOpt: A Bayesian Optimization Library for Nonlinear
-> Optimization, Experimental Design and Bandits**,
-> <http://bitbucket.org/rmcantin/bayesopt>
+> Ruben Martinez-Cantin, **BayesOpt: A Bayesian Optimization
+> Library for Nonlinear Optimization, Experimental Design and
+> Bandits**. Journal of Machine Learning Research, 2014
 
 - In addition, if you use a specific algorithm (REMBO, GP-Hedge,
 etc.), please also cite the corresponding work. The reference for each

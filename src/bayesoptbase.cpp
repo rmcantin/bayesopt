@@ -20,6 +20,7 @@
 ------------------------------------------------------------------------
 */
 
+#include <ctime>
 #include "bayesoptbase.hpp"
 
 #include "log.hpp"
@@ -172,8 +173,6 @@ namespace bayesopt
 	  }
       }
 
-    //TODO: Try to solve this without bringing the pointer to the
-    //criteria. Right now it does not work with MCMC.
     vectord Xnext(mDims);    
 
     // GP-Hedge and related algorithms

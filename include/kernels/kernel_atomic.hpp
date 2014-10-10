@@ -50,7 +50,6 @@ namespace bayesopt
 	}
       params = theta; //TODO: To make enough space. Make it more efficient.
       std::transform(theta.begin(), theta.end(), params.begin(), (double (*)(double)) exp);
-      //      params = exp(theta);
     };
 
     vectord getHyperParameters() 
@@ -58,7 +57,6 @@ namespace bayesopt
       vectord theta(params.size());
       std::transform(params.begin(), params.end(), theta.begin(), (double (*)(double)) log);
       return theta;
-      //  return log(params);
     };
     size_t nHyperParameters() {return n_params;};
 

@@ -12,10 +12,10 @@ using namespace std;
 #include "matplotpp.h"
 
 #if defined(_WIN32) || defined(_WIN64)
-#define fmax max
-#define fmin min
-#pragma warning (disable:4996)
-#define snprintf sprintf_s
+#  define fmax max
+#  define fmin min
+#  pragma warning (disable:4996)
+#  define snprintf sprintf_s
 #endif
 
 /// Figure

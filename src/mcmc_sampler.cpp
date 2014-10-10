@@ -84,8 +84,6 @@ namespace bayesopt
 
 	const double y_max = -obj->evaluate(x);
 	const double y = y_max+std::log(sample());  
-	//y = y_max * sample(), but we are in negative log space
-	//std::cout << y_max << "|||" << y << std::endl;
 
 	if (y == 0.0) 
 	  {

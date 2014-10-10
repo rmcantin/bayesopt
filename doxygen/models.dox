@@ -311,8 +311,8 @@ annealed version of the exploration/exploitation trade off, use
 "cEIa". Whe also includes a variation from \cite Mockus1989 which add
 a \a bias or \a threshold to the improvement "cBEI".
 \li "cLCB", "cLCBa": Another popular algorithm is the Lower Confidence
-Bound (LCB), or UCB in case of maximization. Introduced by \cite
-cox1992statistical as Sequential Design for Optimization
+Bound (LCB), or UCB in case of maximization. Introduced by 
+\cite cox1992statistical as Sequential Design for Optimization
 (SDO). Analogously, "cLCBa" represents an annealed version of the
 exploration/exploitation trade off.
 \li "cMI": A generalized version of the LCB criterion which relies on

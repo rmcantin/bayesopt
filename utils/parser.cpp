@@ -42,7 +42,7 @@ namespace bayesopt
       int i = 0, j = 0;
       while (is >> c) 
 	{
-	  if (i < 0) throw std::runtime_error("Error parsin expression:" + input);
+	  if (i < 0) throw std::runtime_error("Error parsing expression:" + input);
 	  
 	  if (c == ' ') /* pass */;
 	  else if (c == '(') i++;
@@ -55,7 +55,7 @@ namespace bayesopt
 	      else os2 << c;
 	    }
 	}
-      if (i != 0) throw std::runtime_error("Error parsin expression:" + input);
+      if (i != 0) throw std::runtime_error("Error parsing expression:" + input);
 
       parent = os.str();
       child1 = os1.str();
@@ -78,7 +78,7 @@ namespace bayesopt
       childs.clear();
       while (is >> c) 
 	{
-	  if (i < 0) throw std::runtime_error("Error parsin expression:" + input);
+	  if (i < 0) throw std::runtime_error("Error parsing expression:" + input);
 
 	  if (c == ' ') /* pass */;
 	  else if (c == '(') 
@@ -101,7 +101,7 @@ namespace bayesopt
 	      else os1 << c;
 	    }
 	}
-      if (i != 0) throw std::runtime_error("Error parsin expression:" + input);
+      if (i != 0) throw std::runtime_error("Error parsing expression:" + input);
 
       parent = os.str();
     } 

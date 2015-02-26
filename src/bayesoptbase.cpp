@@ -29,8 +29,6 @@
 
 namespace bayesopt
 {
-
-
   BayesOptBase::BayesOptBase(size_t dim, bopt_params parameters):
     mParameters(parameters), mDims(dim)
   {
@@ -80,24 +78,24 @@ namespace bayesopt
     // If we are stuck in the same point for several iterations, try a random jump!
     if (mParameters.force_jump)
       {
-	if (std::pow(mYPrev - yNext,2) < mParameters.noise)
-	  {
-	    mCounterStuck++;
-	    FILE_LOG(logDEBUG) << "Stuck for "<< mCounterStuck << " steps";
-	  }
-	else
-	  {
-	    mCounterStuck = 0;
-	  }
-	mYPrev = yNext;
+        if (std::pow(mYPrev - yNext,2) < mParameters.noise)
+          {
+            mCounterStuck++;
+            FILE_LOG(logDEBUG) << "Stuck for "<< mCounterStuck << " steps";
+          }
+        else
+          {
+            mCounterStuck = 0;
+          }
+        mYPrev = yNext;
 
-	if (mCounterStuck > mParameters.force_jump)
-	  {
-	    FILE_LOG(logINFO) << "Forced random query!";
-	    xNext = samplePoint();
-	    yNext = evaluateSampleInternal(xNext);
-	    mCounterStuck = 0;
-	  }
+        if (mCounterStuck > mParameters.force_jump)
+          {
+            FILE_LOG(logINFO) << "Forced random query!";
+            xNext = samplePoint();
+            yNext = evaluateSampleInternal(xNext);
+            mCounterStuck = 0;
+          }
       }
 
     mModel->addSample(xNext,yNext);
@@ -108,16 +106,72 @@ namespace bayesopt
 
     if (retrain)  // Full update
       {
-	mModel->updateHyperParameters();
-	mModel->fitSurrogateModel();
+        mModel->updateHyperParameters();
+        mModel->fitSurrogateModel();
       }
     else          // Incremental update
       {
-	mModel->updateSurrogateModel();
+        mModel->updateSurrogateModel();
       } 
     plotStepData(mCurrentIter,xNext,yNext);
     mModel->updateCriteria(xNext);
     mCurrentIter++;
+    
+    // Save state
+    if(mParameters.load_save_flag == 2 || mParameters.load_save_flag == 3){
+        //bopt_state state;
+        saveOptimization(/* state */);
+        //saveState(mParameters.save_filename, state); // function that will save the state
+    }
+  }
+  
+  // TODO (Javier): saveOptimization is a dummy function subject to change, being developed for Restore functionality.
+  void BayesOptBase::saveOptimization( /* bopt_state &state (struct not defined yet) */ ){
+    /*
+     * Details to be considered:
+     *  - Have access to all necessary data: 
+     *      BayesOptBase members, PosteriorModel samples...
+     *  - Define behaviour when save fails (probably print/log a warning but continue) 
+     *
+     * (... still gathering info about data needed to be saved into state.)
+     */
+     
+     //state.mCurrentIter = mCurrentIter;
+     // ... etc
+  }
+
+  // TODO (Javier): restoreOptimization is a dummy function subject to change, being developed for Restore functionality.
+  void BayesOptBase::restoreOptimization(/* bopt_state state (struct not defined yet) */){
+    /*
+     * Details to consider:
+     *  - If a random seed was auto-generated in the previous opt, should it be required to mantain the same seed?
+     *      if yes, then state should have the seed value and be applied instead of the bopt_params mParameters seed value.
+     *  - Should this be in constructor? because it reinitializes things initialized in the public constructor
+     *      but it also acts as initializeOptimization(), so currently decided to leave it in outside constructor.
+     */
+     
+    // Posterior surrogate model
+    //mModel.reset(PosteriorModel::create(dim, state.parameters, mEngine));
+    
+    // Put state samples into model
+    //mModel->setSamples(state.xSamples, state.ySamples);
+    
+    if(mParameters.verbose_level > 0)
+      {
+        mModel->plotDataset(logDEBUG);
+      }
+      
+    //TODO (Javier): this could be not so easy, (... still gathering info about data needed to be placed.) 
+    //mParameters = state.parameters;  
+    
+    //TODO (Javier): check if only with the samples, the posterior model can be recreated/recalculated.
+    mModel->updateHyperParameters();
+    mModel->fitSurrogateModel();
+    
+    //mCurrentIter = state.mCurrentIter;
+
+	//mCounterStuck = state.mCounterStuck;
+	//mYPrev = state.mYPrev;
   }
 
   void BayesOptBase::initializeOptimization()
@@ -146,12 +200,22 @@ namespace bayesopt
 
   void BayesOptBase::optimize(vectord &bestPoint)
   {
-    initializeOptimization();
+    // Restore state from file
+    if(mParameters.load_save_flag == 1 || mParameters.load_save_flag == 3){
+        //bopt_state state;
+        //loadState(mParameters.load_filename, state); // function that will load and parse the state
+        restoreOptimization(/* state */);
+    }
+    // Initialize a new state
+    else{
+        initializeOptimization();
+    }
+    
     assert(mDims == bestPoint.size());
     
-    for (size_t ii = 0; ii < mParameters.n_iterations; ++ii)
+    for (size_t ii = mCurrentIter; ii < mParameters.n_iterations; ++ii)
       {      
-	stepOptimization();
+        stepOptimization();
       }
    
     bestPoint = getFinalResult();

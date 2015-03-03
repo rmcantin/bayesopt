@@ -26,7 +26,6 @@
 #include "log.hpp"
 #include "posteriormodel.hpp"
 
-
 namespace bayesopt
 {
   BayesOptBase::BayesOptBase(size_t dim, bopt_params parameters):
@@ -119,14 +118,14 @@ namespace bayesopt
     
     // Save state
     if(mParameters.load_save_flag == 2 || mParameters.load_save_flag == 3){
-        //bopt_state state;
-        saveOptimization(/* state */);
+        BOptState state;
+        saveOptimization(state);
         //saveState(mParameters.save_filename, state); // function that will save the state
     }
   }
   
   // TODO (Javier): saveOptimization is a dummy function subject to change, being developed for Restore functionality.
-  void BayesOptBase::saveOptimization( /* bopt_state &state (struct not defined yet) */ ){
+  void BayesOptBase::saveOptimization(BOptState &state){
     /*
      * Details to be considered:
      *  - Have access to all necessary data: 
@@ -136,12 +135,20 @@ namespace bayesopt
      * (... still gathering info about data needed to be saved into state.)
      */
      
-     //state.mCurrentIter = mCurrentIter;
-     // ... etc
+     // BayesOptBase members
+     state.mParameters = mParameters;
+     
+     state.mCurrentIter = mCurrentIter;
+     state.mCounterStuck = mCounterStuck;
+     state.mYPrev = mYPrev;
+     
+     // Samples
+     state.mX = mModel->getData()->mX;
+     state.mY = mModel->getData()->mY;
   }
 
   // TODO (Javier): restoreOptimization is a dummy function subject to change, being developed for Restore functionality.
-  void BayesOptBase::restoreOptimization(/* bopt_state state (struct not defined yet) */){
+  void BayesOptBase::restoreOptimization(BOptState state){
     /*
      * Details to consider:
      *  - If a random seed was auto-generated in the previous opt, should it be required to mantain the same seed?
@@ -151,10 +158,12 @@ namespace bayesopt
      */
      
     // Posterior surrogate model
-    //mModel.reset(PosteriorModel::create(dim, state.parameters, mEngine));
+    mModel.reset(PosteriorModel::create(mDims, state.mParameters, mEngine));
     
     // Put state samples into model
-    //mModel->setSamples(state.xSamples, state.ySamples);
+    for(size_t i = 0; i < state.mY.size(); i++){
+        mModel->addSample(state.mX[i], state.mY[i]);
+    }
     
     if(mParameters.verbose_level > 0)
       {
@@ -162,16 +171,15 @@ namespace bayesopt
       }
       
     //TODO (Javier): this could be not so easy, (... still gathering info about data needed to be placed.) 
-    //mParameters = state.parameters;  
+    mParameters = state.mParameters;  
     
     //TODO (Javier): check if only with the samples, the posterior model can be recreated/recalculated.
     mModel->updateHyperParameters();
     mModel->fitSurrogateModel();
     
-    //mCurrentIter = state.mCurrentIter;
-
-	//mCounterStuck = state.mCounterStuck;
-	//mYPrev = state.mYPrev;
+    mCurrentIter = state.mCurrentIter;
+    mCounterStuck = state.mCounterStuck;
+    mYPrev = state.mYPrev;
   }
 
   void BayesOptBase::initializeOptimization()
@@ -185,9 +193,9 @@ namespace bayesopt
     mModel->setSamples(xPoints,yPoints);
  
     if(mParameters.verbose_level > 0)
-      {
-	mModel->plotDataset(logDEBUG);
-      }
+    {
+        mModel->plotDataset(logDEBUG);
+    }
     
     mModel->updateHyperParameters();
     mModel->fitSurrogateModel();
@@ -202,9 +210,9 @@ namespace bayesopt
   {
     // Restore state from file
     if(mParameters.load_save_flag == 1 || mParameters.load_save_flag == 3){
-        //bopt_state state;
+        BOptState state;
         //loadState(mParameters.load_filename, state); // function that will load and parse the state
-        restoreOptimization(/* state */);
+        restoreOptimization(state);
     }
     // Initialize a new state
     else{
@@ -284,6 +292,9 @@ namespace bayesopt
 
   bopt_params* BayesOptBase::getParameters() 
   {return &mParameters;};
+  
+  size_t BayesOptBase::getCurrentIter()
+  {return mCurrentIter;};
 
 
 } //namespace bayesopt

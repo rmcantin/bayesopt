@@ -161,7 +161,8 @@ namespace bayesopt
     mModel.reset(PosteriorModel::create(mDims, state.mParameters, mEngine));
     
     // Put state samples into model
-    for(size_t i = 0; i < state.mY.size(); i++){
+    mModel->setSample(state.mX[0], state.mY[0]);
+    for(size_t i = 1; i < state.mY.size(); i++){
         mModel->addSample(state.mX[i], state.mY[i]);
     }
     

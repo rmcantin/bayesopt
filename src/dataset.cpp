@@ -39,6 +39,7 @@ namespace bayesopt
 
   void Dataset::setSamples(const matrixd &x, const vectord &y)
   {
+    // WARNING: It assumes mX is empty
     mY = y;
     for (size_t i=0; i<x.size1(); ++i)
       {

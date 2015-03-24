@@ -113,6 +113,7 @@ SET( BAYESOPT_SRCS
   )
 
 SET(UTILS_SRC
+  ./utils/fileparser.cpp
   ./utils/parser.cpp
   ./utils/ublas_extra.cpp
   ${SOBOL_SRC}

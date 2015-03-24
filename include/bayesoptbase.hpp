@@ -128,11 +128,9 @@ namespace bayesopt {
     /** Initialize the optimization process.  */
     void initializeOptimization();
     
-    // TODO (Javier): saveOptimization is a dummy function subject to change, being developed for Restore functionality.
-    /** Saves the current state of the optimization process into a struct. */
+    /** Saves the current state of the optimization process into a state class. */
     void saveOptimization(BOptState &state);
     
-    // TODO (Javier): restoreOptimization is a dummy function subject to change, being developed for Restore functionality.
     /** Restores the optimization process of a previous execution */
     void restoreOptimization(BOptState state);
     

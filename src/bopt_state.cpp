@@ -21,15 +21,32 @@
 */
 
 #include "bopt_state.hpp"
+#include "fileparser.hpp"
 
-#include <ctime>
+#include <fstream>
 #include <iostream>
 
-
 namespace bayesopt
-{
-    BOptState::BOptState(){
-        std::cout << "State created" << std::endl;
+{       
+    void BOptState::saveToFile(std::string filename){
+        loadOrSave(filename, false);
     }
+    
+    void BOptState::loadFromFile(std::string filename){
+        loadOrSave(filename, true);
+        
+        std::cout << "mCurrentIter=" << mCurrentIter << std::endl;
+        std::cout << "mCounterStuck=" << mCounterStuck << std::endl;
+        std::cout << "mYPrev=" << std::setprecision(10) << mYPrev << std::endl;
+        std::cout << "mParameters.kernel.n_hp=" << mParameters.kernel.n_hp << std::endl;
+    }
+    
+    void BOptState::loadOrSave(std::string filename, bool readMode){
+        utils::FileParser fp(filename, readMode);        
+        fp.readOrWrite("mCurrentIter", mCurrentIter, readMode);
+        fp.readOrWrite("mCounterStuck", mCounterStuck, readMode);
+        fp.readOrWrite("mYPrev", mYPrev, readMode);
+        fp.readOrWrite("mParameters.kernel.n_hp", mParameters.kernel.n_hp, readMode);
+    } 
 } //namespace bayesopt
 

@@ -124,16 +124,7 @@ namespace bayesopt
     }
   }
   
-  // TODO (Javier): saveOptimization is a dummy function subject to change, being developed for Restore functionality.
   void BayesOptBase::saveOptimization(BOptState &state){
-    /*
-     * Details to be considered:
-     *  - Have access to all necessary data: 
-     *      BayesOptBase members, PosteriorModel samples...
-     *  - Define behaviour when save fails (probably print/log a warning but continue) 
-     *
-     * (... still gathering info about data needed to be saved into state.)
-     */
      
      // BayesOptBase members
      state.mParameters = mParameters;
@@ -147,7 +138,6 @@ namespace bayesopt
      state.mY = mModel->getData()->mY;
   }
 
-  // TODO (Javier): restoreOptimization is a dummy function subject to change, being developed for Restore functionality.
   void BayesOptBase::restoreOptimization(BOptState state){
     /*
      * Details to consider:
@@ -167,14 +157,17 @@ namespace bayesopt
     }
     
     if(mParameters.verbose_level > 0)
-      {
+    {
         mModel->plotDataset(logDEBUG);
-      }
+    }
       
-    //TODO (Javier): this could be not so easy, (... still gathering info about data needed to be placed.) 
+    // Allow to change the number of iterations
+    state.mParameters.n_iterations = mParameters.n_iterations;
+      
+    // Restore last execution parameters
     mParameters = state.mParameters;  
     
-    //TODO (Javier): check if only with the samples, the posterior model can be recreated/recalculated.
+    // Calculate the posterior model
     mModel->updateHyperParameters();
     mModel->fitSurrogateModel();
     

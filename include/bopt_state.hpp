@@ -28,7 +28,6 @@
 
 #include "parameters.h"
 #include "specialtypes.hpp"
-//#include "posteriormodel.hpp"
 
 
 /**
@@ -42,17 +41,24 @@ namespace bayesopt {
    * 
    */
     class BOptState{
-    public:
-        BOptState();
+    public:        
+        /** Creates or overwrites the provided file with the state */
+        void saveToFile(std::string filename);
+        
+        /** Loads the state from the provided file */
+        void loadFromFile(std::string filename);
         
         // BayesOptBase members
-        bopt_params mParameters;
         size_t mCurrentIter;
         size_t mCounterStuck;
         double mYPrev;
+        bopt_params mParameters;
         
+        // Optimization samples
         vecOfvec mX;
         vectord mY;
+    private:
+        void loadOrSave(std::string filename, bool read);
     };
 } //namespace bayesopt
 

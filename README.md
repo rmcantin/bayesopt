@@ -29,9 +29,11 @@ The library can be download from any of this sources:
 - Mirror: <http://mloss.org/software/view/453/>
 
 You can also get the /cutting-edge/ version from the repositories:
+
     >> hg clone https://bitbucket.org/rmcantin/bayesopt
 
 or the git mirror:
+
     >> git clone https://github.com/rmcantin/bayesopt
 
 

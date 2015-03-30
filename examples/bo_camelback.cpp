@@ -20,9 +20,9 @@
 ------------------------------------------------------------------------
 */
 
+#include "testfunctions.hpp"
 #include <ctime>
 #include <fstream>
-#include "testfunctions.hpp"
 
 int main(int nargs, char *args[])
 {

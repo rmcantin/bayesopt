@@ -56,7 +56,7 @@ if(OPENGL_FOUND AND GLUT_FOUND)
     ../matplotpp/gl2ps.c
     )
 
-  if(${GLUT_LIBRARY} MATCHES freeglut_static.lib)
+  if(GLUT_LIBRARY MATCHES freeglut_static.lib)
       add_definitions(-DFREEGLUT_STATIC)
   endif()
 

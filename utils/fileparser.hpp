@@ -26,12 +26,17 @@
 
 #include <vector>
 
+#include <string.h>
+
 #include <fstream>
 #include <iostream>
-
 #include <sstream>
-
 #include <iomanip>
+
+#include <boost/numeric/ublas/vector.hpp>
+#include <boost/numeric/ublas/io.hpp> 
+
+#include "parser.hpp"
 
 namespace bayesopt 
 {  
@@ -44,11 +49,14 @@ namespace bayesopt
         ~FileParser();
         
         /* Write stream and read stream open/close functions*/
+        void open(bool readMode);
         void openOutput();
         void openInput();
         void close();
+        bool isReading();
+        bool isWriting();
         
-        /* Data write/read function*/
+        /* Data write/read function */
         void write(std::string name, std::string value);
         void read(std::string name, std::string &value);
         std::string read(std::string name);
@@ -63,20 +71,58 @@ namespace bayesopt
             write(name, str);
         }
         template <typename T> void read(std::string name, T &value){
-            value = to_number<T>(FileParser::read(name));
+            value = to_value<T>(FileParser::read(name));
         }
-        template <typename T> void readOrWrite(std::string name, T&value, bool readMode){
-            if(readMode){
+        
+        /* Reads or writes a variable based on the open stream */
+        template <typename T> void readOrWrite(std::string name, T&value){
+            if(isReading()){
                 read(name, value);
             }
-            else{
+            else if(isWriting()){
                 T v = value;
                 write(name,v);
             }
         }
         
+        /* 
+         * Non-templated functions (types that requires special treatment) 
+         */
+        void write_chars(std::string name, char* value);
+        void read_chars(std::string name, char* value);
+        void readOrWrite(std::string name, char* value);
+        
+        void write_ublas(std::string name, boost::numeric::ublas::vector<double> &values);
+        void read_ublas(std::string name, boost::numeric::ublas::vector<double> &values);
+        void readOrWrite(std::string name, boost::numeric::ublas::vector<double> &values);
+        
+        void write_vecOfvec(std::string name, std::vector<boost::numeric::ublas::vector<double> > &values);
+        void read_vecOfvec(std::string name, std::vector<boost::numeric::ublas::vector<double> > &values);
+        void readOrWrite(std::string name, std::vector<boost::numeric::ublas::vector<double> > &values);
+        
+        void write_double_array(std::string name, double values[], size_t length);
+        void read_double_array(std::string name, double values[], size_t length);
+        void readOrWrite(std::string name, double values[], size_t length);
+        
+        /* Template definitions and implementation */
+        // TODO (Javier): std to_string, stoi, etc... not working on MinGW and does not provide precision, workaround:
+        template <typename T>
+        static std::string to_string(T value, int prec = 10)
+        {
+            std::ostringstream os;
+            os << std::setprecision(prec) << value ;
+            return os.str();
+        }
+        
+        template <typename T>
+        static T to_value(std::string str, int prec = 10)
+        {
+            std::istringstream ss(str);
+            T result;
+            return ss >> std::setprecision(prec) >> result ? result : 0;
+        }
     private:
-        /* Search variable in file */
+        /* Search variables in file */
         bool movePointer(std::string name, std::string &content);
         bool startsWith(std::string all, std::string sub);
         
@@ -90,23 +136,7 @@ namespace bayesopt
         
         std::string currentLine;
         
-        /* Template definitions and implementation */
-        // TODO (Javier): std to_string, stoi, etc... not working on MinGW and does not provide precision, workaround:
-        template <typename T>
-        std::string to_string(T value, int prec = 10)
-        {
-          std::ostringstream os ;
-          os << std::setprecision(prec) << value ;
-          return os.str() ;
-        }
-        
-        template <typename T>
-        T to_number(std::string str, int prec = 10)
-        {
-            std::istringstream ss(str);
-            T result;
-            return ss >> std::setprecision(prec) >> result ? result : 0;
-        }
+
     };
   } //namespace utils
 } //namespace bayesopt

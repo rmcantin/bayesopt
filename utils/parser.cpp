@@ -21,6 +21,7 @@
 */
 #include <stdexcept>
 #include <sstream>
+#include <iostream>
 #include "parser.hpp"
 
 namespace bayesopt 
@@ -106,6 +107,16 @@ namespace bayesopt
       parent = os.str();
     } 
     
+    /**
+     * Splits the input string with a delimiter to extract elements
+     */
+    void split(std::string &input, char delim, std::vector<std::string> &elems){
+        std::stringstream ss(input);
+        std::string item;
+        while (std::getline(ss, item, delim)){
+            elems.push_back(item);
+        }
+    }
   } //namespace utils
 
 } //namespace bayesopt

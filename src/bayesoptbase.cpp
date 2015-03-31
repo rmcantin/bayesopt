@@ -120,18 +120,18 @@ namespace bayesopt
     if(mParameters.load_save_flag == 2 || mParameters.load_save_flag == 3){
         BOptState state;
         saveOptimization(state);
-        //saveState(mParameters.save_filename, state); // function that will save the state
+        state.saveToFile(std::string(mParameters.save_filename));
     }
   }
   
   void BayesOptBase::saveOptimization(BOptState &state){
      
      // BayesOptBase members
-     state.mParameters = mParameters;
-     
      state.mCurrentIter = mCurrentIter;
      state.mCounterStuck = mCounterStuck;
      state.mYPrev = mYPrev;
+     
+     state.mParameters = mParameters;
      
      // Samples
      state.mX = mModel->getData()->mX;
@@ -205,7 +205,7 @@ namespace bayesopt
     // Restore state from file
     if(mParameters.load_save_flag == 1 || mParameters.load_save_flag == 3){
         BOptState state;
-        //loadState(mParameters.load_filename, state); // function that will load and parse the state
+        state.loadFromFile(std::string(mParameters.load_filename));
         restoreOptimization(state);
     }
     // Initialize a new state

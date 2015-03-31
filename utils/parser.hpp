@@ -44,7 +44,11 @@ namespace bayesopt
     void parseExpresion(std::string input, std::string& parent,
 		       std::vector<std::string>& childs);
 
-  
+    /**
+     * Splits the input string with a delimiter to extract elements
+     */
+    void split(std::string &input, char delim, std::vector<std::string> &elems);
+    
   } //namespace utils
 
 } //namespace bayesopt

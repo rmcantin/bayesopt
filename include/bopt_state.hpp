@@ -28,6 +28,7 @@
 
 #include "parameters.h"
 #include "specialtypes.hpp"
+#include "fileparser.hpp"
 
 
 /**
@@ -42,6 +43,9 @@ namespace bayesopt {
    */
     class BOptState{
     public:        
+        /** Constructor, parameters set into default */
+        BOptState();
+        
         /** Creates or overwrites the provided file with the state */
         void saveToFile(std::string filename);
         
@@ -58,7 +62,7 @@ namespace bayesopt {
         vecOfvec mX;
         vectord mY;
     private:
-        void loadOrSave(std::string filename, bool read);
+        void loadOrSave(utils::FileParser &fp);
     };
 } //namespace bayesopt
 

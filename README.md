@@ -28,15 +28,14 @@ The library can be download from any of this sources:
 - Mirror: <https://github.com/rmcantin/bayesopt>
 - Mirror: <http://mloss.org/software/view/453/>
 
-You can also get the /cutting-edge/ version from the repositories:
-\verbatim
->> hg clone https://bitbucket.org/rmcantin/bayesopt
-\endverbatim
+You can also get the *cutting-edge* version from the repositories:
+
+    >> hg clone https://bitbucket.org/rmcantin/bayesopt
 
 or the git mirror:
-\verbatim
->> git clone https://github.com/rmcantin/bayesopt
-\endverbatim
+
+    >> git clone https://github.com/rmcantin/bayesopt
+
 
 
 The install guide and documentation for Windows, Linux and MacOS:

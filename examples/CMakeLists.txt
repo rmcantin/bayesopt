@@ -42,21 +42,6 @@ ADD_EXECUTABLE(bo_compare ./bo_compare.cpp )
 add_dependencies(bo_compare bayesopt)
 TARGET_LINK_LIBRARIES(bo_compare bayesopt)
 
-#Test Restore
-ADD_EXECUTABLE(test_restore ./test_restore.cpp )
-add_dependencies(test_restore bayesopt)
-TARGET_LINK_LIBRARIES(test_restore bayesopt)
-
-#Test Save
-ADD_EXECUTABLE(test_save ./test_save.cpp )
-add_dependencies(test_save bayesopt)
-TARGET_LINK_LIBRARIES(test_save bayesopt)
-
-#Test Save and Restore
-ADD_EXECUTABLE(test_save_and_restore ./test_save_and_restore.cpp )
-add_dependencies(test_save_and_restore bayesopt)
-TARGET_LINK_LIBRARIES(test_save_and_restore bayesopt)
-
 enable_language(C)  #For OpenGL and bo_display demo
 
 #Display test

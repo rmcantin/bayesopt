@@ -14,3 +14,18 @@ ADD_EXECUTABLE(mcmctest ../src/mcmc_sampler.cpp ./testmcmc.cpp)
 
 #Test for Cholesky decomposition
 ADD_EXECUTABLE(choltest ./testchol.cpp)
+
+#Test Restore
+ADD_EXECUTABLE(test_restore ./test_restore.cpp )
+add_dependencies(test_restore bayesopt)
+TARGET_LINK_LIBRARIES(test_restore bayesopt)
+
+#Test Save
+ADD_EXECUTABLE(test_save ./test_save.cpp )
+add_dependencies(test_save bayesopt)
+TARGET_LINK_LIBRARIES(test_save bayesopt)
+
+#Test File Parser
+ADD_EXECUTABLE(test_fileparser ./test_fileparser.cpp)
+add_dependencies(test_fileparser bayesopt)
+TARGET_LINK_LIBRARIES(test_fileparser bayesopt)

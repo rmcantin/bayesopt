@@ -1,10 +1,14 @@
 #include "testfunctions.hpp"
 #include "bopt_state.hpp"
 
+/*
+ * Preconditions: test_save.exe test was called before this one
+ *  and generated state.dat file is accesible
+ */
 int main()
 {
-    std::cout << "RESTORING OPTIMIZATION" << std::endl;
-    std::cout << "======================" << std::endl;    
+    std::cout << "*NOTE: Remember to execute \"test_save.exe\" before this one" << std::endl;
+    std::cout << "Restoring Optimization..." << std::endl;
     
     // Second optimization (restored from first optimization state)
     bopt_params par2 = initialize_parameters_to_default();
@@ -15,7 +19,7 @@ int main()
 
     BraninNormalized branin2(par2);
 
-    // Restore operation and optimization
+    // Restore operation and run optimization
     bayesopt::BOptState state2;
     state2.loadFromFile("state.dat");
     branin2.restoreOptimization(state2);
@@ -26,4 +30,14 @@ int main()
     vectord result = branin2.getFinalResult();
     std::cout << "Branin2 Result: " << result << "->" 
         << branin2.evaluateSample(result) << std::endl;
+        
+    // Try to remove used .dat file
+    if( remove( "state.dat" ) == 0 ){
+        std::cout << "File \"state.dat\" successfully file" << std::endl;
+    }
+    else{
+        std::cout << "Error: cannot remove \"state.dat\" file" << std::endl; 
+    }
+    
+    return 0;
 }

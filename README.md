@@ -28,6 +28,16 @@ The library can be download from any of this sources:
 - Mirror: <https://github.com/rmcantin/bayesopt>
 - Mirror: <http://mloss.org/software/view/453/>
 
+You can also get the *cutting-edge* version from the repositories:
+
+    >> hg clone https://bitbucket.org/rmcantin/bayesopt
+
+or the git mirror:
+
+    >> git clone https://github.com/rmcantin/bayesopt
+
+
+
 The install guide and documentation for Windows, Linux and MacOS:
 - [Online install guide](http://rmcantin.bitbucket.org/html/install.html) 
   or [Local install guide](@ref install)
@@ -44,37 +54,40 @@ you may directly contact Ruben Martinez-Cantin <rmcantin@unizar.es>.
 Please file bug reports or suggestions at:
 https://bitbucket.org/rmcantin/bayesopt/issues
 
+
 Using BayesOpt for academic or commercial purposes
 --------------------------------------------------
 
 BayesOpt is licensed under the GPL and it is free to use. However,
 please consider these recomentations when using BayesOpt:
 
-- If you use BayesOpt in a work that leads to a scientific
-publication, we would appreciate it if you would kindly cite BayesOpt
+- If you use BayesOpt in a work that leads to a **scientific
+publication**, we would appreciate it if you would kindly cite BayesOpt
 in your manuscript. Cite BayesOpt as:
 
 > Ruben Martinez-Cantin, **BayesOpt: A Bayesian Optimization
 > Library for Nonlinear Optimization, Experimental Design and
-> Bandits**. Journal of Machine Learning Research, 2014
+> Bandits**. Journal of Machine Learning Research, 15(Nov):3735--3739, 2014.
 
-- In addition, if you use a specific algorithm (REMBO, GP-Hedge,
+The paper can be found at http://jmlr.org/papers/v15/martinezcantin14a.html
+
+- In addition, if you **use a specific algorithm** (REMBO, GP-Hedge,
 etc.), please also cite the corresponding work. The reference for each
 specific algorithm can be found in the documentation.
 
-- If you are using the library for research or academic purposes or to
+- If you are using the library for **research or academic purposes** or to
 build free software, please send an email to <rmcantin@unizar.es> with
 a brief description or link to your interest for this code (one or two
 lines). There will be a section with links to research/papers/software
 that use BayesOpt.
 
-- Commercial applications may also adquire a commercial license. Please
+- Commercial applications may also adquire a **commercial license**. Please
 contact <rmcantin@unizar.es> for details.
 
 
 ----------------------------------------------------------------------
 
-Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
+Copyright (C) 2011-2015 Ruben Martinez-Cantin <rmcantin@unizar.es>
 
 BayesOpt is free software: you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the

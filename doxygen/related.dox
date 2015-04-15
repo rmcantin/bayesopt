@@ -2,6 +2,13 @@
 
 \section relbopt Bayesian optimization with Gaussian process
 
+\li Limbo (C++11): A lightweight framework for Bayesian and
+model-based optimisation of black-box functions
+(C++11). https://github.com/jbmouret/limbo
+
+\li pybo (Python): A Python package for modular Bayesian
+optimization. https://github.com/mwhoffman/pybo
+
 \li Spearmint (Python): A library based on \cite Snoek2012. It is more
 oriented to cluster computing. It provides time based
 criteria. Implemented in Python with interface also to Matlab

@@ -20,11 +20,20 @@
 ------------------------------------------------------------------------
 */
 
+#ifndef __TEST_FUNCTIONS_HPP__
+#define __TEST_FUNCTIONS_HPP__
+
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <algorithm>
 #include <boost/numeric/ublas/assignment.hpp>
 #include "bayesopt.hpp"
+
+#ifndef M_PI
+/* It shouldn't be necessary, but Windows is completely nuts about
+   math constants and I HATE when include order matters. */
+    #define M_PI       3.14159265358979323846
+#endif
 
 class ExampleOneD: public bayesopt::ContinuousModel
 {
@@ -201,3 +210,4 @@ private:
 };
 
 
+#endif

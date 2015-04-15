@@ -75,6 +75,14 @@ namespace bayesopt
         }
     }
     
+    /* Checks if a file exists */
+    bool FileParser::fileExists(){
+        std::ifstream ifile(filename.c_str());
+        bool result = ifile;
+        ifile.close();
+        return result;
+    }
+    
     /* Data write/read function */
     void FileParser::write(std::string name, std::string value){
         output << name << "=" << value << std::endl;

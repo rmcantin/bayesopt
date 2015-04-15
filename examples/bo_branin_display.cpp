@@ -22,7 +22,7 @@
 
 #include "testfunctions.hpp"
 #include "displaygp.hpp"
-
+#include "param_loader.hpp"
 
 // Unfortunately OpenGL functions require no parameters, so the object
 // has to be global.
@@ -52,16 +52,26 @@ void keyboard(unsigned char key, int x, int y)
 
 int main(int nargs, char *args[])
 {
-  bopt_params par = initialize_parameters_to_default();
-  par.n_iterations = 100;
-  par.n_init_samples = 2;
-  par.n_iter_relearn = 1;
-  par.random_seed = 10;
-  //set_surrogate(&par,"sStudentTProcessNIG");
-  
-  par.l_type = L_MCMC;
-  par.sc_type = SC_MAP;
-  par.verbose_level = 1;
+  bopt_params par;
+  if(nargs > 1){
+    if(!bayesopt::utils::ParamLoader::load(args[1], par)){
+        std::cout << "ERROR: provided file \"" << args[1] << "\" does not exist" << std::endl;
+        return -1;
+    }
+  }
+  else{
+    par = initialize_parameters_to_default();
+    par.n_iterations = 100;
+    par.n_init_samples = 2;
+    par.n_iter_relearn = 1;
+    par.random_seed = 10;
+    //set_surrogate(&par,"sStudentTProcessNIG");
+
+    par.l_type = L_MCMC;
+    par.sc_type = SC_MAP;
+    par.verbose_level = 1;
+  }
+  //bayesopt::utils::ParamLoader::save("bo_branin_display.txt", par);
   
   boost::scoped_ptr<BraninNormalized> branin(new BraninNormalized(par));
   GLOBAL_MATPLOT.init(branin.get(),2);

@@ -21,14 +21,25 @@
 */
 
 #include "testfunctions.hpp"
+#include "param_loader.hpp"
 
 int main(int nargs, char *args[])
 {
-  bopt_params par = initialize_parameters_to_default();
-  par.n_iterations = 190;
-  par.random_seed = 0;
-  par.verbose_level = 1;
-  par.noise = 1e-10;
+  bopt_params par;
+  if(nargs > 1){
+    if(!bayesopt::utils::ParamLoader::load(args[1], par)){
+        std::cout << "ERROR: provided file \"" << args[1] << "\" does not exist" << std::endl;
+        return -1;
+    }
+  }
+  else{
+    par = initialize_parameters_to_default();
+    par.n_iterations = 190;
+    par.random_seed = 0;
+    par.verbose_level = 1;
+    par.noise = 1e-10;
+  }
+  //bayesopt::utils::ParamLoader::save("bo_branin.txt", par);
   
   BraninNormalized branin(par);
   vectord result(2);

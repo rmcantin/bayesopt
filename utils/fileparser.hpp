@@ -55,6 +55,7 @@ namespace bayesopt
         bool isWriting();
         
         void setPrecision(int prec);
+        bool fileExists();
         
         /* Data write/read function */
         void write(std::string name, std::string value);

@@ -21,28 +21,30 @@
 */
 
 #include "param_loader.hpp"
-#include "fileparser.hpp"
-
-#include <fstream>
-#include <iostream>
 
 namespace bayesopt
 {       
-    void ParamLoader::loadFromFile(std::string filename, bopt_params &par){
-        par = initialize_parameters_to_default();
+  namespace utils{      
+    bool ParamLoader::load(std::string filename, bopt_params &par){
         utils::FileParser fp(filename);
+        if(!fp.fileExists()){
+            return false;
+        }
+        
+        par = initialize_parameters_to_default();
         fp.openInput();
         
         loadOrSave(fp, par);
+        return true;
     }
     
-    void ParamLoader::saveToFile(std::string filename, bopt_params &par){
+    void ParamLoader::save(std::string filename, bopt_params &par){
         utils::FileParser fp(filename);
         fp.openOutput();
         
         loadOrSave(fp, par);
     }
-        
+    
     void ParamLoader::loadOrSave(utils::FileParser &fp, bopt_params &par){
         fp.readOrWrite("n_iterations", par.n_iterations);
         fp.readOrWrite("n_inner_iterations", par.n_inner_iterations);
@@ -90,5 +92,6 @@ namespace bayesopt
         fp.readOrWrite("crit_params", par.crit_params, par.n_crit_params);
         
     }
+  } //namespace utils
 } //namespace bayesopt
 

@@ -21,19 +21,30 @@
 */
 
 #include "testfunctions.hpp"
+#include "param_loader.hpp"
 
 int main(int nargs, char *args[])
 {
-  bopt_params par = initialize_parameters_to_default();
-  par.n_iterations = 100;
-  par.n_init_samples = 2;
-  par.n_iter_relearn = 1;
-  par.random_seed = 0;
-  par.noise = 1e-10;
-  
-  par.l_type = L_MCMC;
-  par.sc_type = SC_MAP;
-  par.verbose_level = 1;
+  bopt_params par;
+  if(nargs > 1){
+    if(!bayesopt::utils::ParamLoader::load(args[1], par)){
+        std::cout << "ERROR: provided file \"" << args[1] << "\" does not exist" << std::endl;
+        return -1;
+    }
+  }
+  else{
+    par = initialize_parameters_to_default();
+    par.n_iterations = 100;
+    par.n_init_samples = 2;
+    par.n_iter_relearn = 1;
+    par.random_seed = 0;
+    par.noise = 1e-10;
+
+    par.l_type = L_MCMC;
+    par.sc_type = SC_MAP;
+    par.verbose_level = 1;
+  }
+  //bayesopt::utils::ParamLoader::save("bo_branin_mcmc.txt", par);
   
   BraninNormalized branin(par);
   vectord result(2);

@@ -23,14 +23,25 @@
 #include "testfunctions.hpp"
 #include <ctime>
 #include <fstream>
+#include "param_loader.hpp"
 
 int main(int nargs, char *args[])
 {
-  bopt_params par = initialize_parameters_to_default();
-  par.n_iterations = 190;
-  par.noise = 1e-10;
-  par.random_seed = 0;
-  par.verbose_level = 1;
+  bopt_params par;
+  if(nargs > 1){
+    if(!bayesopt::utils::ParamLoader::load(args[1], par)){
+        std::cout << "ERROR: provided file \"" << args[1] << "\" does not exist" << std::endl;
+        return -1;
+    }
+  }
+  else{
+    par = initialize_parameters_to_default();
+    par.n_iterations = 190;
+    par.noise = 1e-10;
+    par.random_seed = 0;
+    par.verbose_level = 1;
+  }
+  //bayesopt::utils::ParamLoader::save("bo_hartmann.txt", par);  
 
   
   ExampleHartmann6 hart6(par);

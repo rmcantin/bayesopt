@@ -7,7 +7,7 @@
  */
 int main()
 {
-    std::cout << "*NOTE: Remember to execute \"test_save.exe\" before this one" << std::endl;
+    std::cout << "IMPORTANT NOTE: Remember to execute \"test_save.exe\" before this one" << std::endl;
     std::cout << "Restoring Optimization..." << std::endl;
     
     // Second optimization (restored from first optimization state)
@@ -33,7 +33,7 @@ int main()
         
     // Try to remove used .dat file
     if( remove( "state.dat" ) == 0 ){
-        std::cout << "File \"state.dat\" successfully file" << std::endl;
+        std::cout << "File \"state.dat\" successfully removed" << std::endl;
     }
     else{
         std::cout << "Error: cannot remove \"state.dat\" file" << std::endl; 

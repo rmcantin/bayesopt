@@ -26,6 +26,10 @@
 #ifndef  _PARAM_LOADER_HPP_
 #define  _PARAM_LOADER_HPP_
 
+#include <fstream>
+#include <iostream>
+#include <string.h>
+
 #include "parameters.h"
 #include "specialtypes.hpp"
 #include "fileparser.hpp"
@@ -35,21 +39,20 @@
  * Namespace of the library interface
  */
 namespace bayesopt {
-
-    //TODO (Javier): Complete class description
-  /**
-   * \brief .
-   * 
-   */
-    class ParamLoader{
-    public: 
-        void loadFromFile(std::string filename, bopt_params &par);
+    namespace utils{
+        class ParamLoader{
+        public:
+            /* Loads params from provided file, returns true if file exists */
+            static bool load(std::string filename, bopt_params &par);
+            /* This one could be useful to create param files from existing hard-coded params */
+            static void save(std::string filename, bopt_params &par); 
+        private:
+            ParamLoader(){}
         
-        /* This one is useful to create param files from existing hard-coded params */
-        void saveToFile(std::string filename, bopt_params &par);
-    private:
-        void loadOrSave(utils::FileParser &fp, bopt_params &par);
-    };
+            /* private function to be used by load and save functions */
+            static void loadOrSave(utils::FileParser &fp, bopt_params &par);   
+        };
+    }
 } //namespace bayesopt
 
 

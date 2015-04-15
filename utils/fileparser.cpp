@@ -26,12 +26,9 @@ namespace bayesopt
 {   
   namespace utils 
   {
-    FileParser::FileParser(std::string filename)
-    : filename(filename), input(), output(){}
-    
-    FileParser::FileParser(std::string filename, bool readMode)
+    FileParser::FileParser(std::string filename, int prec)
     : filename(filename), input(), output(){
-        open(readMode);
+        setPrecision(prec);
     }
 
     FileParser::~FileParser(){
@@ -66,6 +63,16 @@ namespace bayesopt
     
     bool FileParser::isWriting(){
         return output.is_open();
+    }
+    
+    /* Changes output precision of real numbers */
+    void FileParser::setPrecision(int prec){
+        if(prec > 0){
+            precision = prec;
+        }
+        else{ // Default precision
+            precision = 10;
+        }
     }
     
     /* Data write/read function */
@@ -138,9 +145,14 @@ namespace bayesopt
     }
     
     void FileParser::write_ublas(std::string name, boost::numeric::ublas::vector<double> &values){
-        std::ostringstream os;
-        os << values;
-        write(name, os.str());
+        std::vector<int> dims;
+        dims.push_back(values.size());
+        
+        std::vector<std::string> arr;
+        for(boost::numeric::ublas::vector<double>::iterator it = values.begin(); it != values.end(); ++it){
+            arr.push_back(to_string(*it));
+        }
+        write(name, arr, dims);
     }
     void FileParser::read_ublas(std::string name, boost::numeric::ublas::vector<double> &values){
         std::vector<std::string> arr;

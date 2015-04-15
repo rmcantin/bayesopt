@@ -34,7 +34,6 @@
 #include <iomanip>
 
 #include <boost/numeric/ublas/vector.hpp>
-#include <boost/numeric/ublas/io.hpp> 
 
 #include "parser.hpp"
 
@@ -44,8 +43,7 @@ namespace bayesopt
   {
     class FileParser{
     public:
-        FileParser(std::string filename);
-        FileParser(std::string filename, bool readMode);
+        FileParser(std::string filename, int prec = 10);
         ~FileParser();
         
         /* Write stream and read stream open/close functions*/
@@ -55,6 +53,8 @@ namespace bayesopt
         void close();
         bool isReading();
         bool isWriting();
+        
+        void setPrecision(int prec);
         
         /* Data write/read function */
         void write(std::string name, std::string value);
@@ -105,21 +105,20 @@ namespace bayesopt
         void readOrWrite(std::string name, double values[], size_t length);
         
         /* Template definitions and implementation */
-        // TODO (Javier): std to_string, stoi, etc... not working on MinGW and does not provide precision, workaround:
         template <typename T>
-        static std::string to_string(T value, int prec = 10)
+        std::string to_string(T value)
         {
             std::ostringstream os;
-            os << std::setprecision(prec) << value ;
+            os << std::setprecision(precision) << value ;
             return os.str();
         }
         
         template <typename T>
-        static T to_value(std::string str, int prec = 10)
+        T to_value(std::string str)
         {
             std::istringstream ss(str);
             T result;
-            return ss >> std::setprecision(prec) >> result ? result : 0;
+            return ss >> std::setprecision(precision) >> result ? result : 0;
         }
     private:
         /* Search variables in file */
@@ -135,6 +134,7 @@ namespace bayesopt
         std::ifstream input;
         
         std::string currentLine;
+        int precision;
         
 
     };

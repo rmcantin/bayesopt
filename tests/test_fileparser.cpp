@@ -30,6 +30,7 @@ int main()
     // Write values
     fp.openOutput();
     
+    // Note that variable names are the type, this is to easily check which type generated that value
     fp.write("size_t", var_size_t);
     fp.write("int_signed", var_int_signed);
     fp.write("int", var_int);
@@ -53,7 +54,8 @@ int main()
     
     // Read values
     fp.openInput();
-    
+ 
+    // Note that variable names are the type, this is to easily check which type generated that value   
     fp.read("size_t", cp_size_t);
     fp.read("int_signed", cp_int_signed);
     fp.read("int", cp_int);

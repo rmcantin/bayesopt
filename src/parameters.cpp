@@ -45,8 +45,6 @@ const size_t DEFAULT_INNER_EVALUATIONS  = 500; /**< Used per dimmension */
 
 const size_t DEFAULT_VERBOSE           = 1;
 
-
-
 learning_type str2learn(const char* name)
 {
   if      (!strcmp(name,"L_FIXED")     || !strcmp(name,"fixed"))     return L_FIXED;

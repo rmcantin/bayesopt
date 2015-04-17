@@ -88,6 +88,7 @@ namespace bayesopt
         output << name << "=" << value << std::endl;
     }
     void FileParser::read(std::string name, std::string &value){
+        //TODO (Javier): use movePointer() returned bool, should be used to avoid &value = "" when not found
         if(!movePointer(name,value)){
             std::cerr << "Variable: " << name << " does not exist in file: " << filename << std::endl;
         }
@@ -256,7 +257,7 @@ namespace bayesopt
             return true;
         }
         
-        // TODO (Javier): detect when the file has read all the lines
+        // TODO (Javier): detect when all the lines were read instead of 2 iterations over file
         // Wrap the file around in the search of a variable
         for(int i=0; i<2; i++){
             while (getline( input, currentLine)){

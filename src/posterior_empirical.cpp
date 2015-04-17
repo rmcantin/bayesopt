@@ -98,7 +98,7 @@ namespace bayesopt
 			       << " parameters. Got " 
 			       << mParameters.n_crit_params << " instead.";
 	  }
-	FILE_LOG(logINFO) << "Usign default parameters for criteria.";
+	FILE_LOG(logINFO) << "Using default parameters for criteria.";
       }
   } // setCriteria
 

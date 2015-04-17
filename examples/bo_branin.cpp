@@ -38,8 +38,8 @@ int main(int nargs, char *args[])
     par.random_seed = 0;
     par.verbose_level = 1;
     par.noise = 1e-10;
+    //bayesopt::utils::ParamLoader::save("bo_branin.txt", par);
   }
-  //bayesopt::utils::ParamLoader::save("bo_branin.txt", par);
   
   BraninNormalized branin(par);
   vectord result(2);

@@ -40,8 +40,9 @@ int main(int nargs, char *args[])
     par.noise = 1e-10;
     par.random_seed = 0;
     par.verbose_level = 1;
+    //bayesopt::utils::ParamLoader::save("bo_camelback.txt", par);
   }
-  //bayesopt::utils::ParamLoader::save("bo_camelback.txt", par); 
+ 
   
   ExampleCamelback camel(par);
 

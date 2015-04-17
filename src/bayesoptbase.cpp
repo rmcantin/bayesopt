@@ -34,9 +34,6 @@ namespace bayesopt
     // Random seed
     if (mParameters.random_seed < 0) mParameters.random_seed = std::time(0); 
     mEngine.seed(mParameters.random_seed);
-
-    // Posterior surrogate model
-    mModel.reset(PosteriorModel::create(dim,parameters,mEngine));
     
     // Setting verbose stuff (files, levels, etc.)
     int verbose = mParameters.verbose_level;
@@ -54,13 +51,6 @@ namespace bayesopt
       case 2: FILELog::ReportingLevel() = logDEBUG4; break;
       default:
 	FILELog::ReportingLevel() = logERROR; break;
-      }
-
-    // Configure iteration parameters
-    if (mParameters.n_init_samples <= 0)
-      {
-	mParameters.n_init_samples = 
-	  static_cast<size_t>(ceil(0.1*mParameters.n_iterations));	
       }
   }
 
@@ -116,7 +106,7 @@ namespace bayesopt
     mModel->updateCriteria(xNext);
     mCurrentIter++;
     
-    // Save state
+    // Save state if required
     if(mParameters.load_save_flag == 2 || mParameters.load_save_flag == 3){
         BOptState state;
         saveOptimization(state);
@@ -139,19 +129,17 @@ namespace bayesopt
   }
 
   void BayesOptBase::restoreOptimization(BOptState state){
-    /*
-     * Details to consider:
-     *  - If a random seed was auto-generated in the previous opt, should it be required to mantain the same seed?
-     *      if yes, then state should have the seed value and be applied instead of the bopt_params mParameters seed value.
-     *  - Should this be in constructor? because it reinitializes things initialized in the public constructor
-     *      but it also acts as initializeOptimization(), so currently decided to leave it in outside constructor.
-     */
+    // Restore parameters
+    mParameters = state.mParameters; 
      
     // Posterior surrogate model
-    mModel.reset(PosteriorModel::create(mDims, state.mParameters, mEngine));
+    mModel.reset(PosteriorModel::create(mDims, mParameters, mEngine));
     
-    // Put state samples into model
-    mModel->setSample(state.mX[0], state.mY[0]);
+    // Put first sample into model to initialize internal sizes
+    if(state.mY.size() > 0){
+        mModel->setSample(state.mX[0], state.mY[0]);
+    }
+    // Put the rest of state samples into model
     for(size_t i = 1; i < state.mY.size(); i++){
         mModel->addSample(state.mX[i], state.mY[i]);
     }
@@ -160,12 +148,6 @@ namespace bayesopt
     {
         mModel->plotDataset(logDEBUG);
     }
-      
-    // Allow to change the number of iterations
-    state.mParameters.n_iterations = mParameters.n_iterations;
-      
-    // Restore last execution parameters
-    mParameters = state.mParameters;  
     
     // Calculate the posterior model
     mModel->updateHyperParameters();
@@ -174,10 +156,24 @@ namespace bayesopt
     mCurrentIter = state.mCurrentIter;
     mCounterStuck = state.mCounterStuck;
     mYPrev = state.mYPrev;
+    
+    // Check if optimization has already finished
+    if(mCurrentIter <= mParameters.n_iterations){
+        FILE_LOG(logINFO) << "Optimization has already finished, delete \"" << mParameters.load_filename << "\" or give more n_iterations in parameters."; 
+    }
   }
 
   void BayesOptBase::initializeOptimization()
   {
+    // Posterior surrogate model
+    mModel.reset(PosteriorModel::create(mDims,mParameters,mEngine));
+    
+    // Configure iteration parameters
+    if (mParameters.n_init_samples <= 0){
+        mParameters.n_init_samples = 
+          static_cast<size_t>(ceil(0.1*mParameters.n_iterations));	
+    }
+    
     size_t nSamples = mParameters.n_init_samples;
 
     matrixd xPoints(nSamples,mDims);
@@ -205,8 +201,16 @@ namespace bayesopt
     // Restore state from file
     if(mParameters.load_save_flag == 1 || mParameters.load_save_flag == 3){
         BOptState state;
-        state.loadFromFile(std::string(mParameters.load_filename));
-        restoreOptimization(state);
+        bool load_succeed = state.loadFromFile(std::string(mParameters.load_filename), mParameters);
+        if(load_succeed){
+            restoreOptimization(state);
+            FILE_LOG(logINFO) << "State succesfully restored from file \"" << mParameters.load_filename << "\"";
+        }
+        // If load not succeed, print info message and then initialize a new optimization
+        else{
+            FILE_LOG(logINFO) << "File \"" << mParameters.load_filename << "\" does not exist, starting a new optimization";
+            initializeOptimization();
+        }
     }
     // Initialize a new state
     else{

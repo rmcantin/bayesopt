@@ -38,13 +38,34 @@ namespace bayesopt
         loadOrSave(fp);
     }
     
-    void BOptState::loadFromFile(std::string filename){
+    bool BOptState::loadFromFile(std::string filename, bopt_params &program_params){
         utils::FileParser fp(filename);
+        if(!fp.fileExists()){
+            return false;
+        }
         fp.openInput();
         loadOrSave(fp);
+        
+        // Non-stored fields: verbose_level, log_filename, load_save_flag, load_filename, 
+        //                    save_filename, random_seed.
+        
+        // Fill non-stored values with program_params values:
+        mParameters.verbose_level = program_params.verbose_level;
+        strcpy(mParameters.log_filename, program_params.log_filename);
+        mParameters.load_save_flag = program_params.load_save_flag;
+        strcpy(mParameters.load_filename, program_params.load_filename);
+        strcpy(mParameters.save_filename, program_params.save_filename);
+        mParameters.random_seed = program_params.random_seed;
+        
+        // n_iterations can be taken from program_params if value is greater than current iteration
+        if(program_params.n_iterations > mCurrentIter){
+            mParameters.n_iterations = program_params.n_iterations;
+        }
+        
+        return true;
     }
     
-    void BOptState::loadOrSave(utils::FileParser &fp){     
+    void BOptState::loadOrSave(utils::FileParser &fp){    
         fp.readOrWrite("mCurrentIter", mCurrentIter);
         fp.readOrWrite("mCounterStuck", mCounterStuck);
         fp.readOrWrite("mYPrev", mYPrev);
@@ -54,8 +75,7 @@ namespace bayesopt
         fp.readOrWrite("mParameters.n_init_samples", mParameters.n_init_samples);
         fp.readOrWrite("mParameters.n_iter_relearn", mParameters.n_iter_relearn);
         fp.readOrWrite("mParameters.init_method", mParameters.init_method);
-        fp.readOrWrite("mParameters.random_seed", mParameters.random_seed);
-        // Not necessary fields: verbose_level, log_filename, load_save_flag, load_filename, save_filename.
+
         fp.readOrWrite("mParameters.surr_name", mParameters.surr_name);
         fp.readOrWrite("mParameters.sigma_s", mParameters.sigma_s);
         fp.readOrWrite("mParameters.noise", mParameters.noise);

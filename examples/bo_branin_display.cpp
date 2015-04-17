@@ -70,8 +70,8 @@ int main(int nargs, char *args[])
     par.l_type = L_MCMC;
     par.sc_type = SC_MAP;
     par.verbose_level = 1;
+    //bayesopt::utils::ParamLoader::save("bo_branin_display.txt", par);
   }
-  //bayesopt::utils::ParamLoader::save("bo_branin_display.txt", par);
   
   boost::scoped_ptr<BraninNormalized> branin(new BraninNormalized(par));
   GLOBAL_MATPLOT.init(branin.get(),2);

@@ -38,8 +38,8 @@ int main(int nargs, char *args[])
     parameters.n_iterations = 300;
 
     set_criteria(&parameters,"cHedge(cEI,cLCB,cExpReturn,cOptimisticSampling)");
+    //bayesopt::utils::ParamLoader::save("bo_oned.txt", parameters);
   }
-  //bayesopt::utils::ParamLoader::save("bo_oned.txt", parameters);
   
   ExampleOneD opt(parameters);
   vectord result(1);

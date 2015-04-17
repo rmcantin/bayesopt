@@ -43,8 +43,9 @@ int main(int nargs, char *args[])
     par.l_type = L_MCMC;
     par.sc_type = SC_MAP;
     par.verbose_level = 1;
+    //bayesopt::utils::ParamLoader::save("bo_branin_mcmc.txt", par);
   }
-  //bayesopt::utils::ParamLoader::save("bo_branin_mcmc.txt", par);
+
   
   BraninNormalized branin(par);
   vectord result(2);

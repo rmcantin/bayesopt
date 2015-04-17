@@ -21,7 +21,7 @@ int main()
 
     // Restore operation and run optimization
     bayesopt::BOptState state2;
-    state2.loadFromFile("state.dat");
+    state2.loadFromFile("state.dat", par2);
     branin2.restoreOptimization(state2);
     for(size_t i = branin2.getCurrentIter(); i < par2.n_iterations; i++){
         branin2.stepOptimization();

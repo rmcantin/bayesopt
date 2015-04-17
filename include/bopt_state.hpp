@@ -49,8 +49,8 @@ namespace bayesopt {
         /** Creates or overwrites the provided file with the state */
         void saveToFile(std::string filename);
         
-        /** Loads the state from the provided file */
-        void loadFromFile(std::string filename);
+        /** Loads the state from the provided file and takes program_params values if needed */
+        bool loadFromFile(std::string filename, bopt_params &program_params);
         
         // BayesOptBase members
         size_t mCurrentIter;

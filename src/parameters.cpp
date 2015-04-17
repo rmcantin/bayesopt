@@ -20,7 +20,8 @@
 ------------------------------------------------------------------------
 */
 #include <iostream>
-#include "parameters.h"
+#include "parameters.h"     // c parameters structs
+#include "parameters.hpp"   // c++ parameters classes
 
 
 /*-----------------------------------------------------------*/
@@ -28,8 +29,10 @@
 /*-----------------------------------------------------------*/
 
 /* Nonparametric process "parameters" */
+const std::string KERNEL_NAME = "kMaternARD5";
 const double KERNEL_THETA    = 1.0;
 const double KERNEL_SIGMA    = 10.0;
+const std::string MEAN_NAME = "mConst";
 const double MEAN_MU         = 1.0;
 const double MEAN_SIGMA      = 1000.0;
 const double PRIOR_ALPHA     = 1.0;
@@ -43,7 +46,14 @@ const size_t DEFAULT_INIT_SAMPLES       = 10;
 const size_t DEFAULT_ITERATIONS_RELEARN = 50;
 const size_t DEFAULT_INNER_EVALUATIONS  = 500; /**< Used per dimmension */
 
+/* Logging and Files */
 const size_t DEFAULT_VERBOSE           = 1;
+const std::string LOG_FILENAME         = "bayesopt.log";
+const std::string SAVE_FILENAME        = "bayesopt.dat";
+const std::string LOAD_FILENAME        = "bayesopt.dat";
+
+const std::string SURR_NAME            = "sGaussianProcess";
+const std::string CRIT_NAME            = "cEI";
 
 learning_type str2learn(const char* name)
 {
@@ -88,7 +98,6 @@ const char* score2str(score_type name)
     default: return "ERROR!";
     }
 }
-
 
 void set_kernel(bopt_params* params, const char* name)
 {
@@ -139,7 +148,7 @@ bopt_params initialize_parameters_to_default(void)
 {
   kernel_parameters kernel;
   kernel.name = new char[128];
-  strcpy(kernel.name,"kMaternARD5");
+  strcpy(kernel.name,KERNEL_NAME.c_str());
 
   kernel.hp_mean[0] = KERNEL_THETA;
   kernel.hp_std[0]  = KERNEL_SIGMA;
@@ -147,7 +156,7 @@ bopt_params initialize_parameters_to_default(void)
   
   mean_parameters mean;
   mean.name = new char[128];
-  strcpy(mean.name,"mConst");
+  strcpy(mean.name,MEAN_NAME.c_str());
 
   mean.coef_mean[0] = MEAN_MU;
   mean.coef_std[0]  = MEAN_SIGMA;
@@ -166,17 +175,17 @@ bopt_params initialize_parameters_to_default(void)
 
   params.verbose_level = DEFAULT_VERBOSE;
   params.log_filename  = new char[128];
-  strcpy(params.log_filename,"bayesopt.log");
+  strcpy(params.log_filename,LOG_FILENAME.c_str());
 
   params.load_save_flag = 0;
   params.load_filename = new char[128];
-  strcpy(params.load_filename,"bayesopt.dat");
+  strcpy(params.load_filename,LOAD_FILENAME.c_str());
   params.save_filename = new char[128];
-  strcpy(params.save_filename,"bayesopt.dat");
+  strcpy(params.save_filename,SAVE_FILENAME.c_str());
 
   params.surr_name = new char[128];
   //  strcpy(params.surr_name,"sStudentTProcessNIG");
-  strcpy(params.surr_name,"sGaussianProcess");
+  strcpy(params.surr_name,SURR_NAME.c_str());
 
   params.sigma_s = DEFAULT_SIGMA;
   params.noise   = DEFAULT_NOISE;
@@ -191,7 +200,7 @@ bopt_params initialize_parameters_to_default(void)
   params.force_jump = 20;
   
   params.crit_name = new char[128];
-  strcpy(params.crit_name,"cEI");
+  strcpy(params.crit_name,CRIT_NAME.c_str());
   params.n_crit_params = 0;
 
   params.kernel = kernel;
@@ -199,3 +208,97 @@ bopt_params initialize_parameters_to_default(void)
 
   return params;
 }
+
+/**
+ * Namespace of the library interface
+ */
+namespace bayesopt {
+    /*
+     * KernelParameters Class
+     */
+    KernelParameters::KernelParameters():
+        hp_mean(1), hp_std(1){
+        // Set default values
+        name = KERNEL_NAME;
+        hp_mean(0) = KERNEL_THETA;
+        hp_std(0) = KERNEL_SIGMA;
+    }
+
+    /*
+     * MeanParameters Class
+     */
+    MeanParameters::MeanParameters():
+    coef_mean(1), coef_std(1){
+        // Set default values
+        name = MEAN_NAME;
+        coef_mean(0) = MEAN_MU;
+        coef_std(0) = MEAN_SIGMA;
+    }
+
+    /*
+     * Parameters Class
+     */
+    Parameters::Parameters():
+        kernel(), mean(), crit_params(){
+        // Set default values
+        init_default();
+    }
+        
+    Parameters::Parameters(bopt_params c_params):
+        kernel(), mean(), crit_params(){
+        //TODO (Javier): get values from the bopt_params struct
+    }
+
+    bopt_params Parameters::generate_bopt_params(){
+        bopt_params c_params;
+        //TODO (Javier): fill bopt_params struct values
+        return c_params;
+    }
+
+    void Parameters::set_learning(std::string name){
+        l_type = str2learn(name.c_str());
+    }
+    std::string Parameters::get_learning(){
+        return std::string(learn2str(l_type));
+    }
+
+    void Parameters::set_score(std::string name){
+        sc_type = str2score(name.c_str());
+    }
+    std::string Parameters::get_score(){
+        return std::string(score2str(sc_type));
+    }
+
+    void Parameters::init_default(){
+        n_iterations = DEFAULT_ITERATIONS;
+        n_inner_iterations = DEFAULT_INNER_EVALUATIONS;
+        n_init_samples = DEFAULT_INIT_SAMPLES;
+        n_iter_relearn = DEFAULT_ITERATIONS_RELEARN;
+        
+        init_method = 1;
+        random_seed = -1;
+        
+        verbose_level = DEFAULT_VERBOSE;
+        log_filename = LOG_FILENAME;
+        
+        load_save_flag = 0;
+        load_filename = LOAD_FILENAME;
+        save_filename = SAVE_FILENAME;
+        
+        surr_name = SURR_NAME;
+        
+        sigma_s = DEFAULT_SIGMA;
+        noise = DEFAULT_NOISE;
+        alpha = PRIOR_ALPHA;
+        beta = PRIOR_BETA;
+        
+        l_all = false;
+        l_type = L_EMPIRICAL;
+        sc_type = SC_MAP;
+        
+        epsilon = 0.0;
+        force_jump = 20;
+        
+        crit_name = CRIT_NAME;
+    }
+}//namespace bayesopt

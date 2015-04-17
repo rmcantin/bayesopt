@@ -1,4 +1,4 @@
-/**  \file parameters_new.hpp \brief Parameter definitions. */
+/**  \file parameters.hpp \brief Parameter definitions. */
 /*
 -------------------------------------------------------------------------
    This file is part of BayesOpt, an efficient C++ library for 
@@ -22,12 +22,12 @@
 */
 
 
-#ifndef __BOPT_PARAMETERS_NEW_HPP__
-#define __BOPT_PARAMETERS_NEW_HPP__
+#ifndef __BOPT_PARAMETERS_HPP__
+#define __BOPT_PARAMETERS_HPP__
 
 #include <string>
-#include <vector>
 #include "parameters.h" // learning_type, score_type
+#include "specialtypes.hpp" // vectord
 
 /**
  * Namespace of the library interface
@@ -36,10 +36,9 @@ namespace bayesopt {
     class KernelParameters{
     public:
         /* Class member variables */
-        std::string  name;              /**< Name of the kernel function */
-        std::vector<double> hp_mean;    /**< Kernel hyperparameters prior (mean, log space) */
-        std::vector<double> hp_std;     /**< Kernel hyperparameters prior (st dev, log space) */
-        size_t n_hp;                    /**< Number of kernel hyperparameters */
+        std::string  name;          /**< Name of the kernel function */
+        vectord hp_mean;            /**< Kernel hyperparameters prior (mean, log space) */
+        vectord hp_std;             /**< Kernel hyperparameters prior (st dev, log space) */
     
         /* Class member functions */
         KernelParameters();
@@ -48,10 +47,9 @@ namespace bayesopt {
     class MeanParameters{
     public:
         /* Class member variables */
-        std::string  name;              /**< Name of the mean function */
-        std::vector<double> coef_mean;  /**< Basis function coefficients (mean) */
-        std::vector<double> coef_std;   /**< Basis function coefficients (std) */
-        size_t n_coef;                  /**< Number of mean funct. hyperparameters */
+        std::string  name;          /**< Name of the mean function */
+        vectord coef_mean;          /**< Basis function coefficients (mean) */
+        vectord coef_std;           /**< Basis function coefficients (std) */
         
         /* Class member functions */
         MeanParameters();
@@ -106,9 +104,8 @@ namespace bayesopt {
         KernelParameters kernel;    /**< Kernel parameters */
         MeanParameters mean;        /**< Mean (parametric function) parameters */  
 
-        std::string crit_name;              /**< Name of the criterion */
-        std::vector<double> crit_params;    /**< Criterion hyperparameters (if needed) */
-        size_t n_crit_params;               /**< Number of criterion hyperparameters */
+        std::string crit_name;      /**< Name of the criterion */
+        vectord crit_params;        /**< Criterion hyperparameters (if needed) */
         
         /*
          * Class member functions 

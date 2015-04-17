@@ -104,7 +104,6 @@ SET( BAYESOPT_SRCS
   ./src/student_t_process_jef.cpp
   ./src/student_t_process_nig.cpp
   ./src/parameters.cpp
-  ./src/parameters_new.cpp
   ./src/kernel_functors.cpp
   ./src/criteria_functors.cpp
   ./src/criteria_hedge.cpp

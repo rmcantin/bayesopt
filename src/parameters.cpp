@@ -22,7 +22,7 @@
 #include <iostream>
 #include "parameters.h"     // c parameters structs
 #include "parameters.hpp"   // c++ parameters classes
-
+#include "ublas_extra.hpp"  // array2vector()
 
 /*-----------------------------------------------------------*/
 /* Default parameters                                        */
@@ -246,12 +246,107 @@ namespace bayesopt {
         
     Parameters::Parameters(bopt_params c_params):
         kernel(), mean(), crit_params(){
-        //TODO (Javier): get values from the bopt_params struct
+        n_iterations = c_params.n_iterations;
+        n_inner_iterations = c_params.n_inner_iterations;
+        n_init_samples = c_params.n_init_samples;
+        n_iter_relearn = c_params.n_iter_relearn;
+        
+        init_method = c_params.init_method;
+        random_seed = c_params.random_seed;
+        
+        verbose_level = c_params.verbose_level;
+        
+        log_filename = std::string(c_params.log_filename);
+        load_save_flag = c_params.load_save_flag;
+        load_filename = std::string(c_params.load_filename);
+        save_filename = std::string(c_params.save_filename);
+        
+        surr_name = std::string(c_params.surr_name);
+        sigma_s = c_params.sigma_s;
+        
+        noise = c_params.noise;
+        alpha = c_params.alpha;
+        beta = c_params.beta;
+        
+        sc_type = c_params.sc_type;
+        l_type = c_params.l_type;
+        
+        l_all = c_params.l_all;
+        
+        epsilon = c_params.epsilon;
+        force_jump = c_params.force_jump;
+        
+        kernel.name = std::string(c_params.kernel.name);
+        kernel.hp_mean = bayesopt::utils::array2vector(c_params.kernel.hp_mean, c_params.kernel.n_hp);
+        kernel.hp_std = bayesopt::utils::array2vector(c_params.kernel.hp_std, c_params.kernel.n_hp);
+        
+        mean.name = std::string(c_params.mean.name);
+        mean.coef_mean = bayesopt::utils::array2vector(c_params.mean.coef_mean, c_params.mean.n_coef);
+        mean.coef_std = bayesopt::utils::array2vector(c_params.mean.coef_std, c_params.mean.n_coef);
+        
+        crit_name = c_params.crit_name;
+        crit_params = bayesopt::utils::array2vector(c_params.crit_params, c_params.n_crit_params);
     }
 
     bopt_params Parameters::generate_bopt_params(){
-        bopt_params c_params;
-        //TODO (Javier): fill bopt_params struct values
+        bopt_params c_params = initialize_parameters_to_default();
+        c_params.n_iterations = n_iterations;
+        c_params.n_inner_iterations = n_inner_iterations;
+        c_params.n_init_samples = n_init_samples;
+        c_params.n_iter_relearn = n_iter_relearn;
+        
+        c_params.init_method = init_method;
+        c_params.random_seed = random_seed;
+        
+        c_params.verbose_level = verbose_level;
+        
+        strcpy(c_params.log_filename, log_filename.c_str());
+        c_params.load_save_flag = load_save_flag;
+        strcpy(c_params.load_filename, load_filename.c_str());
+        strcpy(c_params.save_filename, save_filename.c_str());
+        
+        strcpy(c_params.surr_name, surr_name.c_str());
+        c_params.sigma_s = sigma_s;
+        
+        c_params.noise = noise;
+        c_params.alpha = alpha;
+        c_params.beta = beta;
+        
+        c_params.sc_type = sc_type;
+        
+        c_params.l_type = l_type;
+        
+        // TODO (Javier): Check that bool to int conversion is done right
+        c_params.l_all = l_all;
+        
+        c_params.epsilon = epsilon;
+        c_params.force_jump = force_jump;
+        
+        strcpy(c_params.kernel.name, kernel.name.c_str());
+        //TODO (Javier): Should it be necessary to check size?
+        for(size_t i=0; i<kernel.hp_mean.size(); i++){
+            c_params.kernel.hp_mean[i] = kernel.hp_mean[i];
+        }
+        for(size_t i=0; i<kernel.hp_std.size(); i++){
+            c_params.kernel.hp_std[i] = kernel.hp_std[i];
+        }
+        c_params.kernel.n_hp = kernel.hp_std.size();
+        
+        strcpy(c_params.mean.name, mean.name.c_str());
+        for(size_t i=0; i<mean.coef_mean.size(); i++){
+            c_params.mean.coef_mean[i] = mean.coef_mean[i];
+        }
+        for(size_t i=0; i<mean.coef_std.size(); i++){
+            c_params.mean.coef_std[i] = mean.coef_std[i];
+        }
+        c_params.mean.n_coef = mean.coef_std.size();
+        
+        strcpy(c_params.crit_name, crit_name.c_str());
+        for(size_t i=0; i<crit_params.size(); i++){
+            c_params.crit_params[i] = crit_params[i];
+        }
+        c_params.n_crit_params = crit_params.size();
+        
         return c_params;
     }
 

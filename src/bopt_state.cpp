@@ -28,9 +28,7 @@
 
 namespace bayesopt
 {       
-    BOptState::BOptState(){
-        mParameters = initialize_parameters_to_default();
-    }
+    BOptState::BOptState(): mParameters(){}
     
     void BOptState::saveToFile(std::string filename){
         utils::FileParser fp(filename);

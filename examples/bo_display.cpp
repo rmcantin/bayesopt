@@ -110,7 +110,8 @@ int main(int nargs, char *args[])
       break;
     };
 
-  boost::scoped_ptr<ExampleOneD> opt(new ExampleOneD(parameters));
+  bayesopt::Parameters parameters_class(parameters);
+  boost::scoped_ptr<ExampleOneD> opt(new ExampleOneD(parameters_class));
   GLOBAL_MATPLOT.init(opt.get(),1);
 
   glutInit(&nargs, args);

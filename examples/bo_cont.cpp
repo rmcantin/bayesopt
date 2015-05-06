@@ -23,6 +23,7 @@
 #include <ctime>
 #include "bayesopt.h"                 // For the C API
 #include "bayesopt.hpp"               // For the C++ API
+#include <boost/numeric/ublas/assignment.hpp> // <<= op assigment
 
 
 /* Function to be used for C-API testing */
@@ -43,7 +44,7 @@ class ExampleQuadratic: public bayesopt::ContinuousModel
 {
  public:
 
-  ExampleQuadratic(size_t dim,bopt_params param):
+  ExampleQuadratic(size_t dim,bayesopt::Parameters param):
     ContinuousModel(dim,param) {}
 
   double evaluateSample( const vectord &Xi ) 
@@ -73,21 +74,18 @@ int main(int nargs, char *args[])
   // See parameters.h for the available options.
   // Some parameters did not need to be changed for default, but we have done it for
   // illustrative purpose.
-  bopt_params par = initialize_parameters_to_default();
+  bayesopt::Parameters par = initialize_parameters_to_default();
 
-  set_kernel(&par,"kSum(kSEISO,kConst)");
-  par.kernel.hp_mean[0] = 1.0;
-  par.kernel.hp_mean[1] = 1.0;
-  par.kernel.hp_std[0] = 1.0;
-  par.kernel.hp_std[1] = 1.0;
-  par.kernel.n_hp = 2;
+  par.kernel.name = "kSum(kSEISO,kConst)";
+  par.kernel.hp_mean <<= 1.0, 1.0;
+  par.kernel.hp_std <<= 1.0, 1.0;
 
-  set_mean(&par,"mConst");
-  par.mean.coef_mean[0] = 1.0;
-  par.mean.coef_std[0] = 10.0;
-  par.mean.n_coef = 1;
+  par.mean.name = "mConst";
+  par.mean.coef_mean <<= 1.0;
+  par.mean.coef_std <<= 1.0;
+  
 
-  set_surrogate(&par,"sStudentTProcessJef");
+  par.surr_name = "sStudentTProcessJef";
   par.noise = 1e-10;
 
   par.sc_type = SC_MAP;
@@ -125,7 +123,7 @@ int main(int nargs, char *args[])
 
   // Run C interface
   start = clock();
-  bayes_optimization(n,&testFunction,NULL,low,up,xmin,fmin,par);
+  bayes_optimization(n,&testFunction,NULL,low,up,xmin,fmin,par.generate_bopt_params());
   end = clock();
   diff2 = (double)(end-start) / (double)CLOCKS_PER_SEC;
   /*******************************************/

@@ -28,7 +28,7 @@
 
 namespace bayesopt
 {
-  BayesOptBase::BayesOptBase(size_t dim, bopt_params parameters):
+  BayesOptBase::BayesOptBase(size_t dim, Parameters parameters):
     mParameters(parameters), mDims(dim)
   {
     // Random seed
@@ -39,7 +39,7 @@ namespace bayesopt
     int verbose = mParameters.verbose_level;
     if (verbose>=3)
       {
-	FILE* log_fd = fopen( mParameters.log_filename , "w" );
+	FILE* log_fd = fopen( mParameters.log_filename.c_str() , "w" );
 	Output2FILE::Stream() = log_fd; 
 	verbose -= 3;
       }
@@ -288,7 +288,7 @@ namespace bayesopt
    const Dataset* BayesOptBase::getData()
   { return mModel->getData(); };
 
-  bopt_params* BayesOptBase::getParameters() 
+  Parameters* BayesOptBase::getParameters() 
   {return &mParameters;};
   
   size_t BayesOptBase::getCurrentIter()

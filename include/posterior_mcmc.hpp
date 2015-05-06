@@ -55,10 +55,10 @@ namespace bayesopt {
      * \brief Constructor (Note: default constructor is private)
      * 
      * @param dim number of input dimensions
-     * @param params configuration parameters (see parameters.h)
+     * @param params configuration parameters (see parameters.hpp)
      * @param eng random number generation engine (boost)
      */
-    MCMCModel(size_t dim, bopt_params params, randEngine& eng);
+    MCMCModel(size_t dim, Parameters params, randEngine& eng);
 
     virtual ~MCMCModel();
 

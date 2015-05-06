@@ -29,7 +29,7 @@
 
 namespace bayesopt
 {
-  ConditionalBayesProcess::ConditionalBayesProcess(size_t dim, bopt_params parameters, 
+  ConditionalBayesProcess::ConditionalBayesProcess(size_t dim, Parameters parameters, 
 						   const Dataset& data, 
 						   MeanModel& mean, randEngine& eng):
     KernelRegressor(dim,parameters,data,mean,eng)

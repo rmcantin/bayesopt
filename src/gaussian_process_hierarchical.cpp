@@ -28,7 +28,7 @@ namespace bayesopt
   namespace ublas = boost::numeric::ublas;
 
   HierarchicalGaussianProcess::HierarchicalGaussianProcess(size_t dim, 
-							   bopt_params params, 
+							   Parameters params, 
 							   const Dataset& data, 
 							   MeanModel& mean,
 							   randEngine& eng):

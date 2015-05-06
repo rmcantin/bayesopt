@@ -27,7 +27,7 @@
 
 int main(int nargs, char *args[])
 {
-  bopt_params par;
+  bayesopt::Parameters par;
   if(nargs > 1){
     if(!bayesopt::utils::ParamLoader::load(args[1], par)){
         std::cout << "ERROR: provided file \"" << args[1] << "\" does not exist" << std::endl;

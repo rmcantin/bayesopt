@@ -25,7 +25,7 @@
 
 int main(int nargs, char *args[])
 {
-  bopt_params parameters;
+  bayesopt::Parameters parameters;
   if(nargs > 1){
     if(!bayesopt::utils::ParamLoader::load(args[1], parameters)){
         std::cout << "ERROR: provided file \"" << args[1] << "\" does not exist" << std::endl;
@@ -37,7 +37,7 @@ int main(int nargs, char *args[])
     parameters.n_init_samples = 10;
     parameters.n_iterations = 300;
 
-    set_criteria(&parameters,"cHedge(cEI,cLCB,cExpReturn,cOptimisticSampling)");
+    parameters.crit_name = "cHedge(cEI,cLCB,cExpReturn,cOptimisticSampling)";
     //bayesopt::utils::ParamLoader::save("bo_oned.txt", parameters);
   }
   

@@ -57,7 +57,7 @@ namespace bayesopt
 
   //////////////////////////////////////////////////////////////////////
 
-  MeanModel::MeanModel(size_t dim, bopt_params parameters)
+  MeanModel::MeanModel(size_t dim, Parameters parameters)
   {
     setMean(parameters.mean,dim);
   }
@@ -89,11 +89,11 @@ namespace bayesopt
     mMean->setParameters(mMu);
   }
 
-  void MeanModel::setMean (mean_parameters mean, size_t dim)
+  void MeanModel::setMean (MeanParameters mean, size_t dim)
   {
-    size_t n_mu = mean.n_coef;
-    vectord vmu = utils::array2vector(mean.coef_mean,n_mu);
-    vectord smu = utils::array2vector(mean.coef_std,n_mu);
+    size_t n_mu = mean.coef_mean.size();
+    vectord vmu = mean.coef_mean;
+    vectord smu = mean.coef_std;
     setMean(vmu, smu, mean.name, dim);
   };
 

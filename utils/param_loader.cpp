@@ -25,7 +25,7 @@
 namespace bayesopt
 {       
   namespace utils{      
-    bool ParamLoader::load(std::string filename, bopt_params &par){
+    bool ParamLoader::load(std::string filename, Parameters &par){
         utils::FileParser fp(filename);
         if(!fp.fileExists()){
             return false;
@@ -38,14 +38,14 @@ namespace bayesopt
         return true;
     }
     
-    void ParamLoader::save(std::string filename, bopt_params &par){
+    void ParamLoader::save(std::string filename, Parameters &par){
         utils::FileParser fp(filename);
         fp.openOutput();
         
         loadOrSave(fp, par);
     }
     
-    void ParamLoader::loadOrSave(utils::FileParser &fp, bopt_params &par){
+    void ParamLoader::loadOrSave(utils::FileParser &fp, Parameters &par){
         fp.readOrWrite("n_iterations", par.n_iterations);
         fp.readOrWrite("n_inner_iterations", par.n_inner_iterations);
         fp.readOrWrite("n_init_samples", par.n_init_samples);
@@ -78,18 +78,15 @@ namespace bayesopt
         fp.readOrWrite("force_jump", par.force_jump);
         
         fp.readOrWrite("kernel.name", par.kernel.name);
-        fp.readOrWrite("kernel.n_hp", par.kernel.n_hp);
-        fp.readOrWrite("kernel.hp_mean", par.kernel.hp_mean, par.kernel.n_hp);
-        fp.readOrWrite("kernel.hp_std", par.kernel.hp_std, par.kernel.n_hp);
+        fp.readOrWrite("kernel.hp_mean", par.kernel.hp_mean);
+        fp.readOrWrite("kernel.hp_std", par.kernel.hp_std);
         
         fp.readOrWrite("mean.name", par.mean.name);
-        fp.readOrWrite("mean.n_coef", par.mean.n_coef);
-        fp.readOrWrite("mean.coef_mean", par.mean.coef_mean, par.mean.n_coef);
-        fp.readOrWrite("mean.coef_std", par.mean.coef_std, par.mean.n_coef);
+        fp.readOrWrite("mean.coef_mean", par.mean.coef_mean);
+        fp.readOrWrite("mean.coef_std", par.mean.coef_std);
         
         fp.readOrWrite("crit_name", par.crit_name);
-        fp.readOrWrite("n_crit_params", par.n_crit_params);
-        fp.readOrWrite("crit_params", par.crit_params, par.n_crit_params);
+        fp.readOrWrite("crit_params", par.crit_params);
         
     }
   } //namespace utils

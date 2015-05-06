@@ -38,14 +38,14 @@ namespace bayesopt
 
 
   DiscreteModel::DiscreteModel( const vecOfvec &validSet, 
-				bopt_params parameters):
+				Parameters parameters):
     BayesOptBase(validSet[0].size(),parameters), mInputSet(validSet)
   {    
     mDims = mInputSet[0].size();    
   } // Constructor
 
   DiscreteModel::DiscreteModel(const vectori &categories, 
-			       bopt_params parameters):
+			       Parameters parameters):
    BayesOptBase(categories.size(),parameters)
   {    
     mDims = categories.size();    

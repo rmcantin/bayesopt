@@ -38,7 +38,7 @@ namespace bayesopt
         loadOrSave(fp);
     }
     
-    bool BOptState::loadFromFile(std::string filename, bopt_params &program_params){
+    bool BOptState::loadFromFile(std::string filename, Parameters &program_params){
         utils::FileParser fp(filename);
         if(!fp.fileExists()){
             return false;
@@ -51,10 +51,10 @@ namespace bayesopt
         
         // Fill non-stored values with program_params values:
         mParameters.verbose_level = program_params.verbose_level;
-        strcpy(mParameters.log_filename, program_params.log_filename);
+        mParameters.log_filename = program_params.log_filename;
         mParameters.load_save_flag = program_params.load_save_flag;
-        strcpy(mParameters.load_filename, program_params.load_filename);
-        strcpy(mParameters.save_filename, program_params.save_filename);
+        mParameters.load_filename = program_params.load_filename;
+        mParameters.save_filename = program_params.save_filename;
         mParameters.random_seed = program_params.random_seed;
         
         // n_iterations can be taken from program_params if value is greater than current iteration
@@ -97,18 +97,15 @@ namespace bayesopt
         fp.readOrWrite("mParameters.force_jump", mParameters.force_jump);
         
         fp.readOrWrite("mParameters.kernel.name", mParameters.kernel.name);
-        fp.readOrWrite("mParameters.kernel.n_hp", mParameters.kernel.n_hp);
-        fp.readOrWrite("mParameters.kernel.hp_mean", mParameters.kernel.hp_mean, mParameters.kernel.n_hp);
-        fp.readOrWrite("mParameters.kernel.hp_std", mParameters.kernel.hp_std, mParameters.kernel.n_hp);
+        fp.readOrWrite("mParameters.kernel.hp_mean", mParameters.kernel.hp_mean);
+        fp.readOrWrite("mParameters.kernel.hp_std", mParameters.kernel.hp_std);
         
         fp.readOrWrite("mParameters.mean.name", mParameters.mean.name);
-        fp.readOrWrite("mParameters.mean.n_coef", mParameters.mean.n_coef);
-        fp.readOrWrite("mParameters.mean.coef_mean", mParameters.mean.coef_mean, mParameters.mean.n_coef);
-        fp.readOrWrite("mParameters.mean.coef_std", mParameters.mean.coef_std, mParameters.mean.n_coef);
+        fp.readOrWrite("mParameters.mean.coef_mean", mParameters.mean.coef_mean);
+        fp.readOrWrite("mParameters.mean.coef_std", mParameters.mean.coef_std);
         
         fp.readOrWrite("mParameters.crit_name", mParameters.crit_name);
-        fp.readOrWrite("mParameters.n_crit_params", mParameters.n_crit_params);
-        fp.readOrWrite("mParameters.crit_params", mParameters.crit_params, mParameters.n_crit_params);
+        fp.readOrWrite("mParameters.crit_params", mParameters.crit_params);
         
         fp.readOrWrite("mY", mY);
         fp.readOrWrite("mX", mX);

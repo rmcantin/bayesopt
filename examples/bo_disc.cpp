@@ -45,7 +45,7 @@ class ExampleDisc: public bayesopt::DiscreteModel
 {
  public:
 
-  ExampleDisc(const vecOfvec & validSet, bopt_params param):
+  ExampleDisc(const vecOfvec & validSet, bayesopt::Parameters param):
     DiscreteModel(validSet,param) {}
 
   double evaluateSample( const vectord &Xi ) 
@@ -68,9 +68,9 @@ int main(int nargs, char *args[])
   // Common configuration
   // See parameters.h for the available options
   // This is just an example of what can be done.
-  bopt_params par = initialize_parameters_to_default();
+  bayesopt::Parameters par;
 
-  set_surrogate(&par,"sStudentTProcessJef");
+  par.surr_name = "sStudentTProcessJef";
   par.noise = 1e-10;
   par.n_iterations = 70;       // Number of iterations
   par.n_init_samples = 20;
@@ -126,7 +126,7 @@ int main(int nargs, char *args[])
   std::cout << "Running C interface" << std::endl;
   double x[128], fmin[128];
   bayes_optimization_disc(n, &testFunction, NULL, xPointsArray, nPoints,
-			  x, fmin, par);
+			  x, fmin, par.generate_bopt_params());
 
 
   // Find the optimal value by brute force

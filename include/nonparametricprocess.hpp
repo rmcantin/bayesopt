@@ -43,7 +43,7 @@ namespace bayesopt
   class NonParametricProcess: public RBOptimizable
   {
   public:
-    NonParametricProcess(size_t dim, bopt_params parameters, 
+    NonParametricProcess(size_t dim, Parameters parameters, 
 			 const Dataset& data, 
 			 MeanModel& mean,
 			 randEngine& eng);
@@ -55,7 +55,7 @@ namespace bayesopt
      * @param parameters (process name, noise, priors, etc.)
      * @return pointer to the corresponding derivate class (surrogate model)
      */
-    static NonParametricProcess* create(size_t dim, bopt_params parameters,
+    static NonParametricProcess* create(size_t dim, Parameters parameters,
 					const Dataset& data, 			 
 					MeanModel& mean, randEngine& eng);
 

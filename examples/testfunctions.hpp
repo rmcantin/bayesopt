@@ -38,7 +38,7 @@
 class ExampleOneD: public bayesopt::ContinuousModel
 {
 public:
-  ExampleOneD(bopt_params par):
+  ExampleOneD(bayesopt::Parameters par):
     ContinuousModel(1,par) {}
 
   double evaluateSample(const vectord& xin)
@@ -67,7 +67,7 @@ public:
 class BraninNormalized: public bayesopt::ContinuousModel
 {
 public:
-  BraninNormalized(bopt_params par):
+  BraninNormalized(bayesopt::Parameters par):
     ContinuousModel(2,par) {}
 
   double evaluateSample( const vectord& xin)
@@ -115,7 +115,7 @@ public:
 class ExampleCamelback: public bayesopt::ContinuousModel
 {
 public:
-  ExampleCamelback(bopt_params par):
+  ExampleCamelback(bayesopt::Parameters par):
     ContinuousModel(2,par) {}
 
   double evaluateSample( const vectord& x)
@@ -157,7 +157,7 @@ public:
 class ExampleHartmann6: public bayesopt::ContinuousModel
 {
 public:
-  ExampleHartmann6(bopt_params par):
+  ExampleHartmann6(bayesopt::Parameters par):
     ContinuousModel(6,par), mA(4,6), mC(4), mP(4,6)
   {
     mA <<= 10.0,   3.0, 17.0,   3.5,  1.7,  8.0,

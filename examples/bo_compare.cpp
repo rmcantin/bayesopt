@@ -26,7 +26,7 @@
 
 int main(int nargs, char *args[])
 {
-  bopt_params par = initialize_parameters_to_default();
+  bayesopt::Parameters par;
   par.verbose_level = 0;
   par.noise = 1e-10;
   par.force_jump = 30;

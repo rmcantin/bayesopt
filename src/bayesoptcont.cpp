@@ -47,7 +47,7 @@ namespace bayesopt  {
     ContinuousModel* mBO;
   };
   
-  ContinuousModel::ContinuousModel(size_t dim, bopt_params parameters):
+  ContinuousModel::ContinuousModel(size_t dim, Parameters parameters):
     BayesOptBase(dim,parameters)
   { 
     mCallback.reset(new CritCallback(this));

@@ -34,16 +34,16 @@ namespace bayesopt
 
   namespace ublas = boost::numeric::ublas; 
   
-  StudentTProcessNIG::StudentTProcessNIG(size_t dim, bopt_params params, 
+  StudentTProcessNIG::StudentTProcessNIG(size_t dim, Parameters params, 
 					 const Dataset& data, 			 
 					 MeanModel& mean, randEngine& eng):
     HierarchicalGaussianProcess(dim,params,data, mean, eng),
     mAlpha(params.alpha), mBeta (params.beta), 
-    mW0(params.mean.n_coef), mInvVarW(params.mean.n_coef), 
-    mD(params.mean.n_coef,params.mean.n_coef)
+    mW0(params.mean.coef_mean.size()), mInvVarW(params.mean.coef_mean.size()), 
+    mD(params.mean.coef_mean.size(),params.mean.coef_mean.size())
   {  
-    mW0 = utils::array2vector(params.mean.coef_mean,params.mean.n_coef);
-    for (size_t ii = 0; ii < params.mean.n_coef; ++ii)
+    mW0 = params.mean.coef_mean;
+    for (size_t ii = 0; ii < params.mean.coef_mean.size(); ++ii)
       {
 	double varii = params.mean.coef_std[ii] * params.mean.coef_std[ii];
 	mInvVarW(ii) = 1/varii;

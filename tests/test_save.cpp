@@ -4,7 +4,7 @@
 int main()
 {
     // First optimization
-    bopt_params par1 = initialize_parameters_to_default();
+    bayesopt::Parameters par1;
     par1.n_iterations = 190;
     par1.random_seed = 0;
     par1.verbose_level = 1;

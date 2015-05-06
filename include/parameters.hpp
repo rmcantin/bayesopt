@@ -26,7 +26,7 @@
 #define __BOPT_PARAMETERS_HPP__
 
 #include <string>
-#include "parameters.h" // learning_type, score_type
+#include "parameters.h"     // learning_type, score_type
 #include "specialtypes.hpp" // vectord
 
 /**

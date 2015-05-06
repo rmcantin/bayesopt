@@ -112,7 +112,7 @@ namespace bayesopt
 
   //////////////////////////////////////////////////////////////////////
 
-  KernelModel::KernelModel(size_t dim, bopt_params parameters)
+  KernelModel::KernelModel(size_t dim, Parameters parameters)
   { setKernel(parameters.kernel,dim);  }
 
   void KernelModel::setKernel (const vectord &thetav, 
@@ -145,12 +145,12 @@ namespace bayesopt
       }
   }
 
-  void KernelModel::setKernel (kernel_parameters kernel, 
+  void KernelModel::setKernel (KernelParameters kernel, 
 			      size_t dim)
   {
-    size_t n = kernel.n_hp;
-    vectord th = utils::array2vector(kernel.hp_mean,n);
-    vectord sth = utils::array2vector(kernel.hp_std,n);
+    size_t n = kernel.hp_mean.size();
+    vectord th = kernel.hp_mean;
+    vectord sth = kernel.hp_std;
     setKernel(th, sth, kernel.name, dim);
   };
 

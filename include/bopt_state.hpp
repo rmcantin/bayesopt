@@ -26,7 +26,7 @@
 #ifndef  _BOPT_STATE_HPP_
 #define  _BOPT_STATE_HPP_
 
-#include "parameters.h"
+#include "parameters.hpp"
 #include "specialtypes.hpp"
 #include "fileparser.hpp"
 
@@ -50,13 +50,13 @@ namespace bayesopt {
         void saveToFile(std::string filename);
         
         /** Loads the state from the provided file and takes program_params values if needed */
-        bool loadFromFile(std::string filename, bopt_params &program_params);
+        bool loadFromFile(std::string filename, Parameters &program_params);
         
         // BayesOptBase members
         size_t mCurrentIter;
         size_t mCounterStuck;
         double mYPrev;
-        bopt_params mParameters;
+        Parameters mParameters;
         
         // Optimization samples
         vecOfvec mX;

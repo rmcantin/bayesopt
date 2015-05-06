@@ -26,7 +26,7 @@ namespace bayesopt
   namespace ublas = boost::numeric::ublas; 
 
   StudentTProcessJeffreys::StudentTProcessJeffreys(size_t dim, 
-						   bopt_params params, 
+						   Parameters params, 
 						   const Dataset& data, 
 						   MeanModel& mean,
 						   randEngine& eng):

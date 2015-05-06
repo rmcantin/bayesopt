@@ -27,7 +27,7 @@
 #include <map>
 #include <boost/scoped_ptr.hpp>
 #include <boost/numeric/ublas/matrix_proxy.hpp>
-#include "parameters.h"
+#include "parameters.hpp"
 #include "specialtypes.hpp"
 
 namespace bayesopt
@@ -116,7 +116,7 @@ namespace bayesopt
   class MeanModel
   {
   public:
-    MeanModel(size_t dim, bopt_params parameters);
+    MeanModel(size_t dim, Parameters parameters);
     virtual ~MeanModel() {};
 
     ParametricFunction* getMeanFunc();
@@ -147,8 +147,8 @@ namespace bayesopt
     void setMean (const vectord &muv, const vectord &smu, 
 		 std::string m_name, size_t dim);
 
-    /** Wrapper of setMean for the C structure */
-    void setMean (mean_parameters mean, size_t dim);
+    /** Wrapper of setMean for the C++ structure */
+    void setMean (MeanParameters mean, size_t dim);
 
     matrixd mFeatM;           ///< Value of the mean features at the input points
 

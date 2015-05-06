@@ -11,7 +11,7 @@ int main()
     std::cout << "Restoring Optimization..." << std::endl;
     
     // Second optimization (restored from first optimization state)
-    bopt_params par2 = initialize_parameters_to_default();
+    bayesopt::Parameters par2;
     par2.n_iterations = 190;
     par2.random_seed = 0;
     par2.verbose_level = 1;

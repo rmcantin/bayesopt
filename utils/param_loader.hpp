@@ -30,7 +30,7 @@
 #include <iostream>
 #include <string.h>
 
-#include "parameters.h"
+#include "parameters.hpp"
 #include "specialtypes.hpp"
 #include "fileparser.hpp"
 
@@ -43,14 +43,14 @@ namespace bayesopt {
         class ParamLoader{
         public:
             /* Loads params from provided file, returns true if file exists */
-            static bool load(std::string filename, bopt_params &par);
+            static bool load(std::string filename, Parameters &par);
             /* This one could be useful to create param files from existing hard-coded params */
-            static void save(std::string filename, bopt_params &par); 
+            static void save(std::string filename, Parameters &par); 
         private:
             ParamLoader(){}
         
             /* private function to be used by load and save functions */
-            static void loadOrSave(utils::FileParser &fp, bopt_params &par);   
+            static void loadOrSave(utils::FileParser &fp, Parameters &par);   
         };
     }
 } //namespace bayesopt

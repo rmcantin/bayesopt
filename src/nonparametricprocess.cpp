@@ -36,7 +36,7 @@
 namespace bayesopt
 {
 
-  NonParametricProcess::NonParametricProcess(size_t dim, bopt_params parameters, 
+  NonParametricProcess::NonParametricProcess(size_t dim, Parameters parameters, 
 					     const Dataset& data, 
 					     MeanModel& mean,
 					     randEngine& eng):
@@ -47,7 +47,7 @@ namespace bayesopt
 
 
   NonParametricProcess* NonParametricProcess::create(size_t dim, 
-						     bopt_params parameters, 
+						     Parameters parameters, 
 						     const Dataset& data, 
 						     MeanModel& mean,
 						     randEngine& eng)

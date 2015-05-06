@@ -42,7 +42,7 @@ namespace bayesopt
   class ConditionalBayesProcess: public KernelRegressor
   {
   public:
-    ConditionalBayesProcess(size_t dim, bopt_params parameters, 
+    ConditionalBayesProcess(size_t dim, Parameters parameters, 
 			    const Dataset& data, 
 			    MeanModel& mean, randEngine& eng);
     virtual ~ConditionalBayesProcess();

@@ -27,7 +27,7 @@ namespace bayesopt
 {
 
 
-  PosteriorFixed::PosteriorFixed(size_t dim, bopt_params parameters, 
+  PosteriorFixed::PosteriorFixed(size_t dim, Parameters parameters, 
 				 randEngine& eng):
     PosteriorModel(dim,parameters,eng)
   {
@@ -53,18 +53,17 @@ namespace bayesopt
     mCrit.reset(mCFactory.create(mParameters.crit_name,mGP.get()));
     mCrit->setRandomEngine(eng);
 
-    if (mCrit->nParameters() == mParameters.n_crit_params)
+    if (mCrit->nParameters() == mParameters.crit_params.size())
       {
-	mCrit->setParameters(utils::array2vector(mParameters.crit_params,
-					       mParameters.n_crit_params));
+	mCrit->setParameters(mParameters.crit_params);
       }
     else // If the number of paramerters is different, use default.
       {
-	if (mParameters.n_crit_params != 0)
+	if (mParameters.crit_params.size() != 0)
 	  {
 	    FILE_LOG(logERROR) << "Expected " << mCrit->nParameters() 
 			       << " parameters. Got " 
-			       << mParameters.n_crit_params << " instead.";
+			       << mParameters.crit_params.size() << " instead.";
 	  }
 	FILE_LOG(logINFO) << "Using default parameters for criteria.";
       }

@@ -81,7 +81,7 @@ namespace bayesopt  {
      * @param dim number of input dimensions
      * @param params set of parameters (see parameters.h)
      */
-    ContinuousModel(size_t dim, bopt_params params);
+    ContinuousModel(size_t dim, Parameters params);
 
     /**  Default destructor  */
     virtual ~ContinuousModel();
@@ -185,14 +185,14 @@ namespace bayesopt  {
      * @param validSet  Set of potential inputs
      * @param params set of parameters (see parameters.h)
      */
-    DiscreteModel(const vecOfvec &validSet, bopt_params params);
+    DiscreteModel(const vecOfvec &validSet, Parameters params);
 
     /** 
      * Constructor for categorical data
      * @param number of categories per dimension
      * @param params set of parameters (see parameters.h)
      */
-    DiscreteModel(const vectori &categories, bopt_params params);
+    DiscreteModel(const vectori &categories, Parameters params);
     
     /** Default destructor  */
     virtual ~DiscreteModel();

@@ -24,7 +24,7 @@
 
 namespace bayesopt
 {
-  MCMCModel::MCMCModel(size_t dim, bopt_params parameters, 
+  MCMCModel::MCMCModel(size_t dim, Parameters parameters, 
 		       randEngine& eng):
     PosteriorModel(dim,parameters,eng), nParticles(10)
   {
@@ -83,18 +83,17 @@ namespace bayesopt
 	mCrit.push_back(mCFactory.create(mParameters.crit_name,&mGP[i]));
 	mCrit[i].setRandomEngine(eng);
 
-	if (mCrit[i].nParameters() == mParameters.n_crit_params)
+	if (mCrit[i].nParameters() == mParameters.crit_params.size())
 	  {
-	    mCrit[i].setParameters(utils::array2vector(mParameters.crit_params,
-						       mParameters.n_crit_params));
+	    mCrit[i].setParameters(mParameters.crit_params);
 	  }
-	else // If the number of paramerters is different, use default.
+	else // If the number of parameters is different, use default.
 	  {
-	    if (mParameters.n_crit_params != 0)
+	    if (mParameters.crit_params.size() != 0)
 	      {
 		FILE_LOG(logERROR) << "Expected " << mCrit[i].nParameters() 
 				   << " parameters. Got " 
-				   << mParameters.n_crit_params << " instead.";
+				   << mParameters.crit_params.size() << " instead.";
 	      }
 	    FILE_LOG(logINFO) << "Using default parameters for criteria.";
 	  }

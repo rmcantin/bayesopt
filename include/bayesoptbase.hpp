@@ -28,7 +28,7 @@
 
 #include <boost/scoped_ptr.hpp>
 #include <boost/random.hpp>
-#include "parameters.h"
+#include "parameters.hpp"
 #include "specialtypes.hpp"
 //#include "posteriormodel.hpp"
 #include "bopt_state.hpp"
@@ -68,9 +68,9 @@ namespace bayesopt {
   public:
     /** 
      * Constructor
-     * @param params set of parameters (see parameters.h)
+     * @param params set of parameters (see parameters.hpp)
      */
-    BayesOptBase(size_t dim, bopt_params params);
+    BayesOptBase(size_t dim, Parameters params);
 
     /** 
      * Default destructor
@@ -139,7 +139,7 @@ namespace bayesopt {
 
     ProbabilityDistribution* getPrediction(const vectord& query);
     const Dataset* getData();
-    bopt_params* getParameters();
+    Parameters* getParameters();
     double getValueAtMinimum();
     size_t getCurrentIter();
     double evaluateCriteria(const vectord& query);
@@ -183,7 +183,7 @@ namespace bayesopt {
     virtual vectord samplePoint() = 0;
 
   protected:
-    bopt_params mParameters;                    ///< Configuration parameters
+    Parameters mParameters;                    ///< Configuration parameters
     size_t mDims;                                   ///< Number of dimensions
     size_t mCurrentIter;                        ///< Current iteration number
     boost::mt19937 mEngine;                      ///< Random number generator

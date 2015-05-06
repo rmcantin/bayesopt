@@ -30,6 +30,7 @@
 #include "criteria_functors.hpp"
 #include "posteriormodel.hpp"
 
+
 namespace bayesopt {
 
   /** \addtogroup BayesOpt
@@ -46,9 +47,9 @@ namespace bayesopt {
   public:
     /** 
      * Constructor
-     * @param params set of parameters (see parameters.h)
+     * @param params set of parameters (see parameters.hpp)
      */
-    PosteriorFixed(size_t dim, bopt_params params, randEngine& eng);
+    PosteriorFixed(size_t dim, Parameters params, randEngine& eng);
 
     /** 
      * Default destructor

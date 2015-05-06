@@ -27,7 +27,7 @@
 #include <map>
 #include <boost/scoped_ptr.hpp>
 #include <boost/math/distributions/normal.hpp> 
-#include "parameters.h"
+#include "parameters.hpp"
 #include "specialtypes.hpp"
 
 namespace bayesopt
@@ -90,7 +90,7 @@ namespace bayesopt
   class KernelModel
   {
   public:
-    KernelModel(size_t dim, bopt_params parameters);
+    KernelModel(size_t dim, Parameters parameters);
     virtual ~KernelModel() {};
 
     Kernel* getKernel();
@@ -109,8 +109,8 @@ namespace bayesopt
     void setKernel (const vectord &thetav, const vectord &stheta, 
 		   std::string k_name, size_t dim);
 
-    /** Wrapper of setKernel for C kernel structure */
-    void setKernel (kernel_parameters kernel, size_t dim);
+    /** Wrapper of setKernel for C++ kernel structure */
+    void setKernel (KernelParameters kernel, size_t dim);
 
     void computeCorrMatrix(const vecOfvec& XX, matrixd& corrMatrix, double nugget);
     void computeDerivativeCorrMatrix(const vecOfvec& XX, matrixd& corrMatrix, 

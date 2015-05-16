@@ -316,7 +316,6 @@ namespace bayesopt {
         
         c_params.l_type = l_type;
         
-        // TODO (Javier): Check that bool to int conversion is done right
         c_params.l_all = l_all;
         
         c_params.epsilon = epsilon;

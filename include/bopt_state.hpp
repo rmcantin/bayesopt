@@ -36,10 +36,12 @@
  */
 namespace bayesopt {
 
-    //TODO (Javier): Complete class description
   /**
-   * \brief .
+   * \brief Class that represents the state of an optimization
    * 
+   * This class fields stores the state of an optimization, and
+   * provides member functions to allow saving the state into a file
+   * or reading the state from a file.
    */
     class BOptState{
     public:        

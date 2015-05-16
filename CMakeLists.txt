@@ -133,6 +133,9 @@ INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/include
 
 LINK_DIRECTORIES( ${CMAKE_SOURCE_DIR}/lib )
 
+# This directory contains created optimization programs
+ADD_SUBDIRECTORY(tfg)
+
 IF(NLOPT_BUILD)
   ADD_SUBDIRECTORY(nlopt2)
   include_directories(${CMAKE_SOURCE_DIR}/nlopt2/api)

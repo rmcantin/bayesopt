@@ -44,6 +44,7 @@ namespace bayesopt
     class FileParser{
     public:
         FileParser(std::string filename, int prec = 10);
+        FileParser(int prec = 10);
         ~FileParser();
         
         /* Write stream and read stream open/close functions*/

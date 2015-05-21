@@ -53,11 +53,12 @@ public:
     double x2 = xin(1);
     
     bayesopt::utils::FileParser fp("results.txt");
-    std::string call = "python ../tfg/branin_eval.py " + fp.to_string(x1) + " " + fp.to_string(x2);
+    std::string call = "python ../system_calls_examples/eval_branin.py " + fp.to_string(x1) + " " + fp.to_string(x2);
     system(call.c_str());
     
     fp.openInput();
     fp.read("y",y);
+    fp.close();
     
     return y;
   }
@@ -109,6 +110,16 @@ int main(int nargs, char *args[])
   std::cout << "Result: " << result << "->" 
 	    << branin.evaluateSample(result) << std::endl;
   branin.printOptimal();
+  
+  // Remove results.txt file
+  std::string filename("results.txt");
+  if( remove( filename.c_str() ) == 0 ){
+    std::cout << "File \"" << filename << "\" successfully removed" << std::endl;
+  }
+  else{
+    std::cout << "Error: cannot remove \"" << filename << "\" file" << std::endl; 
+  }
+  
   return 0;
 }
 

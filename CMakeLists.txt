@@ -133,8 +133,8 @@ INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/include
 
 LINK_DIRECTORIES( ${CMAKE_SOURCE_DIR}/lib )
 
-# This directory contains created optimization programs
-ADD_SUBDIRECTORY(tfg)
+# This directory contains optimizations that use system calls
+ADD_SUBDIRECTORY(system_calls_examples)
 
 IF(NLOPT_BUILD)
   ADD_SUBDIRECTORY(nlopt2)

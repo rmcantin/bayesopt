@@ -30,6 +30,11 @@ namespace bayesopt
     : filename(filename), input(), output(){
         setPrecision(prec);
     }
+    
+    // For using to_value and to_string functions
+    FileParser::FileParser(int prec){
+        setPrecision(prec);
+    }
 
     FileParser::~FileParser(){
         close();

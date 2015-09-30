@@ -81,7 +81,7 @@ a brief description or link to your interest for this code (one or two
 lines). There will be a section with links to research/papers/software
 that use BayesOpt.
 
-- Commercial applications may also adquire a **commercial license**. Please
+- Commercial applications may also acquire a **commercial license**. Please
 contact <rmcantin@unizar.es> for details.
 
 

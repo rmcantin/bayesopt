@@ -162,9 +162,14 @@ namespace bayesopt  {
     utils::samplePoints(xPoints,mParameters.init_method,mEngine);
 
     for(size_t i = 0; i < yPoints.size(); i++)
-      {
-	const vectord sample = row(xPoints,i);
-	yPoints(i) = evaluateSampleInternal(sample);
-      }
+    {
+        const vectord sample = row(xPoints,i);
+        yPoints(i) = evaluateSampleInternal(sample);
+    }
+  }
+  
+  void ContinuousModel::generateInitialPoints(matrixd& xPoints)
+  {   
+    utils::samplePoints(xPoints,mParameters.init_method,mEngine);
   }
 }  //namespace bayesopt

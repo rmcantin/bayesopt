@@ -116,34 +116,64 @@ namespace bayesopt
   
   void BayesOptBase::saveOptimization(BOptState &state){
      
-     // BayesOptBase members
-     state.mCurrentIter = mCurrentIter;
-     state.mCounterStuck = mCounterStuck;
-     state.mYPrev = mYPrev;
-     
-     state.mParameters = mParameters;
-     
-     // Samples
-     state.mX = mModel->getData()->mX;
-     state.mY = mModel->getData()->mY;
+    // BayesOptBase members
+    state.mCurrentIter = mCurrentIter;
+    state.mCounterStuck = mCounterStuck;
+    state.mYPrev = mYPrev;
+
+    state.mParameters = mParameters;
+
+    // Samples
+    state.mX = mModel->getData()->mX;
+    state.mY = mModel->getData()->mY;
+  }
+  
+  void BayesOptBase::saveInitialSamples(size_t current, matrixd xPoints, vectord yPoints){
+    // Save state if required
+    if(mParameters.load_save_flag == 2 || mParameters.load_save_flag == 3){
+        BOptState state;
+        saveOptimization(state);
+        
+        // Overwrite the state with initial samples so far
+        state.mX.clear();
+        state.mY.resize(current);
+        for(size_t i=0; i<xPoints.size1(); i++){
+            state.mX.push_back(row(xPoints,i));
+            if(i < current){
+                state.mY[i] = yPoints[i];
+            }
+        }
+        
+        state.saveToFile(std::string(mParameters.save_filename));
+    }
   }
 
   void BayesOptBase::restoreOptimization(BOptState state){
     // Restore parameters
     mParameters = state.mParameters; 
-     
+    
     // Posterior surrogate model
     mModel.reset(PosteriorModel::create(mDims, mParameters, mEngine));
     
-    // Put first sample into model to initialize internal sizes
-    if(state.mY.size() > 0){
-        mModel->setSample(state.mX[0], state.mY[0]);
-    }
-    // Put the rest of state samples into model
-    for(size_t i = 1; i < state.mY.size(); i++){
-        mModel->addSample(state.mX[i], state.mY[i]);
+    // Load samples, putting mX vecOfvec into a matrixd
+    matrixd xPoints(state.mX.size(),state.mX[0].size());
+    vectord yPoints(state.mX.size(),0);
+    for(size_t i=0; i<state.mX.size(); i++){
+        row(xPoints, i) = state.mX[i];
+        if(i < state.mY.size()){
+            yPoints[i] = state.mY[i];
+        }
     }
     
+    // Generate remaining initial samples saving in each evaluation
+    for(size_t i=state.mY.size(); i<state.mX.size(); i++){
+        yPoints[i] = evaluateSample(row(xPoints,i));
+        saveInitialSamples(i+1, xPoints, yPoints);
+    }
+    
+    // Set loaded and generated samples
+    mModel->setSamples(xPoints,yPoints);
+        
     if(mParameters.verbose_level > 0)
     {
         mModel->plotDataset(logDEBUG);
@@ -158,7 +188,7 @@ namespace bayesopt
     mYPrev = state.mYPrev;
     
     // Check if optimization has already finished
-    if(mCurrentIter <= mParameters.n_iterations){
+    if(mCurrentIter >= mParameters.n_iterations){
         FILE_LOG(logINFO) << "Optimization has already finished, delete \"" << mParameters.load_filename << "\" or give more n_iterations in parameters."; 
     }
   }
@@ -176,10 +206,21 @@ namespace bayesopt
     
     size_t nSamples = mParameters.n_init_samples;
 
+    // Generate xPoints for initial sampling
     matrixd xPoints(nSamples,mDims);
-    vectord yPoints(nSamples);
+    vectord yPoints(nSamples,0);
 
-    sampleInitialPoints(xPoints,yPoints);
+    // Save generated xPoints before its evaluation
+    generateInitialPoints(xPoints);
+    saveInitialSamples(0, xPoints, yPoints);
+    
+    // Save on each evaluation
+    for(size_t i=0; i<yPoints.size(); i++){
+        yPoints[i] = evaluateSample(row(xPoints,i));
+        saveInitialSamples(i+1, xPoints, yPoints);
+    }
+    
+    // Put samples into model
     mModel->setSamples(xPoints,yPoints);
  
     if(mParameters.verbose_level > 0)

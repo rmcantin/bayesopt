@@ -177,10 +177,16 @@ namespace bayesopt {
   
     /** Selects the initial set of points to build the surrogate model. */
     virtual void sampleInitialPoints(matrixd& xPoints, vectord& yPoints) = 0;
+    
+    /** Same as sampleInitialPoints function but without evaluation. */
+    virtual void generateInitialPoints(matrixd& xPoints) = 0;
 
     /** Sample a single point in the input space. Used for epsilon
 	greedy exploration. */
     virtual vectord samplePoint() = 0;
+        
+    /** Eases the process of saving a state during initial samples */
+    void saveInitialSamples(size_t current, matrixd xPoints, vectord yPoints);
 
   protected:
     Parameters mParameters;                    ///< Configuration parameters

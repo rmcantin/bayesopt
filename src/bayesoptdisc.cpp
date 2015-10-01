@@ -105,13 +105,31 @@ namespace bayesopt
     // the same point is not selected twice
     utils::randomPerms(perms,mEngine);
     
+    
     // vectord xPoint(mInputSet[0].size());
     for(size_t i = 0; i < yPoints.size(); i++)
-      {
-	const vectord xP = perms[i];
-	row(xPoints,i) = xP;
-	yPoints(i) = evaluateSample(xP);
-      }
+    {
+        const vectord xP = perms[i];
+        row(xPoints,i) = xP;
+        yPoints(i) = evaluateSample(xP);
+    }
+  }
+  
+  void DiscreteModel::generateInitialPoints(matrixd& xPoints)
+  {
+
+    vecOfvec perms = mInputSet;
+    
+    // By using random permutations, we guarantee that 
+    // the same point is not selected twice
+    utils::randomPerms(perms,mEngine);
+    
+    // vectord xPoint(mInputSet[0].size());
+    for(size_t i = 0; i < xPoints.size1(); i++)
+    {
+        const vectord xP = perms[i];
+        row(xPoints,i) = xP;
+    }
   }
   
 

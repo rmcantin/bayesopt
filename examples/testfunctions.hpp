@@ -145,7 +145,7 @@ public:
     sv(0) = 0.0898; sv(1) = -0.7126;
     std::cout << "Solutions: " << sv << "->" 
 	      << evaluateSample(sv) << std::endl;
-    sv(0) = 0.0898; sv(1) = 0.7126;
+    sv(0) = -0.0898; sv(1) = 0.7126;
     std::cout << "Solutions: " << sv << "->" 
 	      << evaluateSample(sv) << std::endl;
   }

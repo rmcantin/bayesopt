@@ -30,7 +30,7 @@ namespace bayesopt
       boost::numeric::ublas::vector<double> v(n);
       std::copy(array, array+n, v.begin());
       return v;
-    };
+    }
 
   } //  namespace utils
 } //namespace bayesopt

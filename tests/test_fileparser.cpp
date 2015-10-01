@@ -98,7 +98,6 @@ int main()
     else{
         std::cout << "Error: cannot remove \"" << filename << "\" file" << std::endl; 
     }
-    std::cout << std::endl;
     
     /*
      * Compare restored values with original values
@@ -148,7 +147,7 @@ int main()
     }
     
     if(returnValue == 0){
-        std::cout << "Tests completed without error" << std::endl;
+        std::cout << "Tests completed without errors" << std::endl;
     }
     return returnValue;
 }

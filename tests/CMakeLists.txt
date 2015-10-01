@@ -29,3 +29,8 @@ TARGET_LINK_LIBRARIES(test_save bayesopt)
 ADD_EXECUTABLE(test_fileparser ./test_fileparser.cpp)
 add_dependencies(test_fileparser bayesopt)
 TARGET_LINK_LIBRARIES(test_fileparser bayesopt)
+
+#Test Initial Samples
+ADD_EXECUTABLE(test_initial_samples ./test_initial_samples.cpp)
+add_dependencies(test_initial_samples bayesopt)
+TARGET_LINK_LIBRARIES(test_initial_samples bayesopt)

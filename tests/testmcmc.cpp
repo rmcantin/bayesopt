@@ -56,13 +56,14 @@ double determinant(bnu::matrix<double>& m ) {
 
 double gauss(const vectord& x, const vectord& mu, const matrixd& sigma)
 {
+  const double tpi = boost::math::constants::two_pi<double>();
   double n = static_cast<double>(x.size());
   const vectord vd = x-mu;
   matrixd invS = sigma;
   bayesopt::utils::inverse_cholesky(sigma,invS);
   matrixd sig = sigma;
 
-  return pow(2*M_PI,n/2)*pow(determinant(sig),0.5)*exp(-0.5*inner_prod(vd,prod(invS,vd)));
+  return pow(tpi,n/2)*pow(determinant(sig),0.5)*exp(-0.5*inner_prod(vd,prod(invS,vd)));
 }
 
 class Posterior: public bayesopt::RBOptimizable

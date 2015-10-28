@@ -24,9 +24,10 @@ int main()
     
     // Save samples for later comparison
     vectord first_mY(params.n_init_samples);
-    for(size_t i=0; i<params.n_init_samples; i++){
+    for(size_t i=0; i<params.n_init_samples; i++)
+      {
         first_mY[i] = state1.mY[i]; 
-    }
+      }
     state1.mY.resize(saved_samples); // remove all evaluation of samples
     state1.saveToFile(filename);
 
@@ -46,12 +47,14 @@ int main()
     state2.saveToFile(filename);
     
     // Try to remove used .dat file
-    if( remove( filename.c_str() ) == 0 ){
+    if( remove( filename.c_str() ) == 0 )
+      {
         std::cout << "File \"" << filename << "\" successfully removed" << std::endl;
-    }
-    else{
+      }
+    else
+      {
         std::cout << "Error: cannot remove \"" << filename << "\" file" << std::endl; 
-    }
+      }
     
     int returnValue = 0;
     // The length of state1.mY must be zero (as it was cleaned):

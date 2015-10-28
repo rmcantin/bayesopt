@@ -26,14 +26,11 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <algorithm>
+#include <boost/math/constants/constants.hpp>
 #include <boost/numeric/ublas/assignment.hpp>
 #include "bayesopt.hpp"
 
-#ifndef M_PI
-/* It shouldn't be necessary, but Windows is completely nuts about
-   math constants and I HATE when include order matters. */
-    #define M_PI       3.14159265358979323846
-#endif
+
 
 class ExampleOneD: public bayesopt::ContinuousModel
 {
@@ -86,8 +83,10 @@ public:
 
   double branin(double x, double y)
   {
-    return sqr(y-(5.1/(4*sqr(M_PI)))*sqr(x)
-	       +5*x/M_PI-6)+10*(1-1/(8*M_PI))*cos(x)+10;
+    const double pi = boost::math::constants::pi<double>();
+    const double rpi = boost::math::constants::root_pi<double>();
+    return sqr(y-(5.1/(4*rpi))*sqr(x)
+	       +5*x/pi-6)+10*(1-1/(8*pi))*cos(x)+10;
   };
 
   bool checkReachability(const vectord &query)

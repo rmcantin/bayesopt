@@ -3,19 +3,19 @@
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2015 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
-   under the terms of the GNU General Public License as published by
+   under the terms of the GNU Affero General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
 
    BayesOpt is distributed in the hope that it will be useful, but 
    WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   GNU Affero General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
+   You should have received a copy of the GNU Affero General Public License
    along with BayesOpt.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------
 */
@@ -26,19 +26,16 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <algorithm>
+#include <boost/math/constants/constants.hpp>
 #include <boost/numeric/ublas/assignment.hpp>
 #include "bayesopt.hpp"
 
-#ifndef M_PI
-/* It shouldn't be necessary, but Windows is completely nuts about
-   math constants and I HATE when include order matters. */
-    #define M_PI       3.14159265358979323846
-#endif
+
 
 class ExampleOneD: public bayesopt::ContinuousModel
 {
 public:
-  ExampleOneD(bopt_params par):
+  ExampleOneD(bayesopt::Parameters par):
     ContinuousModel(1,par) {}
 
   double evaluateSample(const vectord& xin)
@@ -67,7 +64,7 @@ public:
 class BraninNormalized: public bayesopt::ContinuousModel
 {
 public:
-  BraninNormalized(bopt_params par):
+  BraninNormalized(bayesopt::Parameters par):
     ContinuousModel(2,par) {}
 
   double evaluateSample( const vectord& xin)
@@ -86,8 +83,10 @@ public:
 
   double branin(double x, double y)
   {
-    return sqr(y-(5.1/(4*sqr(M_PI)))*sqr(x)
-	       +5*x/M_PI-6)+10*(1-1/(8*M_PI))*cos(x)+10;
+    const double pi = boost::math::constants::pi<double>();
+    const double rpi = boost::math::constants::root_pi<double>();
+    return sqr(y-(5.1/(4*rpi))*sqr(x)
+	       +5*x/pi-6)+10*(1-1/(8*pi))*cos(x)+10;
   };
 
   bool checkReachability(const vectord &query)
@@ -115,7 +114,7 @@ public:
 class ExampleCamelback: public bayesopt::ContinuousModel
 {
 public:
-  ExampleCamelback(bopt_params par):
+  ExampleCamelback(bayesopt::Parameters par):
     ContinuousModel(2,par) {}
 
   double evaluateSample( const vectord& x)
@@ -145,7 +144,7 @@ public:
     sv(0) = 0.0898; sv(1) = -0.7126;
     std::cout << "Solutions: " << sv << "->" 
 	      << evaluateSample(sv) << std::endl;
-    sv(0) = 0.0898; sv(1) = 0.7126;
+    sv(0) = -0.0898; sv(1) = 0.7126;
     std::cout << "Solutions: " << sv << "->" 
 	      << evaluateSample(sv) << std::endl;
   }
@@ -157,7 +156,7 @@ public:
 class ExampleHartmann6: public bayesopt::ContinuousModel
 {
 public:
-  ExampleHartmann6(bopt_params par):
+  ExampleHartmann6(bayesopt::Parameters par):
     ContinuousModel(6,par), mA(4,6), mC(4), mP(4,6)
   {
     mA <<= 10.0,   3.0, 17.0,   3.5,  1.7,  8.0,

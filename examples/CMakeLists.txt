@@ -42,7 +42,6 @@ ADD_EXECUTABLE(bo_compare ./bo_compare.cpp )
 add_dependencies(bo_compare bayesopt)
 TARGET_LINK_LIBRARIES(bo_compare bayesopt)
 
-
 enable_language(C)  #For OpenGL and bo_display demo
 
 #Display test

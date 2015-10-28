@@ -2,19 +2,19 @@
 #    This file is part of BayesOpt, an efficient C++ library for 
 #    Bayesian optimization.
 #
-#    Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+#    Copyright (C) 2011-2015 Ruben Martinez-Cantin <rmcantin@unizar.es>
 # 
 #    BayesOpt is free software: you can redistribute it and/or modify it 
-#    under the terms of the GNU General Public License as published by
+#    under the terms of the GNU Affero General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
 #    (at your option) any later version.
 #
 #    BayesOpt is distributed in the hope that it will be useful, but 
 #    WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+#    GNU Affero General Public License for more details.
 #
-#    You should have received a copy of the GNU General Public License
+#    You should have received a copy of the GNU Affero General Public License
 #    along with BayesOpt.  If not, see <http://www.gnu.org/licenses/>.
 # ------------------------------------------------------------------------
 
@@ -40,9 +40,9 @@ if(NOT CMAKE_BUILD_TYPE)
       FORCE)
 endif(NOT CMAKE_BUILD_TYPE)
 
-SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
-SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
-SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
+SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
+SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
 
 option(BAYESOPT_BUILD_EXAMPLES "Build examples and demos?" ON)
 option(BAYESOPT_BUILD_TESTS "Build tests?" OFF)
@@ -86,6 +86,7 @@ SET( BAYESOPT_SRCS
   ./src/bayesoptcont.cpp
   ./src/bayesoptdisc.cpp
   ./src/bayesoptbase.cpp
+  ./src/bopt_state.cpp
   ./src/posteriormodel.cpp
   ./src/posterior_fixed.cpp
   ./src/posterior_empirical.cpp
@@ -112,6 +113,8 @@ SET( BAYESOPT_SRCS
   )
 
 SET(UTILS_SRC
+  ./utils/fileparser.cpp
+  ./utils/param_loader.cpp
   ./utils/parser.cpp
   ./utils/ublas_extra.cpp
   ${SOBOL_SRC}
@@ -122,17 +125,20 @@ SET(WRAPPPERS_SRC
   )
 
 
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/include 
-                     ${CMAKE_SOURCE_DIR}/wrappers
-		     ${CMAKE_SOURCE_DIR}/utils
-		     ${CMAKE_SOURCE_DIR}/sobol )
+INCLUDE_DIRECTORIES( ${PROJECT_SOURCE_DIR}/include 
+                     ${PROJECT_SOURCE_DIR}/wrappers
+		     ${PROJECT_SOURCE_DIR}/utils
+		     ${PROJECT_SOURCE_DIR}/sobol )
 
 
-LINK_DIRECTORIES( ${CMAKE_SOURCE_DIR}/lib )
+LINK_DIRECTORIES( ${PROJECT_BINARY_DIR}/lib )
+
+# This directory contains optimizations that use system calls
+ADD_SUBDIRECTORY(system_calls_examples)
 
 IF(NLOPT_BUILD)
   ADD_SUBDIRECTORY(nlopt2)
-  include_directories(${CMAKE_SOURCE_DIR}/nlopt2/api)
+  include_directories(${PROJECT_SOURCE_DIR}/nlopt2/api)
   SET(EXT_LIBS nlopt)
 ELSE(NLOPT_BUILD)
   SET(EXT_LIBS ${NLOPT})

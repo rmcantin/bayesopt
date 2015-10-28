@@ -3,19 +3,19 @@
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2013 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2015 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
-   under the terms of the GNU General Public License as published by
+   under the terms of the GNU Affero General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
 
    BayesOpt is distributed in the hope that it will be useful, but 
    WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   GNU Affero General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
+   You should have received a copy of the GNU Affero General Public License
    along with BayesOpt.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------
 */
@@ -56,13 +56,14 @@ double determinant(bnu::matrix<double>& m ) {
 
 double gauss(const vectord& x, const vectord& mu, const matrixd& sigma)
 {
+  const double tpi = boost::math::constants::two_pi<double>();
   double n = static_cast<double>(x.size());
   const vectord vd = x-mu;
   matrixd invS = sigma;
   bayesopt::utils::inverse_cholesky(sigma,invS);
   matrixd sig = sigma;
 
-  return pow(2*M_PI,n/2)*pow(determinant(sig),0.5)*exp(-0.5*inner_prod(vd,prod(invS,vd)));
+  return pow(tpi,n/2)*pow(determinant(sig),0.5)*exp(-0.5*inner_prod(vd,prod(invS,vd)));
 }
 
 class Posterior: public bayesopt::RBOptimizable

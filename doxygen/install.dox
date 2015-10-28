@@ -190,26 +190,36 @@ the worng std++ library for different reasons. See:
 \section cinwin Install in Windows and other systems
 Install this components:
 \li CMake: http://www.cmake.org
+\li Boost: http://www.boost.org
+\li MinGW(optional): http://www.mingw.org
+\li FreeGLUT(optional): http://freeglut.sourceforge.net/
+
+First, you need to compile the library from sources using a C++
+compiler. If you do not have a C++ compiler, we recomend
+MinGW+MSYS. In order to configure the compiler and link the
+dependencies we recomend CMake.
 
 CMake for Windows provides a nice GUI where you can select your
 favorite C++ compiler (MinGW, Visual Studio, etc.). It will
 automatically create the necesary configuration files for the compiler
-(makefile, solution, etc.).
+(makefile, solution, etc.). In CMake you need to set the paths of the
+Boost and FreeGLUT to allow the compiler to find them. 
 
-\li Boost: http://www.boost.org
+Since Boost they are pure template libraries, they do not require any
+install/compilation steps in advance. Just make sure the headers are
+on the include path. You can also add an entry named BOOST_ROOT in
+CMake with the corresponding path to the library.
 
-Since Boost they are pure template libraries, they do not require
-compilation. Just make sure the headers are on the include path. You
-can also add an entry named BOOST_ROOT in CMake with the corresponding
-path to the library.
-
-\li MinGW(optional): http://www.mingw.org
-
-If you do not have a C++ compiler, we recomend MinGW+MSYS. Then, you
-just need to compile from the command line with:
+Once CMake have generated the corresponding configuration file, you
+still need to compile the sources. If you use MinGW, just run:
 \verbatim
 >> mingw32-make
 \endverbatim
+from the Command Prompt or PowerShell. 
+
+If you use Visual Studio, make sure the compilation is set to Release
+mode and not Debug mode. Although the mode is defined in CMake, Visual
+Studio tends to ignore that.
 
 The most important options/variables are explained in \ref confinst.
 

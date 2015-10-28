@@ -30,6 +30,12 @@ configurations, like different surrogate and criteria functions
 (Important: bo_display requires CMake to find OpenGL and GLUT/FreeGLUT
 to be compiled).
 
+Note: For some NVIDIA setups, you might need to preload the Pthreads dynamic library. For example, in Linux
+
+\verbatim
+>> LD_PRELOAD=/lib/x86_64-linux-gnu/libpthread.so.0 ./bin/bo_display
+\endverbatim
+
 \image html doxygen/oned.jpg
 
 \subsection brcpp Standard nonlinear function benchmarks

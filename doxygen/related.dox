@@ -22,18 +22,18 @@ http://cran.r-project.org/web/packages/DiceOptim/index.html
 
 \li SMAC (Java): A library based on \cite HutHooLey11-smac. It uses
 random forests as surrogate model. Intended for hyperparameter
-optimization. It has Python interface through HPOlib \cite
-EggFeuBerSnoHooHutLey13. http://www.cs.ubc.ca/labs/beta/Projects/SMAC/
+optimization. It has Python interface through HPOlib \cite EggFeuBerSnoHooHutLey13. 
+http://www.cs.ubc.ca/labs/beta/Projects/SMAC/
 
-\li Hyperopt (Python): A library mainly based on \cite
-Bergstra2011. It uses trees of Parzen estimators for the surrogate
+\li Hyperopt (Python): A library mainly based on \cite Bergstra2011. 
+It uses trees of Parzen estimators for the surrogate
 model https://github.com/jaberg/hyperopt
 
 \section relkrig Related surrogate modeling software
 
 \li Perk (Fortran+Shell): A library for surrogate modelling. It was
-mainly used to illustrate the results in \cite
-Santner03. http://www.stat.osu.edu/~comp_exp/book.html
+mainly used to illustrate the results in \cite Santner03. 
+http://www.stat.osu.edu/~comp_exp/book.html
 
 \li SUMO (Matlab+Java): A library for surrogate modelling using
 Gaussian processes. Its main purpose it is not optimization but it

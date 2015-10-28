@@ -4,19 +4,19 @@
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2015 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
-   under the terms of the GNU General Public License as published by
+   under the terms of the GNU Affero General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
 
    BayesOpt is distributed in the hope that it will be useful, but 
    WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   GNU Affero General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
+   You should have received a copy of the GNU Affero General Public License
    along with BayesOpt.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------
 */
@@ -81,15 +81,10 @@ namespace bayesopt  {
      * @param dim number of input dimensions
      * @param params set of parameters (see parameters.h)
      */
-    ContinuousModel(size_t dim, bopt_params params);
+    ContinuousModel(size_t dim, Parameters params);
 
     /**  Default destructor  */
     virtual ~ContinuousModel();
-  
-    /** Once the optimization has been perfomed, return the optimal
-     * point.
-     */
-    vectord getFinalResult();
 
     /** 
      * \brief Sets the bounding box. 
@@ -97,39 +92,28 @@ namespace bayesopt  {
      * @param lowerBound vector with the lower bounds of the hypercube
      * @param upperBound vector with the upper bounds of the hypercube
      */
-    void setBoundingBox( const vectord &lowerBound,
+    void setBoundingBox(const vectord &lowerBound,
 			const vectord &upperBound);
 
 
   protected:
-
-    /** 
-     * \brief Print data for every step according to the verbose level
-     * 
-     * @param iteration iteration number 
-     * @param xNext next point
-     * @param yNext function value at next point
-     */
-    void plotStepData(size_t iteration, const vectord& xNext,
-		      double yNext);
-
-    /** Selects the initial set of points to build the surrogate model. */
-    void sampleInitialPoints(matrixd& xPoints, vectord& yPoints);
-
     /** Sample a single point in the input space. Used for epsilon
 	greedy exploration. */
     vectord samplePoint();
 
-    /** Wrapper for the target function adding any preprocessing or
-	constraint. It also maps the box constrains to the [0,1] hypercube. */
-    double evaluateSampleInternal( const vectord &query );
-    
     /** 
      * \brief Call the inner optimization method to find the optimal
      * point acording to the criteria.  
      * @param xOpt optimal point
      */
     void findOptimal(vectord &xOpt);
+
+    /** Remap the point x to the original space (e.g.:
+	unnormalization) */
+    vectord remapPoint(const vectord& x);
+
+    /** Selects the initial set of points to build the surrogate model. */
+    void generateInitialPoints(matrixd& xPoints);
 
   private:
     boost::scoped_ptr<utils::BoundingBox<vectord> > mBB;      ///< Bounding Box (input space limits)
@@ -185,41 +169,35 @@ namespace bayesopt  {
      * @param validSet  Set of potential inputs
      * @param params set of parameters (see parameters.h)
      */
-    DiscreteModel(const vecOfvec &validSet, bopt_params params);
+    DiscreteModel(const vecOfvec &validSet, Parameters params);
 
     /** 
      * Constructor for categorical data
      * @param number of categories per dimension
      * @param params set of parameters (see parameters.h)
      */
-    DiscreteModel(const vectori &categories, bopt_params params);
+    DiscreteModel(const vectori &categories, Parameters params);
     
     /** Default destructor  */
     virtual ~DiscreteModel();
-
-    /** Once the optimization has been perfomed, return the optimal point. */
-    vectord getFinalResult();
-
     
   protected:
-    
-    
-    /** Print data for every step according to the verbose level */
-    void plotStepData(size_t iteration, const vectord& xNext,
-		     double yNext);
-
-    /** Selects the initial set of points to build the surrogate model. */
-    void sampleInitialPoints(matrixd& xPoints, vectord& yPoints);
-
     /** Sample a single point in the input space. Used for epsilon
 	greedy exploration. */
     vectord samplePoint();
 
-    /** Wrapper for the target function adding any preprocessing or
-	constraint. */
-    double evaluateSampleInternal( const vectord &query ); 
-
+    /** 
+     * \brief Call the inner optimization method to find the optimal
+     * point acording to the criteria.  
+     * @param xOpt optimal point
+     */
     void findOptimal(vectord &xOpt);
+
+    /** Remap the point x to the original space  */
+    vectord remapPoint(const vectord& x);
+
+    /** Selects the initial set of points to build the surrogate model. */
+    void generateInitialPoints(matrixd& xPoints);
 
   private:
     vecOfvec mInputSet;               ///< List of input points

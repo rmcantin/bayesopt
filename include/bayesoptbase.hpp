@@ -5,19 +5,19 @@
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2015 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
-   under the terms of the GNU General Public License as published by
+   under the terms of the GNU Affero General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
 
    BayesOpt is distributed in the hope that it will be useful, but 
    WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   GNU Affero General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
+   You should have received a copy of the GNU Affero General Public License
    along with BayesOpt.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------
 */
@@ -28,9 +28,10 @@
 
 #include <boost/scoped_ptr.hpp>
 #include <boost/random.hpp>
-#include "parameters.h"
+#include "parameters.hpp"
 #include "specialtypes.hpp"
 //#include "posteriormodel.hpp"
+#include "bopt_state.hpp"
 
 
 /**
@@ -67,9 +68,9 @@ namespace bayesopt {
   public:
     /** 
      * Constructor
-     * @param params set of parameters (see parameters.h)
+     * @param params set of parameters (see parameters.hpp)
      */
-    BayesOptBase(size_t dim, bopt_params params);
+    BayesOptBase(size_t dim, Parameters params);
 
     /** 
      * Default destructor
@@ -126,56 +127,67 @@ namespace bayesopt {
 
     /** Initialize the optimization process.  */
     void initializeOptimization();
-
+    
     /** Once the optimization has been perfomed, return the optimal point. */
-    virtual vectord getFinalResult() = 0;
+    vectord getFinalResult();
 
+    /** Saves the current state of the optimization process into a state class. */
+    void saveOptimization(BOptState &state);
+    
+    /** Restores the optimization process of a previous execution */
+    void restoreOptimization(BOptState state);
+
+    // Getters and Setters
     ProbabilityDistribution* getPrediction(const vectord& query);
     const Dataset* getData();
-    bopt_params* getParameters();
+    Parameters* getParameters();
     double getValueAtMinimum();
+    size_t getCurrentIter();
     double evaluateCriteria(const vectord& query);
 
   protected:
+    /** Get optimal point in the inner space (e.g.: [0-1] hypercube) */
     vectord getPointAtMinimum();
 
-    /** 
-     * Print data for every step according to the verbose level
-     * 
-     * @param iteration 
-     * @param xNext 
-     * @param yNext 
-     */
-    virtual void plotStepData(size_t iteration, const vectord& xNext,
-			      double yNext) = 0;
-
-
-    /** 
-     * \brief Wrapper for the target function normalize in the hypercube
-     * [0,1]
-     * @param query point to evaluate in [0,1] hypercube
-     * @return actual return value of the target function
-     */
-    virtual double evaluateSampleInternal( const vectord &query ) = 0;
-
-
-    /** 
-     * \brief Returns the optimal point acording to certain criteria
-     * @see evaluateCriteria
-     *
-     * @param xOpt optimal point
-     */
-    virtual void findOptimal(vectord &xOpt) = 0;
-  
-    /** Selects the initial set of points to build the surrogate model. */
-    virtual void sampleInitialPoints(matrixd& xPoints, vectord& yPoints) = 0;
+    /** Wrapper for the target function adding any preprocessing or
+	constraint. It also maps the box constrains to the [0,1]
+	hypercube if applicable. */
+    double evaluateSampleInternal( const vectord &query );
 
     /** Sample a single point in the input space. Used for epsilon
 	greedy exploration. */
     virtual vectord samplePoint() = 0;
 
+    /** 
+     * \brief Call the inner optimization method to find the optimal
+     * point acording to the criteria.  
+     * @param xOpt optimal point
+     */
+    virtual void findOptimal(vectord &xOpt) = 0;
+  
+    /** Remap the point x to the original space (e.g.:
+	unnormalization) */
+    virtual vectord remapPoint(const vectord& x) = 0;
+
+    /** Selects the initial set of points to build the surrogate model. */
+    virtual void generateInitialPoints(matrixd& xPoints) = 0;
+
+    /** 
+     * \brief Print data for every step according to the verbose level
+     * 
+     * @param iteration iteration number 
+     * @param xNext next point
+     * @param yNext function value at next point
+     */
+    void plotStepData(size_t iteration, const vectord& xNext,
+			      double yNext);
+        
+    /** Eases the process of saving a state during initial samples */
+    void saveInitialSamples(matrixd xPoints);
+    void saveResponse(double yPoint, bool clear);
+
   protected:
-    bopt_params mParameters;                    ///< Configuration parameters
+    Parameters mParameters;                    ///< Configuration parameters
     size_t mDims;                                   ///< Number of dimensions
     size_t mCurrentIter;                        ///< Current iteration number
     boost::mt19937 mEngine;                      ///< Random number generator

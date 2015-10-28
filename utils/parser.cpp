@@ -3,24 +3,25 @@
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2015 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
-   under the terms of the GNU General Public License as published by
+   under the terms of the GNU Affero General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
 
    BayesOpt is distributed in the hope that it will be useful, but 
    WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   GNU Affero General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
+   You should have received a copy of the GNU Affero General Public License
    along with BayesOpt.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------
 */
 #include <stdexcept>
 #include <sstream>
+#include <iostream>
 #include "parser.hpp"
 
 namespace bayesopt 
@@ -42,7 +43,7 @@ namespace bayesopt
       int i = 0, j = 0;
       while (is >> c) 
 	{
-	  if (i < 0) throw std::runtime_error("Error parsin expression:" + input);
+	  if (i < 0) throw std::runtime_error("Error parsing expression:" + input);
 	  
 	  if (c == ' ') /* pass */;
 	  else if (c == '(') i++;
@@ -55,7 +56,7 @@ namespace bayesopt
 	      else os2 << c;
 	    }
 	}
-      if (i != 0) throw std::runtime_error("Error parsin expression:" + input);
+      if (i != 0) throw std::runtime_error("Error parsing expression:" + input);
 
       parent = os.str();
       child1 = os1.str();
@@ -78,7 +79,7 @@ namespace bayesopt
       childs.clear();
       while (is >> c) 
 	{
-	  if (i < 0) throw std::runtime_error("Error parsin expression:" + input);
+	  if (i < 0) throw std::runtime_error("Error parsing expression:" + input);
 
 	  if (c == ' ') /* pass */;
 	  else if (c == '(') 
@@ -101,11 +102,21 @@ namespace bayesopt
 	      else os1 << c;
 	    }
 	}
-      if (i != 0) throw std::runtime_error("Error parsin expression:" + input);
+      if (i != 0) throw std::runtime_error("Error parsing expression:" + input);
 
       parent = os.str();
     } 
     
+    /**
+     * Splits the input string with a delimiter to extract elements
+     */
+    void split(std::string &input, char delim, std::vector<std::string> &elems){
+        std::stringstream ss(input);
+        std::string item;
+        while (std::getline(ss, item, delim)){
+            elems.push_back(item);
+        }
+    }
   } //namespace utils
 
 } //namespace bayesopt

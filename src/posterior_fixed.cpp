@@ -3,19 +3,19 @@
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2015 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
-   under the terms of the GNU General Public License as published by
+   under the terms of the GNU Affero General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
 
    BayesOpt is distributed in the hope that it will be useful, but 
    WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   GNU Affero General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
+   You should have received a copy of the GNU Affero General Public License
    along with BayesOpt.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------
 */
@@ -27,7 +27,7 @@ namespace bayesopt
 {
 
 
-  PosteriorFixed::PosteriorFixed(size_t dim, bopt_params parameters, 
+  PosteriorFixed::PosteriorFixed(size_t dim, Parameters parameters, 
 				 randEngine& eng):
     PosteriorModel(dim,parameters,eng)
   {
@@ -53,20 +53,19 @@ namespace bayesopt
     mCrit.reset(mCFactory.create(mParameters.crit_name,mGP.get()));
     mCrit->setRandomEngine(eng);
 
-    if (mCrit->nParameters() == mParameters.n_crit_params)
+    if (mCrit->nParameters() == mParameters.crit_params.size())
       {
-	mCrit->setParameters(utils::array2vector(mParameters.crit_params,
-					       mParameters.n_crit_params));
+	mCrit->setParameters(mParameters.crit_params);
       }
     else // If the number of paramerters is different, use default.
       {
-	if (mParameters.n_crit_params != 0)
+	if (mParameters.crit_params.size() != 0)
 	  {
 	    FILE_LOG(logERROR) << "Expected " << mCrit->nParameters() 
 			       << " parameters. Got " 
-			       << mParameters.n_crit_params << " instead.";
+			       << mParameters.crit_params.size() << " instead.";
 	  }
-	FILE_LOG(logINFO) << "Usign default parameters for criteria.";
+	FILE_LOG(logINFO) << "Using default parameters for criteria.";
       }
   } // setCriteria
 

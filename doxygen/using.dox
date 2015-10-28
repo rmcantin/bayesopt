@@ -37,8 +37,9 @@ users should read \ref params for a full description of the
 parameters.
 
 - \b n_iterations: Number of iterations of BayesOpt. Each iteration
-corresponds with a target function evaluation. In general, more
-evaluations result in higher precision [Default 190]
+corresponds with a target function evaluation. Curently, this is the
+only stopping criteria. In general, more evaluations result in higher
+precision [Default 190]
 
 - \b noise: Observation noise/signal ratio. [Default 1e-6]
   - For stochastic functions (if several evaluations of the same point
@@ -217,19 +218,27 @@ class MyOptimization: public ContinuousModel
 };
 \endcode
 
+where \i input_dimension is an size_t value with the number of input
+dimensions of the problem. Note that for C++ we use the Parameters
+class defined in parameters.hpp for convenience.
+
 Then, we use it like:
 \code{.cpp}
-bopt_params params = initialize_parameters_to_default();
-set_learning(&params,"L_MCMC");
+Parameters param;
+params.l_type = L_MCMC;
 
 MyOptimization optimizer(params);
+
+//Define bounds and prepare result.
+boost::numeric::ublas::vector<double> bestPoint(dim);
+boost::numeric::ublas::vector<double> lowerBound(dim);
+boost::numeric::ublas::vector<double> upperBound(dim);
 
 //Set the bounds. This is optional. Default is [0,1]
 //Only required because we are doing continuous optimization
 optimizer.setBoundingBox(lowerBounds,upperBounds);
 
 //Collect the result in bestPoint
-boost::numeric::ublas::vector<double> bestPoint(dim);
 optimizer.optimize(bestPoint);
 \endcode
 

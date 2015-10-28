@@ -3,19 +3,19 @@
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2015 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
-   under the terms of the GNU General Public License as published by
+   under the terms of the GNU Affero General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
 
    BayesOpt is distributed in the hope that it will be useful, but 
    WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   GNU Affero General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
+   You should have received a copy of the GNU Affero General Public License
    along with BayesOpt.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------
 */
@@ -112,7 +112,7 @@ namespace bayesopt
 
   //////////////////////////////////////////////////////////////////////
 
-  KernelModel::KernelModel(size_t dim, bopt_params parameters)
+  KernelModel::KernelModel(size_t dim, Parameters parameters)
   { setKernel(parameters.kernel,dim);  }
 
   void KernelModel::setKernel (const vectord &thetav, 
@@ -145,12 +145,12 @@ namespace bayesopt
       }
   }
 
-  void KernelModel::setKernel (kernel_parameters kernel, 
+  void KernelModel::setKernel (KernelParameters kernel, 
 			      size_t dim)
   {
-    size_t n = kernel.n_hp;
-    vectord th = utils::array2vector(kernel.hp_mean,n);
-    vectord sth = utils::array2vector(kernel.hp_std,n);
+    size_t n = kernel.hp_mean.size();
+    vectord th = kernel.hp_mean;
+    vectord sth = kernel.hp_std;
     setKernel(th, sth, kernel.name, dim);
   };
 

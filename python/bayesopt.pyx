@@ -3,19 +3,19 @@
 #    This file is part of BayesOpt, an efficient C++ library for
 #    Bayesian optimization.
 #
-#    Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
+#    Copyright (C) 2011-2015 Ruben Martinez-Cantin <rmcantin@unizar.es>
 #
 #    BayesOpt is free software: you can redistribute it and/or modify it
-#    under the terms of the GNU General Public License as published by
+#    under the terms of the GNU Affero General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
 #    (at your option) any later version.
 #
 #    BayesOpt is distributed in the hope that it will be useful, but
 #    WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+#    GNU Affero General Public License for more details.
 #
-#    You should have received a copy of the GNU General Public License
+#    You should have received a copy of the GNU Affero General Public License
 #    along with BayesOpt.  If not, see <http://www.gnu.org/licenses/>.
 # ------------------------------------------------------------------------
 
@@ -136,6 +136,12 @@ cdef bopt_params dict2structparams(dict dparams):
     name = dparams.get('log_filename',params.log_filename)
     set_log_file(&params,name)
 
+    params.load_save_flag = dparams.get('load_save_flag',params.load_save_flag)
+    l_name = dparams.get('load_filename',params.load_filename)
+    set_load_file(&params,l_name)
+    s_name = dparams.get('save_filename',params.save_filename)
+    set_save_file(&params,s_name)
+        
     name = dparams.get('surr_name',params.surr_name)
     set_surrogate(&params,name)
 

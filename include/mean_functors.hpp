@@ -4,19 +4,19 @@
    This file is part of BayesOpt, an efficient C++ library for 
    Bayesian optimization.
 
-   Copyright (C) 2011-2014 Ruben Martinez-Cantin <rmcantin@unizar.es>
+   Copyright (C) 2011-2015 Ruben Martinez-Cantin <rmcantin@unizar.es>
  
    BayesOpt is free software: you can redistribute it and/or modify it 
-   under the terms of the GNU General Public License as published by
+   under the terms of the GNU Affero General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
 
    BayesOpt is distributed in the hope that it will be useful, but 
    WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   GNU Affero General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
+   You should have received a copy of the GNU Affero General Public License
    along with BayesOpt.  If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------
 */
@@ -27,7 +27,7 @@
 #include <map>
 #include <boost/scoped_ptr.hpp>
 #include <boost/numeric/ublas/matrix_proxy.hpp>
-#include "parameters.h"
+#include "parameters.hpp"
 #include "specialtypes.hpp"
 
 namespace bayesopt
@@ -116,7 +116,7 @@ namespace bayesopt
   class MeanModel
   {
   public:
-    MeanModel(size_t dim, bopt_params parameters);
+    MeanModel(size_t dim, Parameters parameters);
     virtual ~MeanModel() {};
 
     ParametricFunction* getMeanFunc();
@@ -147,8 +147,8 @@ namespace bayesopt
     void setMean (const vectord &muv, const vectord &smu, 
 		 std::string m_name, size_t dim);
 
-    /** Wrapper of setMean for the C structure */
-    void setMean (mean_parameters mean, size_t dim);
+    /** Wrapper of setMean for the C++ structure */
+    void setMean (MeanParameters mean, size_t dim);
 
     matrixd mFeatM;           ///< Value of the mean features at the input points
 

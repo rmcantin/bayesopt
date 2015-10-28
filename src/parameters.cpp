@@ -146,67 +146,69 @@ void set_score(bopt_params* params, const char* name)
 
 bopt_params initialize_parameters_to_default(void)
 {
-  kernel_parameters kernel;
-  kernel.name = new char[128];
-  strcpy(kernel.name,KERNEL_NAME.c_str());
+  bayesopt::Parameters par;
+  return par.generate_bopt_params();
+  // kernel_parameters kernel;
+  // kernel.name = new char[128];
+  // strcpy(kernel.name,KERNEL_NAME.c_str());
 
-  kernel.hp_mean[0] = KERNEL_THETA;
-  kernel.hp_std[0]  = KERNEL_SIGMA;
-  kernel.n_hp       = 1;
+  // kernel.hp_mean[0] = KERNEL_THETA;
+  // kernel.hp_std[0]  = KERNEL_SIGMA;
+  // kernel.n_hp       = 1;
   
-  mean_parameters mean;
-  mean.name = new char[128];
-  strcpy(mean.name,MEAN_NAME.c_str());
+  // mean_parameters mean;
+  // mean.name = new char[128];
+  // strcpy(mean.name,MEAN_NAME.c_str());
 
-  mean.coef_mean[0] = MEAN_MU;
-  mean.coef_std[0]  = MEAN_SIGMA;
-  mean.n_coef       = 1;
+  // mean.coef_mean[0] = MEAN_MU;
+  // mean.coef_std[0]  = MEAN_SIGMA;
+  // mean.n_coef       = 1;
   
 
-  bopt_params params;
+  // bopt_params params;
 
-  params.n_iterations       = DEFAULT_ITERATIONS;
-  params.n_inner_iterations = DEFAULT_INNER_EVALUATIONS;
-  params.n_init_samples     = DEFAULT_INIT_SAMPLES;
-  params.n_iter_relearn     = DEFAULT_ITERATIONS_RELEARN;
+  // params.n_iterations       = DEFAULT_ITERATIONS;
+  // params.n_inner_iterations = DEFAULT_INNER_EVALUATIONS;
+  // params.n_init_samples     = DEFAULT_INIT_SAMPLES;
+  // params.n_iter_relearn     = DEFAULT_ITERATIONS_RELEARN;
 
-  params.init_method      =  1;
-  params.random_seed      = -1;
+  // params.init_method      =  1;
+  // params.random_seed      = -1;
 
-  params.verbose_level = DEFAULT_VERBOSE;
-  params.log_filename  = new char[128];
-  strcpy(params.log_filename,LOG_FILENAME.c_str());
+  // params.verbose_level = DEFAULT_VERBOSE;
+  // params.log_filename  = new char[128];
+  // strcpy(params.log_filename,LOG_FILENAME.c_str());
 
-  params.load_save_flag = 0;
-  params.load_filename = new char[128];
-  strcpy(params.load_filename,LOAD_FILENAME.c_str());
-  params.save_filename = new char[128];
-  strcpy(params.save_filename,SAVE_FILENAME.c_str());
+  // params.load_save_flag = 0;
+  // params.load_filename = new char[128];
+  // strcpy(params.load_filename,LOAD_FILENAME.c_str());
+  // params.save_filename = new char[128];
+  // strcpy(params.save_filename,SAVE_FILENAME.c_str());
 
-  params.surr_name = new char[128];
-  //  strcpy(params.surr_name,"sStudentTProcessNIG");
-  strcpy(params.surr_name,SURR_NAME.c_str());
+  // params.surr_name = new char[128];
+  // //  strcpy(params.surr_name,"sStudentTProcessNIG");
+  // strcpy(params.surr_name,SURR_NAME.c_str());
 
-  params.sigma_s = DEFAULT_SIGMA;
-  params.noise   = DEFAULT_NOISE;
-  params.alpha   = PRIOR_ALPHA;
-  params.beta    = PRIOR_BETA;
+  // params.sigma_s = DEFAULT_SIGMA;
+  // params.noise   = DEFAULT_NOISE;
+  // params.alpha   = PRIOR_ALPHA;
+  // params.beta    = PRIOR_BETA;
 
-  params.l_all   = 0;
-  params.l_type  = L_EMPIRICAL;
-  params.sc_type = SC_MAP;
+  // params.l_all   = 0;
+  // params.l_type  = L_EMPIRICAL;
+  // params.sc_type = SC_MAP;
 
-  params.epsilon = 0.0;
-  params.force_jump = 20;
+  // params.epsilon = 0.0;
+  // params.force_jump = 20;
   
-  params.crit_name = new char[128];
-  strcpy(params.crit_name,CRIT_NAME.c_str());
-  params.n_crit_params = 0;
+  // params.crit_name = new char[128];
+  // strcpy(params.crit_name,CRIT_NAME.c_str());
+  // params.n_crit_params = 0;
 
-  params.kernel = kernel;
-  params.mean = mean;
+  // params.kernel = kernel;
+  // params.mean = mean;
 
-  return params;
+  // return params;
 }
 
 /**
@@ -277,15 +279,20 @@ namespace bayesopt {
         force_jump = c_params.force_jump;
         
         kernel.name = std::string(c_params.kernel.name);
-        kernel.hp_mean = bayesopt::utils::array2vector(c_params.kernel.hp_mean, c_params.kernel.n_hp);
-        kernel.hp_std = bayesopt::utils::array2vector(c_params.kernel.hp_std, c_params.kernel.n_hp);
-        
+        kernel.hp_mean = bayesopt::utils::array2vector(c_params.kernel.hp_mean, 
+						       c_params.kernel.n_hp);
+        kernel.hp_std = bayesopt::utils::array2vector(c_params.kernel.hp_std, 
+						      c_params.kernel.n_hp);
+ 
         mean.name = std::string(c_params.mean.name);
-        mean.coef_mean = bayesopt::utils::array2vector(c_params.mean.coef_mean, c_params.mean.n_coef);
-        mean.coef_std = bayesopt::utils::array2vector(c_params.mean.coef_std, c_params.mean.n_coef);
+        mean.coef_mean = bayesopt::utils::array2vector(c_params.mean.coef_mean, 
+						       c_params.mean.n_coef);
+        mean.coef_std = bayesopt::utils::array2vector(c_params.mean.coef_std, 
+						      c_params.mean.n_coef);
         
         crit_name = c_params.crit_name;
-        crit_params = bayesopt::utils::array2vector(c_params.crit_params, c_params.n_crit_params);
+        crit_params = bayesopt::utils::array2vector(c_params.crit_params, 
+						    c_params.n_crit_params);
     }
 
     bopt_params Parameters::generate_bopt_params(){

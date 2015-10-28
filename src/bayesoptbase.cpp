@@ -185,7 +185,8 @@ namespace bayesopt
     for(size_t i=0; i<yPoints.size(); i++)
       {
         yPoints[i] = evaluateSample(row(xPoints,i));
-        saveResponse(yPoints[i]);
+	//We clear the vector in the first iteration
+        saveResponse(yPoints[i], i==0);
       }
     
     // Put samples into model
@@ -247,7 +248,7 @@ namespace bayesopt
 	  {
 	    // Generate remaining initial samples saving in each evaluation	    
 	    yPoints[i] = evaluateSample(row(xPoints,i));
-	    saveResponse(yPoints[i]);
+	    saveResponse(yPoints[i], false);
 	  }
       }
     
@@ -356,14 +357,17 @@ namespace bayesopt
   }
 
 
-  void BayesOptBase::saveResponse(double yPoint)
+  void BayesOptBase::saveResponse(double yPoint, bool clear)
   {
     // Save state if required
     if(mParameters.load_save_flag == 2 || mParameters.load_save_flag == 3)
       {
         BOptState state;
         saveOptimization(state);
-        
+	if (clear)
+	  {
+	    state.mY.clear();
+	  }
 	utils::append(state.mY,yPoint);
         state.saveToFile(mParameters.save_filename);
       }

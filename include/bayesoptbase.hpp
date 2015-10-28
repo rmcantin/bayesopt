@@ -184,7 +184,7 @@ namespace bayesopt {
         
     /** Eases the process of saving a state during initial samples */
     void saveInitialSamples(matrixd xPoints);
-    void saveResponse(double yPoint);
+    void saveResponse(double yPoint, bool clear);
 
   protected:
     Parameters mParameters;                    ///< Configuration parameters

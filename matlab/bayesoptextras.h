@@ -240,6 +240,11 @@ bopt_params load_parameters(const mxArray* params)
   
   struct_int(params, "verbose_level", &parameters.verbose_level);
   struct_string(params, "log_filename", parameters.log_filename);
+
+  struct_size(params, "load_save_flag", &parameters.load_save_flag);
+  struct_string(params, "load_filename", parameters.load_filename);
+  struct_string(params, "save_filename", parameters.save_filename);
+
   
   struct_string(params, "surr_name", parameters.surr_name);
 

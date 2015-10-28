@@ -53,8 +53,9 @@ public:
     double x2 = xin(1);
     
     bayesopt::utils::FileParser fp("results.txt");
-    std::string call = "python ../system_calls_examples/eval_branin.py " + fp.to_string(x1) + " " + fp.to_string(x2);
-    system(call.c_str());
+    std::string call = "python ../system_calls_examples/eval_branin.py " + 
+      fp.to_string(x1) + " " + fp.to_string(x2);
+    int ret = system(call.c_str());
     
     fp.openInput();
     fp.read("y",y);

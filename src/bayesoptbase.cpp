@@ -58,6 +58,48 @@ namespace bayesopt
   { } // Default destructor
 
 
+  // OPTIMIZATION INTERFACE
+  void BayesOptBase::optimize(vectord &bestPoint)
+  {
+    assert(mDims == bestPoint.size());
+    
+    // Restore state from file
+    if(mParameters.load_save_flag == 1 || mParameters.load_save_flag == 3)
+      {
+        BOptState state;
+        bool load_succeed = state.loadFromFile(mParameters.load_filename, 
+					       mParameters);
+        if(load_succeed)
+	  {
+            restoreOptimization(state);
+            FILE_LOG(logINFO) << "State succesfully restored from file \"" 
+			      << mParameters.load_filename << "\"";
+	  }
+        else
+	  {
+	    // If load not succeed, print info message and then
+	    // initialize a new optimization
+            FILE_LOG(logINFO) << "File \"" << mParameters.load_filename 
+			      << "\" does not exist,"
+			      << " starting a new optimization";
+            initializeOptimization();
+	  }
+      }
+    else
+      {
+	// Initialize a new state
+        initializeOptimization();
+      }
+    
+    for (size_t ii = mCurrentIter; ii < mParameters.n_iterations; ++ii)
+      {      
+        stepOptimization();
+      }
+   
+    bestPoint = getFinalResult();
+  } // optimize
+
+
   void BayesOptBase::stepOptimization()
   {
     // Find what is the next point.
@@ -102,20 +144,75 @@ namespace bayesopt
       {
         mModel->updateSurrogateModel();
       } 
+
     plotStepData(mCurrentIter,xNext,yNext);
     mModel->updateCriteria(xNext);
     mCurrentIter++;
     
     // Save state if required
-    if(mParameters.load_save_flag == 2 || mParameters.load_save_flag == 3){
+    if(mParameters.load_save_flag == 2 || mParameters.load_save_flag == 3)
+      {
         BOptState state;
         saveOptimization(state);
-        state.saveToFile(std::string(mParameters.save_filename));
-    }
+        state.saveToFile(mParameters.save_filename);
+      }
   }
   
-  void BayesOptBase::saveOptimization(BOptState &state){
-     
+
+  void BayesOptBase::initializeOptimization()
+  {
+    // Posterior surrogate model
+    mModel.reset(PosteriorModel::create(mDims,mParameters,mEngine));
+    
+    // Configure iteration parameters
+    if (mParameters.n_init_samples <= 0)
+      {
+        mParameters.n_init_samples = 
+          static_cast<size_t>(ceil(0.1*mParameters.n_iterations));	
+      }
+    
+    size_t nSamples = mParameters.n_init_samples;
+
+    // Generate xPoints for initial sampling
+    matrixd xPoints(nSamples,mDims);
+    vectord yPoints(nSamples,0);
+
+    // Save generated xPoints before its evaluation
+    generateInitialPoints(xPoints);
+    saveInitialSamples(xPoints);
+    
+    // Save on each evaluation for safety reasons
+    for(size_t i=0; i<yPoints.size(); i++)
+      {
+        yPoints[i] = evaluateSample(row(xPoints,i));
+        saveResponse(yPoints[i]);
+      }
+    
+    // Put samples into model
+    mModel->setSamples(xPoints,yPoints);
+ 
+    if(mParameters.verbose_level > 0)
+      {
+        mModel->plotDataset(logDEBUG);
+      }
+    
+    mModel->updateHyperParameters();
+    mModel->fitSurrogateModel();
+    mCurrentIter = 0;
+
+    mCounterStuck = 0;
+    mYPrev = 0.0;
+  }
+
+  vectord BayesOptBase::getFinalResult()
+  {
+    return remapPoint(getPointAtMinimum());
+  }
+
+
+  // SAVE-RESTORE INTERFACE
+  void BayesOptBase::saveOptimization(BOptState &state)
+  {   
     // BayesOptBase members
     state.mCurrentIter = mCurrentIter;
     state.mCounterStuck = mCounterStuck;
@@ -127,28 +224,9 @@ namespace bayesopt
     state.mX = mModel->getData()->mX;
     state.mY = mModel->getData()->mY;
   }
-  
-  void BayesOptBase::saveInitialSamples(size_t current, matrixd xPoints, vectord yPoints){
-    // Save state if required
-    if(mParameters.load_save_flag == 2 || mParameters.load_save_flag == 3){
-        BOptState state;
-        saveOptimization(state);
-        
-        // Overwrite the state with initial samples so far
-        state.mX.clear();
-        state.mY.resize(current);
-        for(size_t i=0; i<xPoints.size1(); i++){
-            state.mX.push_back(row(xPoints,i));
-            if(i < current){
-                state.mY[i] = yPoints[i];
-            }
-        }
-        
-        state.saveToFile(std::string(mParameters.save_filename));
-    }
-  }
 
-  void BayesOptBase::restoreOptimization(BOptState state){
+  void BayesOptBase::restoreOptimization(BOptState state)
+  {
     // Restore parameters
     mParameters = state.mParameters; 
     
@@ -158,18 +236,20 @@ namespace bayesopt
     // Load samples, putting mX vecOfvec into a matrixd
     matrixd xPoints(state.mX.size(),state.mX[0].size());
     vectord yPoints(state.mX.size(),0);
-    for(size_t i=0; i<state.mX.size(); i++){
+    for(size_t i=0; i<state.mX.size(); i++)
+      {
         row(xPoints, i) = state.mX[i];
-        if(i < state.mY.size()){
+        if(i < state.mY.size())
+	  {
             yPoints[i] = state.mY[i];
-        }
-    }
-    
-    // Generate remaining initial samples saving in each evaluation
-    for(size_t i=state.mY.size(); i<state.mX.size(); i++){
-        yPoints[i] = evaluateSample(row(xPoints,i));
-        saveInitialSamples(i+1, xPoints, yPoints);
-    }
+	  }
+	else
+	  {
+	    // Generate remaining initial samples saving in each evaluation	    
+	    yPoints[i] = evaluateSample(row(xPoints,i));
+	    saveResponse(yPoints[i]);
+	  }
+      }
     
     // Set loaded and generated samples
     mModel->setSamples(xPoints,yPoints);
@@ -188,89 +268,115 @@ namespace bayesopt
     mYPrev = state.mYPrev;
     
     // Check if optimization has already finished
-    if(mCurrentIter >= mParameters.n_iterations){
-        FILE_LOG(logINFO) << "Optimization has already finished, delete \"" << mParameters.load_filename << "\" or give more n_iterations in parameters."; 
-    }
-  }
-
-  void BayesOptBase::initializeOptimization()
-  {
-    // Posterior surrogate model
-    mModel.reset(PosteriorModel::create(mDims,mParameters,mEngine));
-    
-    // Configure iteration parameters
-    if (mParameters.n_init_samples <= 0){
-        mParameters.n_init_samples = 
-          static_cast<size_t>(ceil(0.1*mParameters.n_iterations));	
-    }
-    
-    size_t nSamples = mParameters.n_init_samples;
-
-    // Generate xPoints for initial sampling
-    matrixd xPoints(nSamples,mDims);
-    vectord yPoints(nSamples,0);
-
-    // Save generated xPoints before its evaluation
-    generateInitialPoints(xPoints);
-    saveInitialSamples(0, xPoints, yPoints);
-    
-    // Save on each evaluation
-    for(size_t i=0; i<yPoints.size(); i++){
-        yPoints[i] = evaluateSample(row(xPoints,i));
-        saveInitialSamples(i+1, xPoints, yPoints);
-    }
-    
-    // Put samples into model
-    mModel->setSamples(xPoints,yPoints);
- 
-    if(mParameters.verbose_level > 0)
-    {
-        mModel->plotDataset(logDEBUG);
-    }
-    
-    mModel->updateHyperParameters();
-    mModel->fitSurrogateModel();
-    mCurrentIter = 0;
-
-	mCounterStuck = 0;
-	mYPrev = 0.0;
-  }
-
-
-  void BayesOptBase::optimize(vectord &bestPoint)
-  {
-    // Restore state from file
-    if(mParameters.load_save_flag == 1 || mParameters.load_save_flag == 3){
-        BOptState state;
-        bool load_succeed = state.loadFromFile(std::string(mParameters.load_filename), mParameters);
-        if(load_succeed){
-            restoreOptimization(state);
-            FILE_LOG(logINFO) << "State succesfully restored from file \"" << mParameters.load_filename << "\"";
-        }
-        // If load not succeed, print info message and then initialize a new optimization
-        else{
-            FILE_LOG(logINFO) << "File \"" << mParameters.load_filename << "\" does not exist, starting a new optimization";
-            initializeOptimization();
-        }
-    }
-    // Initialize a new state
-    else{
-        initializeOptimization();
-    }
-    
-    assert(mDims == bestPoint.size());
-    
-    for (size_t ii = mCurrentIter; ii < mParameters.n_iterations; ++ii)
-      {      
-        stepOptimization();
+    if(mCurrentIter >= mParameters.n_iterations)
+      {
+        FILE_LOG(logINFO) << "Optimization has already finished, delete \"" 
+			  << mParameters.load_filename 
+			  << "\" or give more n_iterations in parameters."; 
       }
-   
-    bestPoint = getFinalResult();
-  } // optimize
+  }
 
+  
+  // GETTERS AND SETTERS
+  // Potential inline functions. Moved here to simplify API and header
+  // structure.
+  ProbabilityDistribution* BayesOptBase::getPrediction(const vectord& query)
+  { return mModel->getPrediction(query); };
+  
+  const Dataset* BayesOptBase::getData()
+  { return mModel->getData(); };
+
+  Parameters* BayesOptBase::getParameters() 
+  {return &mParameters;};
+
+  double BayesOptBase::getValueAtMinimum()
+  { return mModel->getValueAtMinimum(); };
+
+  double BayesOptBase::evaluateCriteria(const vectord& query)
+  {
+    if (checkReachability(query)) return mModel->evaluateCriteria(query);
+    else return 0.0;
+  }
+
+  size_t BayesOptBase::getCurrentIter()
+  {return mCurrentIter;};
+
+  
+
+  // PROTECTED
+  vectord BayesOptBase::getPointAtMinimum() 
+  { return mModel->getPointAtMinimum(); };
+
+  double BayesOptBase::evaluateSampleInternal( const vectord &query )
+  { 
+    const double yNext = evaluateSample(remapPoint(query)); 
+    if (yNext == HUGE_VAL)
+      {
+	throw std::runtime_error("Function evaluation out of range");
+      }
+    return yNext;
+  }; 
+
+
+
+  
+  
+  void BayesOptBase::plotStepData(size_t iteration, const vectord& xNext,
+				     double yNext)
+  {
+    if(mParameters.verbose_level >0)
+      { 
+	FILE_LOG(logINFO) << "Iteration: " << iteration+1 << " of " 
+			  << mParameters.n_iterations << " | Total samples: " 
+			  << iteration+1+mParameters.n_init_samples ;
+	FILE_LOG(logINFO) << "Query: "         << remapPoint(xNext); ;
+	FILE_LOG(logINFO) << "Query outcome: " << yNext ;
+	FILE_LOG(logINFO) << "Best query: "    << getFinalResult(); 
+	FILE_LOG(logINFO) << "Best outcome: "  << getValueAtMinimum();
+      }
+  } //plotStepData
+
+
+  void BayesOptBase::saveInitialSamples(matrixd xPoints)
+  {
+    // Save state if required
+    if(mParameters.load_save_flag == 2 || mParameters.load_save_flag == 3)
+      {
+        BOptState state;
+        saveOptimization(state);
+        
+        // Overwrite the state with initial samples so far
+        state.mX.clear();
+        for(size_t i=0; i<xPoints.size1(); i++)
+	  {
+            state.mX.push_back(row(xPoints,i));
+	  }
+        state.saveToFile(mParameters.save_filename);
+      }
+  }
+
+
+  void BayesOptBase::saveResponse(double yPoint)
+  {
+    // Save state if required
+    if(mParameters.load_save_flag == 2 || mParameters.load_save_flag == 3)
+      {
+        BOptState state;
+        saveOptimization(state);
+        
+	utils::append(state.mY,yPoint);
+        state.saveToFile(mParameters.save_filename);
+      }
+  }
+
+
+
+
+
+
+  // PRIVATE MEMBERS
   vectord BayesOptBase::nextPoint()
   {
-
     //Epsilon-Greedy exploration (see Bull 2011)
     if ((mParameters.epsilon > 0.0) && (mParameters.epsilon < 1.0))
       {
@@ -308,32 +414,6 @@ namespace bayesopt
     return Xnext;
   }
 
-
-  // Potential inline functions. Moved here to simplify API and header
-  // structure.
-  double BayesOptBase::evaluateCriteria(const vectord& query)
-  {
-    if (checkReachability(query)) return mModel->evaluateCriteria(query);
-    else return 0.0;
-  }
-
-  vectord BayesOptBase::getPointAtMinimum() 
-  { return mModel->getPointAtMinimum(); };
-  
-  double BayesOptBase::getValueAtMinimum()
-  { return mModel->getValueAtMinimum(); };
-
-  ProbabilityDistribution* BayesOptBase::getPrediction(const vectord& query)
-  { return mModel->getPrediction(query); };
-
-   const Dataset* BayesOptBase::getData()
-  { return mModel->getData(); };
-
-  Parameters* BayesOptBase::getParameters() 
-  {return &mParameters;};
-  
-  size_t BayesOptBase::getCurrentIter()
-  {return mCurrentIter;};
 
 
 } //namespace bayesopt

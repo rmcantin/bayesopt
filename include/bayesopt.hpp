@@ -85,11 +85,6 @@ namespace bayesopt  {
 
     /**  Default destructor  */
     virtual ~ContinuousModel();
-  
-    /** Once the optimization has been perfomed, return the optimal
-     * point.
-     */
-    vectord getFinalResult();
 
     /** 
      * \brief Sets the bounding box. 
@@ -97,42 +92,28 @@ namespace bayesopt  {
      * @param lowerBound vector with the lower bounds of the hypercube
      * @param upperBound vector with the upper bounds of the hypercube
      */
-    void setBoundingBox( const vectord &lowerBound,
+    void setBoundingBox(const vectord &lowerBound,
 			const vectord &upperBound);
 
 
   protected:
-
-    /** 
-     * \brief Print data for every step according to the verbose level
-     * 
-     * @param iteration iteration number 
-     * @param xNext next point
-     * @param yNext function value at next point
-     */
-    void plotStepData(size_t iteration, const vectord& xNext,
-		      double yNext);
-
-    /** Selects the initial set of points to build the surrogate model. */
-    void sampleInitialPoints(matrixd& xPoints, vectord& yPoints);
-    
-    /** Same as sampleInitialPoints function but without evaluation. */
-    void generateInitialPoints(matrixd& xPoints);
-
     /** Sample a single point in the input space. Used for epsilon
 	greedy exploration. */
     vectord samplePoint();
 
-    /** Wrapper for the target function adding any preprocessing or
-	constraint. It also maps the box constrains to the [0,1] hypercube. */
-    double evaluateSampleInternal( const vectord &query );
-    
     /** 
      * \brief Call the inner optimization method to find the optimal
      * point acording to the criteria.  
      * @param xOpt optimal point
      */
     void findOptimal(vectord &xOpt);
+
+    /** Remap the point x to the original space (e.g.:
+	unnormalization) */
+    vectord remapPoint(const vectord& x);
+
+    /** Selects the initial set of points to build the surrogate model. */
+    void generateInitialPoints(matrixd& xPoints);
 
   private:
     boost::scoped_ptr<utils::BoundingBox<vectord> > mBB;      ///< Bounding Box (input space limits)
@@ -199,33 +180,24 @@ namespace bayesopt  {
     
     /** Default destructor  */
     virtual ~DiscreteModel();
-
-    /** Once the optimization has been perfomed, return the optimal point. */
-    vectord getFinalResult();
-
     
   protected:
-    
-    
-    /** Print data for every step according to the verbose level */
-    void plotStepData(size_t iteration, const vectord& xNext,
-		     double yNext);
-
-    /** Selects the initial set of points to build the surrogate model. */
-    void sampleInitialPoints(matrixd& xPoints, vectord& yPoints);
-    
-    /** Same as sampleInitialPoints function but without evaluation. */
-    void generateInitialPoints(matrixd& xPoints);
-
     /** Sample a single point in the input space. Used for epsilon
 	greedy exploration. */
     vectord samplePoint();
 
-    /** Wrapper for the target function adding any preprocessing or
-	constraint. */
-    double evaluateSampleInternal( const vectord &query ); 
-
+    /** 
+     * \brief Call the inner optimization method to find the optimal
+     * point acording to the criteria.  
+     * @param xOpt optimal point
+     */
     void findOptimal(vectord &xOpt);
+
+    /** Remap the point x to the original space  */
+    vectord remapPoint(const vectord& x);
+
+    /** Selects the initial set of points to build the surrogate model. */
+    void generateInitialPoints(matrixd& xPoints);
 
   private:
     vecOfvec mInputSet;               ///< List of input points

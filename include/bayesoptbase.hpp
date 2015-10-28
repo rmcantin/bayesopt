@@ -128,15 +128,16 @@ namespace bayesopt {
     /** Initialize the optimization process.  */
     void initializeOptimization();
     
+    /** Once the optimization has been perfomed, return the optimal point. */
+    vectord getFinalResult();
+
     /** Saves the current state of the optimization process into a state class. */
     void saveOptimization(BOptState &state);
     
     /** Restores the optimization process of a previous execution */
     void restoreOptimization(BOptState state);
-    
-    /** Once the optimization has been perfomed, return the optimal point. */
-    virtual vectord getFinalResult() = 0;
 
+    // Getters and Setters
     ProbabilityDistribution* getPrediction(const vectord& query);
     const Dataset* getData();
     Parameters* getParameters();
@@ -145,48 +146,45 @@ namespace bayesopt {
     double evaluateCriteria(const vectord& query);
 
   protected:
+    /** Get optimal point in the inner space (e.g.: [0-1] hypercube) */
     vectord getPointAtMinimum();
 
-    /** 
-     * Print data for every step according to the verbose level
-     * 
-     * @param iteration 
-     * @param xNext 
-     * @param yNext 
-     */
-    virtual void plotStepData(size_t iteration, const vectord& xNext,
-			      double yNext) = 0;
-
-
-    /** 
-     * \brief Wrapper for the target function normalize in the hypercube
-     * [0,1]
-     * @param query point to evaluate in [0,1] hypercube
-     * @return actual return value of the target function
-     */
-    virtual double evaluateSampleInternal( const vectord &query ) = 0;
-
-
-    /** 
-     * \brief Returns the optimal point acording to certain criteria
-     * @see evaluateCriteria
-     *
-     * @param xOpt optimal point
-     */
-    virtual void findOptimal(vectord &xOpt) = 0;
-  
-    /** Selects the initial set of points to build the surrogate model. */
-    virtual void sampleInitialPoints(matrixd& xPoints, vectord& yPoints) = 0;
-    
-    /** Same as sampleInitialPoints function but without evaluation. */
-    virtual void generateInitialPoints(matrixd& xPoints) = 0;
+    /** Wrapper for the target function adding any preprocessing or
+	constraint. It also maps the box constrains to the [0,1]
+	hypercube if applicable. */
+    double evaluateSampleInternal( const vectord &query );
 
     /** Sample a single point in the input space. Used for epsilon
 	greedy exploration. */
     virtual vectord samplePoint() = 0;
+
+    /** 
+     * \brief Call the inner optimization method to find the optimal
+     * point acording to the criteria.  
+     * @param xOpt optimal point
+     */
+    virtual void findOptimal(vectord &xOpt) = 0;
+  
+    /** Remap the point x to the original space (e.g.:
+	unnormalization) */
+    virtual vectord remapPoint(const vectord& x) = 0;
+
+    /** Selects the initial set of points to build the surrogate model. */
+    virtual void generateInitialPoints(matrixd& xPoints) = 0;
+
+    /** 
+     * \brief Print data for every step according to the verbose level
+     * 
+     * @param iteration iteration number 
+     * @param xNext next point
+     * @param yNext function value at next point
+     */
+    void plotStepData(size_t iteration, const vectord& xNext,
+			      double yNext);
         
     /** Eases the process of saving a state during initial samples */
-    void saveInitialSamples(size_t current, matrixd xPoints, vectord yPoints);
+    void saveInitialSamples(matrixd xPoints);
+    void saveResponse(double yPoint);
 
   protected:
     Parameters mParameters;                    ///< Configuration parameters

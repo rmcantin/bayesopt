@@ -136,6 +136,12 @@ cdef bopt_params dict2structparams(dict dparams):
     name = dparams.get('log_filename',params.log_filename)
     set_log_file(&params,name)
 
+    params.load_save_flag = dparams.get('load_save_flag',params.load_save_flag)
+    l_name = dparams.get('load_filename',params.load_filename)
+    set_load_file(&params,l_name)
+    s_name = dparams.get('save_filename',params.save_filename)
+    set_save_file(&params,s_name)
+        
     name = dparams.get('surr_name',params.surr_name)
     set_surrogate(&params,name)
 

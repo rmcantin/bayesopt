@@ -65,23 +65,36 @@ namespace bayesopt  {
     //    delete cOptimizer;
   } // Default destructor
 
-  vectord ContinuousModel::getFinalResult()
+  void ContinuousModel::setBoundingBox(const vectord &lowerBound,
+				       const vectord &upperBound)
   {
-    return mBB->unnormalizeVector(getPointAtMinimum());
-  }
+    // We don't change the bounds of the inner optimization because,
+    // thanks to this bounding box model, everything is mapped to the
+    // unit hypercube, thus the default inner optimization are just
+    // right.
+    mBB.reset(new utils::BoundingBox<vectord>(lowerBound,upperBound));
+    
+    FILE_LOG(logINFO) << "Bounds: ";
+    FILE_LOG(logINFO) << lowerBound;
+    FILE_LOG(logINFO) << upperBound;
+  } //setBoundingBox
+
+
+
+
 
   //////////////////////////////////////////////////////////////////////
 
-  double ContinuousModel::evaluateSampleInternal( const vectord &query )
-  { 
-    const double yNext = evaluateSample(mBB->unnormalizeVector(query)); 
-    if (yNext == HUGE_VAL)
-      {
-	throw std::runtime_error("Function evaluation out of range");
+  vectord ContinuousModel::samplePoint()
+  {	    
+    randFloat drawSample(mEngine,realUniformDist(0,1));
+    vectord Xnext(mDims);    
+    for(vectord::iterator x = Xnext.begin(); x != Xnext.end(); ++x)
+      {	
+	*x = drawSample(); 
       }
-    return yNext;
-  }; 
-
+    return Xnext;
+  };
 
   void ContinuousModel::findOptimal(vectord &xOpt)
   { 
@@ -113,61 +126,11 @@ namespace bayesopt  {
       }
   };
 
-  vectord ContinuousModel::samplePoint()
-  {	    
-    randFloat drawSample(mEngine,realUniformDist(0,1));
-    vectord Xnext(mDims);    
-    for(vectord::iterator x = Xnext.begin(); x != Xnext.end(); ++x)
-      {	
-	*x = drawSample(); 
-      }
-    return Xnext;
-  };
-
-
-  void ContinuousModel::setBoundingBox(const vectord &lowerBound,
-				       const vectord &upperBound)
+  vectord ContinuousModel::remapPoint(const vectord& x)
   {
-    // We don't change the bounds of the inner optimization because,
-    // thanks to this bounding box model, everything is mapped to the
-    // unit hypercube, thus the default inner optimization are just
-    // right.
-    mBB.reset(new utils::BoundingBox<vectord>(lowerBound,upperBound));
-    
-    FILE_LOG(logINFO) << "Bounds: ";
-    FILE_LOG(logINFO) << lowerBound;
-    FILE_LOG(logINFO) << upperBound;
-  } //setBoundingBox
-
-
-
-  void ContinuousModel::plotStepData(size_t iteration, const vectord& xNext,
-			    double yNext)
-  {
-    if(mParameters.verbose_level >0)
-      { 
-	FILE_LOG(logINFO) << "Iteration: " << iteration+1 << " of " 
-			  << mParameters.n_iterations << " | Total samples: " 
-			  << iteration+1+mParameters.n_init_samples ;
-	FILE_LOG(logINFO) << "Query: " << mBB->unnormalizeVector(xNext); ;
-	FILE_LOG(logINFO) << "Query outcome: " << yNext ;
-	FILE_LOG(logINFO) << "Best query: " 
-			  << mBB->unnormalizeVector(getPointAtMinimum()); 
-	FILE_LOG(logINFO) << "Best outcome: " <<  getValueAtMinimum();
-      }
-  } //plotStepData
-
-  void ContinuousModel::sampleInitialPoints(matrixd& xPoints, vectord& yPoints)
-  {   
-    utils::samplePoints(xPoints,mParameters.init_method,mEngine);
-
-    for(size_t i = 0; i < yPoints.size(); i++)
-    {
-        const vectord sample = row(xPoints,i);
-        yPoints(i) = evaluateSampleInternal(sample);
-    }
+    return mBB->unnormalizeVector(x);
   }
-  
+
   void ContinuousModel::generateInitialPoints(matrixd& xPoints)
   {   
     utils::samplePoints(xPoints,mParameters.init_method,mEngine);

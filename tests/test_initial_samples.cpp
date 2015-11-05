@@ -1,6 +1,7 @@
+
+#include <cmath> // std::abs
 #include "testfunctions.hpp"
 #include "bopt_state.hpp"
-#include <cmath> // std::abs
 
 int main()  
 {

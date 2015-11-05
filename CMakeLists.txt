@@ -181,7 +181,10 @@ IF(BAYESOPT_BUILD_EXAMPLES)
 endif(BAYESOPT_BUILD_EXAMPLES)
 
 INSTALL(FILES 
-  ./include/bayesopt.hpp 
+  ./include/bayesopt.hpp
+  ./include/bayesoptbase.hpp
+  ./include/boparameters.hpp
+  ./include/boparameters.h
   ./wrappers/bayesopt.h 
   DESTINATION include
 )

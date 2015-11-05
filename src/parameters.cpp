@@ -20,8 +20,8 @@
 ------------------------------------------------------------------------
 */
 #include <iostream>
-#include "parameters.h"     // c parameters structs
-#include "parameters.hpp"   // c++ parameters classes
+#include "boparameters.h"     // c parameters structs
+#include "boparameters.hpp"   // c++ parameters classes
 #include "ublas_extra.hpp"  // array2vector()
 
 /*-----------------------------------------------------------*/

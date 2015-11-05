@@ -27,7 +27,7 @@
 #include <map>
 #include <boost/scoped_ptr.hpp>
 #include <boost/math/distributions/normal.hpp> 
-#include "parameters.hpp"
+#include "boparameters.hpp"
 #include "specialtypes.hpp"
 
 namespace bayesopt

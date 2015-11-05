@@ -21,7 +21,7 @@
 */
 #include <cmath>
 #include <nlopt.hpp>
-#include "parameters.h"
+#include "boparameters.h"
 #include "log.hpp"
 #include "inneroptimization.hpp"
 

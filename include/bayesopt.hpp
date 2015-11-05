@@ -37,6 +37,8 @@ namespace bayesopt  {
   class NLOPT_Optimization;
   class CritCallback;
 
+
+  
   /** \addtogroup BayesOpt */
   /**@{*/
 

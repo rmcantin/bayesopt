@@ -26,7 +26,7 @@
 #ifndef  _BOPT_STATE_HPP_
 #define  _BOPT_STATE_HPP_
 
-#include "parameters.hpp"
+#include "boparameters.hpp"
 #include "specialtypes.hpp"
 #include "fileparser.hpp"
 

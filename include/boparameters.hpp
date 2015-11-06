@@ -134,6 +134,7 @@ namespace bayesopt {
         /* Encapsulated default values assigment operations */
         void init_default();
 
+      void bostrdup (char* d, const char *s);
     }; //class Parameters
 } //namespace bayesopt
 

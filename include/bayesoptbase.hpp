@@ -28,10 +28,10 @@
 
 #include <boost/scoped_ptr.hpp>
 #include <boost/random.hpp>
-#include "parameters.hpp"
-#include "specialtypes.hpp"
-//#include "posteriormodel.hpp"
-#include "bopt_state.hpp"
+#include <boost/numeric/ublas/vector.hpp>
+#include <boost/numeric/ublas/matrix.hpp>
+#include <boost/numeric/ublas/io.hpp>
+#include <boparameters.hpp>
 
 
 /**
@@ -44,6 +44,12 @@ namespace bayesopt {
   class PosteriorModel;
   class ProbabilityDistribution;
   class Dataset;
+  class BOptState;
+
+  typedef boost::numeric::ublas::vector<double>                   vectord;
+  typedef boost::numeric::ublas::vector<int>                      vectori;
+  typedef boost::numeric::ublas::matrix<double>                   matrixd;
+  typedef std::vector<vectord>                                   vecOfvec;
 
   /** \addtogroup BayesOpt
    *  \brief Main module for Bayesian optimization

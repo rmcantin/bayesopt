@@ -25,6 +25,10 @@
 
 #include "log.hpp"
 #include "posteriormodel.hpp"
+#include "boparameters.hpp"
+#include "specialtypes.hpp"
+#include "bopt_state.hpp"
+
 
 namespace bayesopt
 {

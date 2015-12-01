@@ -26,8 +26,10 @@
 #define __BOPT_PARAMETERS_HPP__
 
 #include <string>
-#include "parameters.h"     // learning_type, score_type
-#include "specialtypes.hpp" // vectord
+#include "boparameters.h"     // learning_type, score_type
+#include <boost/numeric/ublas/vector.hpp>
+
+typedef boost::numeric::ublas::vector<double>                   vectord;
 
 /**
  * Namespace of the library interface
@@ -132,6 +134,7 @@ namespace bayesopt {
         /* Encapsulated default values assigment operations */
         void init_default();
 
+      void bostrdup (char* d, const char *s);
     }; //class Parameters
 } //namespace bayesopt
 

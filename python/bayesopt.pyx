@@ -35,7 +35,7 @@ cdef extern from *:
     ctypedef double* const_double_ptr "const double*"
 
 ###########################################################################
-cdef extern from "parameters.h":
+cdef extern from "boparameters.h":
 
     ctypedef enum learning_type:
         pass

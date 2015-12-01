@@ -25,6 +25,7 @@
 #include "bayesopt.h"               // For the C API
 #include "bayesopt.hpp"             // For the C++ API
 #include "lhs.hpp"
+#include "specialtypes.hpp"
 
 
 /* Function to be used for C-API testing */

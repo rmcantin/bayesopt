@@ -30,7 +30,7 @@
 #include <iostream>
 #include <string.h>
 
-#include "parameters.hpp"
+#include "boparameters.hpp"
 #include "specialtypes.hpp"
 #include "fileparser.hpp"
 

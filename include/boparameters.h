@@ -26,7 +26,17 @@
 #define __BOPT_PARAMETERS_H__
 
 #include <string.h>
-#include "dll_stuff.h"
+
+/* WINDOWS DLLs stuff */
+#if defined (BAYESOPT_DLL) && (defined(_WIN32) || defined(__WIN32__)) && !defined(__LCC__)
+  #if defined(bayesopt_EXPORTS)
+    #define  BAYESOPT_API __declspec(dllexport)
+  #else
+    #define  BAYESOPT_API __declspec(dllimport)
+  #endif /* MyLibrary_EXPORTS */
+#else /* defined (_WIN32) */
+ #define BAYESOPT_API
+#endif
 
 #ifdef __cplusplus
 extern "C" {

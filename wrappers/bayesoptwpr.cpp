@@ -22,6 +22,7 @@
 
 #include "log.hpp"
 #include "ublas_extra.hpp"
+#include "specialtypes.hpp"
 #include "bayesopt.h"
 #include "bayesopt.hpp"      
 

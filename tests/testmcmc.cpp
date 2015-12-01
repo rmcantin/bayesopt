@@ -22,6 +22,7 @@
 
 #define _USE_MATH_DEFINES
 #include <cmath>
+#include <boost/math/constants/constants.hpp>
 #include <boost/numeric/ublas/assignment.hpp>
 #include <boost/numeric/ublas/lu.hpp>
 #include "specialtypes.hpp"

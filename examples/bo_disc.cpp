@@ -22,8 +22,8 @@
 
 #include <boost/numeric/ublas/matrix_proxy.hpp>  // For row()
 
-#include "bayesopt.h"               // For the C API
-#include "bayesopt.hpp"             // For the C++ API
+#include "bayesopt/bayesopt.h"               // For the C API
+#include "bayesopt/bayesopt.hpp"             // For the C++ API
 #include "lhs.hpp"
 #include "specialtypes.hpp"
 

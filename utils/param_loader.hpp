@@ -30,7 +30,7 @@
 #include <iostream>
 #include <string.h>
 
-#include "boparameters.hpp"
+#include "bayesopt/parameters.hpp"
 #include "specialtypes.hpp"
 #include "fileparser.hpp"
 

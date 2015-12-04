@@ -35,7 +35,7 @@ cdef extern from *:
     ctypedef double* const_double_ptr "const double*"
 
 ###########################################################################
-cdef extern from "boparameters.h":
+cdef extern from "bayesopt/parameters.h":
 
     ctypedef enum learning_type:
         pass
@@ -100,7 +100,7 @@ cdef extern from "boparameters.h":
     bopt_params initialize_parameters_to_default()
 
 ###########################################################################
-cdef extern from "bayesopt.h":
+cdef extern from "bayesopt/bayesopt.h":
     ctypedef double (*eval_func)(unsigned int n, const_double_ptr x,
                                  double *gradient, void *func_data)
 

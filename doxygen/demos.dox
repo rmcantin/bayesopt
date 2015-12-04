@@ -38,6 +38,10 @@ Note: For some NVIDIA setups, you might need to preload the Pthreads dynamic lib
 
 \image html doxygen/oned.jpg
 
+\subsection stdcpp Standalone optimization module
+
+BayesOpt can also be used to optimize a standalone application either using CLI for sending parameters and receiving output (see \b branin_system_call) or by using XML files to message passing (see \b branin_xml). Both demos use the Branin function defined in the next section.
+
 \subsection brcpp Standard nonlinear function benchmarks
 
 \subsubsection braninfunc Branin function

@@ -24,7 +24,7 @@
 #ifndef _BAYESOPTWPR_H_
 #define _BAYESOPTWPR_H_
 
-#include "boparameters.h"
+#include "bayesopt/parameters.h"
 
 /** \addtogroup BayesOpt */
 /*@{*/

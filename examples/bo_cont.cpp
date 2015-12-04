@@ -21,8 +21,8 @@
 */
 
 #include <ctime>
-#include "bayesopt.h"                 // For the C API
-#include "bayesopt.hpp"               // For the C++ API
+#include "bayesopt/bayesopt.h"                 // For the C API
+#include "bayesopt/bayesopt.hpp"               // For the C++ API
 #include <boost/numeric/ublas/assignment.hpp> // <<= op assigment
 
 

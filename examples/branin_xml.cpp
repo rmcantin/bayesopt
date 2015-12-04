@@ -24,7 +24,7 @@
 #include <cmath>
 #include <algorithm>
 #include <boost/numeric/ublas/assignment.hpp>
-#include "bayesopt.hpp"
+#include "bayesopt/bayesopt.hpp"
 #include "param_loader.hpp"
 #include "fileparser.hpp"
 
@@ -121,17 +121,17 @@ public:
     double x2 = xin(1);
         
     // Create XML from template
-    std::string template_filename("../system_calls_examples/problem_template.xml");
+    std::string template_filename("../examples/standalone_calls/problem_template.xml");
     std::string template_prefix("XXXX_");
     TemplateWritter tw(template_filename, template_prefix); 
-    std::string created_filename("../system_calls_examples/created_file.xml");
+    std::string created_filename("../examples/standalone_calls/created_file.xml");
     tw.createFile(created_filename, xin);
     
     // Results filename
-    std::string results_filename("../system_calls_examples/results.txt");
+    std::string results_filename("../examples/standalone_calls/results.txt");
 
     // Call python script
-    std::string call = "python ../system_calls_examples/eval_branin_xml.py " + created_filename + " " + results_filename;
+    std::string call = "python ../examples/standalone_calls/eval_branin_xml.py " + created_filename + " " + results_filename;
     system(call.c_str());
     
     // TODO (Javier): Change results to XML format
@@ -191,7 +191,7 @@ int main(int nargs, char *args[])
   branin.printOptimal();
   
     // Remove results.txt file
-  std::string filename("../system_calls_examples/created_file.xml");
+  std::string filename("../examples/standalone_calls/created_file.xml");
   if( remove( filename.c_str() ) == 0 ){
     std::cout << "File \"" << filename << "\" successfully removed" << std::endl;
   }
@@ -200,7 +200,7 @@ int main(int nargs, char *args[])
   }
   
     // Remove results.txt file
-  filename = "../system_calls_examples/results.txt";
+  filename = "../examples/standalone_calls/results.txt";
   if( remove( filename.c_str() ) == 0 ){
     std::cout << "File \"" << filename << "\" successfully removed" << std::endl;
   }

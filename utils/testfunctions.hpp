@@ -28,7 +28,7 @@
 #include <algorithm>
 #include <boost/math/constants/constants.hpp>
 #include <boost/numeric/ublas/assignment.hpp>
-#include "bayesopt.hpp"
+#include "bayesopt/bayesopt.hpp"
 #include "specialtypes.hpp"
 
 

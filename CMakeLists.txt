@@ -121,20 +121,16 @@ SET(UTILS_SRC
   )
 
 SET(WRAPPPERS_SRC 
-  ./wrappers/bayesoptwpr.cpp
+  ./src/wrappers/bayesoptwpr.cpp
   )
 
 
 INCLUDE_DIRECTORIES( ${PROJECT_SOURCE_DIR}/include 
-                     ${PROJECT_SOURCE_DIR}/wrappers
 		     ${PROJECT_SOURCE_DIR}/utils
 		     ${PROJECT_SOURCE_DIR}/sobol )
 
 
 LINK_DIRECTORIES( ${PROJECT_BINARY_DIR}/lib )
-
-# This directory contains optimizations that use system calls
-ADD_SUBDIRECTORY(system_calls_examples)
 
 IF(NLOPT_BUILD)
   ADD_SUBDIRECTORY(nlopt2)
@@ -180,19 +176,23 @@ IF(BAYESOPT_BUILD_EXAMPLES)
   ADD_SUBDIRECTORY(examples)
 endif(BAYESOPT_BUILD_EXAMPLES)
 
-INSTALL(FILES 
-  ./include/bayesopt.hpp
-  ./include/bayesoptbase.hpp
-  ./include/boparameters.hpp
-  ./include/boparameters.h
-  ./wrappers/bayesopt.h 
-  DESTINATION include
-)
+# INSTALL(FILES 
+#   ./include/bayesopt.hpp
+#   ./include/bayesoptbase.hpp
+#   ./include/boparameters.hpp
+#   ./include/boparameters.h
+#   ./wrappers/bayesopt.h 
+#   DESTINATION include
+# )
 
 INSTALL(
   TARGETS bayesopt
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
+)
+
+INSTALL(
+  DIRECTORY include/bayesopt DESTINATION include/bayesopt
 )
 
 

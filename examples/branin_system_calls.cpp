@@ -24,7 +24,7 @@
 #include <cmath>
 #include <algorithm>
 #include <boost/numeric/ublas/assignment.hpp>
-#include "bayesopt.hpp"
+#include "bayesopt/bayesopt.hpp"
 #include "param_loader.hpp"
 #include "fileparser.hpp"
 
@@ -53,7 +53,7 @@ public:
     double x2 = xin(1);
     
     bayesopt::utils::FileParser fp("results.txt");
-    std::string call = "python ../system_calls_examples/eval_branin.py " + 
+    std::string call = "python ../examples/standalone_calls/eval_branin.py " + 
       fp.to_string(x1) + " " + fp.to_string(x2);
     int ret = system(call.c_str());
     

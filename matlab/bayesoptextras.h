@@ -31,7 +31,7 @@
 #include <math.h>
 #include <mex.h>
 
-#include "bayesopt.h"
+#include "bayesopt/bayesopt.h"
 
 /* Declaration */
 

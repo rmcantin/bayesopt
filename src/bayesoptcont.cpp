@@ -20,7 +20,7 @@
 ------------------------------------------------------------------------
 */
 
-#include "bayesopt.hpp"
+#include "bayesopt/bayesopt.hpp"
 
 #include <limits>
 #include <boost/numeric/ublas/matrix_proxy.hpp>

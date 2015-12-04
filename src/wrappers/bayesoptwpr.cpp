@@ -20,11 +20,12 @@
 -----------------------------------------------------------------------------
 */
 
+#include "bayesopt/bayesopt.h"
+#include "bayesopt/bayesopt.hpp"      
+
 #include "log.hpp"
 #include "ublas_extra.hpp"
 #include "specialtypes.hpp"
-#include "bayesopt.h"
-#include "bayesopt.hpp"      
 
 static const int BAYESOPT_FAILURE = -1; /* generic failure code */
 static const int BAYESOPT_INVALID_ARGS = -2;

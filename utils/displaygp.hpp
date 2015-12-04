@@ -25,7 +25,7 @@
 #ifndef _DISPLAYGP_HPP_
 #define _DISPLAYGP_HPP_
 
-#include "bayesopt.hpp"
+#include "bayesopt/bayesopt.hpp"
 #include "matplotpp.h"  
 
 namespace bayesopt

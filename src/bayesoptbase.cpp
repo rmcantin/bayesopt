@@ -21,11 +21,11 @@
 */
 
 #include <ctime>
-#include "bayesoptbase.hpp"
+#include "bayesopt/bayesoptbase.hpp"
+#include "bayesopt/parameters.hpp"
 
 #include "log.hpp"
 #include "posteriormodel.hpp"
-#include "boparameters.hpp"
 #include "specialtypes.hpp"
 #include "bopt_state.hpp"
 

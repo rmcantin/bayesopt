@@ -26,8 +26,9 @@
 #define __BOPT_PARAMETERS_HPP__
 
 #include <string>
-#include "boparameters.h"     // learning_type, score_type
 #include <boost/numeric/ublas/vector.hpp>
+
+#include "bayesopt/parameters.h"     // learning_type, score_type
 
 typedef boost::numeric::ublas::vector<double>                   vectord;
 

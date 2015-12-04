@@ -21,7 +21,7 @@
 ------------------------------------------------------------------------
 */
 
-#include "bayesopt.hpp"
+#include "bayesopt/bayesopt.hpp"
 
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 //#include "randgen.hpp"

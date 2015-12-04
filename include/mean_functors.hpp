@@ -27,7 +27,7 @@
 #include <map>
 #include <boost/scoped_ptr.hpp>
 #include <boost/numeric/ublas/matrix_proxy.hpp>
-#include "boparameters.hpp"
+#include "bayesopt/parameters.hpp"
 #include "specialtypes.hpp"
 
 namespace bayesopt

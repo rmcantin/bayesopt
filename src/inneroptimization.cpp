@@ -21,7 +21,7 @@
 */
 #include <cmath>
 #include <nlopt.hpp>
-#include "boparameters.h"
+#include "bayesopt/parameters.h"
 #include "log.hpp"
 #include "inneroptimization.hpp"
 

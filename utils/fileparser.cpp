@@ -26,6 +26,8 @@ namespace bayesopt
 {   
   namespace utils 
   {
+    namespace ublas = boost::numeric::ublas;
+
     FileParser::FileParser(std::string filename, int prec)
     : filename(filename), input(), output(){
         setPrecision(prec);
@@ -93,10 +95,14 @@ namespace bayesopt
         output << name << "=" << value << std::endl;
     }
     void FileParser::read(std::string name, std::string &value){
-        //TODO (Javier): use movePointer() returned bool, should be used to avoid &value = "" when not found
-        if(!movePointer(name,value)){
-            std::cerr << "Variable: " << name << " does not exist in file: " << filename << std::endl;
-        }
+        //TODO: (Javier) use movePointer() returned bool, should be
+        //used to avoid &value = "" when not found
+        if(!movePointer(name,value))
+	  {
+            std::cerr << "Variable: " << name 
+		      << " does not exist in file: " << filename 
+		      << std::endl;
+	  }
     }
     std::string FileParser::read(std::string name){
         std::string ret;
@@ -105,7 +111,9 @@ namespace bayesopt
     }
         
     /* Array write/read function */
-    void FileParser::write(std::string name, const std::vector<std::string> &arr, const std::vector<int> &dims){
+    void FileParser::write(std::string name, 
+			   const std::vector<std::string> &arr, 
+			   const std::vector<int> &dims){
         // Write dimensions
         output << name << "=[";
         for(std::vector<int>::const_iterator it = dims.begin(); it != dims.end(); ++it) {
@@ -126,13 +134,17 @@ namespace bayesopt
         }
         output << ")" << std::endl;
     }
-    void FileParser::read(std::string name, std::vector<std::string> &arr, std::vector<int> &dims){
+    void FileParser::read(std::string name, std::vector<std::string> &arr, 
+			  std::vector<int> &dims)
+    {
         std::string contents;
         if(movePointer(name,contents)){
             parseArray(contents, arr, dims);
         }
         else{
-            std::cerr << "Variable: " << name << " does not exist in file: " << filename << std::endl;
+            std::cerr << "Variable: " << name 
+		      << " does not exist in file: " << filename 
+		      << std::endl;
         }
     }
     
@@ -158,17 +170,21 @@ namespace bayesopt
         }
     }
     
-    void FileParser::write_ublas(std::string name, boost::numeric::ublas::vector<double> &values){
+    void FileParser::write_ublas(std::string name, 
+				 ublas::vector<double> &values)
+    {
         std::vector<int> dims;
         dims.push_back(values.size());
         
         std::vector<std::string> arr;
-        for(boost::numeric::ublas::vector<double>::iterator it = values.begin(); it != values.end(); ++it){
+        for(ublas::vector<double>::iterator it = values.begin(); 
+	    it != values.end(); ++it)
+	  {
             arr.push_back(to_string(*it));
-        }
+	  }
         write(name, arr, dims);
     }
-    void FileParser::read_ublas(std::string name, boost::numeric::ublas::vector<double> &values){
+    void FileParser::read_ublas(std::string name, ublas::vector<double> &values){
         std::vector<std::string> arr;
         std::vector<int> dims;
         read(name, arr, dims);
@@ -181,7 +197,7 @@ namespace bayesopt
         values.resize(arr.size(), false);
         std::copy(doubles_arr.begin(), doubles_arr.end(), values.begin());        
     }
-    void FileParser::readOrWrite(std::string name, boost::numeric::ublas::vector<double> &values){
+    void FileParser::readOrWrite(std::string name, ublas::vector<double> &values){
         if(isReading()){
             read_ublas(name, values);
         }
@@ -190,21 +206,23 @@ namespace bayesopt
         }
     }
     
-    void FileParser::write_vecOfvec(std::string name, std::vector<boost::numeric::ublas::vector<double> > &values){
+    void FileParser::write_vecOfvec(std::string name, 
+				    std::vector<ublas::vector<double> > &values){
         std::vector<int> dims;
         dims.push_back(values.size());
         dims.push_back(values.at(0).size());
         
         std::vector<std::string> arr;
         for(size_t i=0; i<values.size(); i++){
-            boost::numeric::ublas::vector<double> current = values.at(i);
-            for(boost::numeric::ublas::vector<double>::iterator it = current.begin(); it != current.end(); ++it) {
+            ublas::vector<double> current = values.at(i);
+            for(ublas::vector<double>::iterator it = current.begin(); 
+		it != current.end(); ++it) {
                 arr.push_back(to_string(*it));
             }
         }
         write(name, arr, dims);
     }
-    void FileParser::read_vecOfvec(std::string name, std::vector<boost::numeric::ublas::vector<double> > &values){
+    void FileParser::read_vecOfvec(std::string name, std::vector<ublas::vector<double> > &values){
         std::vector<int> dims;
         std::vector<std::string> arr;
         read(name, arr, dims);
@@ -219,7 +237,7 @@ namespace bayesopt
             }
         }
     }
-    void FileParser::readOrWrite(std::string name, std::vector<boost::numeric::ublas::vector<double> > &values){
+    void FileParser::readOrWrite(std::string name, std::vector<ublas::vector<double> > &values){
         if(isReading()){
             read_vecOfvec(name, values);
         }
@@ -283,7 +301,9 @@ namespace bayesopt
         return all.rfind(sub, 0) == 0;
     }
     
-    void FileParser::parseArray(std::string contents, std::vector<std::string> &arr, std::vector<int> &dims){
+    void FileParser::parseArray(std::string contents, 
+				std::vector<std::string> &arr, 
+				std::vector<int> &dims){
         // Parse data
         size_t init_arr = contents.find("(")+1;
         size_t end_arr = contents.find(")")-1;
@@ -297,7 +317,8 @@ namespace bayesopt
         input = contents.substr(init_dims, end_dims - init_dims +1);
         utils::split(input, ',', dims_string);
         
-        for(std::vector<std::string>::iterator it = dims_string.begin(); it != dims_string.end(); ++it) {
+        for(std::vector<std::string>::iterator it = dims_string.begin(); 
+	    it != dims_string.end(); ++it) {
             dims.push_back(to_value<size_t>(*it));
         }
     }

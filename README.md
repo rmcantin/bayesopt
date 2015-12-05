@@ -27,7 +27,7 @@ in your manuscript.
 
 The paper can be found at http://jmlr.org/papers/v15/martinezcantin14a.html
 
-Commercial applications may also adquire a **commercial license**. Please
+Commercial applications may also acquire a **commercial license**. Please
 contact <rmcantin@unizar.es> for details.
 
 

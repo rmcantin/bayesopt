@@ -602,7 +602,7 @@ points, which is related to the smoothness of the prediction.
 
   - For C, the size of both arrays is defined in \b kernel.n_hp.
 
-\paragraph hyperlearn Hyperparameter learning
+\subsubsection hyperlearn Hyperparameter learning
 
 Although BayesOpt tries to build a full analytic Bayesian model for
 the surrogate function, the kernel hyperparameters cannot be estimated
@@ -618,7 +618,7 @@ in closed form. See Section \ref learnmod for a detailed description
   etc.) using the method defined in l_type. If false, only the kernel
   hyperparameters are directly learned. [Default false]
 
-\paragraph savflags Load/Save data parameters
+\subsection savflags Load/Save data parameters
 
 We can select to store or restore data in files, to continue an
 optimization without starting over. The data is stored in plan text

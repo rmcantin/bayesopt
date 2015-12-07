@@ -188,7 +188,7 @@ namespace bayesopt
     // Save on each evaluation for safety reasons
     for(size_t i=0; i<yPoints.size(); i++)
       {
-        yPoints[i] = evaluateSample(row(xPoints,i));
+        yPoints[i] = evaluateSampleInternal(row(xPoints,i));
 	//We clear the vector in the first iteration
         saveResponse(yPoints[i], i==0);
       }
@@ -251,7 +251,7 @@ namespace bayesopt
 	else
 	  {
 	    // Generate remaining initial samples saving in each evaluation	    
-	    yPoints[i] = evaluateSample(row(xPoints,i));
+	    yPoints[i] = evaluateSampleInternal(row(xPoints,i));
 	    saveResponse(yPoints[i], false);
 	  }
       }

@@ -184,6 +184,7 @@ namespace bayesopt
     // Save generated xPoints before its evaluation
     generateInitialPoints(xPoints);
     saveInitialSamples(xPoints);
+    mModel->setSamples(xPoints);
     
     // Save on each evaluation for safety reasons
     for(size_t i=0; i<yPoints.size(); i++)
@@ -194,7 +195,7 @@ namespace bayesopt
       }
     
     // Put samples into model
-    mModel->setSamples(xPoints,yPoints);
+    mModel->setSamples(yPoints);
  
     if(mParameters.verbose_level > 0)
       {

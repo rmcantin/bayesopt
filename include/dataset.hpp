@@ -45,6 +45,8 @@ namespace bayesopt
     virtual ~Dataset();
 
     void setSamples(const matrixd &x, const vectord &y);
+    void setSamples(const matrixd &x);
+    void setSamples(const vectord &y);
     void addSample(const vectord &x, double y);
     double getSampleY(size_t index) const;
     vectord getSampleX(size_t index) const;

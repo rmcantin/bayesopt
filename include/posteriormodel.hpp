@@ -72,6 +72,8 @@ namespace bayesopt {
 
 
     void setSamples(const matrixd &x, const vectord &y);
+    void setSamples(const matrixd &x);
+    void setSamples(const vectord &y);
     void setSample(const vectord &x, double y);
     void addSample(const vectord &x, double y);
     double getValueAtMinimum();

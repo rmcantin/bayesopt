@@ -184,17 +184,18 @@ namespace bayesopt
     // Save generated xPoints before its evaluation
     generateInitialPoints(xPoints);
     saveInitialSamples(xPoints);
+    mModel->setSamples(xPoints);
     
     // Save on each evaluation for safety reasons
     for(size_t i=0; i<yPoints.size(); i++)
       {
-        yPoints[i] = evaluateSample(row(xPoints,i));
+        yPoints[i] = evaluateSampleInternal(row(xPoints,i));
 	//We clear the vector in the first iteration
         saveResponse(yPoints[i], i==0);
       }
     
     // Put samples into model
-    mModel->setSamples(xPoints,yPoints);
+    mModel->setSamples(yPoints);
  
     if(mParameters.verbose_level > 0)
       {
@@ -251,7 +252,7 @@ namespace bayesopt
 	else
 	  {
 	    // Generate remaining initial samples saving in each evaluation	    
-	    yPoints[i] = evaluateSample(row(xPoints,i));
+	    yPoints[i] = evaluateSampleInternal(row(xPoints,i));
 	    saveResponse(yPoints[i], false);
 	  }
       }

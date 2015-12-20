@@ -58,6 +58,18 @@ namespace bayesopt
     mMean.setPoints(mData.mX);  //Because it expects a vecOfvec instead of a matrixd 
   }
 
+  void PosteriorModel::setSamples(const matrixd &x)
+  { 
+    mData.setSamples(x);  
+    mMean.setPoints(mData.mX);  //Because it expects a vecOfvec instead of a matrixd 
+  }
+
+  void PosteriorModel::setSamples(const vectord &y)
+  { 
+    mData.setSamples(y);  
+  }
+
+
   void PosteriorModel::setSample(const vectord &x, double y)
   { 
     matrixd xx(1,x.size());  vectord yy(1);

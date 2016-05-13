@@ -85,7 +85,7 @@ public:
   double branin(double x, double y)
   {
     const double pi = boost::math::constants::pi<double>();
-    const double rpi = boost::math::constants::root_pi<double>();
+    const double rpi = pi*pi;
     return sqr(y-(5.1/(4*rpi))*sqr(x)
 	       +5*x/pi-6)+10*(1-1/(8*pi))*cos(x)+10;
   };

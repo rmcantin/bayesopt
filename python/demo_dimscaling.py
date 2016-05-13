@@ -42,9 +42,10 @@ params = {} #bayesopt.initialize_params()
 
 # We decided to change some of them
 params['n_init_samples'] = 30
-params['n_iter_relearn'] = 20
+params['n_iter_relearn'] = 1
+params['l_type'] = "mcmc"
 params['noise'] = 1e-10
-params['kernel_name'] = "kMaternISO5"
+params['kernel_name'] = "kMaternARD5"
 params['kernel_hp_mean'] = [1]
 params['kernel_hp_std'] = [5]
 params['surr_name'] = "sStudentTProcessNIG"

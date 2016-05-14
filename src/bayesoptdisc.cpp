@@ -21,8 +21,10 @@
 ------------------------------------------------------------------------
 */
 
+
 #include "bayesopt/bayesopt.hpp"
 
+#include <boost/bind.hpp>
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 //#include "randgen.hpp"
 #include "lhs.hpp"
@@ -67,19 +69,26 @@ namespace bayesopt
 
   void DiscreteModel::findOptimal(vectord &xOpt)
   {
-    xOpt = *mInputSet.begin();
-    double min = evaluateCriteria(xOpt);
+    std::vector<double> critv(mInputSet.size());
+    std::transform(mInputSet.begin(),mInputSet.end(),critv.begin(),
+		   boost::bind(&DiscreteModel::evaluateCriteria,this,_1));
+
+    xOpt = mInputSet[std::distance(critv.begin(),
+			 std::max_element(critv.begin(),critv.end()))];
     
-    for(vecOfvec::iterator it = mInputSet.begin();
-	it != mInputSet.end(); ++it)
-      {
-	double current = evaluateCriteria(*it);
-	if (current < min)
-	  {
-	    xOpt = *it;  
-	    min = current;
-	  }
-      }
+    // xOpt = *mInputSet.begin();
+    // double min = evaluateCriteria(xOpt);
+    
+    // for(vecOfvec::iterator it = mInputSet.begin();
+    // 	it != mInputSet.end(); ++it)
+    //   {
+    // 	double current = evaluateCriteria(*it);
+    // 	if (current < min)
+    // 	  {
+    // 	    xOpt = *it;  
+    // 	    min = current;
+    // 	  }
+    //   }
   }
 
   //In this case, it is the trivial function

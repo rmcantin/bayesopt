@@ -192,7 +192,7 @@ INSTALL(
 )
 
 INSTALL(
-  DIRECTORY include/bayesopt DESTINATION include/bayesopt
+  DIRECTORY include/bayesopt DESTINATION include
 )
 
 

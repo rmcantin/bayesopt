@@ -57,9 +57,9 @@ ub = np.ones((dim,))*20
 
 mvalue, x_out, error = bayesopt.optimize(func, dim, lb, ub, params)
 
-print "Result", mvalue, x_out
+print("Result", mvalue, x_out)
 
-print "Global optimal", 0, np.arange(1,1+dim)
+print("Global optimal", 0, np.arange(1,1+dim))
 
-print "Y Gap", mvalue
-print "X Gap", math.sqrt(mvalue*dim)
+print("Y Gap", mvalue)
+print("X Gap", math.sqrt(mvalue*dim))

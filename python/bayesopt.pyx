@@ -121,6 +121,9 @@ cdef extern from "bayesopt/bayesopt.h":
 ###########################################################################
 cdef bopt_params dict2structparams(dict dparams):
 
+    # be nice and allow Python 3 code to pass strings or bytes
+    dparams = {k: v.encode('latin-1') if isinstance(v, str) else v for k, v in dparams.items()}
+
     params = initialize_parameters_to_default()
 
     params.n_iterations = dparams.get('n_iterations',params.n_iterations)

@@ -177,4 +177,4 @@ class BayesOptCategorical:
 if __name__ == "__main__":
     BO = BayesOptContinuous()
     __value__, __x__, __err__ = BO.optimize()
-    print "Result", __x__
+    print("Result", __x__)

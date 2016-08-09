@@ -19,10 +19,15 @@
 #    along with BayesOpt.  If not, see <http://www.gnu.org/licenses/>.
 # ------------------------------------------------------------------------
 
+import sys
 from SimpleCV import Camera
 import numpy as np
 import bayesopt
 from time import sleep
+
+# Python3 compat
+if sys.version_info[0] == 3:
+    raw_input = input
 
 # Initialize the camera
 cam = Camera()
@@ -50,7 +55,7 @@ mvalue, x_out, error = bayesopt.optimize_discrete(costImage,
                                                   valid_values, params)
 
 x_out = int(x_out)
-print x_out
+print(x_out)
 img1 = img.binarize(x_out)
 
 img1 = img.sideBySide(img1).sideBySide(img2)

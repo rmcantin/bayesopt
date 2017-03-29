@@ -29,7 +29,7 @@ from time import clock
 def testfunc(Xin):
     total = 5.0
     for value in Xin:
-        total = total + (value - 0.33)*(value-0.33)
+        total = total + (value -0.33)*(value-0.33)
 
     return total
 
@@ -37,7 +37,8 @@ def testfunc(Xin):
 class BayesOptTest(BayesOptContinuous):
     def evaluateSample(self,Xin):
         return testfunc(Xin)
-    
+
+
 # Let's define the parameters
 # For different options: see parameters.h and cpp
 # If a parameter is not define, it will be automatically set
@@ -47,7 +48,7 @@ params['n_iterations'] = 50
 params['n_iter_relearn'] = 5
 params['n_init_samples'] = 2
 
-print("Callback implementation")
+print "Callback implementation"
 
 n = 5                     # n dimensions
 lb = np.zeros((n,))
@@ -59,7 +60,6 @@ mvalue, x_out, error = bayesopt.optimize(testfunc, n, lb, ub, params)
 print "Result", mvalue, "at", x_out
 print "Running time:", clock() - start, "seconds"
 raw_input('Press INTRO to continue')
-
 
 print "OO implementation"
 bo_test = BayesOptTest(n)

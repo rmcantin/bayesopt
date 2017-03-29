@@ -49,7 +49,7 @@ params['n_init_samples'] = 20
 params['crit_name'] = "cSum(cEI,cDistance)"
 params['crit_params'] = [1, 0.5]
 params['kernel_name'] = "kMaternISO3"
-print "Callback implementation"
+print("Callback implementation")
 
 n = 2                     # n dimensions
 lb = np.zeros((n,))
@@ -59,11 +59,11 @@ start = clock()
 
 mvalue, x_out, error = bayesopt.optimize(testfunc, n, lb, ub, params)
 
-print "Result", x_out
-print "Seconds", clock() - start
+print("Result", x_out)
+print("Seconds", clock() - start)
 
 
-print "OO implementation"
+print("OO implementation")
 bo_test = BayesOptTest(n)
 bo_test.parameters = params
 bo_test.lower_bound = lb
@@ -72,18 +72,18 @@ bo_test.upper_bound = ub
 start = clock()
 mvalue, x_out, error = bo_test.optimize()
 
-print "Result", x_out
-print "Seconds", clock() - start
+print("Result", x_out)
+print("Seconds", clock() - start)
 
 
-print "Callback discrete implementation"
+print("Callback discrete implementation")
 x_set = np.random.rand(100,n)
 start = clock()
 
 mvalue, x_out, error = bayesopt.optimize_discrete(testfunc, x_set, params)
 
-print "Result", x_out
-print "Seconds", clock() - start
+print("Result", x_out)
+print("Seconds", clock() - start)
 
 value = np.array([testfunc(i) for i in x_set])
-print "Optimun", x_set[value.argmin()]
+print("Optimun", x_set[value.argmin()])

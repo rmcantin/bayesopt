@@ -25,6 +25,10 @@ import numpy as np
 
 from time import clock
 
+# Python3 compat
+if sys.version_info[0] == 3:
+    raw_input = input
+
 # Function for testing.
 def testfunc(Xin):
     total = 5.0
@@ -48,7 +52,7 @@ params['n_iterations'] = 50
 params['n_iter_relearn'] = 5
 params['n_init_samples'] = 2
 
-print "Callback implementation"
+print("Callback implementation")
 
 n = 5                     # n dimensions
 lb = np.zeros((n,))
@@ -57,11 +61,11 @@ ub = np.ones((n,))
 start = clock()
 mvalue, x_out, error = bayesopt.optimize(testfunc, n, lb, ub, params)
 
-print "Result", mvalue, "at", x_out
-print "Running time:", clock() - start, "seconds"
+print("Result", mvalue, "at", x_out)
+print("Running time:", clock() - start, "seconds")
 raw_input('Press INTRO to continue')
 
-print "OO implementation"
+print("OO implementation")
 bo_test = BayesOptTest(n)
 bo_test.parameters = params
 bo_test.lower_bound = lb
@@ -70,18 +74,18 @@ bo_test.upper_bound = ub
 start = clock()
 mvalue, x_out, error = bo_test.optimize()
 
-print "Result", mvalue, "at", x_out
-print "Running time:", clock() - start, "seconds"
+print("Result", mvalue, "at", x_out)
+print("Running time:", clock() - start, "seconds")
 raw_input('Press INTRO to continue')
 
-print "Callback discrete implementation"
+print("Callback discrete implementation")
 x_set = np.random.rand(100,n)
 start = clock()
 
 mvalue, x_out, error = bayesopt.optimize_discrete(testfunc, x_set, params)
 
-print "Result", mvalue, "at", x_out
-print "Running time:", clock() - start, "seconds"
+print("Result", mvalue, "at", x_out)
+print("Running time:", clock() - start, "seconds")
 
 value = np.array([testfunc(i) for i in x_set])
-print "Optimum", value.min(), "at", x_set[value.argmin()]
+print("Optimum", value.min(), "at", x_set[value.argmin()])

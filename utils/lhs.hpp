@@ -118,7 +118,7 @@ namespace bayesopt
 
       double *sobol_seq = i8_sobol_generate(nDims,nSamples,seed);
 
-      std::copy(sobol_seq,sobol_seq+nSamples*nDims,result.begin2());
+      std::copy(sobol_seq,sobol_seq+(nSamples*nDims),result.data().begin());
     }
 #endif
 

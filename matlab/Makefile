@@ -18,21 +18,27 @@
 #    along with BayesOpt.  If not, see <http://www.gnu.org/licenses/>.
 # ------------------------------------------------------------------------
 
+#Modify the path to your MATLAB folder
+MATLABROOT=C:\Program Files (x86)\MATLAB\R2010a
 
-MATLABROOT= C:\Program Files (x86)\MATLAB\R2010a
 CC=mingw32-c++
 INCLUDES=-I"$(MATLABROOT)\extern\include" -I"." -I"..\include" -I"..\wrappers"
 LIBS=-L"$(MATLABROOT)\bin\win32" -lmex -lmx -leng -lmat
 FLAGS=-shared -DMATLAB_MEX_FILE -Wl,--export-all-symbols
+
+#Use BOPT=libbayesopt.lib if you compiled BayesOpt as a static library.
 BOPT=libbayesopt.dll
 
-all: disc cont
+all: disc cont cat
 
 cont:
 	$(CC) $(FLAGS) $(INCLUDES) -o bayesoptcont.mexw32  bayesoptmex.c $(BOPT) $(LIBS)
 
 disc:
 	$(CC) $(FLAGS) $(INCLUDES) -o bayesoptdisc.mexw32  bayesoptdiscmex.c $(BOPT) $(LIBS)
+
+cat:
+	$(CC) $(FLAGS) $(INCLUDES) -o bayesoptcat.mexw32  bayesoptcatmex.c $(BOPT) $(LIBS)
 
 
 

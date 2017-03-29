@@ -50,8 +50,8 @@ or the git mirror:
 
 
 The online documentation can be found at:
-<http://rmcantin.bitbucket.org/html/> where it includes a [install
-guide](http://rmcantin.bitbucket.org/html/install.html).
+<http://rmcantin.bitbucket.io/html/> where it includes a [install
+guide](http://rmcantin.bitbucket.io/html/install.html).
 
 
 Questions and issues

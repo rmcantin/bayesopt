@@ -64,16 +64,8 @@ namespace bayesopt
     
     // It seems BOBYQA can be unstable if the same point is repeated
     // tested over and over. NLOPT bug?
-    if (algo == nlopt::LN_BOBYQA)
-      {
-	opt.set_ftol_rel(1e-8);	
-	opt.set_ftol_abs(1e-8);
-      }
-    else
-      {
-	opt.set_ftol_rel(1e-12);	
-	opt.set_ftol_abs(1e-12);
-      }
+    opt.set_ftol_rel(1e-12);	
+    opt.set_ftol_abs(1e-12);
 
     std::copy(Xnext.begin(),Xnext.end(),xstd.begin());
       

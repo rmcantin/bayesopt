@@ -47,7 +47,7 @@ params['n_iterations'] = 50
 params['n_iter_relearn'] = 5
 params['n_init_samples'] = 2
 
-print("Callback implementation")
+print "Callback implementation"
 
 n = 5                     # n dimensions
 lb = np.zeros((n,))

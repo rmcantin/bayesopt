@@ -22,7 +22,7 @@
 */
 
 #ifndef  _MEAN_ATOMIC_HPP_
-#define  _MEAN_ATOMIC_HPP__
+#define  _MEAN_ATOMIC_HPP_
 
 #include <boost/numeric/ublas/vector_proxy.hpp>
 #include "mean_functors.hpp"

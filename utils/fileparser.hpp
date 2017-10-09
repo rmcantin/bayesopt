@@ -120,7 +120,7 @@ namespace bayesopt
         {
             std::istringstream ss(str);
             T result;
-            return ss >> std::setprecision(precision) >> result ? result : 0;
+            return (ss >> std::setprecision(precision) >> result) ? result : 0;
         }
     private:
         /* Search variables in file */

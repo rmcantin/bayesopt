@@ -19,6 +19,7 @@
 #    along with BayesOpt.  If not, see <http://www.gnu.org/licenses/>.
 # ------------------------------------------------------------------------
 
+import sys
 import bayesopt
 from bayesoptmodule import BayesOptContinuous
 import numpy as np

@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 # -------------------------------------------------------------------------
-#    This file is part of BayesOpt, an efficient C++ library for 
+#    This file is part of BayesOpt, an efficient C++ library for
 #    Bayesian optimization.
 #
 #    Copyright (C) 2011-2015 Ruben Martinez-Cantin <rmcantin@unizar.es>
-# 
-#    BayesOpt is free software: you can redistribute it and/or modify it 
+#
+#    BayesOpt is free software: you can redistribute it and/or modify it
 #    under the terms of the GNU Affero General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
 #    (at your option) any later version.
 #
-#    BayesOpt is distributed in the hope that it will be useful, but 
+#    BayesOpt is distributed in the hope that it will be useful, but
 #    WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU Affero General Public License for more details.
@@ -27,14 +27,14 @@ import numpy as np
 from time import clock
 
 # Python3 compat
-if sys.version_info[0] == 3:
-    raw_input = input
+if hasattr(__builtins__, 'raw_input'):
+    input = raw_input
 
 # Function for testing.
 def testfunc(Xin):
     total = 5.0
     for value in Xin:
-        total = total + (value -0.33)*(value-0.33)
+        total = total + (value - 0.33) * (value - 0.33)
 
     return total
 
@@ -64,7 +64,7 @@ mvalue, x_out, error = bayesopt.optimize(testfunc, n, lb, ub, params)
 
 print("Result", mvalue, "at", x_out)
 print("Running time:", clock() - start, "seconds")
-raw_input('Press INTRO to continue')
+input('Press INTRO to continue')
 
 print("OO implementation")
 bo_test = BayesOptTest(n)
@@ -77,10 +77,10 @@ mvalue, x_out, error = bo_test.optimize()
 
 print("Result", mvalue, "at", x_out)
 print("Running time:", clock() - start, "seconds")
-raw_input('Press INTRO to continue')
+input('Press INTRO to continue')
 
 print("Callback discrete implementation")
-x_set = np.random.rand(100,n)
+x_set = np.random.rand(100, n)
 start = clock()
 
 mvalue, x_out, error = bayesopt.optimize_discrete(testfunc, x_set, params)

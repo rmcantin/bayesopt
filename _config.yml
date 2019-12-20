@@ -1,0 +1,8 @@
+title: BayesOpt
+description: "BayesOpt: A toolbox for bayesian optimization, experimental design and stochastic bandits."
+google_analytics: UA-41494186-1
+show_downloads: true
+theme: jekyll-theme-cayman
+
+gems:
+  - jekyll-mentions

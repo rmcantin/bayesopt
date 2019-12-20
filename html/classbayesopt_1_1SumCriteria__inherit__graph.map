@@ -1,0 +1,4 @@
+<map id="bayesopt::SumCriteria" name="bayesopt::SumCriteria">
+<area shape="rect" id="node2" href="$classbayesopt_1_1CombinedCriteria.html" title="Abstract class for combined criteria functions. " alt="" coords="5,80,189,107"/>
+<area shape="rect" id="node3" href="$classbayesopt_1_1Criteria.html" title="Abstract interface for criteria functors. " alt="" coords="35,5,160,32"/>
+</map>

@@ -1,0 +1,11 @@
+<map id="posteriormodel.hpp" name="posteriormodel.hpp">
+<area shape="rect" id="node2" href="$prob__distribution_8hpp.html" title="Interface for probability models. " alt="" coords="377,80,520,107"/>
+<area shape="rect" id="node5" href="$dataset_8hpp.html" title="Dataset model. " alt="" coords="701,80,791,107"/>
+<area shape="rect" id="node17" href="$mean__functors_8hpp.html" title="Mean (parametric) functions. " alt="" coords="874,80,1007,107"/>
+<area shape="rect" id="node3" href="$randgen_8hpp.html" title="Boost types for random number generation. " alt="" coords="126,162,219,189"/>
+<area shape="rect" id="node6" href="$log_8hpp.html" title="Modules and helper macros for logging. " alt="" coords="347,162,411,189"/>
+<area shape="rect" id="node11" href="$specialtypes_8hpp.html" title="Boost vector and matrix types. " alt="" coords="827,162,947,189"/>
+<area shape="rect" id="node15" href="$ublas__extra_8hpp.html" title="Extra functions for Ublas library. " alt="" coords="689,162,803,189"/>
+<area shape="rect" id="node21" href="$parameters_8hpp.html" title="Parameter definitions. " alt="" coords="495,162,664,189"/>
+<area shape="rect" id="node22" href="$parameters_8h.html" title="Parameter definitions. " alt="" coords="518,251,673,278"/>
+</map>

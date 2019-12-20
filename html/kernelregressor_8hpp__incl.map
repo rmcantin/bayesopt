@@ -1,0 +1,15 @@
+<map id="kernelregressor.hpp" name="kernelregressor.hpp">
+<area shape="rect" id="node2" href="$ublas__cholesky_8hpp.html" title="Cholesky decomposition. " alt="" coords="1429,155,1567,181"/>
+<area shape="rect" id="node11" href="$nonparametricprocess_8hpp.html" title="Abstract module for a Bayesian regressor. " alt="" coords="863,80,1037,107"/>
+<area shape="rect" id="node32" href="$kernel__functors_8hpp.html" title="Kernel (covariance) functions. " alt="" coords="733,155,869,181"/>
+<area shape="rect" id="node12" href="$dataset_8hpp.html" title="Dataset model. " alt="" coords="343,155,434,181"/>
+<area shape="rect" id="node22" href="$prob__distribution_8hpp.html" title="Interface for probability models. " alt="" coords="1887,155,2029,181"/>
+<area shape="rect" id="node25" href="$mean__functors_8hpp.html" title="Mean (parametric) functions. " alt="" coords="893,155,1026,181"/>
+<area shape="rect" id="node31" href="$optimizable_8hpp.html" title="Abstract class for optimizable objects. " alt="" coords="569,155,683,181"/>
+<area shape="rect" id="node13" href="$log_8hpp.html" title="Modules and helper macros for logging. " alt="" coords="173,237,237,263"/>
+<area shape="rect" id="node18" href="$specialtypes_8hpp.html" title="Boost vector and matrix types. " alt="" coords="399,237,519,263"/>
+<area shape="rect" id="node20" href="$ublas__extra_8hpp.html" title="Extra functions for Ublas library. " alt="" coords="261,237,375,263"/>
+<area shape="rect" id="node23" href="$randgen_8hpp.html" title="Boost types for random number generation. " alt="" coords="2207,237,2301,263"/>
+<area shape="rect" id="node28" href="$parameters_8hpp.html" title="Parameter definitions. " alt="" coords="729,237,899,263"/>
+<area shape="rect" id="node29" href="$parameters_8h.html" title="Parameter definitions. " alt="" coords="955,326,1110,353"/>
+</map>

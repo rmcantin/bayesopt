@@ -1,0 +1,6 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classbayesopt_1_1PosteriorModel.html" title="Bayesian optimization using different non&#45;parametric processes as distributions over surrogate functi..." alt="" coords="5,56,176,83"/>
+<area shape="rect" id="node2" href="$classbayesopt_1_1EmpiricalBayes.html" title="Bayesian optimization using different non&#45;parametric processes as distributions over surrogate functi..." alt="" coords="224,5,399,32"/>
+<area shape="rect" id="node3" href="$classbayesopt_1_1MCMCModel.html" title="Posterior model of nonparametric processes/criteria based on MCMC samples. " alt="" coords="231,56,391,83"/>
+<area shape="rect" id="node4" href="$classbayesopt_1_1PosteriorFixed.html" title="Bayesian optimization using different non&#45;parametric processes as distributions over surrogate functi..." alt="" coords="228,107,395,133"/>
+</map>

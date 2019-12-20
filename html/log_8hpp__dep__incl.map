@@ -1,0 +1,51 @@
+<map id="log.hpp" name="log.hpp">
+<area shape="rect" id="node2" href="$dataset_8hpp.html" title="Dataset model. " alt="" coords="337,80,428,107"/>
+<area shape="rect" id="node8" href="$nonparametricprocess_8cpp_source.html" title="nonparametricprocess.cpp" alt="" coords="2378,528,2553,555"/>
+<area shape="rect" id="node13" href="$conditionalbayesprocess_8cpp_source.html" title="conditionalbayesprocess.cpp" alt="" coords="2467,379,2658,405"/>
+<area shape="rect" id="node14" href="$kernelregressor_8cpp_source.html" title="kernelregressor.cpp" alt="" coords="2024,304,2160,331"/>
+<area shape="rect" id="node20" href="$criteria__hedge_8cpp_source.html" title="criteria_hedge.cpp" alt="" coords="1615,453,1743,480"/>
+<area shape="rect" id="node31" href="$posterior__empirical_8cpp_source.html" title="posterior_empirical.cpp" alt="" coords="14,379,170,405"/>
+<area shape="rect" id="node32" href="$posteriormodel_8cpp_source.html" title="posteriormodel.cpp" alt="" coords="279,379,411,405"/>
+<area shape="rect" id="node34" href="$posterior__fixed_8cpp_source.html" title="posterior_fixed.cpp" alt="" coords="435,379,567,405"/>
+<area shape="rect" id="node36" href="$posterior__mcmc_8cpp_source.html" title="posterior_mcmc.cpp" alt="" coords="591,379,731,405"/>
+<area shape="rect" id="node38" href="$bayesoptbase_8cpp_source.html" title="bayesoptbase.cpp" alt="" coords="93,304,221,331"/>
+<area shape="rect" id="node41" href="$bayesoptcont_8cpp_source.html" title="bayesoptcont.cpp" alt="" coords="2655,155,2780,181"/>
+<area shape="rect" id="node42" href="$bayesoptdisc_8cpp_source.html" title="bayesoptdisc.cpp" alt="" coords="2831,155,2955,181"/>
+<area shape="rect" id="node43" href="$inneroptimization_8cpp_source.html" title="inneroptimization.cpp" alt="" coords="2677,80,2822,107"/>
+<area shape="rect" id="node44" href="$kernel__functors_8cpp_source.html" title="kernel_functors.cpp" alt="" coords="2847,80,2983,107"/>
+<area shape="rect" id="node45" href="$mcmc__sampler_8cpp_source.html" title="mcmc_sampler.cpp" alt="" coords="3328,155,3464,181"/>
+<area shape="rect" id="node46" href="$mean__functors_8cpp_source.html" title="mean_functors.cpp" alt="" coords="3095,80,3228,107"/>
+<area shape="rect" id="node47" href="$student__t__process__nig_8cpp_source.html" title="student_t_process_nig.cpp" alt="" coords="3252,80,3431,107"/>
+<area shape="rect" id="node48" href="$bayesoptwpr_8cpp_source.html" title="bayesoptwpr.cpp" alt="" coords="3455,80,3577,107"/>
+<area shape="rect" id="node49" href="$lhs_8hpp.html" title="Latin Hypercube Sampling. " alt="" coords="3007,80,3071,107"/>
+<area shape="rect" id="node3" href="$nonparametricprocess_8hpp.html" title="Abstract module for a Bayesian regressor. " alt="" coords="1521,155,1695,181"/>
+<area shape="rect" id="node37" href="$posteriormodel_8hpp.html" title="Abstract interface for posterior model/criteria. " alt="" coords="477,229,609,256"/>
+<area shape="rect" id="node39" href="$dataset_8cpp_source.html" title="dataset.cpp" alt="" coords="209,155,300,181"/>
+<area shape="rect" id="node40" href="$displaygp_8cpp_source.html" title="displaygp.cpp" alt="" coords="325,155,427,181"/>
+<area shape="rect" id="node4" href="$kernelregressor_8hpp.html" title="Nonparametric process abstract module. " alt="" coords="2129,229,2265,256"/>
+<area shape="rect" id="node15" href="$criteria__functors_8hpp.html" title="Abstract and factory modules for criteria. " alt="" coords="1254,229,1394,256"/>
+<area shape="rect" id="node5" href="$conditionalbayesprocess_8hpp.html" title="Kernel based nonparametric process, conditional on kernel hyperparameters. " alt="" coords="2235,304,2426,331"/>
+<area shape="rect" id="node6" href="$gaussian__process_8hpp.html" title="Standard zero mean gaussian process with noisy observations. " alt="" coords="2041,379,2193,405"/>
+<area shape="rect" id="node9" href="$gaussian__process__hierarchical_8hpp.html" title="Hierarchical model for Gaussian process. " alt="" coords="2218,379,2443,405"/>
+<area shape="rect" id="node7" href="$gaussian__process_8cpp_source.html" title="gaussian_process.cpp" alt="" coords="1887,453,2039,480"/>
+<area shape="rect" id="node10" href="$gaussian__process__ml_8hpp.html" title="Gaussian process with ML parameters. " alt="" coords="2063,453,2236,480"/>
+<area shape="rect" id="node11" href="$gaussian__process__normal_8hpp.html" title="Gaussian process with normal prior on the parameters. " alt="" coords="2261,453,2459,480"/>
+<area shape="rect" id="node12" href="$student__t__process__jef_8hpp.html" title="Student T process with Jeffreys priors. " alt="" coords="2483,453,2658,480"/>
+<area shape="rect" id="node16" href="$criteria__a__opt_8hpp.html" title="A&#45;optimality (uncertainty) based criteria. " alt="" coords="1791,379,1916,405"/>
+<area shape="rect" id="node17" href="$criteria__functors_8cpp_source.html" title="criteria_functors.cpp" alt="" coords="1379,453,1519,480"/>
+<area shape="rect" id="node18" href="$criteria__combined_8hpp.html" title="Abstract module for combined criteria. " alt="" coords="1001,304,1151,331"/>
+<area shape="rect" id="node23" href="$criteria__distance_8hpp.html" title="Cost for selecting distant points. " alt="" coords="755,379,898,405"/>
+<area shape="rect" id="node24" href="$criteria__ei_8hpp.html" title="Expected improvement based criteria. " alt="" coords="922,379,1025,405"/>
+<area shape="rect" id="node25" href="$criteria__expected_8hpp.html" title="Criterion based on the expected value of the function. " alt="" coords="1175,304,1321,331"/>
+<area shape="rect" id="node26" href="$criteria__lcb_8hpp.html" title="Lower confidence bound based criteria. " alt="" coords="1346,304,1457,331"/>
+<area shape="rect" id="node27" href="$criteria__mi_8hpp_source.html" title="criteria_mi.hpp" alt="" coords="1481,304,1588,331"/>
+<area shape="rect" id="node28" href="$criteria__poi_8hpp.html" title="Probability of improvement. " alt="" coords="1613,304,1723,331"/>
+<area shape="rect" id="node29" href="$criteria__thompson_8hpp.html" title="Thompson and optimistic sampling criteria. " alt="" coords="1747,304,1898,331"/>
+<area shape="rect" id="node30" href="$posterior__empirical_8hpp_source.html" title="posterior_empirical.hpp" alt="" coords="297,304,453,331"/>
+<area shape="rect" id="node33" href="$posterior__fixed_8hpp.html" title="Posterior model based on fixed kernel parameters. " alt="" coords="477,304,609,331"/>
+<area shape="rect" id="node35" href="$posterior__mcmc_8hpp.html" title="Posterior distribution on GPs based on MCMC over kernel parameters. " alt="" coords="685,304,825,331"/>
+<area shape="rect" id="node19" href="$criteria__hedge_8hpp.html" title="Portfolio selection of criteria based on Hedge algorithm. " alt="" coords="1537,379,1665,405"/>
+<area shape="rect" id="node21" href="$criteria__prod_8hpp.html" title="Product of multiple criteria. " alt="" coords="1049,379,1167,405"/>
+<area shape="rect" id="node22" href="$criteria__sum_8hpp.html" title="Sum of multiple criteria. " alt="" coords="1191,379,1310,405"/>
+<area shape="rect" id="node50" href="$bo__disc_8cpp_source.html" title="bo_disc.cpp" alt="" coords="2993,155,3085,181"/>
+</map>

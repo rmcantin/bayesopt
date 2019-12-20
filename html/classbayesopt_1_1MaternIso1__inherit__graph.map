@@ -1,0 +1,5 @@
+<map id="bayesopt::MaternIso1" name="bayesopt::MaternIso1">
+<area shape="rect" id="node2" href="$classbayesopt_1_1ISOkernel.html" title="Abstract class for isotropic kernel functors. " alt="" coords="15,155,157,181"/>
+<area shape="rect" id="node3" href="$classbayesopt_1_1AtomicKernel.html" title="Abstract class for an atomic kernel. " alt="" coords="5,80,167,107"/>
+<area shape="rect" id="node4" href="$classbayesopt_1_1Kernel.html" title="Interface for kernel functors. " alt="" coords="26,5,146,32"/>
+</map>

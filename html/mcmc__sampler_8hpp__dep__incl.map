@@ -1,0 +1,6 @@
+<map id="mcmc_sampler.hpp" name="mcmc_sampler.hpp">
+<area shape="rect" id="node2" href="$posterior__mcmc_8hpp.html" title="Posterior distribution on GPs based on MCMC over kernel parameters. " alt="" coords="85,80,225,107"/>
+<area shape="rect" id="node5" href="$mcmc__sampler_8cpp_source.html" title="mcmc_sampler.cpp" alt="" coords="250,80,386,107"/>
+<area shape="rect" id="node3" href="$posterior__mcmc_8cpp_source.html" title="posterior_mcmc.cpp" alt="" coords="5,155,145,181"/>
+<area shape="rect" id="node4" href="$posteriormodel_8cpp_source.html" title="posteriormodel.cpp" alt="" coords="169,155,301,181"/>
+</map>

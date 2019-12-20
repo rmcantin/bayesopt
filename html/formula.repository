@@ -1,0 +1,71 @@
+\form#0:\[ f(x,y) = \left(y-\frac{5.1}{4\pi^2}x^2 + \frac{5}{\pi}x-6\right)^2 + 10\left(1-\frac{1}{8\pi}\right) \cos(x) + 10 \]
+\form#1:$-5 \leq x \leq 10$
+\form#2:$0 \leq y \leq 15$
+\form#3:\begin{align*} x &= 0.1239, y = 0.8183\\ x &= 0.5428, y = 0.1517 \qquad \qquad f(x,y) = 0.397887\\ x &= 0.9617, y = 0.1650 \end{align*}
+\form#4:\begin{align*} f(\mathbf{x}) &= - \sum_{i=1}^{4} \alpha_i \left( -\sum_{j=1}^{6} A_{ij} \left( x_j - P_{ij}\right)^2 \right)\\ \alpha &= \left( 1.0, 1.2, 3.0, 3.2 \right)^T\\ A &= \left(\begin{array}{cccccc} 10 & 3 & 17 & 3.50 & 1.7 & 8 \\ 0.05 & 10 & 17 & 0.1 & 8 & 14 \\ 3 & 3.5 & 1.7 & 10 & 17 & 8 \\ 17 & 8 & 0.05 & 10 & 0.1 & 14 \end{array}\right) \\ P &= 10^{-4} \left(\begin{array}{cccccc} 1312 & 1696 & 5569 & 124 & 8283 & 5886 \\ 2329 & 4135 & 8307 & 3736 & 1004 & 9991 \\ 2348 & 1451 & 3522 & 2883 & 3047 & 6650 \\ 4047 & 8828 & 8732 & 5743 & 1091 & 381 \end{array}\right) \end{align*}
+\form#5:$x_i \in (0,1) \qquad \forall i=1\ldots6$
+\form#6:\[ \mathbf{x}^* = \left(0.2069, 0.150011, 0.476874, 0.275332, 0.311652, 0.6573 \right) \qquad \qquad f(\mathbf{x}^*) = -3.32237 \]
+\form#7:\[ f(x,y) = \left(4 - 2.1x^2 + \frac{x^4}{3}\right) x^2 + x y + \left(-4 + 4y^2\right) y^2 \]
+\form#8:$-2 \leq x \leq 2$
+\form#9:$-1 \leq y \leq 1$
+\form#10:\begin{align*} x &= 0.0898, y = -0.7126\\ x &= -0.0898, y = 0.7126 \qquad \qquad f(x,y) = -1.0316 \end{align*}
+\form#11:$x^* = [0.3]^5$
+\form#12:$y^* = 5.0$
+\form#13:$[0,1]^5$
+\form#14:\[ x_n \in \mathcal{A} \subset \mathbb{R}^m , \;\;\; n = 1,2,\ldots \]
+\form#15:$x^*$
+\form#16:$n$
+\form#17:$n+1$
+\form#18:$d_n$
+\form#19:\[ x_{n+1} = d_n(x_{1:n},y_{1:n}) \]
+\form#20:$y_i = f(x_i) + \epsilon_i$
+\form#21:$\epsilon_i = 0$
+\form#22:$\epsilon_i \sim \mathcal{N}(0,\sigma)$
+\form#23:$d = {d_0,\ldots, d_{n-1}}$
+\form#24:$x_{n} = x_{n}(d)$
+\form#25:\[ \delta_n(f,d) = f\left(x_n\right) - f(x^*) \]
+\form#26:\[ \delta_n(f,d) = \|x_n - x^*\|_2 \label{eq:dist-error} \]
+\form#27:\[ d_n = \arg \min_d \delta_n(f,d) \]
+\form#28:$f$
+\form#29:$f = f(x)$
+\form#30:$f \in F$
+\form#31:$\mathbb{R}^m$
+\form#32:$f \sim P(f)$
+\form#33:\[ d^{BR}_n = \arg \min_d \mathbb{E}_{P(f)} \left[ \delta_n(f,d)\right]= \arg \min_d \int_F \delta_n(f,d) \; dP(f) \]
+\form#34:$P$
+\form#35:$n-1$
+\form#36:$\{x_{1:n-1},y_{1:n-1}\}$
+\form#37:\[ P(f|x_{1:n-1},y_{1:n-1}) = \frac{P(x_{1:n-1},y_{1:n-1}|f) P(f)}{P(x_{1:n-1},y_{1:n-1})} \]
+\form#38:\[ P(f|x_{1:i},y_{1:i}) = \frac{P(x_{i},y_{i}|f) P(f|x_{1:i-1},y_{1:i-1})}{P(x_{i},y_{i})}, \qquad \forall \; i=1 \ldots n-1 \]
+\form#39:\[ d^{BO}_n = \arg \min_d \mathbb{E}_{P(f|x_{1:n-1},y_{1:n-1})} \left[ \delta_n(f,d)\right] = \arg \min_d \int_F \delta_n(f,d) \; dP(f|x_{1:n-1},y_{1:n-1}) \]
+\form#40:$f:\mathbb{X} \rightarrow \mathbb{R}$
+\form#41:$\mathbb{X}$
+\form#42:$\mathbb{X} \subset \mathbb{R}^d, d \geq 1$
+\form#43:$P(f)$
+\form#44:$\mathbf{x}i(\cdot)$
+\form#45:$x \in \mathbb{X}$
+\form#46:$k(\cdot,\cdot)$
+\form#47:$f \sim \mathbf{x}i(\cdot)$
+\form#48:$N$
+\form#49:$(x_i,y_i)$
+\form#50:$\mathbf{x}i_i = \left[ \mathbf{x}i(\cdot) | x_{1:i},y_{1:i} \right]$
+\form#51:\[ f(x) = \phi(\mathbf{x})^T \mathbf{w} + \epsilon(\mathbf{x}) \]
+\form#52:\[ \epsilon(\mathbf{x}) \sim \mathcal{NP} \left( 0, \sigma^2_s (\mathbf{K}(\theta) + \sigma^2_n \mathbf{I}) \right) \]
+\form#53:$\mathcal{NP}$
+\form#54:$\mathcal{GP}$
+\form#55:$\mathcal{TP}$
+\form#56:$\sigma^2_n$
+\form#57:$\sigma^2_n = 0$
+\form#58:$f(x)$
+\form#59:$\phi(\mathbf{x})^T\mathbf{w}$
+\form#60:$\epsilon(\mathbf{x})$
+\form#61:$\mathcal{NP} \left(\phi(\mathbf{x})^T\mathbf{w}, \sigma^2_s (\mathbf{K}(\theta) + \sigma^2_n \mathbf{I}) \right)$
+\form#62:$f(\mathbf{x}) = f_{par}(\mathbf{x}) + f_{nonpar}(\mathbf{x}) = \phi(\mathbf{x})^T\mathbf{w} + \mathcal{NP}(\cdot)$
+\form#63:$\mathbf{w}$
+\form#64:$\sigma_s^2$
+\form#65:$\theta$
+\form#66:$(\mathbf{w},\sigma_s^2)$
+\form#67:$p(\theta)$
+\form#68:$p(\log(\theta))$
+\form#69:$ f(x):\mathcal{D} \subset \mathbb{R}^n \Rightarrow \mathbb{R} $
+\form#70:\[ \log p(y|x,\theta,f) \propto y^T (K+\sigma I)^{-1} y + \log|K+\sigma I| \]

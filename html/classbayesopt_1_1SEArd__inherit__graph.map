@@ -1,0 +1,5 @@
+<map id="bayesopt::SEArd" name="bayesopt::SEArd">
+<area shape="rect" id="node2" href="$classbayesopt_1_1ARDkernel.html" title="Abstract class for anisotropic kernel functors using ARD (Automatic Relevance Determination) ..." alt="" coords="13,155,159,181"/>
+<area shape="rect" id="node3" href="$classbayesopt_1_1AtomicKernel.html" title="Abstract class for an atomic kernel. " alt="" coords="5,80,167,107"/>
+<area shape="rect" id="node4" href="$classbayesopt_1_1Kernel.html" title="Interface for kernel functors. " alt="" coords="26,5,146,32"/>
+</map>

@@ -1,0 +1,18 @@
+<map id="gaussian_process.hpp" name="gaussian_process.hpp">
+<area shape="rect" id="node2" href="$gauss__distribution_8hpp.html" title="Gaussian probability distribution. " alt="" coords="281,229,433,256"/>
+<area shape="rect" id="node7" href="$conditionalbayesprocess_8hpp.html" title="Kernel based nonparametric process, conditional on kernel hyperparameters. " alt="" coords="531,80,721,107"/>
+<area shape="rect" id="node4" href="$prob__distribution_8hpp.html" title="Interface for probability models. " alt="" coords="285,304,428,331"/>
+<area shape="rect" id="node5" href="$randgen_8hpp.html" title="Boost types for random number generation. " alt="" coords="33,386,126,413"/>
+<area shape="rect" id="node8" href="$kernelregressor_8hpp.html" title="Nonparametric process abstract module. " alt="" coords="627,155,763,181"/>
+<area shape="rect" id="node9" href="$ublas__cholesky_8hpp.html" title="Cholesky decomposition. " alt="" coords="1559,304,1696,331"/>
+<area shape="rect" id="node18" href="$nonparametricprocess_8hpp.html" title="Abstract module for a Bayesian regressor. " alt="" coords="540,229,715,256"/>
+<area shape="rect" id="node36" href="$kernel__functors_8hpp.html" title="Kernel (covariance) functions. " alt="" coords="709,304,845,331"/>
+<area shape="rect" id="node19" href="$dataset_8hpp.html" title="Dataset model. " alt="" coords="454,304,545,331"/>
+<area shape="rect" id="node29" href="$mean__functors_8hpp.html" title="Mean (parametric) functions. " alt="" coords="869,304,1002,331"/>
+<area shape="rect" id="node35" href="$optimizable_8hpp.html" title="Abstract class for optimizable objects. " alt="" coords="571,304,684,331"/>
+<area shape="rect" id="node20" href="$log_8hpp.html" title="Modules and helper macros for logging. " alt="" coords="347,386,411,413"/>
+<area shape="rect" id="node25" href="$specialtypes_8hpp.html" title="Boost vector and matrix types. " alt="" coords="574,386,694,413"/>
+<area shape="rect" id="node27" href="$ublas__extra_8hpp.html" title="Extra functions for Ublas library. " alt="" coords="435,386,550,413"/>
+<area shape="rect" id="node32" href="$parameters_8hpp.html" title="Parameter definitions. " alt="" coords="719,386,888,413"/>
+<area shape="rect" id="node33" href="$parameters_8h.html" title="Parameter definitions. " alt="" coords="1098,475,1253,502"/>
+</map>

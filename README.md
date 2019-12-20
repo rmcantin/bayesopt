@@ -28,30 +28,24 @@ in your manuscript.
 The paper can be found at http://jmlr.org/papers/v15/martinezcantin14a.html
 
 Commercial applications may also acquire a **commercial license**. Please
-contact <rmcantin@unizar.es> for details.
+contact <bayesopt@unizar.es> for details.
 
 
 Getting and installing BayesOpt
 -------------------------------
 
-The library can be download from any of this sources:
+The library can be download from Github:
+<https://github.com/rmcantin/bayesopt>
 
-- Download: <https://bitbucket.org/rmcantin/bayesopt>
-- Mirror: <https://github.com/rmcantin/bayesopt>
-- Mirror: <http://mloss.org/software/view/453/>
 
 You can also get the *cutting-edge* version from the repositories:
-
-    >> hg clone https://bitbucket.org/rmcantin/bayesopt
-
-or the git mirror:
 
     >> git clone https://github.com/rmcantin/bayesopt
 
 
 The online documentation can be found at:
-<http://rmcantin.bitbucket.io/html/> where it includes a [install
-guide](http://rmcantin.bitbucket.io/html/install.html).
+<http://rmcantin.github.io/bayesopt/html/> where it includes a [install
+guide](http://rmcantin.github.io/bayesopt/html/install.html).
 
 
 Questions and issues
@@ -66,12 +60,11 @@ https://bitbucket.org/rmcantin/bayesopt/issues or https://github.com/rmcantin/ba
 
 ----------------------------------------------------------------------
 
-Copyright (C) 2011-2015 Ruben Martinez-Cantin <rmcantin@unizar.es>
+Copyright (C) 2011-2020 Ruben Martinez-Cantin <rmcantin@unizar.es>
 
 BayesOpt is free software: you can redistribute it and/or modify it
 under the terms of the GNU Affero General Public License as published by 
-the Free Software Foundation, either version 3 of the License, or 
-(at your option) any later version.
+the Free Software Foundation, version 3 of the License.
 
 BayesOpt is distributed in the hope that it will be useful, 
 but WITHOUT ANY WARRANTY; without even the implied warranty of

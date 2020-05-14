@@ -1,0 +1,6 @@
+<map id="bayesopt::Criteria" name="bayesopt::Criteria">
+<area shape="rect" id="node2" href="$classbayesopt_1_1NonParametricProcess.html" title="Abstract class to implement Bayesian regressors. " alt="" coords="167,184,385,211"/>
+<area shape="rect" id="node3" href="$classbayesopt_1_1RBOptimizable.html" title="bayesopt::RBOptimizable" alt="" coords="5,95,176,121"/>
+<area shape="rect" id="node4" href="$classbayesopt_1_1MeanModel.html" title="bayesopt::MeanModel" alt="" coords="201,95,351,121"/>
+<area shape="rect" id="node5" href="$classbayesopt_1_1Dataset.html" title="Dataset model to deal with the vector (real) based datasets. " alt="" coords="375,95,505,121"/>
+</map>

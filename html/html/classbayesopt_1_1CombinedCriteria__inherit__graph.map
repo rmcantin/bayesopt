@@ -1,0 +1,7 @@
+<map id="bayesopt::CombinedCriteria" name="bayesopt::CombinedCriteria">
+<area shape="rect" id="node3" href="$classbayesopt_1_1GP__Hedge.html" title="GP_Hedge model as describen in Hoffman et al. " alt="" coords="5,155,152,181"/>
+<area shape="rect" id="node5" href="$classbayesopt_1_1ProdCriteria.html" title="Product of criterion functions. " alt="" coords="176,155,328,181"/>
+<area shape="rect" id="node6" href="$classbayesopt_1_1SumCriteria.html" title="Wrapper class for linear combination of criterion functions. " alt="" coords="352,155,504,181"/>
+<area shape="rect" id="node2" href="$classbayesopt_1_1Criteria.html" title="Abstract interface for criteria functors. " alt="" coords="189,5,315,32"/>
+<area shape="rect" id="node4" href="$classbayesopt_1_1GP__Hedge__Random.html" title="Modification of the GP_Hedge algorithm where the bandit gains are random outcomes (like Thompson samp..." alt="" coords="5,229,152,271"/>
+</map>

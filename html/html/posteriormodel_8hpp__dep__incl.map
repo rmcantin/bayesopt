@@ -1,0 +1,10 @@
+<map id="posteriormodel.hpp" name="posteriormodel.hpp">
+<area shape="rect" id="node2" href="$posterior__empirical_8hpp_source.html" title="posterior_empirical.hpp" alt="" coords="57,80,213,107"/>
+<area shape="rect" id="node4" href="$posteriormodel_8cpp_source.html" title="posteriormodel.cpp" alt="" coords="185,155,317,181"/>
+<area shape="rect" id="node5" href="$posterior__fixed_8hpp.html" title="Posterior model based on fixed kernel parameters. " alt="" coords="289,80,421,107"/>
+<area shape="rect" id="node7" href="$posterior__mcmc_8hpp.html" title="Posterior distribution on GPs based on MCMC over kernel parameters. " alt="" coords="445,80,585,107"/>
+<area shape="rect" id="node9" href="$bayesoptbase_8cpp_source.html" title="bayesoptbase.cpp" alt="" coords="610,80,738,107"/>
+<area shape="rect" id="node3" href="$posterior__empirical_8cpp_source.html" title="posterior_empirical.cpp" alt="" coords="5,155,161,181"/>
+<area shape="rect" id="node6" href="$posterior__fixed_8cpp_source.html" title="posterior_fixed.cpp" alt="" coords="341,155,473,181"/>
+<area shape="rect" id="node8" href="$posterior__mcmc_8cpp_source.html" title="posterior_mcmc.cpp" alt="" coords="497,155,637,181"/>
+</map>

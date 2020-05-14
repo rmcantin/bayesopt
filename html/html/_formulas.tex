@@ -1,0 +1,222 @@
+\documentclass{article}
+\usepackage{epsfig}
+% Packages requested by user
+\usepackage{amssymb}
+\usepackage{amsmath}
+
+\pagestyle{empty}
+\begin{document}
+\[ f(x,y) = \left(y-\frac{5.1}{4\pi^2}x^2 + \frac{5}{\pi}x-6\right)^2 + 10\left(1-\frac{1}{8\pi}\right) \cos(x) + 10 \]
+\pagebreak
+
+$-5 \leq x \leq 10$
+\pagebreak
+
+$0 \leq y \leq 15$
+\pagebreak
+
+\begin{align*} x &= 0.1239, y = 0.8183\\ x &= 0.5428, y = 0.1517 \qquad \qquad f(x,y) = 0.397887\\ x &= 0.9617, y = 0.1650 \end{align*}
+\pagebreak
+
+\begin{align*} f(\mathbf{x}) &= - \sum_{i=1}^{4} \alpha_i \left( -\sum_{j=1}^{6} A_{ij} \left( x_j - P_{ij}\right)^2 \right)\\ \alpha &= \left( 1.0, 1.2, 3.0, 3.2 \right)^T\\ A &= \left(\begin{array}{cccccc} 10 & 3 & 17 & 3.50 & 1.7 & 8 \\ 0.05 & 10 & 17 & 0.1 & 8 & 14 \\ 3 & 3.5 & 1.7 & 10 & 17 & 8 \\ 17 & 8 & 0.05 & 10 & 0.1 & 14 \end{array}\right) \\ P &= 10^{-4} \left(\begin{array}{cccccc} 1312 & 1696 & 5569 & 124 & 8283 & 5886 \\ 2329 & 4135 & 8307 & 3736 & 1004 & 9991 \\ 2348 & 1451 & 3522 & 2883 & 3047 & 6650 \\ 4047 & 8828 & 8732 & 5743 & 1091 & 381 \end{array}\right) \end{align*}
+\pagebreak
+
+$x_i \in (0,1) \qquad \forall i=1\ldots6$
+\pagebreak
+
+\[ \mathbf{x}^* = \left(0.2069, 0.150011, 0.476874, 0.275332, 0.311652, 0.6573 \right) \qquad \qquad f(\mathbf{x}^*) = -3.32237 \]
+\pagebreak
+
+\[ f(x,y) = \left(4 - 2.1x^2 + \frac{x^4}{3}\right) x^2 + x y + \left(-4 + 4y^2\right) y^2 \]
+\pagebreak
+
+$-2 \leq x \leq 2$
+\pagebreak
+
+$-1 \leq y \leq 1$
+\pagebreak
+
+\begin{align*} x &= 0.0898, y = -0.7126\\ x &= -0.0898, y = 0.7126 \qquad \qquad f(x,y) = -1.0316 \end{align*}
+\pagebreak
+
+$x^* = [0.3]^5$
+\pagebreak
+
+$y^* = 5.0$
+\pagebreak
+
+$[0,1]^5$
+\pagebreak
+
+\[ x_n \in \mathcal{A} \subset \mathbb{R}^m , \;\;\; n = 1,2,\ldots \]
+\pagebreak
+
+$x^*$
+\pagebreak
+
+$n$
+\pagebreak
+
+$n+1$
+\pagebreak
+
+$d_n$
+\pagebreak
+
+\[ x_{n+1} = d_n(x_{1:n},y_{1:n}) \]
+\pagebreak
+
+$y_i = f(x_i) + \epsilon_i$
+\pagebreak
+
+$\epsilon_i = 0$
+\pagebreak
+
+$\epsilon_i \sim \mathcal{N}(0,\sigma)$
+\pagebreak
+
+$d = {d_0,\ldots, d_{n-1}}$
+\pagebreak
+
+$x_{n} = x_{n}(d)$
+\pagebreak
+
+\[ \delta_n(f,d) = f\left(x_n\right) - f(x^*) \]
+\pagebreak
+
+\[ \delta_n(f,d) = \|x_n - x^*\|_2 \label{eq:dist-error} \]
+\pagebreak
+
+\[ d_n = \arg \min_d \delta_n(f,d) \]
+\pagebreak
+
+$f$
+\pagebreak
+
+$f = f(x)$
+\pagebreak
+
+$f \in F$
+\pagebreak
+
+$\mathbb{R}^m$
+\pagebreak
+
+$f \sim P(f)$
+\pagebreak
+
+\[ d^{BR}_n = \arg \min_d \mathbb{E}_{P(f)} \left[ \delta_n(f,d)\right]= \arg \min_d \int_F \delta_n(f,d) \; dP(f) \]
+\pagebreak
+
+$P$
+\pagebreak
+
+$n-1$
+\pagebreak
+
+$\{x_{1:n-1},y_{1:n-1}\}$
+\pagebreak
+
+\[ P(f|x_{1:n-1},y_{1:n-1}) = \frac{P(x_{1:n-1},y_{1:n-1}|f) P(f)}{P(x_{1:n-1},y_{1:n-1})} \]
+\pagebreak
+
+\[ P(f|x_{1:i},y_{1:i}) = \frac{P(x_{i},y_{i}|f) P(f|x_{1:i-1},y_{1:i-1})}{P(x_{i},y_{i})}, \qquad \forall \; i=1 \ldots n-1 \]
+\pagebreak
+
+\[ d^{BO}_n = \arg \min_d \mathbb{E}_{P(f|x_{1:n-1},y_{1:n-1})} \left[ \delta_n(f,d)\right] = \arg \min_d \int_F \delta_n(f,d) \; dP(f|x_{1:n-1},y_{1:n-1}) \]
+\pagebreak
+
+$f:\mathbb{X} \rightarrow \mathbb{R}$
+\pagebreak
+
+$\mathbb{X}$
+\pagebreak
+
+$\mathbb{X} \subset \mathbb{R}^d, d \geq 1$
+\pagebreak
+
+$P(f)$
+\pagebreak
+
+$\mathbf{x}i(\cdot)$
+\pagebreak
+
+$x \in \mathbb{X}$
+\pagebreak
+
+$k(\cdot,\cdot)$
+\pagebreak
+
+$f \sim \mathbf{x}i(\cdot)$
+\pagebreak
+
+$N$
+\pagebreak
+
+$(x_i,y_i)$
+\pagebreak
+
+$\mathbf{x}i_i = \left[ \mathbf{x}i(\cdot) | x_{1:i},y_{1:i} \right]$
+\pagebreak
+
+\[ f(x) = \phi(\mathbf{x})^T \mathbf{w} + \epsilon(\mathbf{x}) \]
+\pagebreak
+
+\[ \epsilon(\mathbf{x}) \sim \mathcal{NP} \left( 0, \sigma^2_s (\mathbf{K}(\theta) + \sigma^2_n \mathbf{I}) \right) \]
+\pagebreak
+
+$\mathcal{NP}$
+\pagebreak
+
+$\mathcal{GP}$
+\pagebreak
+
+$\mathcal{TP}$
+\pagebreak
+
+$\sigma^2_n$
+\pagebreak
+
+$\sigma^2_n = 0$
+\pagebreak
+
+$f(x)$
+\pagebreak
+
+$\phi(\mathbf{x})^T\mathbf{w}$
+\pagebreak
+
+$\epsilon(\mathbf{x})$
+\pagebreak
+
+$\mathcal{NP} \left(\phi(\mathbf{x})^T\mathbf{w}, \sigma^2_s (\mathbf{K}(\theta) + \sigma^2_n \mathbf{I}) \right)$
+\pagebreak
+
+$f(\mathbf{x}) = f_{par}(\mathbf{x}) + f_{nonpar}(\mathbf{x}) = \phi(\mathbf{x})^T\mathbf{w} + \mathcal{NP}(\cdot)$
+\pagebreak
+
+$\mathbf{w}$
+\pagebreak
+
+$\sigma_s^2$
+\pagebreak
+
+$\theta$
+\pagebreak
+
+$(\mathbf{w},\sigma_s^2)$
+\pagebreak
+
+$p(\theta)$
+\pagebreak
+
+$p(\log(\theta))$
+\pagebreak
+
+$ f(x):\mathcal{D} \subset \mathbb{R}^n \Rightarrow \mathbb{R} $
+\pagebreak
+
+\[ \log p(y|x,\theta,f) \propto y^T (K+\sigma I)^{-1} y + \log|K+\sigma I| \]
+\pagebreak
+
+\end{document}

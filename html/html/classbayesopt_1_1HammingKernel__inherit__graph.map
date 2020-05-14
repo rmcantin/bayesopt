@@ -1,0 +1,4 @@
+<map id="bayesopt::HammingKernel" name="bayesopt::HammingKernel">
+<area shape="rect" id="node2" href="$classbayesopt_1_1AtomicKernel.html" title="Abstract class for an atomic kernel. " alt="" coords="13,80,174,107"/>
+<area shape="rect" id="node3" href="$classbayesopt_1_1Kernel.html" title="Interface for kernel functors. " alt="" coords="33,5,153,32"/>
+</map>

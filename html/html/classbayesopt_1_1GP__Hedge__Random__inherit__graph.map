@@ -1,0 +1,5 @@
+<map id="bayesopt::GP_Hedge_Random" name="bayesopt::GP_Hedge_Random">
+<area shape="rect" id="node2" href="$classbayesopt_1_1GP__Hedge.html" title="GP_Hedge model as describen in Hoffman et al. " alt="" coords="24,155,171,181"/>
+<area shape="rect" id="node3" href="$classbayesopt_1_1CombinedCriteria.html" title="Abstract class for combined criteria functions. " alt="" coords="5,80,189,107"/>
+<area shape="rect" id="node4" href="$classbayesopt_1_1Criteria.html" title="Abstract interface for criteria functors. " alt="" coords="35,5,160,32"/>
+</map>

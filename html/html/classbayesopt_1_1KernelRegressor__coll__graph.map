@@ -1,0 +1,7 @@
+<map id="bayesopt::KernelRegressor" name="bayesopt::KernelRegressor">
+<area shape="rect" id="node2" href="$classbayesopt_1_1NonParametricProcess.html" title="Abstract class to implement Bayesian regressors. " alt="" coords="515,79,733,105"/>
+<area shape="rect" id="node3" href="$classbayesopt_1_1RBOptimizable.html" title="bayesopt::RBOptimizable" alt="" coords="229,5,400,32"/>
+<area shape="rect" id="node4" href="$classbayesopt_1_1MeanModel.html" title="bayesopt::MeanModel" alt="" coords="239,56,390,83"/>
+<area shape="rect" id="node5" href="$classbayesopt_1_1Dataset.html" title="Dataset model to deal with the vector (real) based datasets. " alt="" coords="250,107,379,133"/>
+<area shape="rect" id="node7" href="$classbayesopt_1_1KernelModel.html" title="bayesopt::KernelModel" alt="" coords="547,133,701,160"/>
+</map>

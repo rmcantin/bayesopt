@@ -23,51 +23,54 @@ instructions, the library will be compiled using the default
 configuration. You can modify that easily as explained in 
 \ref confinst
 
-\subsection cinlinux Linux:
+\subsection cinlinux Dependencies on Linux:
 For Ubuntu/Debian, the minimum dependencies (C/C++) can be optained by running:
 \verbatim
->> sudo apt-get install libboost-dev cmake cmake-curses-gui g++
+>> sudo apt install libboost-dev cmake g++
 \endverbatim
 
-If you want the Python interface:
+If you want the Python interface or the Octave interface (note that the \a octave package does not include all the necessary files):
 \verbatim
->> sudo apt-get install python-dev python-numpy
+>> sudo apt install python-dev python-numpy
+>> sudo apt install octave liboctave-dev
 \endverbatim
+You can also install the Python dependencies using your favorite package manager (conda, virtualenv+pip).
 
-If you want the Octave interface (note that the \a octave package does not include all the necessary files):
+You might also want to install the packages for interactive cmake, or GLUT to run the examples with plots:
 \verbatim
->> sudo apt-get install octave-headers
+>> sudo apt install cmake-curses-gui
+>> sudo apt install freeglut3-dev
 \endverbatim
 
 And for all dependencies:
 \verbatim
->> sudo apt-get install libboost-dev python-dev python-numpy cmake cmake-curses-gui g++ cython octave-headers freeglut3-dev
+>> sudo apt install libboost-dev python-dev python-numpy cmake cmake-curses-gui g++ cython octave liboctave-dev freeglut3-dev
 \endverbatim
 
-\subsection cinmac MacOS:
-This section assumes \b macports is installed. Similar packages can be
-found in \b fink or \b homebrew. For the minimal install, run:
+\subsection cinmac Dependencies on MacOS:
+This section assumes \b homebrew is installed. Similar packages can be
+found in \b fink or \b macports. We also assume that a suitable C++
+compiler is installed. For example, Xcode. For the minimal install,
+run:
 \verbatim
->> sudo port install boost gcc47 cmake
+>> brew install boost cmake
 \endverbatim
 
-If you want the Python interface:
+If you want the Python interface or the Octave interface:
 \verbatim
->> sudo port install python27 py27-numpy
+>> brew install python numpy
+>> brew install octave
 \endverbatim
+You can also install the Python dependencies using your favorite package manager (conda, pip...) or use the native Python interpreter in MacOS. BayesOpt can also be installed in Python environments (conda, virtualenv...).
 
-If you want the Octave interface:
+
+And for all dependencies:
 \verbatim
->> sudo port install octave
-\endverbatim
-
-Again, for all dependencies:
-\verbatim
->> sudo port install boost python27 py27-numpy gcc47 cmake py27-cython octave freeglut
+>> brew install boost python numpy cmake cython octave freeglut
 \endverbatim
 
 
-\subsection compile Compile the library:
+\subsection compile Compile the library with default configuration (C++):
 In order to compile the source code in a *nix system, run this from a
 terminal.
 \verbatim
@@ -93,18 +96,26 @@ Thid documentation will appear in the "doc" subdirectory.
 
 \subsection instpython Python interface:
 
-Both Python development files (Python.h) and Numpy are needed if you
-want the python interface. The library has been tested with Python
-2.5, 2.6 and 2.7. The interface relies on Numpy arrays. If we want to
-select the option to compile the Python interface we can just run:
+Both Python header files (Python.h) and Numpy are needed if you want
+the python interface. The library has been tested with Python 2 and
+3. If we want to select the option to compile the Python interface we
+can just run:
+
 \verbatim
->> cmake -DBAYESOPT_PYTHON_INTERFACE=ON . 
+>> cmake -DBAYESOPT_PYTHON_INTERFACE=ON .
+>> make
+>> sudo make install
 \endverbatim
-or 
+
+As commented before, the option BAYESOPT_PYTHON_INTERFACE=ON can also be set using
 \verbatim
->> ccmake . 
+>> ccmake .
 \endverbatim
-and select the corresponding option.
+
+You can use and install BayesOpt in a Python environment
+(conda, virtualenv, pyenv, etc.). It just need to be activated before
+calling cmake or ccmake. You can check that the correct install path
+has been found using ccmake. Then, press "t" to select advanced features. 
 
 \b Important: Python requires a special module with shared access and
 nonstandard name. Thus, it will build a separate module called
@@ -191,7 +202,7 @@ the worng std++ library for different reasons. See:
 Install this components:
 \li CMake: http://www.cmake.org
 \li Boost: http://www.boost.org
-\li MinGW(optional): http://www.mingw.org
+\li A C++ compiler. For example, Visual Studio or MinGW: http://mingw-w64.org/
 \li FreeGLUT(optional): http://freeglut.sourceforge.net/
 
 First, you need to compile the library from sources using a C++
@@ -205,7 +216,7 @@ automatically create the necesary configuration files for the compiler
 (makefile, solution, etc.). In CMake you need to set the paths of the
 Boost and FreeGLUT to allow the compiler to find them. 
 
-Since Boost they are pure template libraries, they do not require any
+Since Boost are pure template libraries, they do not require any
 install/compilation steps in advance. Just make sure the headers are
 on the include path. You can also add an entry named BOOST_ROOT in
 CMake with the corresponding path to the library.
@@ -247,20 +258,17 @@ online docs at mathworks.
 
 \subsubsection matlabmingw MATLAB and MinGW
 
-Unfortunately, MinGW has never been suported by Matlab. Thus I have
-also included a Makefile to generate the mex files outside Matlab. You
-might need to change the \c MATLABROOT path with the root folder of
-your Matlab install and copy the dlls. Then, run \c mingw32-make. Note
-that \c mingw32-make only supports 32 bits libraries, so you need a 32
-bit version of Matlab. There is a fork of MinGW with 64 bit support
-under development, but it has not been tested here.
+Although it might not be needed, I have also included a Makefile to
+generate the mex files outside Matlab. You might need to change the \c
+MATLABROOT path with the root folder of your Matlab install and copy
+the dlls. Then, run \c mingw32-make.
 
 \subsection instpythonwin Python interface:
 
 The Python interface has not been tested in \b Windows because getting
 the correct dependencies is highly involved. You might need to
 download and install:
-\li Python (binary and \b sources): http://www.python.org
+\li Python (binary and \b headers): http://www.python.org
 \li Numpy: http://new.scipy.org/download.html 
 
 Also, read this article about how to link everything:
@@ -311,7 +319,7 @@ different sets of test, the first one also on the Branin function.
 </ol>
 <HR>
 
-\section confinst Configure the compilation/install
+\section confinst Advanced configuration for compilation/install
 
 CMake allows to configure the compilation using some variables (see
 for example how to compile the Python module in Linux). These
@@ -399,27 +407,11 @@ issues. It requires OpenGL/GLUT.
 
 \section comptests Compatibility tests
 
-| API    |  Linux |  MacOS |  Win/MinGW   |  Win/MSVC |
-|--------|--------|--------|--------------|-----------|
-| C/C++  | OK     | OK     | OK           | OK        |
-| Matlab | OK     | OK     | OK (32 bits) | OK        |
-| Octave | OK     | OK     | No test      | No test   |
-| Python | OK     | OK     | No test      | No test   |
-
-\subsection notetests Notes on tested systems: 
-- Linux: Debian 6.0, Ubuntu from 11.04
-- MacOS: 10.6 (Snow Leopard)
-- MS Windows: XP, Vista, 7
-
-Compilers:
-- gcc: different versions from 4.1
-- clang: version 2.7
-- MinGW: version from 0.5
-- MSVC: Visual Studio Professional 2012, Express 2010-2012
-
-Interfaces
-- Matlab from 2010a
-- Octave from version 3.2
-- Python from version 2.5 (not tested on Python 3)
+| API       |  Linux |  MacOS |  Win/MinGW   |  Win/MSVC |
+|-----------|--------|--------|--------------|-----------|
+| C/C++     | OK     | OK     | OK           | OK        |
+| Matlab    | OK     | OK     | OK           | OK        |
+| Octave    | OK     | OK     | No test      | No test   |
+| Python2/3 | OK     | OK     | No test      | No test   |
 
 */

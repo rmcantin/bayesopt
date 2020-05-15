@@ -84,9 +84,9 @@ $(document).ready(function(){initNavTree('install.html','');});
 </div><!--header-->
 <div class="contents">
 <div class="toc"><h3>Table of Contents</h3>
-<ul><li class="level1"><a href="#unixinst">Install in Linux/MacOS</a><ul><li class="level2"><a href="#cinlinux">Linux:</a></li>
-<li class="level2"><a href="#cinmac">MacOS:</a></li>
-<li class="level2"><a href="#compile">Compile the library:</a><ul><li class="level3"><a href="#docbuild">Building the documentation</a></li>
+<ul><li class="level1"><a href="#unixinst">Install in Linux/MacOS</a><ul><li class="level2"><a href="#cinlinux">Dependencies on Linux:</a></li>
+<li class="level2"><a href="#cinmac">Dependencies on MacOS:</a></li>
+<li class="level2"><a href="#compile">Compile the library with default configuration (C++):</a><ul><li class="level3"><a href="#docbuild">Building the documentation</a></li>
 </ul>
 </li>
 <li class="level2"><a href="#instpython">Python interface:</a><ul><li class="level3"><a href="#notepython">Issues with multiple Python versions:</a></li>
@@ -105,15 +105,13 @@ $(document).ready(function(){initNavTree('install.html','');});
 </ul>
 </li>
 <li class="level1"><a href="#testing">Test the installation.</a></li>
-<li class="level1"><a href="#confinst">Configure the compilation/install</a><ul><li class="level2"><a href="#instshared">Compile as shared libraries</a></li>
+<li class="level1"><a href="#confinst">Advanced configuration for compilation/install</a><ul><li class="level2"><a href="#instshared">Compile as shared libraries</a></li>
 <li class="level2"><a href="#instpath">Install the library in a different path</a></li>
 <li class="level2"><a href="#mininst">Minimal installation (fast compilation)</a></li>
 </ul>
 </li>
 <li class="level1"><a href="#getDepend">Dependencies</a></li>
-<li class="level1"><a href="#comptests">Compatibility tests</a><ul><li class="level2"><a href="#notetests">Notes on tested systems:</a></li>
-</ul>
-</li>
+<li class="level1"><a href="#comptests">Compatibility tests</a></li>
 </ul>
 </div>
 <div class="textblock"><p>The core of BayesOpt uses standard C/C++ code (C++98) so it can be compiled from many C++ compilers (gcc, clang, MSVC...). The library also include wrappers for Python, Matlab and Octave interfaces.</p>
@@ -122,38 +120,47 @@ $(document).ready(function(){initNavTree('install.html','');});
 <li><a class="el" href="install.html#cinwin">Install in Windows and other systems</a></li>
 </ul>
 <p>Once you have installed the library with your desired interface, you can <a class="el" href="install.html#testing">Test the installation.</a></p>
-<p>For an advanced installation, you can read <a class="el" href="install.html#confinst">Configure the compilation/install</a> and you can get a detailed explanation of the dependencies needed in <a class="el" href="install.html#getDepend">Dependencies</a>.</p>
+<p>For an advanced installation, you can read <a class="el" href="install.html#confinst">Advanced configuration for compilation/install</a> and you can get a detailed explanation of the dependencies needed in <a class="el" href="install.html#getDepend">Dependencies</a>.</p>
 <hr/>
 <h1><a class="anchor" id="unixinst"></a>
 Install in Linux/MacOS</h1>
-<p>The compilation is very similar in any *nix system. Following these instructions, the library will be compiled using the default configuration. You can modify that easily as explained in <a class="el" href="install.html#confinst">Configure the compilation/install</a></p>
+<p>The compilation is very similar in any *nix system. Following these instructions, the library will be compiled using the default configuration. You can modify that easily as explained in <a class="el" href="install.html#confinst">Advanced configuration for compilation/install</a></p>
 <h2><a class="anchor" id="cinlinux"></a>
-Linux:</h2>
-<p>For Ubuntu/Debian, the minimum dependencies (C/C++) can be optained by running: </p><pre class="fragment">&gt;&gt; sudo apt-get install libboost-dev cmake cmake-curses-gui g++
-</pre><p>If you want the Python interface: </p><pre class="fragment">&gt;&gt; sudo apt-get install python-dev python-numpy
-</pre><p>If you want the Octave interface (note that the <em>octave</em> package does not include all the necessary files): </p><pre class="fragment">&gt;&gt; sudo apt-get install octave-headers
-</pre><p>And for all dependencies: </p><pre class="fragment">&gt;&gt; sudo apt-get install libboost-dev python-dev python-numpy cmake cmake-curses-gui g++ cython octave-headers freeglut3-dev
+Dependencies on Linux:</h2>
+<p>For Ubuntu/Debian, the minimum dependencies (C/C++) can be optained by running: </p><pre class="fragment">&gt;&gt; sudo apt install libboost-dev cmake g++
+</pre><p>If you want the Python interface or the Octave interface (note that the <em>octave</em> package does not include all the necessary files): </p><pre class="fragment">&gt;&gt; sudo apt install python-dev python-numpy
+&gt;&gt; sudo apt install octave liboctave-dev
+</pre><p> You can also install the Python dependencies using your favorite package manager (conda, virtualenv+pip).</p>
+<p>You might also want to install the packages for interactive cmake, or GLUT to run the examples with plots: </p><pre class="fragment">&gt;&gt; sudo apt install cmake-curses-gui
+&gt;&gt; sudo apt install freeglut3-dev
+</pre><p>And for all dependencies: </p><pre class="fragment">&gt;&gt; sudo apt install libboost-dev python-dev python-numpy cmake cmake-curses-gui g++ cython octave liboctave-dev freeglut3-dev
 </pre><h2><a class="anchor" id="cinmac"></a>
-MacOS:</h2>
-<p>This section assumes <b>macports</b> is installed. Similar packages can be found in <b>fink</b> or <b>homebrew</b>. For the minimal install, run: </p><pre class="fragment">&gt;&gt; sudo port install boost gcc47 cmake
-</pre><p>If you want the Python interface: </p><pre class="fragment">&gt;&gt; sudo port install python27 py27-numpy
-</pre><p>If you want the Octave interface: </p><pre class="fragment">&gt;&gt; sudo port install octave
-</pre><p>Again, for all dependencies: </p><pre class="fragment">&gt;&gt; sudo port install boost python27 py27-numpy gcc47 cmake py27-cython octave freeglut
+Dependencies on MacOS:</h2>
+<p>This section assumes <b>homebrew</b> is installed. Similar packages can be found in <b>fink</b> or <b>macports</b>. We also assume that a suitable C++ compiler is installed. For example, Xcode. For the minimal install, run: </p><pre class="fragment">&gt;&gt; brew install boost cmake
+</pre><p>If you want the Python interface or the Octave interface: </p><pre class="fragment">&gt;&gt; brew install python numpy
+&gt;&gt; brew install octave
+</pre><p> You can also install the Python dependencies using your favorite package manager (conda, pip...) or use the native Python interpreter in MacOS. BayesOpt can also be installed in Python environments (conda, virtualenv...).</p>
+<p>And for all dependencies: </p><pre class="fragment">&gt;&gt; brew install boost python numpy cmake cython octave freeglut
 </pre><h2><a class="anchor" id="compile"></a>
-Compile the library:</h2>
+Compile the library with default configuration (C++):</h2>
 <p>In order to compile the source code in a *nix system, run this from a terminal. </p><pre class="fragment">&gt;&gt; cmake . 
 &gt;&gt; make
 &gt;&gt; sudo make install
-</pre><p><b>Important:</b> If you use <b>ccmake</b> instead of <b>cmake</b> you will access a graphical interface to select features such as the include the Python and Matlab interfaces, debug/release mode or if you want to use shared libraries or not. More details about how to configure it can be found in <a class="el" href="install.html#confinst">Configure the compilation/install</a></p>
+</pre><p><b>Important:</b> If you use <b>ccmake</b> instead of <b>cmake</b> you will access a graphical interface to select features such as the include the Python and Matlab interfaces, debug/release mode or if you want to use shared libraries or not. More details about how to configure it can be found in <a class="el" href="install.html#confinst">Advanced configuration for compilation/install</a></p>
 <h3><a class="anchor" id="docbuild"></a>
 Building the documentation</h3>
 <p>If you have doxygen installed on your computer, you can compile the documentation right after compiling the code by running. </p><pre class="fragment">&gt;&gt; make doc
 </pre><p> Thid documentation will appear in the "doc" subdirectory.</p>
 <h2><a class="anchor" id="instpython"></a>
 Python interface:</h2>
-<p>Both Python development files (Python.h) and Numpy are needed if you want the python interface. The library has been tested with Python 2.5, 2.6 and 2.7. The interface relies on Numpy arrays. If we want to select the option to compile the Python interface we can just run: </p><pre class="fragment">&gt;&gt; cmake -DBAYESOPT_PYTHON_INTERFACE=ON . 
-</pre><p> or </p><pre class="fragment">&gt;&gt; ccmake . 
-</pre><p> and select the corresponding option.</p>
+<p>Both Python header files (Python.h) and Numpy are needed if you want the python interface. The library has been tested with Python 2 and</p><ol type="1">
+<li>If we want to select the option to compile the Python interface we can just run:</li>
+</ol>
+<pre class="fragment">&gt;&gt; cmake -DBAYESOPT_PYTHON_INTERFACE=ON .
+&gt;&gt; make
+&gt;&gt; sudo make install
+</pre><p>As commented before, the option BAYESOPT_PYTHON_INTERFACE=ON can also be set using </p><pre class="fragment">&gt;&gt; ccmake .
+</pre><p>You can use and install BayesOpt in a Python environment (conda, virtualenv, pyenv, etc.). It just need to be activated before calling cmake or ccmake. You can check that the correct install path has been found using ccmake. Then, press "t" to select advanced features.</p>
 <p><b>Important:</b> Python requires a special module with shared access and nonstandard name. Thus, it will build a separate module called "bayesopt.so". This module can be accessible from Python provided that it is in the PYTHONPATH or sys.path. It cannot be linked to any executable or other libraries. Use libbayesopt.* instead.</p>
 <h3><a class="anchor" id="notepython"></a>
 Issues with multiple Python versions:</h3>
@@ -195,16 +202,16 @@ Install in Windows and other systems</h1>
 <p>Install this components: </p><ul>
 <li>CMake: <a href="http://www.cmake.org">http://www.cmake.org</a> </li>
 <li>Boost: <a href="http://www.boost.org">http://www.boost.org</a> </li>
-<li>MinGW(optional): <a href="http://www.mingw.org">http://www.mingw.org</a> </li>
+<li>A C++ compiler. For example, Visual Studio or MinGW: <a href="http://mingw-w64.org/">http://mingw-w64.org/</a> </li>
 <li>FreeGLUT(optional): <a href="http://freeglut.sourceforge.net/">http://freeglut.sourceforge.net/</a></li>
 </ul>
 <p>First, you need to compile the library from sources using a C++ compiler. If you do not have a C++ compiler, we recomend MinGW+MSYS. In order to configure the compiler and link the dependencies we recomend CMake.</p>
 <p>CMake for Windows provides a nice GUI where you can select your favorite C++ compiler (MinGW, Visual Studio, etc.). It will automatically create the necesary configuration files for the compiler (makefile, solution, etc.). In CMake you need to set the paths of the Boost and FreeGLUT to allow the compiler to find them.</p>
-<p>Since Boost they are pure template libraries, they do not require any install/compilation steps in advance. Just make sure the headers are on the include path. You can also add an entry named BOOST_ROOT in CMake with the corresponding path to the library.</p>
+<p>Since Boost are pure template libraries, they do not require any install/compilation steps in advance. Just make sure the headers are on the include path. You can also add an entry named BOOST_ROOT in CMake with the corresponding path to the library.</p>
 <p>Once CMake have generated the corresponding configuration file, you still need to compile the sources. If you use MinGW, just run: </p><pre class="fragment">&gt;&gt; mingw32-make
 </pre><p> from the Command Prompt or PowerShell.</p>
 <p>If you use Visual Studio, make sure the compilation is set to Release mode and not Debug mode. Although the mode is defined in CMake, Visual Studio tends to ignore that.</p>
-<p>The most important options/variables are explained in <a class="el" href="install.html#confinst">Configure the compilation/install</a>.</p>
+<p>The most important options/variables are explained in <a class="el" href="install.html#confinst">Advanced configuration for compilation/install</a>.</p>
 <h2><a class="anchor" id="instmatlabwin"></a>
 MATLAB/Octave interface:</h2>
 <p>Make sure the library is compiled with the MATLAB_COMPATIBLE option and configure Matlab/Octave to compile mex files. For example, in Matlab you can run to check the supported compilers: </p><pre class="fragment">&gt;&gt; mex -setup
@@ -213,11 +220,11 @@ MATLAB/Octave interface:</h2>
 <p><b>Important:</b> It is strongly recommended to compile bayesopt with exactly the same compiler that was select for mex files. For a list of the supported compilers for your Matlab version, you can check the online docs at mathworks.</p>
 <h3><a class="anchor" id="matlabmingw"></a>
 MATLAB and MinGW</h3>
-<p>Unfortunately, MinGW has never been suported by Matlab. Thus I have also included a Makefile to generate the mex files outside Matlab. You might need to change the <code>MATLABROOT</code> path with the root folder of your Matlab install and copy the dlls. Then, run <code>mingw32-make</code>. Note that <code>mingw32-make</code> only supports 32 bits libraries, so you need a 32 bit version of Matlab. There is a fork of MinGW with 64 bit support under development, but it has not been tested here.</p>
+<p>Although it might not be needed, I have also included a Makefile to generate the mex files outside Matlab. You might need to change the <code>MATLABROOT</code> path with the root folder of your Matlab install and copy the dlls. Then, run <code>mingw32-make</code>.</p>
 <h2><a class="anchor" id="instpythonwin"></a>
 Python interface:</h2>
 <p>The Python interface has not been tested in <b>Windows</b> because getting the correct dependencies is highly involved. You might need to download and install: </p><ul>
-<li>Python (binary and <b>sources</b>): <a href="http://www.python.org">http://www.python.org</a> </li>
+<li>Python (binary and <b>headers</b>): <a href="http://www.python.org">http://www.python.org</a> </li>
 <li>Numpy: <a href="http://new.scipy.org/download.html">http://new.scipy.org/download.html</a></li>
 </ul>
 <p>Also, read this article about how to link everything: <a href="http://docs.python.org/2/extending/windows.html#building-on-windows">http://docs.python.org/2/extending/windows.html#building-on-windows</a></p>
@@ -253,7 +260,7 @@ Matlab/Octave: the scrip <b>runtest</b> also is configured to run different sets
 </ol>
 <hr/>
 <h1><a class="anchor" id="confinst"></a>
-Configure the compilation/install</h1>
+Advanced configuration for compilation/install</h1>
 <p>CMake allows to configure the compilation using some variables (see for example how to compile the Python module in Linux). These variables can be set in Linux/MacOS from the command line with the -D flag: </p><pre class="fragment">&gt;&gt; cmake -DVARIABLE=VALUE .
 </pre><p> For example </p><pre class="fragment">&gt;&gt; cmake -DCMAKE_BUILD_TYPE=Debug .
 </pre><p>If you use ccmake in Linux/MacOS or CMake for Windows, you can access to a list of all the variables and their values. Just modify the value of the desired variable.</p>
@@ -288,37 +295,19 @@ Compatibility tests</h1>
 <tr>
 <td>C/C++ </td><td>OK </td><td>OK </td><td>OK </td><td>OK </td></tr>
 <tr>
-<td>Matlab </td><td>OK </td><td>OK </td><td>OK (32 bits) </td><td>OK </td></tr>
+<td>Matlab </td><td>OK </td><td>OK </td><td>OK </td><td>OK </td></tr>
 <tr>
 <td>Octave </td><td>OK </td><td>OK </td><td>No test </td><td>No test </td></tr>
 <tr>
-<td>Python </td><td>OK </td><td>OK </td><td>No test </td><td>No test </td></tr>
+<td>Python2/3 </td><td>OK </td><td>OK </td><td>No test </td><td>No test </td></tr>
 </table>
-<h2><a class="anchor" id="notetests"></a>
-Notes on tested systems:</h2>
-<ul>
-<li>Linux: Debian 6.0, Ubuntu from 11.04</li>
-<li>MacOS: 10.6 (Snow Leopard)</li>
-<li>MS Windows: XP, Vista, 7</li>
-</ul>
-<p>Compilers:</p><ul>
-<li>gcc: different versions from 4.1</li>
-<li>clang: version 2.7</li>
-<li>MinGW: version from 0.5</li>
-<li>MSVC: Visual Studio Professional 2012, Express 2010-2012</li>
-</ul>
-<p>Interfaces</p><ul>
-<li>Matlab from 2010a</li>
-<li>Octave from version 3.2</li>
-<li>Python from version 2.5 (not tested on Python 3) </li>
-</ul>
 </div></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="reference.html">Reference Manual</a></li>
-    <li class="footer">Generated on Fri Dec 20 2019 18:57:39 for BayesOpt by
+    <li class="footer">Generated on Fri May 15 2020 01:58:42 for BayesOpt by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.13 </li>
   </ul>

@@ -1,15 +1,5 @@
 var NAVTREEINDEX1 =
 {
-"classbayesopt_1_1BayesOptBase.html#ab0a5b0c0e91f0aabc635f3a9bb0cec2f":[3,0,2,9],
-"classbayesopt_1_1BayesOptBase.html#ab131070fea9a7dff8688312f300b597a":[3,0,2,13],
-"classbayesopt_1_1BayesOptBase.html#ab193afe82c59e4a18e868eeedc5f999c":[3,0,2,21],
-"classbayesopt_1_1BayesOptBase.html#ab46a87130c3c80b90d0750f0cba86236":[3,0,2,15],
-"classbayesopt_1_1BayesOptBase.html#ab7793eef419ae17d57dc2953471b0ebe":[3,0,2,19],
-"classbayesopt_1_1BayesOptBase.html#aba117ae3e3ecd856d3deca23846883bd":[3,0,2,2],
-"classbayesopt_1_1BayesOptBase.html#ac9803db80045fe77835ba8ee4fe6086b":[3,0,2,14],
-"classbayesopt_1_1BayesOptBase.html#ada87a62dcd2660fdf4ad649df030f72b":[3,0,2,12],
-"classbayesopt_1_1BayesOptBase.html#adcbdd1bc505110d88af7c3f940455147":[3,0,2,33],
-"classbayesopt_1_1BayesOptBase.html#af30982bd3d293e034d6d1e6aeca0e531":[3,0,2,22],
 "classbayesopt_1_1BayesOptBase.html#af56a22fb7bb136597fc39e730a5f8ce9":[3,0,2,32],
 "classbayesopt_1_1BayesOptBase.html#af71ad0ee42d4ef833745102c08b04dfc":[3,0,2,25],
 "classbayesopt_1_1BayesOptBase.html#afc567526d710fa24aceb70fbafa193ad":[3,0,2,11],
@@ -249,5 +239,15 @@ var NAVTREEINDEX1 =
 "classbayesopt_1_1InputDistance.html":[3,2,2],
 "classbayesopt_1_1InputDistance.html#a339f5774354367193d7feb73dfcec6d4":[3,2,2,0],
 "classbayesopt_1_1InputDistance.html#a59c761ab42b275f81fd3dc4f3c757bff":[3,2,2,3],
-"classbayesopt_1_1InputDistance.html#a5a156cfa1cb24cbd2b448f3a156818d2":[3,2,2,1]
+"classbayesopt_1_1InputDistance.html#a5a156cfa1cb24cbd2b448f3a156818d2":[3,2,2,1],
+"classbayesopt_1_1InputDistance.html#a7dd3e24ed23f9ef4bb512d8677616b72":[3,2,2,5],
+"classbayesopt_1_1InputDistance.html#aaf3575b19c3fe92886181ecc09ac58c3":[3,2,2,4],
+"classbayesopt_1_1InputDistance.html#ad3ca5fbb292dbda525917ab77d98232b":[3,2,2,6],
+"classbayesopt_1_1InputDistance.html#aef6dabcdedee48e3678536d06cb02556":[3,2,2,2],
+"classbayesopt_1_1Kernel.html":[3,3,0],
+"classbayesopt_1_1Kernel.html#a39e2ad2864d5a138c658aa6ce4f5eaee":[3,3,0,8],
+"classbayesopt_1_1Kernel.html#a3f60a77aee1368627c83ab80060f7d20":[3,3,0,3],
+"classbayesopt_1_1Kernel.html#a4568eb2c92e93b993f83fa60743a3e07":[3,3,0,2],
+"classbayesopt_1_1Kernel.html#a5f671bfbc383434fb744d051770b68cb":[3,3,0,0],
+"classbayesopt_1_1Kernel.html#a899d4fd995b5839c4b21ab95afabc2f9":[3,3,0,5]
 };

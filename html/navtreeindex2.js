@@ -1,15 +1,5 @@
 var NAVTREEINDEX2 =
 {
-"classbayesopt_1_1InputDistance.html#a7dd3e24ed23f9ef4bb512d8677616b72":[3,2,2,5],
-"classbayesopt_1_1InputDistance.html#aaf3575b19c3fe92886181ecc09ac58c3":[3,2,2,4],
-"classbayesopt_1_1InputDistance.html#ad3ca5fbb292dbda525917ab77d98232b":[3,2,2,6],
-"classbayesopt_1_1InputDistance.html#aef6dabcdedee48e3678536d06cb02556":[3,2,2,2],
-"classbayesopt_1_1Kernel.html":[3,3,0],
-"classbayesopt_1_1Kernel.html#a39e2ad2864d5a138c658aa6ce4f5eaee":[3,3,0,8],
-"classbayesopt_1_1Kernel.html#a3f60a77aee1368627c83ab80060f7d20":[3,3,0,3],
-"classbayesopt_1_1Kernel.html#a4568eb2c92e93b993f83fa60743a3e07":[3,3,0,2],
-"classbayesopt_1_1Kernel.html#a5f671bfbc383434fb744d051770b68cb":[3,3,0,0],
-"classbayesopt_1_1Kernel.html#a899d4fd995b5839c4b21ab95afabc2f9":[3,3,0,5],
 "classbayesopt_1_1Kernel.html#a944084a2beb15dcbad11857ade90eba3":[3,3,0,4],
 "classbayesopt_1_1Kernel.html#ab4498661070a8ed4c9c3dcffef57532d":[3,3,0,1],
 "classbayesopt_1_1Kernel.html#acb0023f0fbd047e4937cd941e09040f3":[3,3,0,7],
@@ -249,5 +239,15 @@ var NAVTREEINDEX2 =
 "classbayesopt_1_1Parameters.html#a6bf48227fd929cfcb53191a9f1ec4763":[5,0,0,63,6],
 "classbayesopt_1_1Parameters.html#a87233fb2798d0ab6222c0cab5caadc0a":[5,0,0,63,7],
 "classbayesopt_1_1Parameters.html#a97d7db32e25a4a2c7c7e07cad504e207":[5,0,0,63,27],
-"classbayesopt_1_1Parameters.html#aa7b118fafefdc3b4dca4d0e2a92c384d":[5,0,0,63,1]
+"classbayesopt_1_1Parameters.html#aa7b118fafefdc3b4dca4d0e2a92c384d":[5,0,0,63,1],
+"classbayesopt_1_1Parameters.html#ab933b16dc516a7e0f2ecc3e5042fa980":[5,0,0,63,9],
+"classbayesopt_1_1Parameters.html#abbce625a77c6669d29550535ef3131c3":[5,0,0,63,11],
+"classbayesopt_1_1Parameters.html#ac39624b3b0e96e9b82eb2e4d12f58f2c":[5,0,0,63,8],
+"classbayesopt_1_1Parameters.html#acabdf32ff0f2406702ee53dbfef91395":[5,0,0,63,23],
+"classbayesopt_1_1Parameters.html#acd0a1f4d36623dca40af08d6fdff6e05":[5,0,0,63,22],
+"classbayesopt_1_1Parameters.html#ad0dd8fa8f96fbfada53c4ec07a117c0f":[5,0,0,63,31],
+"classbayesopt_1_1Parameters.html#ad51e56fe5a1cbf2e739511f4901a843e":[5,0,0,63,15],
+"classbayesopt_1_1Parameters.html#ad775352a9667a50e5de17a2f25164823":[5,0,0,63,20],
+"classbayesopt_1_1Parameters.html#ae3ab768c97524f897a1f96f5d5985ade":[5,0,0,63,3],
+"classbayesopt_1_1Parameters.html#ae789441c19b6f15ed4839f3450276c09":[5,0,0,63,24]
 };

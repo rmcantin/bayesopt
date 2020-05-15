@@ -1,5 +1,0 @@
-<map id="bayesopt::Polynomial2" name="bayesopt::Polynomial2">
-<area shape="rect" id="node2" href="$classbayesopt_1_1Polynomial.html" title="Polynomial covariance function. " alt="" coords="13,155,159,181"/>
-<area shape="rect" id="node3" href="$classbayesopt_1_1AtomicKernel.html" title="Abstract class for an atomic kernel. " alt="" coords="5,80,167,107"/>
-<area shape="rect" id="node4" href="$classbayesopt_1_1Kernel.html" title="Interface for kernel functors. " alt="" coords="26,5,146,32"/>
-</map>

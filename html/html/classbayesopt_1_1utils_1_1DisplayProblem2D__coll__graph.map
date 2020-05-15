@@ -1,8 +1,0 @@
-<map id="bayesopt::utils::DisplayProblem2D" name="bayesopt::utils::DisplayProblem2D">
-<area shape="rect" id="node5" href="$classbayesopt_1_1BayesOptBase.html" title="Abstract module for Bayesian optimization. " alt="" coords="903,288,1073,315"/>
-<area shape="rect" id="node6" href="$classbayesopt_1_1Parameters.html" title="bayesopt::Parameters" alt="" coords="621,288,772,315"/>
-<area shape="rect" id="node7" href="$classbayesopt_1_1MeanParameters.html" title="bayesopt::MeanParameters" alt="" coords="349,288,531,315"/>
-<area shape="rect" id="node8" title="STL class. " alt="" coords="181,288,261,315"/>
-<area shape="rect" id="node10" href="$classbayesopt_1_1KernelParameters.html" title="bayesopt::KernelParameters" alt="" coords="347,339,533,365"/>
-<area shape="rect" id="node9" title="STL class. " alt="" coords="5,281,132,322"/>
-</map>

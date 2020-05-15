@@ -1,8 +1,0 @@
-<map id="student_t_distribution.hpp" name="student_t_distribution.hpp">
-<area shape="rect" id="node2" href="$student__t__process__jef_8hpp.html" title="Student T process with Jeffreys priors. " alt="" coords="77,80,252,107"/>
-<area shape="rect" id="node5" href="$student__t__process__nig_8hpp.html" title="Student&#39;s t process with Normal&#45;Inverse&#45;Gamma hyperprior on mean and signal variance parameters..." alt="" coords="277,80,455,107"/>
-<area shape="rect" id="node6" href="$student__t__process__nig_8cpp_source.html" title="student_t_process_nig.cpp" alt="" coords="403,155,582,181"/>
-<area shape="rect" id="node7" href="$student__t__distribution_8cpp_source.html" title="student_t_distribution.cpp" alt="" coords="530,80,701,107"/>
-<area shape="rect" id="node3" href="$nonparametricprocess_8cpp_source.html" title="nonparametricprocess.cpp" alt="" coords="204,155,379,181"/>
-<area shape="rect" id="node4" href="$student__t__process__jef_8cpp_source.html" title="student_t_process_jef.cpp" alt="" coords="5,155,180,181"/>
-</map>

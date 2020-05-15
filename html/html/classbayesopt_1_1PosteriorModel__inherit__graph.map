@@ -1,5 +1,0 @@
-<map id="bayesopt::PosteriorModel" name="bayesopt::PosteriorModel">
-<area shape="rect" id="node2" href="$classbayesopt_1_1EmpiricalBayes.html" title="Bayesian optimization using different non&#45;parametric processes as distributions over surrogate functi..." alt="" coords="5,80,180,107"/>
-<area shape="rect" id="node3" href="$classbayesopt_1_1MCMCModel.html" title="Posterior model of nonparametric processes/criteria based on MCMC samples. " alt="" coords="205,80,365,107"/>
-<area shape="rect" id="node4" href="$classbayesopt_1_1PosteriorFixed.html" title="Bayesian optimization using different non&#45;parametric processes as distributions over surrogate functi..." alt="" coords="389,80,556,107"/>
-</map>

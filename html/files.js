@@ -70,7 +70,6 @@ var files =
     [ "demo_quad.py", "demo__quad_8py_source.html", null ],
     [ "demo_rembo.m", "demo__rembo_8m_source.html", null ],
     [ "demo_test.m", "demo__test_8m_source.html", null ],
-    [ "determineNumpyPath.py", "determineNumpyPath_8py_source.html", null ],
     [ "displaygp.cpp", "displaygp_8cpp_source.html", null ],
     [ "displaygp.hpp", "displaygp_8hpp.html", "displaygp_8hpp" ],
     [ "dll_stuff.h", "dll__stuff_8h_source.html", null ],
@@ -98,15 +97,6 @@ var files =
     [ "gpmltest.m", "gpmltest_8m_source.html", null ],
     [ "gridsampling.hpp", "gridsampling_8hpp.html", "gridsampling_8hpp" ],
     [ "hartmann.m", "hartmann_8m_source.html", null ],
-    [ "HAVE_INTTYPES_H.c", "HAVE__INTTYPES__H_8c_source.html", null ],
-    [ "HAVE_MEMORY_H.c", "HAVE__MEMORY__H_8c_source.html", null ],
-    [ "HAVE_STDINT_H.c", "HAVE__STDINT__H_8c_source.html", null ],
-    [ "HAVE_STDLIB_H.c", "HAVE__STDLIB__H_8c_source.html", null ],
-    [ "HAVE_STRING_H.c", "HAVE__STRING__H_8c_source.html", null ],
-    [ "HAVE_STRINGS_H.c", "HAVE__STRINGS__H_8c_source.html", null ],
-    [ "HAVE_SYS_STAT_H.c", "HAVE__SYS__STAT__H_8c_source.html", null ],
-    [ "HAVE_SYS_TYPES_H.c", "HAVE__SYS__TYPES__H_8c_source.html", null ],
-    [ "HAVE_UNISTD_H.c", "HAVE__UNISTD__H_8c_source.html", null ],
     [ "indexvector.hpp", "indexvector_8hpp.html", "indexvector_8hpp" ],
     [ "inneroptimization.cpp", "inneroptimization_8cpp_source.html", null ],
     [ "inneroptimization.hpp", "inneroptimization_8hpp.html", "inneroptimization_8hpp" ],
@@ -185,6 +175,5 @@ var files =
     [ "ublas_elementwise.hpp", "ublas__elementwise_8hpp.html", "ublas__elementwise_8hpp" ],
     [ "ublas_extra.cpp", "ublas__extra_8cpp_source.html", null ],
     [ "ublas_extra.hpp", "ublas__extra_8hpp.html", "ublas__extra_8hpp" ],
-    [ "ublas_trace.hpp", "ublas__trace_8hpp_source.html", null ],
-    [ "UINT32_T.c", "UINT32__T_8c_source.html", null ]
+    [ "ublas_trace.hpp", "ublas__trace_8hpp_source.html", null ]
 ];

@@ -38,12 +38,12 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 ".html",
-"classbayesopt_1_1BayesOptBase.html#ab0a5b0c0e91f0aabc635f3a9bb0cec2f",
-"classbayesopt_1_1InputDistance.html#a7dd3e24ed23f9ef4bb512d8677616b72",
-"classbayesopt_1_1Parameters.html#ab933b16dc516a7e0f2ecc3e5042fa980",
-"classbayesopt_1_1utils_1_1FileParser.html#aa07bb266fe49e8adf53b215e9c2c37df",
-"group__NonParametricProcesses.html#ga43b0accf7de18836411a27f9b629b41a",
-"structbopt__params.html#aa615044a69e7575ea6a1c0b14d0a2aec"
+"classbayesopt_1_1BayesOptBase.html#af56a22fb7bb136597fc39e730a5f8ce9",
+"classbayesopt_1_1Kernel.html#a944084a2beb15dcbad11857ade90eba3",
+"classbayesopt_1_1Parameters.html#aedb9f79137ee14b4445890da4ff7c98a",
+"classbayesopt_1_1utils_1_1FileParser.html#af2d5c1448c18edc9cc3e2a0032e8832a",
+"group__NonParametricProcesses.html#gaa5064b36c999516f8ff04129d2de0247",
+"structkernel__parameters.html#a154d2ecd4f50817bf0fac9af2f36fe31"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

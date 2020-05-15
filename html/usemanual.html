@@ -241,7 +241,7 @@ Exploration/exploitation parameters</h2>
 <ul>
 <li><b>crit_name:</b> Name of the sample selection criterion or a combination of them. It is used to select which points to evaluate for each iteration of the optimization process. Could be a combination of functions like "cHedge(cEI,cLCB,cPOI,cThompsonSampling)". See section <a class="el" href="bopttheory.html#critmod">Selection criteria</a> for the different possibilities. [Default: "cEI"]</li>
 <li><b>crit_params</b>, (n_crit_params): Array with the set of parameters for the selected criteria. If there are more than one criterion, the parameters are split among them according to the number of parameters required for each criterion. If the vector is empty or n_crit_params is 0, then the default parameters are selected for each criteria. [Default: crit_params = []]. For C, the array needs a size variable <b>n_crit_params</b>. In this case, default: n_crit_params = 0.</li>
-<li><b>epsilon:</b> According to some authors <a class="el" href="citelist.html#CITEREF_Bull2011">[3]</a>, it is recommendable to include an epsilon-greedy strategy to achieve near optimal convergence rates. Epsilon is the probability of performing a random (blind) evaluation of the target function. Higher values implies forced exploration while lower values relies more on the exploration/exploitation policy of the criterion [Default 0.0 (epsilon-greedy disabled)]</li>
+<li><b>epsilon:</b> According to some authors <b>[Bull2011]</b>, it is recommendable to include an epsilon-greedy strategy to achieve near optimal convergence rates. Epsilon is the probability of performing a random (blind) evaluation of the target function. Higher values implies forced exploration while lower values relies more on the exploration/exploitation policy of the criterion [Default 0.0 (epsilon-greedy disabled)]</li>
 <li><b>force-jump</b>: Sometimes, specially when the number of initial points is too small, the learned model might be wrong and the optimization get stuck. Forced jumps measure the number of iterations where the difference between consecutive observations is smaller than the expected noise. Thus, we assume that any gain is pure noise and we could get more information somewhere else. This parameter sets the number of iterations with no gain before doing a random jump. If the parameter is 0, then this is disable. [Default 20]</li>
 </ul>
 <h2><a class="anchor" id="surrpar"></a>
@@ -302,7 +302,7 @@ Load/Save data parameters</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="reference.html">Reference Manual</a></li>
-    <li class="footer">Generated on Fri Dec 20 2019 18:57:39 for BayesOpt by
+    <li class="footer">Generated on Fri May 15 2020 01:58:42 for BayesOpt by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.13 </li>
   </ul>

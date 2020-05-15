@@ -1,8 +1,0 @@
-<map id="bayesopt::ARDkernel" name="bayesopt::ARDkernel">
-<area shape="rect" id="node4" href="$classbayesopt_1_1MaternARD1.html" title="Matern ARD kernel of 1st order. " alt="" coords="5,229,164,256"/>
-<area shape="rect" id="node5" href="$classbayesopt_1_1MaternARD3.html" title="Matern ARD kernel of 3rd order. " alt="" coords="188,229,347,256"/>
-<area shape="rect" id="node6" href="$classbayesopt_1_1MaternARD5.html" title="Matern ARD kernel of 5th order. " alt="" coords="371,229,529,256"/>
-<area shape="rect" id="node7" href="$classbayesopt_1_1SEArd.html" title="Square exponential (Gaussian) kernel. " alt="" coords="553,229,675,256"/>
-<area shape="rect" id="node2" href="$classbayesopt_1_1AtomicKernel.html" title="Abstract class for an atomic kernel. " alt="" coords="277,80,439,107"/>
-<area shape="rect" id="node3" href="$classbayesopt_1_1Kernel.html" title="Interface for kernel functors. " alt="" coords="298,5,418,32"/>
-</map>

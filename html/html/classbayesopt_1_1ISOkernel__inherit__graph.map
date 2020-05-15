@@ -1,9 +1,0 @@
-<map id="bayesopt::ISOkernel" name="bayesopt::ISOkernel">
-<area shape="rect" id="node4" href="$classbayesopt_1_1MaternIso1.html" title="Matern isotropic kernel of 1st order. " alt="" coords="572,5,720,32"/>
-<area shape="rect" id="node5" href="$classbayesopt_1_1MaternIso3.html" title="Matern kernel of 3rd order. " alt="" coords="572,56,720,83"/>
-<area shape="rect" id="node6" href="$classbayesopt_1_1MaternIso5.html" title="Matern isotropic kernel of 5th order. " alt="" coords="572,107,720,133"/>
-<area shape="rect" id="node7" href="$classbayesopt_1_1RQIso.html" title="Rational quadratic (Student&#39;s t) kernel. " alt="" coords="585,157,707,184"/>
-<area shape="rect" id="node8" href="$classbayesopt_1_1SEIso.html" title="Square exponential (Gaussian) kernel. " alt="" coords="587,208,705,235"/>
-<area shape="rect" id="node2" href="$classbayesopt_1_1AtomicKernel.html" title="Abstract class for an atomic kernel. " alt="" coords="173,107,335,133"/>
-<area shape="rect" id="node3" href="$classbayesopt_1_1Kernel.html" title="Interface for kernel functors. " alt="" coords="5,107,125,133"/>
-</map>

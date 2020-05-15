@@ -2,9 +2,9 @@ var reference =
 [
     [ "Installing BayesOpt", "install.html", [
       [ "Install in Linux/MacOS", "install.html#unixinst", [
-        [ "Linux:", "install.html#cinlinux", null ],
-        [ "MacOS:", "install.html#cinmac", null ],
-        [ "Compile the library:", "install.html#compile", [
+        [ "Dependencies on Linux:", "install.html#cinlinux", null ],
+        [ "Dependencies on MacOS:", "install.html#cinmac", null ],
+        [ "Compile the library with default configuration (C++):", "install.html#compile", [
           [ "Building the documentation", "install.html#docbuild", null ]
         ] ],
         [ "Python interface:", "install.html#instpython", [
@@ -22,15 +22,13 @@ var reference =
         [ "Python interface:", "install.html#instpythonwin", null ]
       ] ],
       [ "Test the installation.", "install.html#testing", null ],
-      [ "Configure the compilation/install", "install.html#confinst", [
+      [ "Advanced configuration for compilation/install", "install.html#confinst", [
         [ "Compile as shared libraries", "install.html#instshared", null ],
         [ "Install the library in a different path", "install.html#instpath", null ],
         [ "Minimal installation (fast compilation)", "install.html#mininst", null ]
       ] ],
       [ "Dependencies", "install.html#getDepend", null ],
-      [ "Compatibility tests", "install.html#comptests", [
-        [ "Notes on tested systems:", "install.html#notetests", null ]
-      ] ]
+      [ "Compatibility tests", "install.html#comptests", null ]
     ] ],
     [ "Using the library", "usemanual.html", [
       [ "Running your own problems.", "usemanual.html#running", null ],

@@ -52,7 +52,7 @@ namespace bayesopt
       {
       case 0: FILELog::ReportingLevel() = logWARNING; break;
       case 1: FILELog::ReportingLevel() = logINFO; break;
-      case 2: FILELog::ReportingLevel() = logDEBUG4; break;
+      case 2: FILELog::ReportingLevel() = logDEBUG; break;
       default:
 	FILELog::ReportingLevel() = logERROR; break;
       }
